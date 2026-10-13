@@ -35,6 +35,8 @@ MIN_KERZEN = 30
 
 # Wechselkurs bei Yahoo: Dollar je 1 Euro
 FX_TICKER = "EURUSD=X"
+# Börsenendungen bei Yahoo, deren Kurse schon in Euro sind (z. B. SAP.DE, ASML.AS)
+EURO_BOERSEN = {"DE", "F", "SG", "MU", "BE", "DU", "HM", "HA", "PA", "AS", "MI", "MC", "BR", "VI", "LS", "HE", "IR"}
 
 # Signale (Reihenfolge = Sortierung in der Tabelle)
 SCHARF_KAUFEN = "🚀 SCHARF KAUFEN"
@@ -234,6 +236,14 @@ def lade_kurse(ticker_liste, periode, debug=False):
                    for t, g in gruende.items()}
     return daten, gruende
 
+def waehrung_von(ticker):
+    """'USD' für US-Werte (ohne Börsenendung) und z. B. BTC-USD, 'EUR' für Euro-Börsen und BTC-EUR, sonst None."""
+    if re.fullmatch(r".+-[A-Z]{3}", ticker):  # Krypto/Devisen wie BTC-USD
+        return {"USD": "USD", "EUR": "EUR"}.get(ticker[-3:])
+    if "." in ticker:
+        return "EUR" if ticker.rsplit(".", 1)[1] in EURO_BOERSEN else None
+    return "USD"
+
 def kurs_umrechner(fx, index):
     """Dollar je Euro für jeden Tag des Index (fehlende Tage mit dem letzten bekannten Kurs)."""
     if fx is None:
@@ -297,7 +307,7 @@ def signal_aus(price, rsi, ema, lower_b, upper_b, atr, mit_short=True):
 
     # --- STRATEGIE 3: ÜBERHITZT – Gewinne sichern bzw. Short auf Rückfall zum Mittelwert ---
     if rsi > 70 or price >= upper_b:
-        if mit_short:
+        if mit_short and ema < price:  # Short nur, wenn das Ziel (EMA) unter dem Kurs liegt
             return SCHARF_SHORT, price + (1.2 * atr), ema
         return TEILVERKAUF, price * 0.97, np.nan  # Nachziehender Stopp zur Gewinnsicherung, kein Kursziel
 
@@ -346,11 +356,11 @@ def evaluate_strategies(ticker, df, fx, einst):
         kurs = werte[0] / rate.iloc[-1]
         vortag = float(df['Close'].iloc[-2]) / rate.iloc[-2]
         stop = stop_loss / rate.iloc[-1] if stop_loss > 0 else np.nan
-        ziel = take_profit / rate.iloc[-1]
+        ziel = take_profit / rate.iloc[-1] if take_profit > 0 else np.nan
 
         crv = stueck = np.nan
         richtung = 1 if empfehlung in LONG_SIGNALE else -1 if empfehlung in SHORT_SIGNALE else 0
-        if richtung and stop > 0:
+        if richtung and stop > 0 and ziel > 0:
             crv = richtung * (ziel - kurs) / (richtung * (kurs - stop))
             stueck = positionsgroesse(kurs, stop, einst.konto, einst.risiko, einst.bruchstuecke)
 
@@ -384,7 +394,7 @@ def positionswert(p, kurs_usd, fx):
         return p["stueck"] * kurs_usd / fx
     return p["stueck"] * (p["einsatz_je_stueck"] + (p["einstieg_usd"] - kurs_usd) / fx)
 
-def simuliere_depot(daten, fx, einst):
+def simuliere_depot(daten, fx_je_ticker, einst):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch.
     Regeln: Signal zum Schlusskurs -> Einstieg/Teilverkauf zur Eröffnung des nächsten Handelstags;
     Stop/Ziel werden im Tagesverlauf geprüft (bei beidem am selben Tag zählt der Stop);
@@ -392,7 +402,7 @@ def simuliere_depot(daten, fx, einst):
     tabellen = {}
     for t, df in daten.items():
         df = calculate_indicators(df.copy())
-        df["FX"] = kurs_umrechner(fx, df.index)
+        df["FX"] = kurs_umrechner(fx_je_ticker.get(t), df.index)
         df["Nr"] = np.arange(len(df))
         tabellen[t] = df
     if not tabellen:
@@ -497,7 +507,7 @@ def simuliere_depot(daten, fx, einst):
                 continue
             signal, stop, ziel = signal_aus(*werte, mit_short=einst.mit_short)
             p = positionen.get(t)
-            if p is None and (signal in LONG_SIGNALE or signal in SHORT_SIGNALE) and stop > 0:
+            if p is None and (signal in LONG_SIGNALE or signal in SHORT_SIGNALE) and stop > 0 and ziel > 0:
                 auftraege[t] = ("einstieg", signal, stop, ziel)
             elif p is not None and p["richtung"] > 0 and signal in (SCHARF_SHORT, TEILVERKAUF):
                 auftraege[t] = ("teil", signal, werte[0] * 0.97, np.nan)
@@ -508,25 +518,27 @@ def simuliere_depot(daten, fx, einst):
         depotwert = bargeld + sum(positionswert(p, *letzter_kurs[t]) for t, p in positionen.items())
         verlauf.append((tag, depotwert))
 
-    # Vergleich: am ersten Tag gleichmäßig in alle Ticker investieren und halten
-    erster = tage[0]
+    # Vergleich: das Startkapital gleichmäßig aufteilen und jeden Ticker an seinem ersten Handelstag
+    # im Zeitraum kaufen und halten (Ticker, die erst später starten, z. B. Börsengänge, bleiben Bargeld)
     anteil = einst.konto / len(tabellen)
-    halten = {}
+    halten = {}  # Ticker -> (Kauftag, Stück)
     for t, df in tabellen.items():
-        if erster in df.index:
-            z = df.loc[erster]
+        eigene = df.index[df.index >= tage[0]]
+        if len(eigene) and eigene[0] - tage[0] <= pd.Timedelta(days=7):
+            z = df.loc[eigene[0]]
             eroeffnung = float(z["Open"]) if not pd.isna(z["Open"]) else float(z["Close"])
-            halten[t] = (anteil - gebuehr) / (eroeffnung / float(z["FX"]))
+            halten[t] = (eigene[0], (anteil - gebuehr) / (eroeffnung / float(z["FX"])))
     vergleich = None
     if halten:
-        rest = anteil * (len(tabellen) - len(halten))  # Ticker ohne Kurs am Start bleiben Bargeld
         kurse, werte_halten = {}, []
         for tag in tage:
-            for t in halten:
+            wert = anteil * (len(tabellen) - len(halten))
+            for t, (kauftag, stueck) in halten.items():
                 df = tabellen[t]
                 if tag in df.index:
                     kurse[t] = float(df.loc[tag, "Close"]) / float(df.loc[tag, "FX"])
-            werte_halten.append(rest + sum(halten[t] * kurse[t] for t in halten if t in kurse))
+                wert += stueck * kurse[t] if tag >= kauftag else anteil
+            werte_halten.append(wert)
         vergleich = pd.Series(werte_halten, index=[d for d, _ in verlauf])
 
     for t, p in positionen.items():  # offene Positionen zum letzten Kurs bewerten
@@ -538,6 +550,7 @@ def simuliere_depot(daten, fx, einst):
     return {
         "start": tage[0], "ende": tage[-1], "start_wert": float(einst.konto), "end_wert": float(werte.iloc[-1]),
         "verlauf": werte, "vergleich": vergleich, "trades": trades, "offen": list(positionen.values()),
+        "nicht_gehalten": [t for t in tabellen if t not in halten],
         "gebuehren": gebuehren, "max_rueckgang": float(((hoch - werte) / hoch).max() * 100), "bargeld": bargeld,
     }
 
@@ -574,7 +587,7 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung):
     zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in PRIORITAET if s in anzahl)
     hinweise = []
     if not fx_heute:
-        hinweise.append("⚠️ Wechselkurs EUR/USD nicht verfügbar – alle Beträge in US-Dollar.")
+        hinweise.append("⚠️ Wechselkurs EUR/USD nicht verfügbar – US-Kurse nicht umgerechnet (Beträge in $).")
     if any(z["_offen"] for z in ok):
         hinweise.append("⏳ US-Börse noch offen: Die heutige Kerze ist nicht fertig, Signale können sich bis "
                         "Börsenschluss (16:00 New York) noch ändern. Mit --nur-schluss nur fertige Tage bewerten.")
@@ -597,9 +610,12 @@ def fusszeilen(zeilen, einst, waehrung):
         fuss.append("")
     vorkommend = {z["Signal"] for z in zeilen}
     for signal, text in LEGENDE.items():
+        if signal in SHORT_SIGNALE and not einst.mit_short:
+            continue
         if signal != TEILVERKAUF or TEILVERKAUF in vorkommend:
             fuss.append(f"{signal}: {text}")
-    fuss.append(f"Kurs, Stop, Ziel und Einsatz in {waehrung} (US-Kurse umgerechnet). Stück = so viele Aktien, "
+    umrechnung = "US-Kurse umgerechnet" if waehrung == "€" else "Wechselkurs nicht verfügbar, nicht umgerechnet"
+    fuss.append(f"Kurs, Stop, Ziel und Einsatz in {waehrung} ({umrechnung}). Stück = so viele Aktien, "
                 f"dass du am Stop höchstens {prozent(einst.risiko)} % des Kontos verlierst "
                 f"(max. {MAX_POSITION_PROZENT} % des Kontos je Position). CRV = Chance ÷ Risiko.")
     if einst.mit_short:
@@ -684,7 +700,8 @@ def depot_auswertung(erg, waehrung):
     ]
     if erg["vergleich"] is not None:
         v_ende = float(erg["vergleich"].iloc[-1])
-        zeilen.append(f"Zum Vergleich – alle Ticker am {erg['start']:%d.%m.} kaufen und halten: "
+        ohne = f" (ohne {', '.join(erg['nicht_gehalten'])} – erst später gehandelt)" if erg["nicht_gehalten"] else ""
+        zeilen.append(f"Zum Vergleich – alle Ticker am {erg['start']:%d.%m.} kaufen und halten{ohne}: "
                       f"{de(v_ende)} {waehrung} ({de((v_ende / erg['start_wert'] - 1) * 100, 1, True)} %)")
     if trades:
         gewinner = sum(1 for p in trades if p["erloes"] > p["kosten"])
@@ -759,13 +776,17 @@ def depot_chart_svg(erg, waehrung):
                  f'class="start"/>')
     # Monatsbeschriftung
     monate = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
-    letzter_monat = None
+    letzter_monat, beschriftet = None, False
     for i, d in enumerate(bot.index):
         if d.month != letzter_monat:
             if letzter_monat is not None:
                 teile.append(f'<text x="{x(i):.1f}" y="{H - 8}" text-anchor="middle" class="achse">'
                              f'{monate[d.month - 1]}</text>')
+                beschriftet = True
             letzter_monat = d.month
+    if not beschriftet:
+        teile.append(f'<text x="{L}" y="{H - 8}" class="achse">{bot.index[0]:%d.%m.}</text>'
+                     f'<text x="{B - R}" y="{H - 8}" text-anchor="end" class="achse">{bot.index[-1]:%d.%m.}</text>')
     # Linien, Endpunkte und Endbeschriftungen (nicht überlappend)
     enden = []
     for name, reihe, var in reihen:
@@ -778,7 +799,7 @@ def depot_chart_svg(erg, waehrung):
     for i in range(1, len(enden)):
         enden[i]["label_y"] = max(enden[i]["y"], enden[i - 1]["label_y"] + 16)
     for e in enden:
-        teile.append(f'<circle cx="{x(n - 1):.1f}" cy="{e["y"]:.1f}" r="4" fill="var({e["var"]})" class="ring"/>'
+        teile.append(f'<circle cx="{x(n - 1):.1f}" cy="{e["y"]:.1f}" r="4" fill="var({e["var"]})"/>'
                      f'<text x="{x(n - 1) + 10:.1f}" y="{e["label_y"] + 4:.1f}" class="label">'
                      f'{html.escape(e["name"])} {de(e["wert"], 0)} {waehrung}</text>')
     # Hover: unsichtbare Streifen je Tag mit Tooltip
@@ -793,25 +814,21 @@ def depot_chart_svg(erg, waehrung):
     legende = "".join(f'<span style="margin-right: 16px;"><span style="display: inline-block; width: 16px; '
                       f'height: 2px; background: var({var}); vertical-align: middle; margin-right: 6px;"></span>'
                       f'{html.escape(name)}</span>' for name, _, var in reihen)
-    legende += ('<span><span style="display: inline-block; width: 16px; height: 1px; background: var(--start); '
-                'vertical-align: middle; margin-right: 6px;"></span>Startkapital</span>')
+    legende += ('<span><span style="display: inline-block; width: 16px; height: 1px; background: currentColor; '
+                'opacity: 0.5; vertical-align: middle; margin-right: 6px;"></span>Startkapital</span>')
     return f"""<div class="viz-root">
 <style>
-.viz-root {{ --s1: #2a78d6; --s2: #eb6834; --text: #0b0b0b; --text2: #52514e; --gitter: #e6e5e0;
-  --start: #8a8984; --surface: #fcfcfb; color: var(--text); max-width: {B}px; }}
-@media (prefers-color-scheme: dark) {{
-  .viz-root {{ --s1: #3987e5; --s2: #d95926; --text: #f0efec; --text2: #c3c2b7; --gitter: #383835;
-    --start: #8a8984; --surface: #1a1a19; }} }}
-.viz-root .gitter {{ stroke: var(--gitter); stroke-width: 1; }}
-.viz-root .start {{ stroke: var(--start); stroke-width: 1; }}
-.viz-root .achse {{ fill: var(--text2); font-size: 11px; }}
-.viz-root .label {{ fill: var(--text); font-size: 12px; font-weight: 600; }}
-.viz-root .ring {{ stroke: var(--surface); stroke-width: 2; }}
+/* Texte und Hilfslinien erben die Schriftfarbe des Notebooks (hell wie dunkel lesbar) */
+.viz-root {{ --s1: #2a78d6; --s2: #eb6834; --start: currentColor; color: inherit; max-width: {B}px; }}
+.viz-root .gitter {{ stroke: currentColor; stroke-opacity: 0.15; stroke-width: 1; }}
+.viz-root .start {{ stroke: currentColor; stroke-opacity: 0.5; stroke-width: 1; }}
+.viz-root .achse {{ fill: currentColor; fill-opacity: 0.7; font-size: 11px; }}
+.viz-root .label {{ fill: currentColor; font-size: 12px; font-weight: 600; }}
 .viz-root .hover {{ fill: transparent; }}
-.viz-root .hover:hover {{ fill: var(--gitter); fill-opacity: 0.5; }}
+.viz-root .hover:hover {{ fill: currentColor; fill-opacity: 0.08; }}
 </style>
-<div style="font-size: 12px; color: var(--text2); margin: 4px 0;">{legende}</div>
-<svg viewBox="0 0 {B} {H}" width="100%" style="max-width: {B}px; font-family: inherit;" role="img"
+<div style="font-size: 12px; opacity: 0.8; margin: 4px 0;">{legende}</div>
+<svg viewBox="0 0 {B} {H}" width="100%" style="max-width: {B}px; font-family: inherit; overflow: visible;" role="img"
  aria-label="Depotwert des Bots im Vergleich zu Kaufen und Halten">{''.join(teile)}</svg>
 </div>"""
 
@@ -829,7 +846,8 @@ def zeige_depot(erg, einst, waehrung, notebook):
               f"(bei beidem am selben Tag zählt der Stop); Gegensignal schließt die Hälfte zur Eröffnung; "
               f"{de(einst.gebuehr)} {waehrung} Gebühr je Order; "
               f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}; "
-              f"Positionsgröße wie im Scanner. Shorts ohne Leihgebühren/Finanzierungskosten gerechnet. "
+              f"Positionsgröße wie im Scanner. "
+              f"{'Shorts ohne Leihgebühren/Finanzierungskosten gerechnet. ' if einst.mit_short else ''}"
               f"Simulation mit vergangenen Kursen – kein echtes Geld, keine Garantie für die Zukunft.")
     text = "\n".join(["", zusammenfassung[0], *("   " + z for z in zusammenfassung[1:])])
     if tabelle is not None:
@@ -843,9 +861,9 @@ def zeige_depot(erg, einst, waehrung, notebook):
         return
 
     def ergebnisfarbe(zeile):
-        farbe = "#0b7a0b" if zeile["Ergebnis"] > 0 else "#c62828" if zeile["Ergebnis"] < 0 else ""
-        return [f"color: {farbe}; font-weight: bold;" if farbe and s in ("Ergebnis", "Ergebnis %") else ""
-                for s in zeile.index]
+        bg = "#c8e6c9" if zeile["Ergebnis"] > 0 else "#ffcdd2" if zeile["Ergebnis"] < 0 else ""
+        return [f"background-color: {bg}; color: #1b1b1b; font-weight: bold;"
+                if bg and s in ("Ergebnis", "Ergebnis %") else "" for s in zeile.index]
 
     teile = [absatz(zusammenfassung[0], "font-size: 1.15em; font-weight: bold; margin-top: 18px;")]
     teile += [absatz(z) for z in zusammenfassung[1:]]
@@ -877,18 +895,30 @@ def main():
         pass
 
     einst = lies_einstellungen()
+    if FX_TICKER in einst.ticker_liste:
+        einst.ticker_liste.remove(FX_TICKER)
+        print(f"Hinweis: {FX_TICKER} ist der Euro-Wechselkurs und wird nur zum Umrechnen genutzt.")
     if not einst.ticker_liste:
         print("Keine Ticker angegeben.")
         return None
 
     print(f"🤖 Lade Kurse für {len(einst.ticker_liste)} Ticker und prüfe die Swing-Trading-Strategien ...")
     periode = "1y" if einst.rueckblick <= 6 else "2y"  # Vorlauf für die Indikatoren vor dem Rückblick
-    daten, gruende = lade_kurse(einst.ticker_liste + [FX_TICKER], periode, einst.debug)
-    fx_daten = None if FX_TICKER in einst.ticker_liste else daten.pop(FX_TICKER, None)
+    unterstuetzt = [t for t in einst.ticker_liste if waehrung_von(t)]
+    daten, gruende = lade_kurse(unterstuetzt + [FX_TICKER], periode, einst.debug)
+    fx_daten = daten.pop(FX_TICKER, None)
     fx = fx_daten["Close"] if fx_daten is not None else None
     waehrung = "€" if fx is not None else "$"
-    zeilen = [evaluate_strategies(t, daten[t], fx, einst) if t in daten else fehler_zeile(t, gruende[t])
-              for t in einst.ticker_liste]
+    # US-Werte werden mit EUR/USD umgerechnet, Werte von Euro-Börsen nicht
+    fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt}
+    zeilen = []
+    for t in einst.ticker_liste:
+        if t not in fx_je_ticker:
+            zeilen.append(fehler_zeile(t, "Währung nicht unterstützt – nur US- und Euro-Börsen"))
+        elif t in daten:
+            zeilen.append(evaluate_strategies(t, daten[t], fx_je_ticker[t], einst))
+        else:
+            zeilen.append(fehler_zeile(t, gruende[t]))
 
     if not any("_stand" in z for z in zeilen):
         print("\n❌ Für keinen Ticker konnten Kursdaten ausgewertet werden – meist keine Verbindung zu Yahoo "
@@ -913,7 +943,10 @@ def main():
 
     depot = None
     if einst.rueckblick > 0:
-        depot = simuliere_depot({t: daten[t] for t in einst.ticker_liste if t in daten}, fx, einst)
+        # wie im Scanner: mit --nur-schluss auch im Depot keine unfertige Tageskerze
+        depot_daten = {t: df.iloc[:-1] if einst.nur_schluss and kerze_noch_offen(df) else df
+                       for t, df in daten.items() if t in fx_je_ticker}
+        depot = simuliere_depot(depot_daten, fx_je_ticker, einst)
         if depot is not None:
             zeige_depot(depot, einst, waehrung, notebook)
 
