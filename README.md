@@ -22,3 +22,12 @@ Für echte Orders muss zuerst eine konkrete Börse, ein Handelspaar und ein sich
 ```powershell
 py -3 Automatisches_trading_system.py --candles 180
 ```
+
+## Swing-Trading-Scanner (Aktien-Watchlist)
+
+Lädt über `yfinance` sechs Monate Tageskurse für die Ticker in `TICKER_LISTE` und bewertet je Ticker drei Setups (EMA-20-Pullback, RSI/Bollinger-Mean-Reversion, überhitzter Markt) inklusive ATR-basiertem Stop-Loss und Take-Profit. Reine Analyse, es werden keine Orders gesendet.
+
+```powershell
+python -m pip install -r requirements.txt
+python swing_scanner.py
+```
