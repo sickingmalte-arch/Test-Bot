@@ -72,6 +72,13 @@ def zahl(text):
     except ValueError:
         raise argparse.ArgumentTypeError(f"'{text}' ist keine Zahl")
 
+def betrag(text):
+    """Kontogröße; erlaubt auch Tausenderpunkte, z. B. --konto 10.000"""
+    s = str(text).strip()
+    if re.fullmatch(r"\d{1,3}([.,]\d{3})+", s):
+        s = re.sub(r"[.,]", "", s)
+    return zahl(s)
+
 def ticker_aus_text(text):
     """'aapl, NFLX nflx' -> ['AAPL', 'NFLX'] (groß geschrieben, ohne Duplikate, Reihenfolge bleibt)"""
     liste = [t.upper() for t in re.split(r"[,;\s]+", text or "") if t]
@@ -80,7 +87,7 @@ def ticker_aus_text(text):
 def lies_einstellungen():
     p = argparse.ArgumentParser(description="Swing-Trading-Scanner für deine Watchlist")
     p.add_argument("--ticker", help='z. B. "AAPL, NFLX, SOFI" (Standard: TICKER_LISTE im Skript)')
-    p.add_argument("--konto", type=zahl, default=KONTO, help="Kontogröße in $")
+    p.add_argument("--konto", type=betrag, default=KONTO, help="Kontogröße in $ (z. B. 10000 oder 10.000)")
     p.add_argument("--risiko", type=zahl, default=RISIKO_PROZENT, help="Risiko pro Trade in %% des Kontos")
     p.add_argument("--nur-schluss", action="store_true",
                    help="laufende Tageskerze ignorieren und nur abgeschlossene Tage bewerten")
@@ -89,8 +96,8 @@ def lies_einstellungen():
     einst, unbekannt = p.parse_known_args()
     if unbekannt:
         print(f"Hinweis: unbekannte Angaben ignoriert: {' '.join(unbekannt)}")
-    if einst.konto <= 0 or einst.risiko <= 0:
-        p.error("--konto und --risiko müssen größer als 0 sein")
+    if not (0 < einst.konto < math.inf and 0 < einst.risiko < math.inf):
+        p.error("--konto und --risiko müssen Zahlen größer als 0 sein")
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
     return einst
 
@@ -105,20 +112,27 @@ class YahooFehler(logging.Handler):
         self.gruende = {}
 
     def emit(self, record):
-        # yfinance meldet z. B.: "['SE', 'HIMS']: ConnectionError('... 403 ...')"
-        treffer = re.match(r"\s*\[(.*?)\]:\s*(.*)", record.getMessage(), re.S)
+        # yfinance meldet z. B. "['SE', 'HIMS']: ConnectionError('... 403 ...')"
+        # oder "Failed to get ticker 'SE' reason: ..." – alle Meldungen je Ticker sammeln
+        text = record.getMessage()
+        treffer = (re.match(r"\s*\[(.*?)\]:\s*(.*)", text, re.S)
+                   or re.match(r"\s*Failed to get ticker ('[^']+') reason:\s*(.*)", text, re.S))
         if treffer:
             for ticker in re.findall(r"'([^']+)'", treffer.group(1)):
-                self.gruende[ticker] = treffer.group(2)
+                self.gruende[ticker] = self.gruende.get(ticker, "") + " " + treffer.group(2)
+
+YAHOO_LIMIT = "Yahoo-Limit erreicht – in 1–2 Minuten erneut starten"
+KEINE_VERBINDUNG = "keine Verbindung zu Yahoo"
+TICKER_UNBEKANNT = "keine Kursdaten (Ticker richtig geschrieben?)"
 
 def verstaendlicher_grund(text):
     t = (text or "").lower()
     if "too many requests" in t or "rate limit" in t:
-        return "Yahoo-Limit erreicht – in 1–2 Minuten erneut starten"
+        return YAHOO_LIMIT
     if any(k in t for k in ("connection", "timed out", "timeout", "resolve", "curl", "proxy")):
-        return "keine Verbindung zu Yahoo"
+        return KEINE_VERBINDUNG
     if "delisted" in t or "no price data" in t or "no data found" in t:
-        return "keine Kursdaten (Ticker richtig geschrieben?)"
+        return TICKER_UNBEKANNT
     return "keine Kursdaten"
 
 def tabelle_fuer(roh, ticker):
@@ -137,11 +151,12 @@ def tabelle_fuer(roh, ticker):
 def lade_kurse(ticker_liste, debug=False):
     """Lädt alle Ticker in einem Rutsch (6 Monate Tageskerzen); leere Ticker werden einmal nachgeladen."""
     sammler = YahooFehler()
+    handler = [sammler] + ([logging.StreamHandler()] if debug else [])
     yf_log = logging.getLogger("yfinance")
     alte_weitergabe = yf_log.propagate
-    if not debug:
-        yf_log.addHandler(sammler)
-        yf_log.propagate = False
+    for h in handler:
+        yf_log.addHandler(h)
+    yf_log.propagate = False
     daten, fehlend = {}, list(ticker_liste)
     try:
         for versuch in range(2):
@@ -160,9 +175,14 @@ def lade_kurse(ticker_liste, debug=False):
                     daten[ticker] = df
             fehlend = rest
     finally:
-        yf_log.removeHandler(sammler)
+        for h in handler:
+            yf_log.removeHandler(h)
         yf_log.propagate = alte_weitergabe
     gruende = {t: verstaendlicher_grund(sammler.gruende.get(t)) for t in fehlend}
+    # Bei Verbindungsproblemen meldet yfinance andere Ticker oft fälschlich als "delisted"
+    if any(g in (YAHOO_LIMIT, KEINE_VERBINDUNG) for g in gruende.values()):
+        gruende = {t: "keine Kursdaten (Verbindungsproblem oder falscher Ticker)" if g == TICKER_UNBEKANNT else g
+                   for t, g in gruende.items()}
     return daten, gruende
 
 def kerze_noch_offen(df):
@@ -238,7 +258,7 @@ def evaluate_strategies(ticker, df, einst):
         upper_b = float(last['Upper_Band'])
         atr = float(last['ATR'])
 
-        if np.isnan([price, vortag, rsi, ema, lower_b, upper_b, atr]).any():
+        if np.isnan([price, rsi, ema, lower_b, upper_b, atr]).any():
             return fehler_zeile(ticker, "Indikatoren unvollständig")
 
         # Standard-Werte für das Risikomanagement
@@ -276,7 +296,7 @@ def evaluate_strategies(ticker, df, einst):
             "Ticker": ticker,
             "Signal": empfehlung,
             "Kurs": price,
-            "Tag %": (price / vortag - 1) * 100,
+            "Tag %": (price / vortag - 1) * 100 if vortag > 0 else np.nan,
             "RSI": rsi,
             "Stop": stop_loss,
             "Ziel": take_profit,
@@ -305,18 +325,23 @@ def im_notebook():
     return ip is not None and hasattr(ip, "kernel")
 
 def farben_im_terminal():
-    if os.environ.get("NO_COLOR") or not sys.stdout.isatty():
+    # IDLE behauptet ein Terminal zu sein, kann aber keine ANSI-Farben darstellen
+    if os.environ.get("NO_COLOR") or "idlelib" in sys.modules or not sys.stdout.isatty():
         return False
     if os.name == "nt":
         os.system("")  # schaltet ANSI-Farben in der Windows-Konsole ein
     return True
+
+def prozent(wert):
+    """1.5 -> '1,5' (deutsche Schreibweise)"""
+    return f"{wert:g}".replace(".", ",")
 
 def kopfzeilen(zeilen, einst):
     ok = [z for z in zeilen if "_stand" in z]
     stand = max(z["_stand"] for z in ok)
     risiko_dollar = einst.konto * einst.risiko / 100
     titel = (f"📈 SWING-SCANNER · Daten bis {stand:%d.%m.%Y} · Konto {einst.konto:.0f} $ · "
-             f"Risiko je Trade {einst.risiko:g} % = {risiko_dollar:.0f} $")
+             f"Risiko je Trade {prozent(einst.risiko)} % = {risiko_dollar:.0f} $")
     anzahl = pd.Series([z["Signal"] for z in zeilen]).value_counts()
     zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in PRIORITAET if s in anzahl)
     hinweise = []
@@ -342,35 +367,32 @@ def fusszeilen(zeilen, einst):
         fuss.append("")
     for signal, text in LEGENDE.items():
         fuss.append(f"{signal}: {text}")
-    fuss.append(f"Stück = so viele Aktien, dass du am Stop höchstens {einst.risiko:g} % des Kontos verlierst "
+    fuss.append(f"Stück = so viele Aktien, dass du am Stop höchstens {prozent(einst.risiko)} % des Kontos verlierst "
                 f"(max. {MAX_POSITION_PROZENT} % des Kontos je Position). CRV = Chance ÷ Risiko.")
     fuss.append("💡 Kurs = letzter Kurs; der echte Kaufkurs am nächsten Tag weicht ab – Stückzahl dann neu "
                 "rechnen. Keine Anlageberatung.")
     return fuss
 
-def zeige_als_text(tabelle, titel, zusammenfassung, hinweise, fuss):
+def als_text(tabelle, titel, zusammenfassung, hinweise, fuss, farbig=False):
     formatierer = {s: f.format for s, f in FORMATE.items()}
     # east_asian_width: Emojis zählen als 2 Zeichen breit, damit die Spalten bündig bleiben
     with pd.option_context("display.unicode.east_asian_width", True):
         text = tabelle.to_string(index=False, formatters=formatierer, na_rep="–")
     zeilen = text.splitlines()
     linie = "=" * len(zeilen[0])
-    farbig = farben_im_terminal()
 
-    print(f"\n{titel}\n   {zusammenfassung}")
-    for h in hinweise:
-        print(h)
-    print(linie)
-    print(zeilen[0])
+    ausgabe = ["", titel, f"   {zusammenfassung}", *hinweise, linie, zeilen[0]]
     for zeile, signal in zip(zeilen[1:], tabelle["Signal"]):
         code = ANSI.get(signal) if farbig else None
-        print(f"{code}{zeile}\033[0m" if code else zeile)
-    print(linie)
-    for f in fuss:
-        print(f)
+        ausgabe.append(f"{code}{zeile}\033[0m" if code else zeile)
+    ausgabe += [linie, *fuss]
+    return "\n".join(ausgabe)
+
+def zeige_als_text(tabelle, titel, zusammenfassung, hinweise, fuss):
+    print(als_text(tabelle, titel, zusammenfassung, hinweise, fuss, farbig=farben_im_terminal()))
 
 def zeige_im_notebook(tabelle, titel, zusammenfassung, hinweise, fuss):
-    from IPython.display import HTML, display
+    from IPython.display import display
 
     def zeilenfarbe(zeile):
         bg, fg = FARBEN.get(zeile["Signal"], (None, None))
@@ -388,7 +410,7 @@ def zeige_im_notebook(tabelle, titel, zusammenfassung, hinweise, fuss):
                         ])
                         .to_html())
     except (ImportError, AttributeError):  # ohne jinja2 gibt es keinen Styler -> schlichte Tabelle
-        tabelle_html = tabelle.to_html(index=False, na_rep="–")
+        tabelle_html = tabelle.to_html(index=False, na_rep="–", formatters={s: f.format for s, f in FORMATE.items()})
 
     def absatz(text, stil=""):
         return f'<p style="margin: 2px 0; {stil}">{html.escape(text)}</p>' if text else "<br>"
@@ -396,11 +418,18 @@ def zeige_im_notebook(tabelle, titel, zusammenfassung, hinweise, fuss):
     kopf = absatz(titel, "font-size: 1.15em; font-weight: bold;") + absatz(zusammenfassung)
     kopf += "".join(absatz(h, "color: #b26a00;") for h in hinweise)
     fuss_html = "".join(absatz(f, "font-size: 0.9em; opacity: 0.8;") for f in fuss)
-    display(HTML(kopf + '<div style="margin: 8px 0;">' + tabelle_html + "</div>" + fuss_html))
+    # Mit Textfassung: Spyder, qtconsole und jupyter console können kein HTML und zeigen dann die Texttabelle
+    display({"text/html": kopf + '<div style="margin: 8px 0;">' + tabelle_html + "</div>" + fuss_html,
+             "text/plain": als_text(tabelle, titel, zusammenfassung, hinweise, fuss)}, raw=True)
 
 def speichere_csv(tabelle, datei):
     # Semikolon + Dezimalkomma, damit ein deutsches Excel die Datei direkt richtig öffnet
-    tabelle.to_csv(datei, index=False, sep=";", decimal=",", encoding="utf-8-sig", float_format="%.2f")
+    try:
+        tabelle.astype({"Stück": "Int64"}).to_csv(datei, index=False, sep=";", decimal=",", encoding="utf-8-sig", float_format="%.2f")
+    except OSError as e:
+        print(f"❌ CSV konnte nicht gespeichert werden ({e.strerror or e}): {os.path.abspath(datei)} "
+              "– ist die Datei noch in Excel geöffnet oder der Ordner falsch?")
+        return
     print(f"💾 Gespeichert: {os.path.abspath(datei)}")
 
 
@@ -421,7 +450,8 @@ def main():
               for t in einst.ticker_liste]
 
     if not any("_stand" in z for z in zeilen):
-        print("\n❌ Für keinen Ticker konnten Kursdaten ausgewertet werden.")
+        print("\n❌ Für keinen Ticker konnten Kursdaten ausgewertet werden – meist keine Verbindung zu Yahoo "
+              "oder Yahoo-Limit erreicht.")
         for f in fusszeilen(zeilen, einst):
             if f.startswith("❌"):
                 print(f)
