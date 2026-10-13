@@ -22,3 +22,12 @@ Für echte Orders muss zuerst eine konkrete Börse, ein Handelspaar und ein sich
 ```powershell
 py -3 Automatisches_trading_system.py --candles 180
 ```
+
+## Swing-Scanner für die Aktien-Watchlist
+
+```powershell
+python -m pip install -r requirements.txt
+python swing_scanner.py
+```
+
+Lädt sechs Monate Tageskerzen von Yahoo Finance (über `yfinance`) für die Ticker in `TICKER_LISTE` und berechnet RSI (14, Wilder), EMA 20, Bollinger-Bänder (20, 2σ) und ATR (14, Wilder). Daraus werden drei Setups geprüft (EMA-20-Pullback, RSI/Band-Überdehnung, überhitzter Markt) und mit Stop-Loss/Take-Profit als Tabelle ausgegeben. Die letzte Kerze ist während der Handelszeit noch nicht abgeschlossen. Es werden keine Orders gesendet; die Ausgabe ist keine Anlageberatung.
