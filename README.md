@@ -47,12 +47,13 @@ python swing_scanner.py
 ### Was das Skript zeigt
 
 1. **Scanner (heute):** je Ticker 🟢 KAUFEN, 🔴 SHORT, ⏸ WARTEN (mit Grund), ⚠️ GEWINNE SICHERN, BEOBACHTEN oder ❌ FEHLER – mit Strategie, Kurs, Limit (höchster Kaufkurs), Stop, Ziel, Chance-Risiko-Verhältnis (CRV), Stückzahl, Einsatz, Risiko in €, nächstem Quartalszahlen-Termin und erkannten Ereignissen aus den Schlagzeilen. Für die obersten Signale steht darunter ein Handelsplan in einem Satz (wann, wie viel, bis zu welchem Kurs, Stop, Ziel, spätestens raus am …). Alle Beträge in Euro.
-2. **Strategie-Tagebuch („Lernen“):** Jede der 10 Strategien handelt im Hintergrund gedanklich mit. Läuft eine Strategie über ihre letzten bis zu 60 Trades im Schnitt deutlich schlecht (unter −0,1 R ab 20 Trades), wird sie pausiert, bis sie wieder im Plus ist. Die Tabelle zeigt ehrlich, wie groß der Zufall dabei sein kann.
+2. **Strategie-Tagebuch („Lernen“):** Jede der 16 Strategien handelt im Hintergrund gedanklich mit. Läuft eine Strategie über ihre letzten bis zu 60 Trades im Schnitt deutlich schlecht (unter −0,1 R ab 20 Trades), wird sie pausiert, bis sie wieder im Plus ist. Die Tabelle zeigt ehrlich, wie groß der Zufall dabei sein kann.
 3. **Virtuelles Depot (Rückblick):** Der Bot handelt die letzten Monate mit dem Startkapital nach seinen Signalen – einmal mit und einmal ohne Lernen – im Vergleich zu „alle Ticker kaufen und halten“. Es wird kein echtes Geld bewegt.
 
 ### Strategien und Regeln
 
-- 10 Strategien, je 5 für steigende und fallende Kurse: Ausbruch/Abbruch (20-Tage-Hoch/-Tief mit Volumen), RSI-2-Rücksetzer/-Übertreibung, Gegenbewegung/Rückfall (überverkauft/überhitzt), MACD-Wende, Rücksetzer/Erholung an der EMA 20.
+- 16 Strategien, je 8 für steigende und fallende Kurse: Ausbruch/Abbruch (20-Tage-Hoch/-Tief mit Volumen), RSI-2-Rücksetzer/-Übertreibung, Gegenbewegung/Rückfall (überverkauft/überhitzt), MACD-Wende, Rücksetzer/Erholung an der EMA 20, dazu Trendfolge und Volatilität: Squeeze-Ausbruch/-Abbruch (Bollinger-Bänder erst sehr eng, dann Ausbruch), EMA-Kreuz (EMA 9 kreuzt EMA 21) und ATR-Ausbruch/-Abbruch (Schluss mehr als 2 ATR von der EMA 20, Keltner-Kanal).
+- Watchlist (`TICKER_LISTE` im Skript): SE, HIMS, NOW, INTU, CRWV, NBIS, MELI, IREN, NFLX, AAPL, ASTS, SOFI sowie NVDA, MSFT, AMZN, META, GOOGL, TSLA, AMD, PLTR, JPM, LLY, XOM, COST – keine Empfehlung, nur liquide Werte aus mehreren Branchen. Eigene Liste mit `--ticker`.
 - Trendregel: Trendstrategien nur in Richtung der 50-Tage-Linie, Gegenbewegungen nur in Richtung der 200-Tage-Linie; widersprechen sich Signale, wartet der Bot.
 - Quartalszahlen: kein Einstieg in den 3 Handelstagen davor, offene Positionen am Abend vorher schließen, kurz danach keine Gegenbewegungs-Trades.
 - Einstieg am nächsten Handelstag nur bis zum Limit; Ausstieg an Stop, Ziel, vor Quartalszahlen oder spätestens nach 20 Handelstagen.

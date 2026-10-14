@@ -1,6 +1,6 @@
 """Swing-Trading-Scanner mit Strategie-Tagebuch und virtuellem Depot.
 
-Ablauf: Kurse (5 Jahre Tageskerzen) und Quartalszahlen-Termine von Yahoo laden, 10 Strategien je Ticker
+Ablauf: Kurse (5 Jahre Tageskerzen) und Quartalszahlen-Termine von Yahoo laden, 16 Strategien je Ticker
 prüfen, jede Strategie im Tagebuch gedanklich mithandeln lassen ("lernen"), daraus den Scanner für heute
 und ein virtuelles Depot über die letzten Monate berechnen. Es werden keine echten Orders gesendet.
 """
@@ -30,7 +30,10 @@ from pandas.tseries.holiday import (AbstractHolidayCalendar, GoodFriday, Holiday
 # ============================================================================
 TICKER_LISTE = [
     "SE", "HIMS", "NOW", "INTU", "CRWV", "NBIS",
-    "MELI", "IREN", "NFLX", "AAPL", "ASTS", "SOFI"
+    "MELI", "IREN", "NFLX", "AAPL", "ASTS", "SOFI",
+    # dazu sehr liquide Werte aus weiteren Branchen (Chips, Plattformen, Banken, Pharma, Energie, Handel)
+    "NVDA", "MSFT", "AMZN", "META", "GOOGL", "TSLA",
+    "AMD", "PLTR", "JPM", "LLY", "XOM", "COST",
 ]
 KONTO = 10_000              # Kontogröße / virtuelles Startkapital in €
 RISIKO_PROZENT = 1.0        # max. Verlust pro Trade in % des Kontos, wenn der Stop-Loss greift
@@ -105,6 +108,26 @@ STRATEGIEN = {
     "erholung_short":     {"name": "Erholung", "richtung": -1, "art": "trend",
                            "regel": "Kurs bis 0,5 ATR unter der EMA 20, RSI(14) über 40, unter der 50-Tage-Linie. "
                                     "Stop +1,5 ATR, Ziel −3 ATR"},
+    "squeeze_long":       {"name": "Squeeze-Ausbruch", "richtung": 1, "art": "trend",
+                           "regel": "Bollinger-Bänder waren an einem der 5 Vortage so eng wie selten (unterste 15 % der "
+                                    "letzten 120 Tage), heute erster Schluss über dem oberen Band, über der 50-Tage-Linie "
+                                    "(Ausbruch nach ruhiger Phase). Stop −2 ATR, Ziel +4 ATR"},
+    "squeeze_short":      {"name": "Squeeze-Abbruch", "richtung": -1, "art": "trend",
+                           "regel": "Bollinger-Bänder waren an einem der 5 Vortage so eng wie selten (unterste 15 % der "
+                                    "letzten 120 Tage), heute erster Schluss unter dem unteren Band, unter der "
+                                    "50-Tage-Linie. Stop +2 ATR, Ziel −4 ATR"},
+    "ema_kreuz_long":     {"name": "EMA-Kreuz", "richtung": 1, "art": "trend",
+                           "regel": "EMA 9 kreuzt heute die EMA 21 nach oben (neuer Aufwärtstrend), über der "
+                                    "50-Tage-Linie. Stop −2 ATR, Ziel +4 ATR"},
+    "ema_kreuz_short":    {"name": "EMA-Kreuz", "richtung": -1, "art": "trend",
+                           "regel": "EMA 9 kreuzt heute die EMA 21 nach unten (neuer Abwärtstrend), unter der "
+                                    "50-Tage-Linie. Stop +2 ATR, Ziel −4 ATR"},
+    "atr_ausbruch_long":  {"name": "ATR-Ausbruch", "richtung": 1, "art": "trend",
+                           "regel": "Schluss erstmals mehr als 2 ATR über der EMA 20 (Keltner-Kanal – Bewegung größer "
+                                    "als das normale Schwanken), über der 50-Tage-Linie. Stop −2 ATR, Ziel +4 ATR"},
+    "atr_abbruch_short":  {"name": "ATR-Abbruch", "richtung": -1, "art": "trend",
+                           "regel": "Schluss erstmals mehr als 2 ATR unter der EMA 20 (Keltner-Kanal), unter der "
+                                    "50-Tage-Linie. Stop +2 ATR, Ziel −4 ATR"},
 }
 VORRANG = {k: i for i, k in enumerate(STRATEGIEN)}
 
@@ -497,7 +520,9 @@ FIRMENNAMEN = {
     "SE": r"sea (ltd|limited)|shopee|garena|monee", "HIMS": r"hims", "NOW": r"servicenow",
     "INTU": r"intuit|turbotax|quickbooks", "CRWV": r"coreweave", "NBIS": r"nebius", "MELI": r"mercado ?libre",
     "IREN": r"iren|iris energy", "NFLX": r"netflix", "AAPL": r"apple|iphone", "ASTS": r"ast spacemobile",
-    "SOFI": r"sofi",
+    "SOFI": r"sofi", "NVDA": r"nvidia", "MSFT": r"microsoft", "AMZN": r"amazon|aws", "META": r"meta|facebook|instagram",
+    "GOOGL": r"alphabet|google|youtube", "TSLA": r"tesla", "AMD": r"amd|advanced micro", "PLTR": r"palantir",
+    "JPM": r"jpmorgan|jp morgan|chase", "LLY": r"eli lilly|lilly", "XOM": r"exxon", "COST": r"costco",
 }
 NEWS_IGNORIEREN = re.compile(
     r"\?\s*$|reasons? to|time to buy|should you|is it too late|could |strong buy|buy the dip|stock market today|"
@@ -643,6 +668,15 @@ def calculate_indicators(df):
     df['Tief_20'] = df['Low'].shift(1).rolling(20).min()
     volumen = df['Volume'] if 'Volume' in df else pd.Series(np.nan, index=df.index)
     df['Volumen_20'] = volumen.shift(1).rolling(20).mean()
+    # 8. EMA 9 und EMA 21 (schnelle Trendlinien für den EMA-Kreuz)
+    df['EMA_9'] = c.ewm(span=9, adjust=False).mean()
+    df['EMA_21'] = c.ewm(span=21, adjust=False).mean()
+    # 9. Bollinger-Bandbreite und „Squeeze“: Bänder so eng wie an höchstens 15 % der letzten 120 Tage
+    df['BB_Breite'] = (df['Upper_Band'] - df['Lower_Band']) / sma20
+    df['Squeeze'] = df['BB_Breite'] <= df['BB_Breite'].rolling(120).quantile(0.15)
+    # 10. Keltner-Kanal: EMA 20 ± 2 ATR
+    df['Keltner_Oben'] = df['EMA_20'] + 2 * df['ATR']
+    df['Keltner_Unten'] = df['EMA_20'] - 2 * df['ATR']
     return df
 
 def strategie_signale(df, mit_short):
@@ -658,6 +692,10 @@ def strategie_signale(df, mit_short):
     kreuzt_runter = (macd < macd_sig) & (macd.shift() >= macd_sig.shift())
     ueberverkauft = (rsi < 32) | (c <= df['Lower_Band'])
     ueberhitzt = (rsi > 70) | (c >= df['Upper_Band'])
+    oben, unten = df['Upper_Band'], df['Lower_Band']
+    squeeze_vorher = df['Squeeze'].astype(float).shift(1).rolling(5, min_periods=1).max() == 1  # an einem der 5 Vortage
+    ema9, ema21 = df['EMA_9'], df['EMA_21']
+    k_oben, k_unten = df['Keltner_Oben'], df['Keltner_Unten']
     regeln = {
         "ausbruch_long": ((c > df['Hoch_20']) & viel_volumen & (c > sma50), c - 2 * atr, c + 4 * atr),
         "abbruch_short": ((c < df['Tief_20']) & viel_volumen & (c < sma50), c + 2 * atr, c - 4 * atr),
@@ -669,6 +707,14 @@ def strategie_signale(df, mit_short):
         "macd_short": (kreuzt_runter & (c < sma50), c + 1.5 * atr, c - 3 * atr),
         "ruecksetzer_long": ((c > ema) & (c - ema <= 0.5 * atr) & (rsi < 60) & (c > sma50), c - 1.5 * atr, c + 3 * atr),
         "erholung_short": ((c < ema) & (ema - c <= 0.5 * atr) & (rsi > 40) & (c < sma50), c + 1.5 * atr, c - 3 * atr),
+        "squeeze_long": (squeeze_vorher & (c > oben) & (c.shift() <= oben.shift()) & (c > sma50),
+                         c - 2 * atr, c + 4 * atr),
+        "squeeze_short": (squeeze_vorher & (c < unten) & (c.shift() >= unten.shift()) & (c < sma50),
+                          c + 2 * atr, c - 4 * atr),
+        "ema_kreuz_long": ((ema9 > ema21) & (ema9.shift() <= ema21.shift()) & (c > sma50), c - 2 * atr, c + 4 * atr),
+        "ema_kreuz_short": ((ema9 < ema21) & (ema9.shift() >= ema21.shift()) & (c < sma50), c + 2 * atr, c - 4 * atr),
+        "atr_ausbruch_long": ((c > k_oben) & (c.shift() <= k_oben.shift()) & (c > sma50), c - 2 * atr, c + 4 * atr),
+        "atr_abbruch_short": ((c < k_unten) & (c.shift() >= k_unten.shift()) & (c < sma50), c + 2 * atr, c - 4 * atr),
     }
     genug = np.arange(len(df)) >= MIN_KERZEN - 1
     signale = {}
@@ -1392,11 +1438,11 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
         f"Lernregel: Ab {LERNEN_MIN_TRADES} Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr als "
         f"{de(-LERNEN_PAUSE_AB, 1)} R je Trade verliert, und wieder aktiv, sobald der Schnitt im Plus ist. Pausierte "
         f"Strategien handeln im Tagebuch weiter.",
-        "± Zufall: So weit kann der Schnitt allein durch Glück oder Pech schwanken. Lässt man 10 Strategien ganz ohne "
-        "Vorteil je 20 Trades machen, zeigt die beste meist um +0,5 R – reiner Zufall. Erst ab etwa 100–200 Trades "
-        "lässt sich ein Vorteil von 0,2–0,3 R von Glück unterscheiden. Bei 10 Strategien wirkt auch ohne echten Vorteil "
-        "oft eine 'klar im Plus' oder 'klar im Minus' – das sind Hinweise, keine Beweise. 'Pausiert' ist eine "
-        "Vorsichtsmaßnahme.",
+        f"± Zufall: So weit kann der Schnitt allein durch Glück oder Pech schwanken. Lässt man {len(tabelle)} "
+        f"Strategien ganz ohne Vorteil je 20 Trades machen, zeigt die beste meist um +0,5 R – reiner Zufall. Erst ab "
+        f"etwa 100–200 Trades lässt sich ein Vorteil von 0,2–0,3 R von Glück unterscheiden. Bei {len(tabelle)} "
+        f"Strategien wirkt auch ohne echten Vorteil oft eine 'klar im Plus' oder 'klar im Minus' – das sind Hinweise, "
+        f"keine Beweise. 'Pausiert' ist eine Vorsichtsmaßnahme.",
         rueckschau_hinweis,
     ]
     with pd.option_context("display.unicode.east_asian_width", True):
