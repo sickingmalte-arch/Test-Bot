@@ -20,6 +20,9 @@ from concurrent.futures import ThreadPoolExecutor, wait
 import numpy as np
 import pandas as pd
 import yfinance as yf
+from pandas.tseries.holiday import (AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
+                                    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday,
+                                    sunday_to_monday)
 
 # ============================================================================
 # EINSTELLUNGEN – hier anpassen oder beim Start mitgeben, z. B.:
@@ -58,7 +61,7 @@ TAGEBUCH_AB_KERZE = 100          # Tagebuch erst, wenn die Indikatoren eingeschw
 MIN_KERZEN = 50                  # Mindestanzahl Tageskerzen für den Scanner
 NEWS_TAGE = 3                    # Schlagzeilen der letzten 3 Handelstage
 MAX_TRADES_ANZEIGE = 20          # so viele abgeschlossene Trades zeigt die Liste (alle per --csv)
-YAHOO_ZEITBUDGET = 45            # Sekunden für Termine + Schlagzeilen zusammen
+YAHOO_ZEITBUDGET = 45            # Sekunden je Abruf-Phase (Termine bzw. Schlagzeilen)
 
 FX_TICKER = "EURUSD=X"           # Wechselkurs bei Yahoo: Dollar je 1 Euro
 MARKT_TICKER = "QQQ"             # Nasdaq-100 als Marktampel (nur Anzeige)
@@ -333,15 +336,40 @@ def hat_zahlen(ticker):
     """Krypto, Devisen und Indizes haben keine Quartalszahlen – gar nicht erst fragen."""
     return not (ticker.startswith("^") or "=" in ticker or re.fullmatch(r".+-[A-Z]{3}", ticker))
 
+class NYSEFeiertage(AbstractHolidayCalendar):
+    """Handelsfreie Tage der New Yorker Börse (für künftige Tage; die Vergangenheit kommt aus den Kursdaten)."""
+    rules = [
+        Holiday("Neujahr", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Unabhängigkeitstag", month=7, day=4, observance=nearest_workday),
+        USLaborDay, USThanksgivingDay,
+        Holiday("Weihnachten", month=12, day=25, observance=nearest_workday),
+    ]
+
+NYSE_TAG = pd.offsets.CustomBusinessDay(calendar=NYSEFeiertage())
+
+def ist_krypto(ticker):
+    return bool(re.fullmatch(r".+-[A-Z]{3}", ticker))
+
+def handelstag(ticker):
+    """Schritt zum nächsten Handelstag: US-Werte mit NYSE-Feiertagen, Euro-Börsen Mo–Fr, Krypto jeden Tag."""
+    if ist_krypto(ticker):
+        return pd.offsets.Day(1)
+    return NYSE_TAG if waehrung_von(ticker) == "USD" else pd.offsets.BDay(1)
+
 def kurs_umrechner(fx, index):
     """Dollar je Euro für jeden Tag des Index (fehlende Tage mit dem letzten bekannten Kurs)."""
     if fx is None:
         return pd.Series(1.0, index=index)
     return fx.reindex(fx.index.union(index)).ffill().reindex(index).bfill()
 
-def kerze_noch_offen(df):
-    """True, wenn die letzte Tageskerze von heute ist und die US-Börse noch nicht geschlossen hat."""
+def kerze_noch_offen(df, ticker=""):
+    """True, wenn die letzte Tageskerze noch läuft: bei Aktien von heute und die US-Börse noch nicht geschlossen,
+    bei Krypto (Tageskerze = UTC-Tag, Handel rund um die Uhr) die Kerze des heutigen UTC-Tags."""
     try:
+        if re.fullmatch(r".+-[A-Z]{3}", ticker):
+            return df.index[-1].date() >= pd.Timestamp.now(tz="UTC").date()
         jetzt = pd.Timestamp.now(tz=NY)
     except Exception:
         return False
@@ -408,7 +436,7 @@ def hole_zusatzdaten(termin_ticker, news_ticker, sammler, budget=YAHOO_ZEITBUDGE
         for art in ("zahlen_info", "news_info"):
             if e[art] == "nicht abgefragt" and offen:
                 e[art] = "Zeitüberschreitung"
-    return erg
+    return {t: dict(e) for t, e in erg.items()}  # Momentaufnahme: späte Threads ändern nichts mehr
 
 def zahlen_termine(df):
     """Yahoo-Termine -> sortierte Zeitpunkte in New Yorker Zeit (ohne NaT, auch für ältere yfinance ohne Zeitzone)."""
@@ -434,13 +462,13 @@ def uhrzeit_text(termin):
         return "vor Börsenbeginn"
     return "während des Handels"
 
-def zahlen_regeln(termine, kurs_index):
+def zahlen_regeln(termine, kurs_index, schritt=pd.offsets.BDay(1)):
     """Für jeden Kurstag i: morgen[i] = Zahlen wirken am nächsten Handelstag (heute zum Schluss raus),
     gesperrt[i] = Zahlen wirken in den nächsten ZAHLEN_SPERRE_TAGE Handelstagen (kein Einstieg),
     gerade[i] = Zahlen haben heute oder gestern gewirkt (keine Gegenbewegungs-Trades)."""
     n = len(kurs_index)
-    zukunft = pd.bdate_range(kurs_index[-1] + pd.Timedelta(days=1), periods=ZAHLEN_SPERRE_TAGE + 30)
-    lang = kurs_index.append(zukunft)              # Handelstage + geschätzte künftige Werktage
+    zukunft = pd.date_range(kurs_index[-1] + schritt, periods=ZAHLEN_SPERRE_TAGE + 30, freq=schritt)
+    lang = kurs_index.append(zukunft)              # Handelstage + künftige Handelstage laut Börsenkalender
     reak = np.zeros(len(lang) + ZAHLEN_SPERRE_TAGE + 2, bool)
     for termin in termine:
         pos = lang.searchsorted(reaktionstag(termin))
@@ -465,22 +493,25 @@ FIRMENNAMEN = {
 }
 NEWS_IGNORIEREN = re.compile(
     r"\?\s*$|reasons? to|time to buy|should you|is it too late|could |strong buy|buy the dip|stock market today|"
-    r"law firm|class action|investor alert|securities fraud|secure counsel|rosen|pomerantz|levi & korsinsky|"
+    r"dow jones futures|^prediction:|"
+    r"law firm|class action|investor alert|securities fraud|secure counsel|\brosen\b|pomerantz|levi & korsinsky|"
     r"bragar|schall law|gross law|faruqi|bronstein", re.I)
 NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall, deutsches Etikett)
     (r"\b(beats?|tops?|surpass\w*)\b.{0,40}\b(estimates?|expectations|forecasts?)\b", 1, "Zahlen besser als erwartet"),
     (r"\bmiss(es|ed)?\b.{0,40}\b(estimates?|expectations|forecasts?)\b", -1, "Zahlen schlechter als erwartet"),
     (r"\b(raises?|raised|lifts?|boosts?|hikes?)\b.{0,40}\b(guidance|outlook|forecast)\b", 1, "Prognose angehoben"),
-    (r"\b(cuts?|lowers?|lowered|slash\w*|trims?)\b.{0,40}\b(guidance|outlook|forecast)\b|\bweak (guidance|outlook)\b",
+    (r"\b(cuts?|lowers?|lowered|slash\w*|trims?)\b(?!\s+(interest\s+)?rates?\b).{0,40}\b(guidance|outlook|forecast)\b"
+     r"|\bweak (guidance|outlook)\b",
      -1, "Prognose gesenkt"),
-    (r"\bupgraded?\b.{0,25}\b(to|at)\b|\bupgrades?\b.{0,40}\b(buy|outperform|overweight)\b", 1, "Analyst stuft hoch"),
+    (r"\bupgraded\b.{0,25}\b(to|at)\b|\bupgrades?\b.{0,40}\b(buy|outperform|overweight)\b", 1, "Analyst stuft hoch"),
     (r"\bdowngrade[ds]?\b", -1, "Analyst stuft runter"),
-    (r"\b(stock|share|equity|convertible|notes?|secondary|public)\b.{0,25}\boffering\b|at-the-market|\bdilut\w*",
+    (r"\b(stock|share|equity|convertible|notes?|secondary|public)\b.{0,25}\boffering\b|at-the-market|(?<!non-)\bdilut\w*",
      -1, "Kapitalerhöhung/Verwässerung"),
     (r"\b(fda|sec|doj|ftc|antitrust|eu)\b.{0,40}\b(warns?|probe|investigat\w*|sues?|charges?)\b", -1,
      "Behörde ermittelt/warnt"),
     (r"\bshort[- ]sellers?\b|\bshort report\b", -1, "Leerverkäufer-Bericht"),
-    (r"\b(ceo|cfo|insider|director|founder)\b.{0,30}\bsells?\b", -1, "Insider verkauft"),
+    (r"\b(ceo|cfo|insider|director|founder)\b.{0,30}\bsells?\b(?=\s+\$|.{0,30}\b(shares|stock|stake)\b)", -1,
+     "Insider verkauft"),
     (r"\b(ceo|cfo)\b.{0,30}\b(resigns?|steps? down|departs?|ousted)\b", -1, "Chefwechsel"),
     (r"going concern|bankruptcy|chapter 11|restate\w*|delist\w*", -1, "Warnung (Bilanz/Insolvenz/Delisting)"),
     (r"\block-?up\b", -1, "Lock-up-Ende"),
@@ -488,8 +519,9 @@ NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall,
     (r"\b(to join|added to|joins?)\b.{0,20}\b(s&p|nasdaq-100|index)\b", 1, "Indexaufnahme"),
     (r"\bstock split\b", 1, "Aktiensplit"),
     (r"\b(signs?|wins?|secures?|lands?)\b.{0,30}\b(deal|contract|agreement)\b", 1, "Auftrag/Vertrag"),
-    (r"\b(to acquire|to be acquired|acquisition of|merger|takeover|buyout)\b", 0, "Übernahme/Fusion"),
-    (r"\bhalted\b|\btrading halt\b", 0, "Handelsaussetzung"),
+    (r"\b(to acquire|to be acquired|acquisition of|merger|takeover|buyout)\b"
+     r"|\b(agrees?|deal|offer|bid|plans?)\s+to\s+buy\b|\bto buy\b.{0,40}\bfor \$\d", 0, "Übernahme/Fusion"),
+    (r"\btrading halt(ed)?\b|\bhalts? trading\b|\b(shares|stock|trading)\b.{0,20}\bhalted\b", 0, "Handelsaussetzung"),
 ]
 VERNEINUNG = re.compile(r"\b(not|no|without|denies|despite)\b", re.I)
 
@@ -552,6 +584,7 @@ def werte_news(zusatz, kurstag, scanner_zeilen):
                     warnung = True
             zeilen.append({**s, "ereignisse": [e2 for _, e2 in ev]})
         spalte = ("⚠️ " if warnung else "📰 ") + ", ".join(etiketten) if etiketten else ""
+        zeilen.sort(key=lambda z: not z["ereignisse"])  # Meldungen mit erkanntem Ereignis zuerst zeigen
         ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "info": "ok"}
     return ergebnis
 
@@ -640,12 +673,13 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst):
     df = calculate_indicators(df.copy())
     signale, ueberhitzt, ueberverkauft = strategie_signale(df, einst.mit_short)
     n = len(df)
-    offen = kerze_noch_offen(df)
+    offen = kerze_noch_offen(df, ticker)
     d = {
         "ticker": ticker, "df": df, "idx": df.index, "n": n,
         "n_fertig": n - 1 if offen else n,  # Tagebuch und Depot nutzen nur abgeschlossene Kerzen
         "offen": offen,
-        "O": df['Open'].fillna(df['Close']).to_numpy(dtype=float), "H": df['High'].to_numpy(dtype=float),
+        "O": df['Open'].to_numpy(dtype=float),  # NaN, wenn Yahoo keine Eröffnung liefert
+        "O_ersatz": df['Open'].fillna(df['Close']).to_numpy(dtype=float), "H": df['High'].to_numpy(dtype=float),
         "L": df['Low'].to_numpy(dtype=float), "C": df['Close'].to_numpy(dtype=float),
         "ATR": df['ATR'].to_numpy(dtype=float), "FX": kurs_umrechner(fx, df.index).to_numpy(dtype=float),
         "signale": signale, "ueberhitzt": ueberhitzt, "ueberverkauft": ueberverkauft,
@@ -656,7 +690,8 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst):
     if zahlen_df is not None:
         termine = zahlen_termine(zahlen_df)
         d["termine"] = termine
-        d["morgen"], d["gesperrt"], d["gerade"], d["lang"], d["reak"] = zahlen_regeln(termine, df.index)
+        d["morgen"], d["gesperrt"], d["gerade"], d["lang"], d["reak"] = zahlen_regeln(termine, df.index,
+                                                                                      handelstag(ticker))
     return d
 
 def kandidaten(d, i, pausiert=frozenset()):
@@ -692,14 +727,15 @@ def mit_spread(kurs, r, einstieg):
     return kurs * (1 + SPREAD) if kaufen else kurs * (1 - SPREAD)
 
 def einstieg_moeglich(d, i, r, stop, limit):
-    """Einstieg zur Eröffnung am Tag i nur, wenn die Eröffnung nicht hinter dem Stop und nicht über dem Limit liegt."""
+    """Einstieg zur Eröffnung am Tag i nur, wenn die Eröffnung nicht hinter dem Stop und nicht über dem Limit liegt
+    (fehlt die Eröffnung, ergibt der Vergleich mit NaN False: kein Einstieg)."""
     o = d["O"][i]
     return r * (o - stop) > 0 and r * (limit - o) >= 0
 
 def pruefe_ausstieg(d, i, r, pos):
     """Ausstieg am Tag i? Reihenfolge: Kurslücke über Stop/Ziel (nicht am Einstiegstag), Stop vor Ziel im
     Tagesverlauf, vor Quartalszahlen zum Schluss, Zeitstopp zum Schluss. Gibt (Kurs in $, Grund) zurück."""
-    o, h, l, c = d["O"][i], d["H"][i], d["L"][i], d["C"][i]
+    o, h, l, c = d["O"][i], d["H"][i], d["L"][i], d["C"][i]  # o ist NaN ohne Eröffnung: dann keine Lückenregel
     gegen, fuer = (l, h) if r > 0 else (h, l)  # ungünstigster / günstigster Kurs des Tages
     nicht_neu = pos["start"] != i
     if nicht_neu and r * (o - pos["stop"]) <= 0:
@@ -879,6 +915,9 @@ def simuliere_depot(daten, pausen, einst, lernen):
                              "ziel": auftrag["ziel"], "start": i, "kauf_tag": tag, "kosten": einsatz + gebuehr,
                              "erloes": 0.0, "risiko_eur": stueck * abs(ausfuehrung - stop) / rate}
             letzter_kurs[t] = (d["O"][i], rate)
+            risiko_jetzt = offenes_risiko() / depotwert * 100
+            if risiko_jetzt > hoechstes_risiko[0]:
+                hoechstes_risiko = (risiko_jetzt, len(positionen))
         auftraege = warten
 
         # 2) Stop, Ziel, Quartalszahlen und Zeitstopp prüfen
@@ -919,15 +958,13 @@ def simuliere_depot(daten, pausen, einst, lernen):
             neue.append({"ticker": t, "richtung": r, "strategie": wahl, "stop": stop, "ziel": ziel,
                          "limit": limit_kurs(r, kurs, d["ATR"][i], stop, ziel),
                          "crv": r * (ziel - kurs) / (r * (kurs - stop))})
-        neue.sort(key=lambda a: (-a["crv"], VORRANG[a["strategie"]], reihenfolge[a["ticker"]]))
-        auftraege = [a for a in auftraege if a["ticker"] not in {n["ticker"] for n in neue}] + neue
+        ersetzt = {a["ticker"] for a in neue}
+        auftraege = sorted([a for a in auftraege if a["ticker"] not in ersetzt] + neue,
+                           key=lambda a: (-a["crv"], VORRANG[a["strategie"]], reihenfolge[a["ticker"]]))
 
         # 4) Depotwert zum Schlusskurs
         depotwert = bargeld + sum(positionswert(p, *letzter_kurs[t]) for t, p in positionen.items())
         verlauf.append((tag, depotwert))
-        risiko_jetzt = offenes_risiko() / depotwert * 100 if depotwert > 0 else 0.0
-        if risiko_jetzt > hoechstes_risiko[0]:
-            hoechstes_risiko = (risiko_jetzt, len(positionen))
 
     # Vergleich: Startkapital gleichmäßig aufteilen und jeden Ticker an seinem ersten Handelstag im Zeitraum
     # kaufen und halten (Ticker, die erst später starten, z. B. Börsengänge, bleiben Bargeld)
@@ -937,7 +974,7 @@ def simuliere_depot(daten, pausen, einst, lernen):
         eigene = [tag for tag in d["idx"][:d["n_fertig"]] if tag >= tage[0]]
         if eigene and eigene[0] - tage[0] <= pd.Timedelta(days=7):
             i = d["pos"][eigene[0]]
-            halten[t] = (eigene[0], (anteil - gebuehr) / (mit_spread(d["O"][i], 1, True) / d["FX"][i]))
+            halten[t] = (eigene[0], (anteil - gebuehr) / (mit_spread(d["O_ersatz"][i], 1, True) / d["FX"][i]))
     vergleich = None
     if halten:
         kurse, werte_halten = {}, []
@@ -972,8 +1009,9 @@ def zufallsspanne(erg_a, erg_b):
     """Wie groß kann der Unterschied zweier Depots allein durch Zufall sein? Es zählen nur Trades, die nur eines
     der beiden Depots gemacht hat (gemeinsame heben sich auf); ±2 Standardabweichungen."""
     def ergebnisse(erg):
-        aus = {(p["ticker"], p["kauf_tag"]): p["erloes"] - p["kosten"] for p in erg["trades"]}
-        aus.update({(p["ticker"], p["kauf_tag"]): p["erloes"] + p["wert"] - p["kosten"] for p in erg["offen"]})
+        aus = {(p["ticker"], p["kauf_tag"], p["strategie"]): p["erloes"] - p["kosten"] for p in erg["trades"]}
+        aus.update({(p["ticker"], p["kauf_tag"], p["strategie"]): p["erloes"] + p["wert"] - p["kosten"]
+                    for p in erg["offen"]})
         return aus
     a, b = ergebnisse(erg_a), ergebnisse(erg_b)
     nur_einer = [v for k, v in a.items() if k not in b] + [v for k, v in b.items() if k not in a]
@@ -993,10 +1031,10 @@ def naechster_termin(d, kurstag):
     zukunft = [t for t in d["termine"] if reaktionstag(t) > kurstag]
     return zukunft[0] if zukunft else None
 
-def letzter_tag_vor(termin, kurstag):
-    """Letzter Handelstag (Mo–Fr, Feiertage nicht berücksichtigt) vor dem Reaktionstag der Zahlen."""
+def letzter_tag_vor(termin, kurstag, schritt):
+    """Letzter Handelstag vor dem Reaktionstag der Zahlen (nach dem Börsenkalender)."""
     reak = reaktionstag(termin)
-    tage = pd.bdate_range(kurstag + pd.Timedelta(days=1), reak - pd.Timedelta(days=1))
+    tage = pd.date_range(kurstag + schritt, reak - pd.Timedelta(days=1), freq=schritt)
     return tage[-1] if len(tage) else None
 
 def scanner_zeile(t, d, pausiert, einst):
@@ -1031,7 +1069,8 @@ def scanner_zeile(t, d, pausiert, einst):
         stop, ziel = stop_a[i] / rate, ziel_a[i] / rate
         limit = limit_kurs(r, kurs, d["ATR"][i] / rate, stop, ziel)
         stueck = positionsgroesse(kurs, stop, einst.konto, einst.risiko, einst.bruchstuecke)
-        zeile.update({"Signal": KAUFEN if r > 0 else SHORT, "Strategie": strategie_name(wahl), "Limit": limit,
+        zeile.update({"Signal": KAUFEN if r > 0 else SHORT,
+                      "Strategie": strategie_name(wahl) + ("" if stueck else " (Konto zu klein)"), "Limit": limit,
                       "Stop": stop, "Ziel": ziel, "CRV": r * (ziel - kurs) / (r * (kurs - stop)), "Stück": stueck,
                       "Einsatz": stueck * kurs, "Risiko": stueck * abs(kurs - stop)})
         if zeile["_offen"]:
@@ -1077,26 +1116,39 @@ def handelsplan(zeile, nr, einst, waehrung):
     """Ein Satz, was genau zu tun ist (für KAUFEN/SHORT)."""
     t = zeile["Ticker"]
     kaufen = zeile["Signal"] == KAUFEN
-    einstieg = zeile["_stand"] + pd.offsets.BDay(1)
-    zeitstopp = einstieg + pd.offsets.BDay(ZEITSTOPP_TAGE - 1)
-    raus, warum = zeitstopp, f"{ZEITSTOPP_TAGE} Handelstage"
+    kopf = f"{'🟢' if kaufen else '🔴'} {nr}. {t} · {zeile['Strategie']}"
+    if not zeile["Stück"]:
+        return (f"{kopf}: Mit deinem Konto ist nicht einmal 1 Stück möglich (Risiko je Trade bzw. höchstens "
+                f"{MAX_POSITION_PROZENT} % des Kontos je Position) – auslassen oder --bruchstuecke nutzen.")
+    schritt = handelstag(t)
+    einstieg = zeile["_stand"] + schritt
+    raus, warum = einstieg + (ZEITSTOPP_TAGE - 1) * schritt, f"{ZEITSTOPP_TAGE} Handelstage"
     if zeile["_termin"] is not None:
-        vor_zahlen = letzter_tag_vor(zeile["_termin"], zeile["_stand"])
+        vor_zahlen = letzter_tag_vor(zeile["_termin"], zeile["_stand"], schritt)
         if vor_zahlen is not None and vor_zahlen < raus:
             raus, warum = vor_zahlen, f"Quartalszahlen {datum(zeile['_termin'])} {uhrzeit_text(zeile['_termin'])}"
+    if ist_krypto(t):  # Handel rund um die Uhr, Tageskerze nach UTC
+        ab, bis = "", ""
+    elif waehrung_von(t) == "USD":
+        ab, bis = f" ab {berlin(einstieg, '09:30')} Uhr (US-Börsenstart)", f" vor {berlin(raus, '16:00')} Uhr"
+    else:
+        ab, bis = " ab 09:00 Uhr (Börsenstart)", " vor 17:30 Uhr"
     stueck = de(zeile["Stück"], 2 if einst.bruchstuecke else 0)
     if kaufen:
         tun = f"{stueck} Stück kaufen, Limit {de(zeile['Limit'])} {waehrung} (höchster Kaufkurs)"
     else:
         tun = (f"{stueck} Stück leerverkaufen (z. B. per CFD/Turbo), Limit {de(zeile['Limit'])} {waehrung} "
                f"(tiefster Verkaufskurs)")
-    return (f"{'🟢' if kaufen else '🔴'} {nr}. {t} · {zeile['Strategie']}: Am {datum(einstieg)} ab "
-            f"{berlin(einstieg, '09:30')} Uhr (US-Börsenstart) {tun}. Sofort Stop {de(zeile['Stop'])} {waehrung} "
-            f"setzen, Ziel {de(zeile['Ziel'])} {waehrung}. Greift der Stop, verlierst du ca. "
-            f"{de(zeile['Risiko'], 0)} {waehrung} (bei Kurslücken mehr). Spätestens {datum(raus)} vor "
-            f"{berlin(raus, '16:00')} Uhr {'verkaufen' if kaufen else 'eindecken'} ({warum}).")
+    risiko_limit = zeile["Stück"] * abs(zeile["Limit"] - zeile["Stop"])
+    satz = (f"{kopf}: Am {datum(einstieg)}{ab} {tun}. Sofort Stop {de(zeile['Stop'])} {waehrung} setzen, Ziel "
+            f"{de(zeile['Ziel'])} {waehrung}. Greift der Stop, verlierst du ca. {de(zeile['Risiko'], 0)} {waehrung} "
+            f"(bei Einstieg zum Limit bis {de(risiko_limit, 0)} {waehrung}, bei Kurslücken mehr). Spätestens "
+            f"{datum(raus)}{bis} {'verkaufen' if kaufen else 'eindecken'} ({warum}).")
+    if str(zeile.get("Zahlen", "")).startswith("?"):
+        satz += " Achtung: Quartalszahlen-Termin unbekannt – vor dem Kauf selbst prüfen."
+    return satz
 
-def marktampel(markt):
+def marktampel(markt, mit_short=True):
     if markt is None:
         return None
     d = markt["df"]
@@ -1106,7 +1158,8 @@ def marktampel(markt):
         return None
     if d["Close"].iloc[i] > sma:
         return "🟢 Markt (Nasdaq-100/QQQ) über der 50-Tage-Linie – Rückenwind für Long."
-    return "🔴 Markt (Nasdaq-100/QQQ) unter der 50-Tage-Linie – Vorsicht bei Long, Rückenwind für Short."
+    return ("🔴 Markt (Nasdaq-100/QQQ) unter der 50-Tage-Linie – Vorsicht bei Long"
+            + (", Rückenwind für Short." if mit_short else "."))
 
 def kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, ohne_zahlen):
     ok = [z for z in zeilen if "_stand" in z]
@@ -1120,11 +1173,12 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, ohne_zahlen):
     zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in (KAUFEN, SHORT, WARTEN, SICHERN, BEOBACHTEN, FEHLER)
                                  if s in anzahl)
     hinweise = []
-    ampel = marktampel(markt)
+    ampel = marktampel(markt, einst.mit_short)
     if ampel:
         hinweise.append(ampel)
     gesamt = einst.konto * MAX_GESAMTRISIKO_PROZENT / 100
-    hinweise.append(f"Regel: höchstens {MAX_POSITIONEN} Positionen gleichzeitig (davon höchstens {MAX_SHORTS} Short) "
+    shorts = f" (davon höchstens {MAX_SHORTS} Short)" if einst.mit_short else ""
+    hinweise.append(f"Regel: höchstens {MAX_POSITIONEN} Positionen gleichzeitig{shorts} "
                     f"und zusammen höchstens {MAX_GESAMTRISIKO_PROZENT} % = {de(gesamt, 0)} {waehrung} Risiko – "
                     f"bei mehr Signalen die oberen nehmen.")
     if not fx_heute:
@@ -1132,7 +1186,8 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, ohne_zahlen):
     if ohne_zahlen:
         hinweise.append("⚠️ Ohne Quartalszahlen-Termine (--ohne-zahlen): Die Zahlen-Regel ist aus – Termine selbst prüfen.")
     if any(z["_offen"] for z in ok):
-        hinweise.append("⏳ US-Börse noch offen: Die heutige Kerze ist nicht fertig. Signale sind vorläufig – vor "
+        hinweise.append("⏳ Die heutige Tageskerze ist noch nicht fertig (US-Börse offen bzw. Krypto-Tag läuft). "
+                        "Signale sind vorläufig – vor "
                         "allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. "
                         "Mit --nur-schluss nur fertige Tage bewerten.")
     if einst.nur_schluss and any(z["_kerze_offen"] for z in ok):
@@ -1152,10 +1207,17 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
         fuss.append(f"❌ {', '.join(ticker)}: {grund}")
     ohne_termine = [z["Ticker"] for z in zeilen if z.get("Zahlen", "").startswith("?")]
     if ohne_termine:
-        gruende = sorted({zusatz.get(t, {}).get("zahlen_info", "") for t in ohne_termine} - {"ok", ""})
-        fuss.append(f"⚠️ Kein (aktueller) Quartalszahlen-Termin für {', '.join(ohne_termine)}"
-                    f"{' (' + '; '.join(gruende) + ')' if gruende else ''} – vor dem Kauf selbst prüfen.")
-    if fehler or ohne_termine:
+        je_grund = {}
+        for t in ohne_termine:
+            info = zusatz.get(t, {}).get("zahlen_info", "")
+            je_grund.setdefault(info if info and info != "ok" else "kein künftiger Termin bei Yahoo", []).append(t)
+        teile = "; ".join(f"{', '.join(ts)}: {grund}" for grund, ts in je_grund.items())
+        fuss.append(f"⚠️ Zahlen „?“ = kein (aktueller) Quartalszahlen-Termin ({teile}) – vor dem Kauf selbst prüfen.")
+    ohne_news = [t for t, n in news.items() if n.get("spalte") == "?"]
+    if ohne_news:
+        gruende = "; ".join(sorted({news[t].get("info", "") for t in ohne_news}))
+        fuss.append(f"📰 News „?“ = Schlagzeilen für {', '.join(ohne_news)} nicht geladen ({gruende}) – selbst prüfen.")
+    if fehler or ohne_termine or ohne_news:
         fuss.append("")
     heute = sorted({z["_strategie"] for z in zeilen if z.get("_strategie")}, key=VORRANG.get)
     for key in heute:
@@ -1165,6 +1227,9 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
                 f"Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = "
                 f"1 ÷ (1 + CRV), bei CRV 2 also 34 %, bei CRV 1 über 50 %. ⏸ WARTEN = ein Signal ist da, aber eine "
                 f"Regel hält den Bot zurück (Grund in der Spalte Strategie).")
+    if any(z.get("Signal") == SICHERN for z in zeilen):
+        fuss.append("⚠️ GEWINNE SICHERN = überhitzt bzw. überverkauft. Nur ein Hinweis für eine Position, die du schon "
+                    "hast (z. B. einen Teil verkaufen oder den Stop nachziehen) – das virtuelle Depot handelt danach nicht.")
     if einst.mit_short:
         fuss.append("🔴 Short = auf fallende Kurse setzen (z. B. per CFD oder Turbo-Schein). Verluste sind nach oben "
                     "offen. Bei Hebelprodukten zählt der Verlust am Stop, nicht der Einsatz: Hebel × Einsatz = echte "
@@ -1176,7 +1241,15 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
                     "selbst lesen. Sie unterdrücken keine Signale, weil sie sich nicht rückwirkend testen lassen.")
     return fuss
 
+def kuerzen(text, laenge):
+    text = str(text)
+    return text if len(text) <= laenge else text[:laenge - 1] + "…"
+
 def als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farbig=False, mitte=()):
+    tabelle = tabelle.copy()
+    for spalte, laenge in (("Strategie", 28), ("News", 26)):  # Details stehen im Plan bzw. bei den Schlagzeilen
+        if spalte in tabelle:
+            tabelle[spalte] = tabelle[spalte].map(lambda v: kuerzen(v, laenge))
     # east_asian_width: Emojis zählen als 2 Zeichen breit, damit die Spalten bündig bleiben
     with pd.option_context("display.unicode.east_asian_width", True):
         text = tabelle.to_string(index=False, formatters=formate, na_rep="–")
@@ -1193,7 +1266,7 @@ def als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farbig=Fa
 def absatz(text, stil=""):
     return f'<p style="margin: 2px 0; {stil}">{html.escape(text)}</p>' if text else "<br>"
 
-def tabelle_als_html(tabelle, formate, zellfarben=None, links=2):
+def tabelle_als_html(tabelle, formate, zellfarben=None, links=2, umbruch=()):
     """Styler-Tabelle; ohne jinja2 eine schlichte, aber formatierte HTML-Tabelle."""
     try:
         stil = tabelle.style
@@ -1206,7 +1279,9 @@ def tabelle_als_html(tabelle, formate, zellfarben=None, links=2):
                     {"selector": "th", "props": "padding: 4px 8px; text-align: center;"},
                     {"selector": "td", "props": "padding: 4px 8px; text-align: right;"},
                     {"selector": links_css, "props": "text-align: left; font-weight: bold;"},
-                ])
+                    {"selector": "td, th", "props": "white-space: nowrap;"},
+                ] + [{"selector": f"td.col{tabelle.columns.get_loc(s)}", "props": "white-space: normal; text-align: left;"}
+                     for s in umbruch if s in tabelle.columns])
                 .to_html())
     except (ImportError, AttributeError):  # ohne jinja2 gibt es keinen Styler
         return tabelle.to_html(index=False, na_rep="–", formatters=formate)
@@ -1233,7 +1308,8 @@ def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
         mitte_html += absatz(schlagzeilen[0], "font-weight: bold; margin-top: 8px;")
         mitte_html += "".join(absatz(s, "font-size: 0.9em;") for s in schlagzeilen[1:])
     fuss_html = "".join(absatz(f, "font-size: 0.9em; opacity: 0.8;") for f in fuss)
-    zeige(kopf + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, formate, zeilenfarbe, 3) + "</div>"
+    zeige(kopf + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, formate, zeilenfarbe, 3, ("News",))
+          + "</div>"
           + mitte_html + '<div style="margin-top: 8px;">' + fuss_html + "</div>",
           als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, mitte=mitte))
 
@@ -1267,7 +1343,8 @@ def lern_tabelle(stand, einst, waehrung):
             status = "✅ aktiv"
         zeilen.append({"Strategie": strategie_name(key), "Trades": f"{s['n']} von {s['gesamt']}",
                        "Ø je Trade": s["schnitt"],
-                       "≈ je Trade": f"{de(s['schnitt'] * risiko, 0, True)} {waehrung}" if s["n"] else "–",
+                       "≈ je Trade": (f"{de(s['schnitt'] * risiko, 0 if abs(s['schnitt'] * risiko) >= 10 else 2, True)} "
+                                      f"{waehrung}" if s["n"] else "–"),
                        "± Zufall": s["spanne"], "Einschätzung": einschaetzung, "Status": status})
     return pd.DataFrame(zeilen)
 
@@ -1283,7 +1360,9 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
         f"Strategien handeln im Tagebuch weiter.",
         "± Zufall: So weit kann der Schnitt allein durch Glück oder Pech schwanken. Lässt man 10 Strategien ganz ohne "
         "Vorteil je 20 Trades machen, zeigt die beste meist um +0,5 R – reiner Zufall. Erst ab etwa 100–200 Trades "
-        "lässt sich ein Vorteil von 0,2–0,3 R von Glück unterscheiden. 'Pausiert' ist eine Vorsichtsmaßnahme, kein Beweis.",
+        "lässt sich ein Vorteil von 0,2–0,3 R von Glück unterscheiden. Bei 10 Strategien wirkt auch ohne echten Vorteil "
+        "oft eine 'klar im Plus' oder 'klar im Minus' – das sind Hinweise, keine Beweise. 'Pausiert' ist eine "
+        "Vorsichtsmaßnahme.",
         rueckschau_hinweis,
     ]
     text = "\n".join(["", titel, tabelle.to_string(index=False, formatters=LERN_FORMATE, na_rep="–"), *erklaerung])
@@ -1292,8 +1371,8 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
         return
 
     def statusfarbe(zeile):
-        return ["color: #b26a00; font-weight: bold;" if s == "Status" and "pausiert" in zeile["Status"] else ""
-                for s in zeile.index]
+        return ["background-color: #fff3cd; color: #1b1b1b; font-weight: bold;"
+                if s == "Status" and "pausiert" in zeile["Status"] else "" for s in zeile.index]
 
     zeige(absatz(titel, "font-size: 1.15em; font-weight: bold; margin-top: 18px;")
           + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, LERN_FORMATE, statusfarbe, 1) + "</div>"
@@ -1322,11 +1401,15 @@ def depot_auswertung(erg, ohne, einst, waehrung):
     if ohne is not None:
         unterschied = erg["end_wert"] - ohne["end_wert"]
         spanne = zufallsspanne(erg, ohne)
-        einordnung = ("Das liegt im Zufallsbereich – ob das Lernen hilft, lässt sich aus diesem Zeitraum nicht ablesen "
-                      "(das ist fast immer so)." if abs(unterschied) <= spanne else
-                      "Der Unterschied ist größer als die Zufallsspanne – ein Hinweis, kein Beweis.")
-        zeilen.append(f"Ohne Lernen: {de(ohne['end_wert'])} {waehrung} · Unterschied {de(unterschied, 0, True)} "
-                      f"{waehrung} · Zufallsspanne ±{de(spanne, 0)} {waehrung} → {einordnung}")
+        if abs(unterschied) < 0.005 and spanne == 0:
+            zeilen.append(f"Ohne Lernen: {de(ohne['end_wert'])} {waehrung} – beide Depots sind gleich, die Pausen haben "
+                          f"im Rückblick keinen Trade verändert.")
+        else:
+            einordnung = ("Das liegt im Zufallsbereich – ob das Lernen hilft, lässt sich aus diesem Zeitraum nicht "
+                          "ablesen (das ist fast immer so)." if abs(unterschied) <= spanne else
+                          "Der Unterschied ist größer als die Zufallsspanne – ein Hinweis, kein Beweis.")
+            zeilen.append(f"Ohne Lernen: {de(ohne['end_wert'])} {waehrung} · Unterschied {de(unterschied, 0, True)} "
+                          f"{waehrung} · Zufallsspanne ±{de(spanne, 0)} {waehrung} → {einordnung}")
     if erg["vergleich"] is not None:
         v_ende = float(erg["vergleich"].iloc[-1])
         ohne_t = f" (ohne {', '.join(erg['nicht_gehalten'])} – erst später gehandelt)" if erg["nicht_gehalten"] else ""
@@ -1337,14 +1420,16 @@ def depot_auswertung(erg, ohne, einst, waehrung):
         zeilen.append(f"Abgeschlossene Trades: {len(trades)} · Gewinner: {gewinner} "
                       f"({de(gewinner / len(trades) * 100, 0)} %) · größter Rückgang des Depots: "
                       f"{de(erg['max_rueckgang'], 1)} % · höchstes gleichzeitiges Risiko: "
-                      f"{de(erg['hoechstes_risiko'][0], 1)} % ({erg['hoechstes_risiko'][1]} Positionen)")
+                      f"{de(erg['hoechstes_risiko'][0], 1)} % ({erg['hoechstes_risiko'][1]} "
+                      f"Position{'en' if erg['hoechstes_risiko'][1] != 1 else ''})")
         teile = []
         for name_r, r in (("Long", 1), ("Short", -1)):
             auswahl = [p for p in trades if p["richtung"] == r]
             if auswahl:
                 summe = sum(p["erloes"] - p["kosten"] for p in auswahl)
                 treffer = sum(1 for p in auswahl if p["erloes"] > p["kosten"])
-                teile.append(f"{name_r}: {len(auswahl)} Trades, {treffer} Gewinner, {de(summe, 2, True)} {waehrung}")
+                teile.append(f"{name_r}: {len(auswahl)} Trade{'s' if len(auswahl) != 1 else ''}, {treffer} Gewinner, "
+                             f"{de(summe, 2, True)} {waehrung}")
         teile.append(f"Kosten: Gebühren {de(erg['gebuehren'])} {waehrung} + Spread ca. {de(erg['spread'])} {waehrung}")
         zeilen.append(" · ".join(teile))
     else:
@@ -1453,7 +1538,7 @@ def depot_chart_svg(reihen, start_wert, waehrung):
  aria-label="Depotwert des Bots im Vergleich">{''.join(teile)}</svg>
 </div>"""
 
-def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, rueckschau_hinweis):
+def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, rueckschau_hinweis, ohne_zahlen=False):
     zusammenfassung = depot_auswertung(erg, ohne, einst, waehrung)
     tabelle = trade_tabelle(erg)
     weggelassen = 0
@@ -1464,15 +1549,17 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
     hinweis = (f"… {weggelassen} ältere Trades nicht angezeigt – alle Trades speichert --csv in einer eigenen Datei."
                if weggelassen else "")
     regeln = (f"Regeln: Signal zum Schlusskurs, Einstieg zur Eröffnung des nächsten Handelstags nur bis zum Limit; "
-              f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), zum Schluss vor Quartalszahlen "
-              f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen, {MAX_SHORTS} Shorts und "
+              f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), "
+              f"{'' if ohne_zahlen else 'zum Schluss vor Quartalszahlen '}"
+              f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen"
+              f"{f', {MAX_SHORTS} Shorts' if einst.mit_short else ''} und "
               f"{MAX_GESAMTRISIKO_PROZENT} % Gesamtrisiko; {de(einst.gebuehr)} {waehrung} Gebühr + "
               f"{prozent(SPREAD_PROZENT)} % Spread je Order; "
               f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}. "
               f"{'Shorts ohne Leih-/Finanzierungskosten gerechnet. ' if einst.mit_short else ''}"
-              f"Termine im Rückblick sind die tatsächlichen, live können sie sich verschieben. "
+              f"{'Ohne Quartalszahlen-Regel gerechnet (--ohne-zahlen). ' if ohne_zahlen else 'Termine im Rückblick sind die tatsächlichen, live können sie sich verschieben. '}"
               f"Simulation mit vergangenen Kursen – kein echtes Geld, keine Garantie für die Zukunft.")
-    if ohne_zahlen_regel:
+    if ohne_zahlen_regel and not ohne_zahlen:
         regeln += f" Zahlen-Regel nicht angewandt für: {', '.join(ohne_zahlen_regel)} (keine Termine)."
     text = "\n".join(["", zusammenfassung[0], *("   " + z for z in zusammenfassung[1:])])
     if tabelle is not None:
@@ -1499,7 +1586,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
     teile += [absatz(z) for z in zusammenfassung[1:]]
     teile.append(depot_chart_svg(reihen, erg["start_wert"], waehrung))
     if tabelle is not None:
-        teile.append('<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, TRADE_FORMATE, ergebnisfarbe, 3)
+        teile.append('<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, TRADE_FORMATE, ergebnisfarbe, 3, ("Grund",))
                      + "</div>")
     if hinweis:
         teile.append(absatz(hinweis, "font-size: 0.9em;"))
@@ -1559,11 +1646,14 @@ def main():
     markt = bereite_vor(MARKT_TICKER, markt_df, None, None, einst) if markt_df is not None else None
 
     if not daten:
-        print("\n❌ Für keinen Ticker konnten Kursdaten geladen werden – meist keine Verbindung zu Yahoo "
-              "oder Yahoo-Limit erreicht.")
+        verbindung = (fx_daten is None and markt_df is None) or any(
+            g in (YAHOO_LIMIT, KEINE_VERBINDUNG) for g in gruende.values())
+        print("\n❌ Für keinen Ticker gibt es auswertbare Kurse"
+              + (" – meist keine Verbindung zu Yahoo oder Yahoo-Limit erreicht." if verbindung else ":"))
         for t in einst.ticker_liste:
             print(f"❌ {t}: {gruende.get(t, 'Währung nicht unterstützt – nur US- und Euro-Börsen')}")
-        print("Internetverbindung prüfen oder in 1–2 Minuten erneut starten.")
+        if verbindung:
+            print("Internetverbindung prüfen oder in 1–2 Minuten erneut starten.")
         return None
 
     # Strategie-Tagebuch und Lernstand (nur abgeschlossene Kerzen)
@@ -1637,7 +1727,7 @@ def main():
             ohne = simuliere_depot(daten, pausen, einst, False)
         if depot is not None:
             ohne_regel = [t for t, d in daten.items() if d["termine"] is None and hat_zahlen(t)]
-            zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, RUECKSCHAU)
+            zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, RUECKSCHAU, einst.ohne_zahlen)
 
     if einst.csv:
         speichere_csv(tabelle, einst.csv)
