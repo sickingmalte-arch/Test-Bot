@@ -37,7 +37,7 @@ Neue Zelle anlegen, einfügen und mit Umschalt + Enter ausführen:
 
 Mit `%run` erscheinen farbige Tabellen und ein Diagramm; mit `!python swing_scanner.py` die Textversion.
 
-Mit Papier-Depot (Vorwärtstest mit virtuellem Geld, Stand in deinem Google Drive) – Colab fragt beim ersten Mal nach der Erlaubnis für Drive. Am besten jeden Börsentag einmal abends starten:
+Mit Papier-Depot (Vorwärtstest mit virtuellem Geld, Stand in deinem Google Drive) – Colab fragt beim ersten Mal nach der Erlaubnis für Drive. Am besten jeden Börsentag einmal abends nach 22:15 Uhr starten (dann ist der US-Handelstag fertig; mit Krypto auf der Liste zählt ein Tag erst nach 2:00 Uhr). `--papier-neu` nur einmal zum Neuanfangen anhängen und danach wieder weglassen:
 
 ```
 !pip install -q -U yfinance
@@ -56,7 +56,7 @@ python swing_scanner.py
 
 1. **Scanner (heute):** je Ticker 🟢 KAUFEN, 🔴 SHORT, ⏸ WARTEN (mit Grund), ⚠️ GEWINNE SICHERN, BEOBACHTEN oder ❌ FEHLER – mit Strategie, Kurs, Limit (höchster Kaufkurs), Stop, Ziel, Chance-Risiko-Verhältnis (CRV), Stückzahl, Einsatz, Risiko in €, nächstem Quartalszahlen-Termin und erkannten Ereignissen aus den Schlagzeilen. Für die besten Signale steht darunter ein Handelsplan in einem Satz (wann, wie viel, bis zu welchem Kurs, Stop, Ziel, spätestens raus am …) – nach denselben Grenzen wie im Depot: höchstens 5 Positionen, davon 2 Short, zusammen höchstens 5 % Risiko und nicht mehr Geld als auf dem Konto. Alle Beträge in Euro.
 2. **Strategie-Tagebuch („Lernen“):** Jede der 16 Strategien handelt im Hintergrund gedanklich mit. Läuft eine Strategie über ihre letzten bis zu 60 Trades im Schnitt deutlich schlecht (unter −0,1 R ab 20 Trades), wird sie pausiert, bis sie wieder im Plus ist. Die Tabelle zeigt ehrlich, wie groß der Zufall dabei sein kann.
-3. **Papier-Depot (Vorwärtstest, mit `--papier`):** Der Bot handelt ab dem ersten Lauf vorwärts mit virtuellem Geld nach genau denselben Regeln und speichert den Stand – in Colab in Google Drive (`MyDrive/swing_scanner/papier_depot.json`), sonst in `papier_depot.json`. Jeder Lauf rechnet die neuen fertigen Kurstage seit dem letzten Lauf: Aufträge vom Vorabend zur Eröffnung (nur bis zum Limit), Stop, Ziel, Quartalszahlen, Zeitstopp, neue Signale zum Schluss. Verpasste Tage holt er nach, jede Entscheidung nutzt nur Kurse, die es da schon gab. Aktiensplits und Dividenden (Yahoo rechnet alte Kurse um) werden erkannt und verrechnet. Das ist der ehrliche Test: Anders als der Rückblick kennt das Papier-Depot die Zukunft nicht.
+3. **Papier-Depot (Vorwärtstest, mit `--papier`):** Der Bot handelt ab dem ersten Lauf vorwärts mit virtuellem Geld nach genau denselben Regeln und speichert den Stand – in Colab in Google Drive (`MyDrive/swing_scanner/papier_depot.json`), sonst in `papier_depot.json`. Jeder Lauf rechnet die neuen Kurstage seit dem letzten Lauf, sobald sie für alle Werte der Liste fertig sind: Aufträge vom Vorabend zur Eröffnung (nur bis zum Limit), Stop, Ziel, Quartalszahlen, Zeitstopp, neue Signale zum Schluss. Verpasste Tage holt er nach, jede Entscheidung nutzt nur Kurse, die es da schon gab. Aktiensplits und Dividenden (Yahoo rechnet alte Kurse um) werden erkannt und verrechnet. Das ist der ehrliche Test: Anders als der Rückblick kennt das Papier-Depot die Zukunft nicht.
 4. **Virtuelles Depot (Rückblick):** Der Bot handelt die letzten Monate mit dem Startkapital nach seinen Signalen – einmal mit und einmal ohne Lernen – im Vergleich zu „alle Ticker kaufen und halten“. Es wird kein echtes Geld bewegt.
 
 ### Strategien und Regeln
@@ -84,7 +84,7 @@ python swing_scanner.py
 | `--gebuehr 1` | Ordergebühr in € je Kauf/Verkauf |
 | `--bruchstuecke` | auch Bruchteile von Aktien handeln |
 | `--nur-schluss` | laufende Tageskerze ignorieren, nur abgeschlossene Tage bewerten |
-| `--papier` | Papier-Depot fortschreiben (Vorwärtstest mit virtuellem Geld, Stand wird gespeichert); eigene Datei mit `--papier meine_datei.json` |
+| `--papier` | Papier-Depot fortschreiben (Vorwärtstest mit virtuellem Geld, Stand wird gespeichert); eigene Datei mit `--papier meine_datei.json` (in Colab ebenfalls im Drive-Ordner `swing_scanner`) |
 | `--papier-neu` | Papier-Depot neu anfangen (der bisherige Stand bleibt als Kopie mit Datum erhalten) |
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |

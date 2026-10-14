@@ -956,7 +956,14 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
         if len(tage) < 5:
             return None
     else:
+        # Ein Tag zählt erst, wenn er für alle Ticker fertig ist (läuft z. B. die US- oder Krypto-Kerze noch, wartet
+        # er auf den nächsten Lauf) – sonst wäre er für diese Ticker danach für immer übersprungen
+        laufend = [d["idx"][d["n_fertig"]] for d in daten.values() if d["n_fertig"] < d["n"]]
+        if laufend:
+            alle_tage = [tag for tag in alle_tage if tag < min(laufend)]
         tage = [tag for tag in alle_tage if tag > zustand["bis"]] if zustand["bis"] is not None else alle_tage[-1:]
+        if zustand["bis"] is None and not tage:
+            return None
 
     gebuehr = einst.gebuehr
     bargeld = float(einst.konto)
@@ -1761,10 +1768,9 @@ def in_colab():
 
 def papier_pfad(wert):
     """(Datei, Fehlertext). In Colab liegt das Papier-Depot in Google Drive, damit es nach dem Schließen bleibt."""
-    if wert != "auto":
-        return os.path.abspath(os.path.expanduser(wert)), None
-    if not in_colab():
-        return os.path.abspath(PAPIER_DATEI), None
+    pfad = os.path.expanduser(PAPIER_DATEI if wert == "auto" else wert)
+    if not in_colab() or os.path.isabs(pfad):
+        return os.path.abspath(pfad), None
     if not os.path.isdir("/content/drive/MyDrive"):
         try:
             from google.colab import drive
@@ -1774,14 +1780,17 @@ def papier_pfad(wert):
     if not os.path.isdir("/content/drive/MyDrive"):
         return None, ("Google Drive ist nicht verbunden – das Papier-Depot wurde nicht gespeichert. In Colab vorher in "
                       "einer eigenen Zelle ausführen: from google.colab import drive; drive.mount('/content/drive')")
-    return PAPIER_DATEI_COLAB, None
+    return os.path.join(os.path.dirname(PAPIER_DATEI_COLAB), pfad), None
 
 def lade_papier(pfad, neu_anlegen):
     """(Stand oder None, Fehlertext). Mit neu_anlegen wird ein vorhandener Stand als Kopie aufbewahrt."""
     if not os.path.exists(pfad):
         return None, None
     if neu_anlegen:
-        kopie = f"{os.path.splitext(pfad)[0]}_bis_{pd.Timestamp.now(tz=BERLIN):%Y-%m-%d_%H%M}.json"
+        basis = f"{os.path.splitext(pfad)[0]}_bis_{pd.Timestamp.now(tz=BERLIN):%Y-%m-%d_%H%M%S}"
+        kopie, nr = basis + ".json", 2
+        while os.path.exists(kopie):  # eine vorhandene Kopie nie überschreiben
+            kopie, nr = f"{basis}_{nr}.json", nr + 1
         try:
             os.replace(pfad, kopie)
         except OSError as fehler:
@@ -1858,7 +1867,8 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
     bericht = {"neu": stand is None, "anpassungen": [], "warnung": None, "nicht_ausgefuehrt": []}
     if stand is None:
         stand = neues_papier(einst)
-    fehlen = [p["ticker"] for p in stand["positionen"] if p["ticker"] not in daten]
+    fehlen = [t for t in dict.fromkeys(x["ticker"] for x in stand["positionen"] + stand["auftraege"])
+              if t not in daten]
     if fehlen:
         bericht["warnung"] = (f"Keine Kurse für {', '.join(fehlen)} – das Papier-Depot wurde diesmal nicht "
                               f"weitergerechnet (wird beim nächsten Lauf nachgeholt).")
@@ -1869,7 +1879,7 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
             "hoechstes_risiko": stand["hoechstes_risiko"],
             "positionen": [dict(p, kauf_tag=als_tag(p["kauf_tag"], daten[p["ticker"]]["idx"]))
                            for p in stand["positionen"]],
-            "auftraege": [dict(a) for a in stand["auftraege"] if a["ticker"] in daten]}
+            "auftraege": [dict(a) for a in stand["auftraege"]]}
     for p in lauf["positionen"]:
         if p["kauf_tag"] not in daten[p["ticker"]]["pos"]:
             bericht["warnung"] = (f"Kaufdatum {iso(p['kauf_tag'])} von {p['ticker']} fehlt in den Kursdaten – das "
@@ -1892,14 +1902,13 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
             continue
         fx = d["FX"][i]
         vorher = positionswert(p, d["C"][i] / r, fx)
-        rate = p["einstieg_usd"] / p["einsatz_je_stueck"]  # Wechselkurs beim Einstieg
-        split = abs(1 - r) > 0.2
+        split = abs(1 - r) > 0.15  # auch 5:4 (r = 0,8) und 6:5 sind Splits, Dividenden liegen weit darunter
         if split:
             p["stueck"] = round(p["stueck"] / r, 6)
-        if split or p["richtung"] > 0:  # beim Short ist der Einsatz je Stück hinterlegtes Geld, kein Kurs
-            p["einsatz_je_stueck"] *= r
+            p["einsatz_je_stueck"] *= r  # gezahlter Betrag je neuer Aktie
+        else:
+            p["risiko_eur"] *= r  # Einsatz je Stück bleibt der gezahlte Kurs
         p["einstieg_usd"], p["stop"], p["ziel"] = p["einstieg_usd"] * r, p["stop"] * r, p["ziel"] * r
-        p["risiko_eur"] = p["stueck"] * abs(p["einstieg_usd"] - p["stop"]) / rate
         ausgleich = vorher - positionswert(p, d["C"][i], fx)  # Depotwert bleibt gleich, Rest als Bargeld
         lauf["bargeld"] += ausgleich
         if split:
@@ -1946,7 +1955,10 @@ def papier_ansicht(stand, erg):
     """Positionen und Trades für die Trade-Tabelle (Datumsangaben als Zeitpunkte)."""
     trades = [dict(p, kauf_tag=pd.Timestamp(p["kauf_tag"]), verkauf_tag=pd.Timestamp(p["verkauf_tag"]))
               for p in stand["trades"]]
-    return {"offen": erg["positionen"] if erg is not None else [], "trades": trades}
+    offen = erg["positionen"] if erg is not None else [
+        dict(p, kauf_tag=pd.Timestamp(p["kauf_tag"]), wert=math.nan, kurs_jetzt=math.nan, tage="?")
+        for p in stand["positionen"]]
+    return {"offen": offen, "trades": trades}
 
 def papier_vergleich(stand, markt, fx):
     """Nasdaq-100 (QQQ) seit dem Start des Papier-Depots, umgerechnet in € und auf das Startkapital skaliert."""
@@ -1962,7 +1974,21 @@ def papier_vergleich(stand, markt, fx):
         return None
     return pd.Series(stand["startkapital"] * werte.to_numpy() / werte.iloc[0], index=pd.DatetimeIndex(tage))
 
-def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, nach_ticker_name):
+def eroeffnung_vorbei(auftraege, termine):
+    """Ist die Eröffnung, zu der die Aufträge ausgeführt werden, jetzt schon vorbei (Lauf während der Börsenzeit)?"""
+    for a in auftraege:
+        t, tag = a["ticker"], termine[a["ticker"]]
+        if ist_krypto(t):
+            start = pd.Timestamp(tag.date(), tz="UTC")
+        elif waehrung_von(t) == "USD":
+            start = pd.Timestamp(f"{tag:%Y-%m-%d} 09:30", tz=NY)
+        else:
+            start = pd.Timestamp(f"{tag:%Y-%m-%d} 09:00", tz=BERLIN)
+        if pd.Timestamp.now(tz="UTC") >= start:
+            return True
+    return False
+
+def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, name_von):
     """Überschrift, Zusammenfassung und Hinweise des Papier-Depots als Textzeilen."""
     start = pd.Timestamp(stand["angelegt"]) if stand["angelegt"] else None
     kopf = (f"📒 PAPIER-DEPOT · Vorwärtstest seit {start:%d.%m.%Y} mit {de(stand['startkapital'], 0)} {waehrung}"
@@ -1970,6 +1996,10 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
     zeilen = []
     if bericht["warnung"]:
         zeilen.append(f"⚠️ {bericht['warnung']}")
+    if bericht["neu"] and erg is not None and einst.papier_neu:
+        zeilen.append("Mit --papier-neu neu angefangen – beim nächsten Lauf --papier-neu wieder weglassen, sonst beginnt "
+                      "das Depot jedes Mal von vorn (ein vorheriger Stand bleibt jeweils als Kopie mit Datum im selben "
+                      "Ordner).")
     if bericht["neu"] and erg is not None:
         zeilen.append(f"Neu angelegt mit {de(stand['startkapital'], 0)} {waehrung}. Ab jetzt handelt der Bot hier "
                       f"vorwärts nach seinen Regeln – jede Entscheidung nur mit Kursen, die es da schon gab. Starte "
@@ -2016,16 +2046,26 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                       f" · Summe {de(summe, 2, True)} {waehrung} · größter Rückgang {de(rueckgang, 1)} % · Kosten: "
                       f"Gebühren {de(stand['gebuehren'])} {waehrung} + Spread ca. {de(stand['spread'])} {waehrung}")
     auftraege = stand["auftraege"]
-    if erg is not None and auftraege:
+    if auftraege:
         def kurs(t, wert):
             return wert / (fx_heute if waehrung_von(t) == "USD" and fx_heute else 1)
-        zeilen.append("Aufträge für den nächsten Handelstag (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt "
-                      "sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): " + " · ".join(
-                          f"{'🟢' if a['richtung'] > 0 else '🔴'} {a['ticker']} {nach_ticker_name(a['strategie'])} "
+        bis = pd.Timestamp(stand["bis"])
+        termine = {a["ticker"]: bis + handelstag(a["ticker"]) for a in auftraege}
+        erster = min(termine.values())
+        zeilen.append(f"Aufträge für {datum(erster)} (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst "
+                      f"beim Kauf aus Depotwert, Risiko und freiem Geld): " + " · ".join(
+                          f"{'🟢' if a['richtung'] > 0 else '🔴'} {a['ticker']} {name_von(a['strategie'])} "
                           f"Limit {de(kurs(a['ticker'], a['limit']))}, Stop {de(kurs(a['ticker'], a['stop']))}, "
-                          f"Ziel {de(kurs(a['ticker'], a['ziel']))} {waehrung}" for a in auftraege))
-        zeilen.append("Das Papier-Depot berücksichtigt seine offenen Positionen und sein Geld – seine Aufträge können "
-                      "deshalb vom Handelsplan oben (für ein leeres Konto) abweichen.")
+                          f"Ziel {de(kurs(a['ticker'], a['ziel']))} {waehrung}"
+                          + (f" (am {datum(termine[a['ticker']])})" if termine[a["ticker"]] != erster else "")
+                          for a in auftraege))
+        if erg is not None and eroeffnung_vorbei(auftraege, termine):
+            zeilen.append(f"Die Eröffnung am {datum(erster)} ist schon gelaufen: Das Papier-Depot bucht einen Tag erst, "
+                          f"wenn er für alle Werte fertig ist – also beim nächsten Lauf nach Börsenschluss (US-Werte "
+                          f"nach 22:15 Uhr, mit Krypto auf der Liste nach 2:00 Uhr).")
+        zeilen.append("Die Aufträge stammen vom letzten fertigen Kurstag und berücksichtigen die offenen Positionen und "
+                      "das Geld des Papier-Depots – sie können deshalb vom Handelsplan oben (für ein leeres Konto) "
+                      "abweichen.")
     elif erg is not None:
         zeilen.append("Keine Aufträge für den nächsten Handelstag.")
     ort = "Google Drive › MyDrive › swing_scanner › papier_depot.json" if pfad == PAPIER_DATEI_COLAB else pfad
@@ -2039,7 +2079,7 @@ def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich
     tabelle = trade_tabelle(papier_ansicht(stand, erg))
     weggelassen = 0
     if tabelle is not None:
-        anzeige = len(erg["positionen"] if erg is not None else []) + MAX_TRADES_ANZEIGE
+        anzeige = len(stand["positionen"]) + MAX_TRADES_ANZEIGE
         weggelassen = max(len(tabelle) - anzeige, 0)
         tabelle = tabelle.iloc[:anzeige]
     hinweis = f"… {weggelassen} ältere Trades nicht angezeigt (alle stehen in der Datei)." if weggelassen else ""
@@ -2090,8 +2130,22 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
     for t in extra:
         if t in roh:
             daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t), zusatz.get(t, {}).get("zahlen"), einst)
+    # Quartalszahlen-Termine: Klappt die Abfrage diesmal nicht (Yahoo-Limit, Formatfehler), gelten die zuletzt
+    # gespeicherten – sonst hielte das Papier-Depot eine Position unbemerkt über die Zahlen
+    gemerkt = (stand or {}).get("termine")
+    gemerkt = dict(gemerkt) if isinstance(gemerkt, dict) else {}
+    if not einst.ohne_zahlen:
+        for t, d in list(daten_p.items()):
+            if d["termine"] is None and gemerkt.get(t):
+                daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t),
+                                         pd.DataFrame(index=pd.to_datetime(gemerkt[t], utc=True)), einst)
     neu, erg, bericht = papier_fortschreiben(stand, daten_p, pausen, einst, set(daten))
     if erg is not None:
+        grenze = pd.Timestamp.now(tz=NY) - pd.Timedelta(days=120)
+        for t, d in daten_p.items():
+            if d["termine"] is not None:
+                gemerkt[t] = [x.isoformat() for x in d["termine"] if x >= grenze]
+        neu["termine"] = gemerkt
         try:
             speichere_papier(datei, neu)
         except OSError as problem:
@@ -2133,7 +2187,7 @@ def main():
                         if t not in unterstuetzt and waehrung_von(t)]
     frischer_yahoo_cache()
     with YahooRuhig(einst.debug) as sammler:
-        extra = [x for x in (FX_TICKER, MARKT_TICKER) if x not in unterstuetzt]
+        extra = [x for x in (FX_TICKER, MARKT_TICKER) if x not in unterstuetzt + papier_extra]
         roh, gruende = lade_kurse(unterstuetzt + papier_extra + extra, sammler)
         termin_ticker = ([t for t in unterstuetzt + papier_extra if t in roh and hat_zahlen(t)]
                          if not einst.ohne_zahlen else [])
@@ -2142,7 +2196,7 @@ def main():
         zusatz = hole_zusatzdaten(termin_ticker, [], sammler)
     fx_daten = roh.pop(FX_TICKER, None)
     fx = fx_daten["Close"] if fx_daten is not None else None
-    markt_df = roh.get(MARKT_TICKER) if MARKT_TICKER in unterstuetzt else roh.pop(MARKT_TICKER, None)
+    markt_df = roh.get(MARKT_TICKER) if MARKT_TICKER in unterstuetzt + papier_extra else roh.pop(MARKT_TICKER, None)
     waehrung = "€" if fx is not None else "$"
     # US-Werte werden mit EUR/USD umgerechnet, Werte von Euro-Börsen nicht
     fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt + papier_extra}
