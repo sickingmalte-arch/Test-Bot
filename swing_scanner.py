@@ -1835,6 +1835,23 @@ def als_tag(text, index):
     tag = pd.Timestamp(text)
     return tag.tz_localize(index.tz) if index.tz is not None else tag
 
+def anpassungsfaktor(d, anker):
+    """(r, Index des letzten Ankertags): Verhältnis neuer zu gespeicherten Schlusskursen der letzten Kurstage.
+    Hat Yahoo die Reihe seit dem letzten Lauf umgerechnet (Split, Dividende), sind alle im selben Verhältnis;
+    weicht nur ein Kurs ab (nachträglich korrigiert), ist es keine Umrechnung: dann r = 1."""
+    verhaeltnisse, letzter = [], None
+    for tag, alt in anker or []:
+        i = d["pos"].get(als_tag(tag, d["idx"]))
+        if i is not None and alt > 0 and d["C"][i] > 0:
+            verhaeltnisse.append(d["C"][i] / alt)
+            letzter = i
+    if not verhaeltnisse:
+        return 1, None
+    r = float(np.median(verhaeltnisse))
+    if not math.isfinite(r) or abs(r - 1) < 1e-6 or any(abs(v / r - 1) > 1e-4 for v in verhaeltnisse):
+        return 1, None
+    return r, letzter
+
 def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
     """Rechnet das Papier-Depot bis zum letzten fertigen Kurstag weiter. Gibt (neuer Stand, Lauf, Bericht) zurück;
     Lauf ist None, wenn diesmal nicht weitergerechnet werden konnte (der Stand bleibt dann unverändert)."""
@@ -1863,15 +1880,9 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
     # Limit) werden deshalb im selben Verhältnis angepasst; bei Splits auch die Stückzahl.
     positionen = {p["ticker"]: p for p in lauf["positionen"]}
     for t in sorted(set(positionen) | {a["ticker"] for a in lauf["auftraege"]}):
-        anker = stand["anker"].get(t)
-        if not anker or not anker[1] > 0:
-            continue
         d = daten[t]
-        i = d["pos"].get(als_tag(anker[0], d["idx"]))
-        if i is None:
-            continue
-        r = d["C"][i] / anker[1]
-        if not (math.isfinite(r) and r > 0) or abs(r - 1) < 1e-9:
+        r, i = anpassungsfaktor(d, stand["anker"].get(t))
+        if r == 1:
             continue
         for a in lauf["auftraege"]:
             if a["ticker"] == t:
@@ -1880,7 +1891,7 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
         if p is None:
             continue
         fx = d["FX"][i]
-        vorher = positionswert(p, anker[1], fx)
+        vorher = positionswert(p, d["C"][i] / r, fx)
         rate = p["einstieg_usd"] / p["einsatz_je_stueck"]  # Wechselkurs beim Einstieg
         split = abs(1 - r) > 0.2
         if split:
@@ -1894,7 +1905,7 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
         if split:
             bericht["anpassungen"].append(f"{t}: Aktiensplit berücksichtigt – jetzt {de(p['stueck'], 0)} Stück")
         elif abs(ausgleich) >= 0.01:
-            bericht["anpassungen"].append(f"{t}: Dividende bzw. Kursanpassung verrechnet ({de(ausgleich, 2, True)})")
+            bericht["anpassungen"].append(f"{t}: Dividende bzw. Kursanpassung verrechnet ({de(ausgleich, 2, True)} €)")
 
     erg = simuliere_depot(daten, pausen, einst, einst.lernen, zustand=lauf, signal_ticker=signal_ticker)
     if erg is None:
@@ -1925,8 +1936,8 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
     anker = {}
     for t in sorted({p["ticker"] for p in neu["positionen"]} | {a["ticker"] for a in neu["auftraege"]}):
         d = daten[t]
-        tag = letzter_tag_bis(d, erg["bis"])
-        anker[t] = [iso(tag), float(d["C"][d["pos"][tag]])]
+        bis = d["pos"][letzter_tag_bis(d, erg["bis"])]
+        anker[t] = [[iso(d["idx"][i]), float(d["C"][i])] for i in range(max(bis - 4, 0), bis + 1)]
     neu["anker"] = anker
     return neu, erg, bericht
 
