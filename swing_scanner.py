@@ -1903,7 +1903,8 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
         ausgleich = vorher - positionswert(p, d["C"][i], fx)  # Depotwert bleibt gleich, Rest als Bargeld
         lauf["bargeld"] += ausgleich
         if split:
-            bericht["anpassungen"].append(f"{t}: Aktiensplit berücksichtigt – jetzt {de(p['stueck'], 0)} Stück")
+            bericht["anpassungen"].append(f"{t}: Aktiensplit berücksichtigt – jetzt "
+                                             f"{de(p['stueck'], 2 if p['stueck'] % 1 else 0)} Stück")
         elif abs(ausgleich) >= 0.01:
             bericht["anpassungen"].append(f"{t}: Dividende bzw. Kursanpassung verrechnet ({de(ausgleich, 2, True)} €)")
 
