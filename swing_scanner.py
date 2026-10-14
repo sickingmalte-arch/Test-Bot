@@ -368,14 +368,15 @@ REGIONALBOERSEN = {"F", "SG", "MU", "BE", "DU", "HM", "HA"}  # deutsche Regional
 
 def kerze_noch_offen(df, ticker=""):
     """True, wenn die letzte Tageskerze noch läuft: bei Aktien von heute und die Börse noch nicht geschlossen
-    (US 16:00 New York, Euro-Börsen 17:30 Uhr, deutsche Regionalbörsen 22:00 Uhr – jeweils mit Puffer),
+    (US 16:00 New York, Euro-Börsen 17:30 Uhr, deutsche Regionalbörsen 22:00 Uhr – jeweils mit Puffer, weil Yahoo
+    Euro-Kurse etwa 15 Minuten verzögert liefert),
     bei Krypto (Tageskerze = UTC-Tag, Handel rund um die Uhr) die Kerze des heutigen UTC-Tags."""
     try:
         if re.fullmatch(r".+-[A-Z]{3}", ticker):
             return df.index[-1].date() >= pd.Timestamp.now(tz="UTC").date()
         if waehrung_von(ticker) == "EUR":
             jetzt = pd.Timestamp.now(tz=BERLIN)
-            schluss = dt.time(22, 15) if ticker.rsplit(".", 1)[1] in REGIONALBOERSEN else dt.time(17, 45)
+            schluss = dt.time(22, 30) if ticker.rsplit(".", 1)[1] in REGIONALBOERSEN else dt.time(18, 15)
         else:
             jetzt, schluss = pd.Timestamp.now(tz=NY), dt.time(16, 15)
     except Exception:
@@ -507,7 +508,8 @@ NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall,
     (r"\b(beats?|tops?|surpass\w*)\b.{0,40}\b(estimates?|expectations|forecasts?)\b", 1, "Zahlen besser als erwartet"),
     (r"\bmiss(es|ed)?\b.{0,40}\b(estimates?|expectations|forecasts?)\b", -1, "Zahlen schlechter als erwartet"),
     (r"\b(raises?|raised|lifts?|boosts?|hikes?)\b.{0,40}\b(guidance|outlook|forecast)\b", 1, "Prognose angehoben"),
-    (r"(?<!\brate )(?<!\brate-)\b(cuts?|lowers?|lowered|slash\w*|trims?)\b(?!\s+(interest\s+)?rates?\b)[^,;]{0,40}"
+    (r"(?<!\brate )(?<!\brate-)\b(cuts?|lowers?|lowered|slash\w*|trims?)\b(?!\s+(interest\s+)?rates?\b)"
+     r"(?:[^,;]|,(?=\s*(?:annual\s+|full-year\s+)?(?:sales|revenues?|profits?|margins?|earnings|eps|ebitda)\b)){0,40}"
      r"\b(guidance|outlook|forecast)\b"
      r"|\bweak (guidance|outlook)\b",
      -1, "Prognose gesenkt"),
@@ -529,8 +531,10 @@ NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall,
     (r"\bstock split\b", 1, "Aktiensplit"),
     (r"\b(signs?|wins?|secures?|lands?)\b.{0,30}\b(deal|contract|agreement)\b", 1, "Auftrag/Vertrag"),
     (r"\b(to acquire|to be acquired|acquisition of|merger|takeover|buyout)\b"
-     r"|\b(agrees?|deal|offer|bid|talks)\s+to\s+buy\s+(?!back\b)|\bto buy\s+(?!back\b)(?-i:[A-Z])\S*(\s+\S+)?\s+for \$\d"
-     r"|\bto buy\s+(?!back\b)\S+\s+(firm|company|startup|maker|rival|business|unit|developer|operator|provider)\b",
+     r"|\b(agrees?|deal|offer|bid|talks)\s+to\s+buy\s+(?!back\b)"
+     r"|\bto buy\s+(?!back\b)(?-i:[A-Z])\S*(\s+(?!(chips?|gpus?|servers?|spectrum|shares|stakes?|miners?|rights|assets)\b)\S+)?"
+     r"\s+for \$\d"
+     r"|\bto buy\s+(?!back\b)(\S+\s+){1,3}?(firm|company|startup|maker|rival|business|unit|developer|operator|provider)\b",
      0, "Übernahme/Fusion"),
     (r"\btrading halt(ed)?\b|\bhalts? trading\b|\b(shares|stock|trading)\b.{0,20}(?<!streak )(?<!rally )\bhalted\b", 0, "Handelsaussetzung"),
 ]
@@ -1329,7 +1333,8 @@ def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
 
     # Schmale Ausgabe (z. B. Colab mit Seitenleiste): Signal, Strategie und News dürfen umbrechen,
     # das Symbol bleibt dabei am Wort („⚠️ GEWINNE / SICHERN“)
-    signal_html = {**formate, "Signal": lambda v: str(v).replace(" ", "\u00a0", 1)}
+    signal_html = {**formate, "Signal": lambda v: str(v).replace(" ", "\u00a0", 1),
+                   "News": lambda v: str(v).replace("/", "/\u200b")}
     kopf = absatz(titel, "font-size: 1.15em; font-weight: bold;") + absatz(zusammenfassung)
     kopf += "".join(absatz(h, "opacity: 0.85;") for h in hinweise)
     mitte_html = "".join(absatz(p, "margin: 4px 0;") for p in plan)
@@ -1579,6 +1584,8 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
         tabelle = tabelle.iloc[:anzeige]
     hinweis = (f"… {weggelassen} ältere Trades nicht angezeigt – alle Trades speichert --csv in einer eigenen Datei."
                if weggelassen else "")
+    dollar_shorts = waehrung == "€" and any(p["richtung"] < 0 and waehrung_von(p["ticker"]) == "USD"
+                                           for p in erg["trades"] + erg["offen"])
     regeln = (f"Regeln: Signal zum Schlusskurs, Einstieg zur Eröffnung des nächsten Handelstags nur bis zum Limit; "
               f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), "
               f"{'' if ohne_zahlen else 'zum Schluss vor Quartalszahlen '}"
@@ -1588,7 +1595,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
               f"{prozent(SPREAD_PROZENT)} % Spread je Order; "
               f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}. "
               f"{'Shorts ohne Leih-/Finanzierungskosten gerechnet' if einst.mit_short else ''}"
-              f"{'; ihr Gewinn entsteht in $, der Ausstiegskurs in € passt deshalb genau zum Ergebnis' if einst.mit_short and waehrung == '€' else ''}"
+              f"{'; bei Shorts auf Dollar-Werte entsteht der Gewinn in $ – ihr Ausstiegskurs in € ist so umgerechnet, dass Einstieg − Ausstieg genau zum Ergebnis passt' if dollar_shorts else ''}"
               f"{'. ' if einst.mit_short else ''}"
               f"{'Ohne Quartalszahlen-Regel gerechnet (--ohne-zahlen). ' if ohne_zahlen else 'Termine im Rückblick sind die tatsächlichen, live können sie sich verschieben. '}"
               f"Simulation mit vergangenen Kursen – kein echtes Geld, keine Garantie für die Zukunft.")
