@@ -1,3 +1,9 @@
+"""Swing-Trading-Scanner mit Strategie-Tagebuch und virtuellem Depot.
+
+Ablauf: Kurse (5 Jahre Tageskerzen) und Quartalszahlen-Termine von Yahoo laden, 10 Strategien je Ticker
+prüfen, jede Strategie im Tagebuch gedanklich mithandeln lassen ("lernen"), daraus den Scanner für heute
+und ein virtuelles Depot über die letzten Monate berechnen. Es werden keine echten Orders gesendet.
+"""
 import argparse
 import datetime as dt
 import html
@@ -6,7 +12,10 @@ import math
 import os
 import re
 import sys
+import threading
 import time
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor, wait
 
 import numpy as np
 import pandas as pd
@@ -22,64 +31,106 @@ TICKER_LISTE = [
 ]
 KONTO = 10_000              # Kontogröße / virtuelles Startkapital in €
 RISIKO_PROZENT = 1.0        # max. Verlust pro Trade in % des Kontos, wenn der Stop-Loss greift
-MAX_POSITION_PROZENT = 25   # eine einzelne Position höchstens so viel % des Kontos
 MIT_SHORT = True            # auch auf fallende Kurse setzen (Short-Signale)
 GEBUEHR = 1.0               # Ordergebühr in € je Kauf/Verkauf (z. B. Neobroker)
+SPREAD_PROZENT = 0.1        # geschätzter Spread je Order in % (Kauf etwas teurer, Verkauf etwas billiger)
 BRUCHSTUECKE = False        # True = auch Bruchteile von Aktien (z. B. 0,35 Stück)
-MIN_EINSATZ = 25            # kleinere Trades lohnen wegen der Gebühr nicht (in €)
 RUECKBLICK_MONATE = 6       # so viele Monate spielt der Bot das virtuelle Depot rückwirkend durch
-MAX_TRADES_ANZEIGE = 20     # so viele abgeschlossene Trades zeigt die Liste (alle per --csv)
 
-# Mindestanzahl an Tageskerzen, damit RSI/EMA/Bollinger/ATR aussagekräftig sind
-MIN_KERZEN = 30
+# ============================================================================
+# FESTE REGELN – vorab festgelegt. Bitte NICHT so lange verstellen, bis der Rückblick gut aussieht:
+# dann passt man die Regeln nur an den Zufall der Vergangenheit an.
+# ============================================================================
+MAX_POSITION_PROZENT = 25        # eine einzelne Position höchstens so viel % des Kontos
+MAX_POSITIONEN = 5               # höchstens so viele Positionen gleichzeitig
+MAX_SHORTS = 2                   # davon höchstens so viele Shorts
+MAX_GESAMTRISIKO_PROZENT = 5     # alle offenen Positionen zusammen höchstens so viel % Risiko bis zum Stop
+MIN_EINSATZ = 25                 # kleinere Trades lohnen wegen der Gebühr nicht (in €)
+ZEITSTOPP_TAGE = 20              # spätestens nach so vielen Handelstagen (inkl. Einstiegstag) aussteigen
+ZAHLEN_SPERRE_TAGE = 3           # kein Einstieg, wenn Quartalszahlen in den nächsten 3 Handelstagen wirken
+LIMIT_ATR = 0.5                  # Einstieg nur bis Schlusskurs ± 0,5 ATR (Limit-Order), höchstens bis Mitte Stop/Ziel
+R_GRENZE = 3.0                   # ein einzelner Tagebuch-Trade zählt höchstens ±3 R
+LERNEN_FENSTER = 60              # die letzten 60 gedachten Trades je Strategie zählen
+LERNEN_MIN_TRADES = 20           # erst ab 20 Trades wird eine Strategie überhaupt pausiert
+LERNEN_PAUSE_AB = -0.10          # Pause, wenn der Schnitt unter −0,1 R fällt
+LERNEN_WIEDER_AB = 0.0           # wieder aktiv, sobald der Schnitt über 0 R steigt
+TAGEBUCH_AB_KERZE = 100          # Tagebuch erst, wenn die Indikatoren eingeschwungen sind
+MIN_KERZEN = 50                  # Mindestanzahl Tageskerzen für den Scanner
+NEWS_TAGE = 3                    # Schlagzeilen der letzten 3 Handelstage
+MAX_TRADES_ANZEIGE = 20          # so viele abgeschlossene Trades zeigt die Liste (alle per --csv)
+YAHOO_ZEITBUDGET = 45            # Sekunden für Termine + Schlagzeilen zusammen
 
-# Wechselkurs bei Yahoo: Dollar je 1 Euro
-FX_TICKER = "EURUSD=X"
+FX_TICKER = "EURUSD=X"           # Wechselkurs bei Yahoo: Dollar je 1 Euro
+MARKT_TICKER = "QQQ"             # Nasdaq-100 als Marktampel (nur Anzeige)
 # Börsenendungen bei Yahoo, deren Kurse schon in Euro sind (z. B. SAP.DE, ASML.AS)
 EURO_BOERSEN = {"DE", "F", "SG", "MU", "BE", "DU", "HM", "HA", "PA", "AS", "MI", "MC", "BR", "VI", "LS", "HE", "IR"}
+NY = "America/New_York"
+BERLIN = "Europe/Berlin"
+
+# ----------------------------------------------------------------------------
+# Strategien – Reihenfolge = Vorrang, wenn mehrere in dieselbe Richtung feuern
+# (art "trend": Trendregel über die 50-Tage-Linie, art "gegen": Gegenbewegung, Trendregel über die 200-Tage-Linie)
+# ----------------------------------------------------------------------------
+STRATEGIEN = {
+    "ausbruch_long":      {"name": "Ausbruch", "richtung": 1, "art": "trend",
+                           "regel": "Schluss über dem 20-Tage-Hoch mit 1,5-fachem Volumen, über der 50-Tage-Linie. "
+                                    "Stop −2 ATR, Ziel +4 ATR"},
+    "abbruch_short":      {"name": "Abbruch", "richtung": -1, "art": "trend",
+                           "regel": "Schluss unter dem 20-Tage-Tief mit 1,5-fachem Volumen, unter der 50-Tage-Linie. "
+                                    "Stop +2 ATR, Ziel −4 ATR"},
+    "rsi2_long":          {"name": "RSI-2-Rücksetzer", "richtung": 1, "art": "gegen",
+                           "regel": "RSI(2) unter 10 über der 200-Tage-Linie (kurzer Rücksetzer im langen Aufwärtstrend). "
+                                    "Stop −2 ATR, Ziel +2 ATR – braucht über 50 % Treffer"},
+    "rsi2_short":         {"name": "RSI-2-Übertreibung", "richtung": -1, "art": "gegen",
+                           "regel": "RSI(2) über 90 unter der 200-Tage-Linie (kurze Erholung im langen Abwärtstrend). "
+                                    "Stop +2 ATR, Ziel −2 ATR – braucht über 50 % Treffer"},
+    "gegenbewegung_long": {"name": "Gegenbewegung", "richtung": 1, "art": "gegen",
+                           "regel": "RSI(14) unter 32 oder am unteren Bollinger-Band, über der 200-Tage-Linie, "
+                                    "EMA 20 mindestens 1,2 ATR über dem Kurs. Stop −1,2 ATR, Ziel EMA 20"},
+    "rueckfall_short":    {"name": "Rückfall", "richtung": -1, "art": "gegen",
+                           "regel": "RSI(14) über 70 oder am oberen Bollinger-Band, unter der 200-Tage-Linie, "
+                                    "EMA 20 mindestens 1,2 ATR unter dem Kurs. Stop +1,2 ATR, Ziel EMA 20"},
+    "macd_long":          {"name": "MACD-Wende", "richtung": 1, "art": "trend",
+                           "regel": "MACD kreuzt heute seine Signallinie nach oben, über der 50-Tage-Linie. "
+                                    "Stop −1,5 ATR, Ziel +3 ATR"},
+    "macd_short":         {"name": "MACD-Wende", "richtung": -1, "art": "trend",
+                           "regel": "MACD kreuzt heute seine Signallinie nach unten, unter der 50-Tage-Linie. "
+                                    "Stop +1,5 ATR, Ziel −3 ATR"},
+    "ruecksetzer_long":   {"name": "Rücksetzer", "richtung": 1, "art": "trend",
+                           "regel": "Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. "
+                                    "Stop −1,5 ATR, Ziel +3 ATR"},
+    "erholung_short":     {"name": "Erholung", "richtung": -1, "art": "trend",
+                           "regel": "Kurs bis 0,5 ATR unter der EMA 20, RSI(14) über 40, unter der 50-Tage-Linie. "
+                                    "Stop +1,5 ATR, Ziel −3 ATR"},
+}
+VORRANG = {k: i for i, k in enumerate(STRATEGIEN)}
+
+def strategie_name(key):
+    s = STRATEGIEN[key]
+    return f"{s['name']} {'↑' if s['richtung'] > 0 else '↓'}"
 
 # Signale (Reihenfolge = Sortierung in der Tabelle)
-SCHARF_KAUFEN = "🚀 SCHARF KAUFEN"
-KAUFEN = "⭐ KAUFEN"
-SCHARF_SHORT = "🔥 SCHARF SHORT"
-SHORT = "🔻 SHORT"
+KAUFEN = "🟢 KAUFEN"
+SHORT = "🔴 SHORT"
+WARTEN = "⏸ WARTEN"
+SICHERN = "⚠️ GEWINNE SICHERN"
 BEOBACHTEN = "BEOBACHTEN"
-TEILVERKAUF = "⚠️ TEILVERKAUF"   # nur ohne Short-Signale (--ohne-short)
 FEHLER = "❌ FEHLER"
-PRIORITAET = {SCHARF_KAUFEN: 1, KAUFEN: 2, SCHARF_SHORT: 3, SHORT: 4, BEOBACHTEN: 5, TEILVERKAUF: 6, FEHLER: 7}
-LONG_SIGNALE = (SCHARF_KAUFEN, KAUFEN)
-SHORT_SIGNALE = (SCHARF_SHORT, SHORT)
-
-LEGENDE = {
-    SCHARF_KAUFEN: "RSI unter 32 oder Kurs am/unter dem unteren Bollinger-Band (Gegenbewegung nach oben). "
-                   "Ziel = EMA 20, Stop = Kurs − 1,2 × ATR",
-    KAUFEN: "Kurs 0–1,5 % über der EMA 20 und RSI unter 60 (Rücksetzer im Aufwärtstrend). "
-            "Ziel = Kurs + 3 × ATR, Stop = Kurs − 1,5 × ATR",
-    SCHARF_SHORT: "RSI über 70 oder Kurs am/über dem oberen Band (überhitzt): Short auf Rückfall zur EMA 20. "
-                  "Stop = Kurs + 1,2 × ATR. Falls die Aktie im Depot ist: Hälfte verkaufen, Stop auf 3 % unter "
-                  "Kurs nachziehen",
-    SHORT: "Kurs 0–1,5 % unter der EMA 20 und RSI über 40 (Erholung im Abwärtstrend): "
-           "Ziel = Kurs − 3 × ATR, Stop = Kurs + 1,5 × ATR",
-    TEILVERKAUF: "RSI über 70 oder Kurs am/über dem oberen Band. Falls im Depot: "
-                 "Teilgewinne sichern, Stop auf 3 % unter Kurs nachziehen",
-    BEOBACHTEN: "kein Setup – nichts tun",
-}
+PRIORITAET = {KAUFEN: 1, SHORT: 1, WARTEN: 2, SICHERN: 3, BEOBACHTEN: 4, FEHLER: 5}
 
 # Zeilenfarben: (Hintergrund, Schrift) für die Notebook-Tabelle, ANSI-Codes fürs Terminal
 FARBEN = {
-    SCHARF_KAUFEN: ("#1b5e20", "#ffffff"),
-    KAUFEN: ("#c8e6c9", "#1b1b1b"),
-    SCHARF_SHORT: ("#b71c1c", "#ffffff"),
-    SHORT: ("#ffcdd2", "#1b1b1b"),
-    TEILVERKAUF: ("#ffe0b2", "#1b1b1b"),
+    KAUFEN: ("#1b5e20", "#ffffff"),
+    SHORT: ("#b71c1c", "#ffffff"),
+    WARTEN: ("#fff3cd", "#1b1b1b"),
+    SICHERN: ("#ffe0b2", "#1b1b1b"),
     FEHLER: ("#eeeeee", "#555555"),
 }
-ANSI = {SCHARF_KAUFEN: "\033[1;97;42m", KAUFEN: "\033[32m", SCHARF_SHORT: "\033[1;97;41m", SHORT: "\033[31m",
-        TEILVERKAUF: "\033[33m", FEHLER: "\033[2m"}
+ANSI = {KAUFEN: "\033[1;97;42m", SHORT: "\033[1;97;41m", WARTEN: "\033[33m", SICHERN: "\033[33m", FEHLER: "\033[2m"}
 
 
 # ----------------------------------------------------------------------------
-# Zahlen deutsch formatieren
+# Zahlen und Daten deutsch formatieren
 # ----------------------------------------------------------------------------
 def de(wert, nachkomma=2, vorzeichen=False):
     """1234.5 -> '1.234,50' (deutsche Schreibweise); NaN -> '–'"""
@@ -92,14 +143,22 @@ def prozent(wert):
     """1.5 -> '1,5' (deutsche Schreibweise, ohne überflüssige Nullen)"""
     return f"{wert:g}".replace(".", ",")
 
+WOCHENTAGE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+
+def datum(tag):
+    """Timestamp -> 'Do 16.10.'"""
+    return f"{WOCHENTAGE[tag.weekday()]} {tag:%d.%m.}"
+
 def tabellen_formate(einst):
     return {
-        "Kurs": lambda v: de(v, 2), "Tag %": lambda v: de(v, 1, True), "RSI": lambda v: de(v, 1),
-        "Stop": lambda v: de(v, 2), "Ziel": lambda v: de(v, 2), "CRV": lambda v: de(v, 1),
+        "Kurs": lambda v: de(v, 2), "Limit": lambda v: de(v, 2), "Stop": lambda v: de(v, 2),
+        "Ziel": lambda v: de(v, 2), "CRV": lambda v: de(v, 1),
         "Stück": lambda v: de(v, 2 if einst.bruchstuecke else 0), "Einsatz": lambda v: de(v, 0),
+        "Risiko": lambda v: de(v, 0),
     }
 
-SPALTEN = ["Ticker", "Signal", "Kurs", "Tag %", "RSI", "Stop", "Ziel", "CRV", "Stück", "Einsatz"]
+SPALTEN = ["Ticker", "Signal", "Strategie", "Kurs", "Limit", "Stop", "Ziel", "CRV", "Stück", "Einsatz", "Risiko",
+           "Zahlen", "News"]
 
 
 # ----------------------------------------------------------------------------
@@ -130,12 +189,16 @@ def lies_einstellungen():
     p.add_argument("--konto", type=betrag, default=KONTO, help="Kontogröße / Startkapital in € (z. B. 10000)")
     p.add_argument("--risiko", type=zahl, default=RISIKO_PROZENT, help="Risiko pro Trade in %% des Kontos")
     p.add_argument("--ohne-short", action="store_true", help="keine Short-Signale, nur auf steigende Kurse setzen")
+    p.add_argument("--ohne-lernen", action="store_true", help="schlecht laufende Strategien nicht pausieren")
+    p.add_argument("--ohne-news", action="store_true", help="keine Schlagzeilen laden (Quartalszahlen-Regel bleibt)")
+    p.add_argument("--ohne-zahlen", action="store_true",
+                   help="keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann AUS")
     p.add_argument("--gebuehr", type=zahl, default=GEBUEHR, help="Ordergebühr in € je Kauf/Verkauf")
     p.add_argument("--bruchstuecke", action="store_true", help="auch Bruchteile von Aktien handeln")
     p.add_argument("--rueckblick", type=int, default=RUECKBLICK_MONATE,
                    help="Monate, die der Bot das virtuelle Depot rückwirkend durchspielt (0 = aus, max. 18)")
     p.add_argument("--nur-schluss", action="store_true",
-                   help="laufende Tageskerze ignorieren und nur abgeschlossene Tage bewerten")
+                   help="laufende Tageskerze auch im Scanner ignorieren, nur abgeschlossene Tage bewerten")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--debug", action="store_true", help="Original-Meldungen von yfinance anzeigen")
     einst, unbekannt = p.parse_known_args()
@@ -148,29 +211,63 @@ def lies_einstellungen():
     if not 0 <= einst.rueckblick <= 18:
         p.error("--rueckblick muss zwischen 0 und 18 Monaten liegen")
     einst.mit_short = MIT_SHORT and not einst.ohne_short
+    einst.lernen = not einst.ohne_lernen
     einst.bruchstuecke = BRUCHSTUECKE or einst.bruchstuecke
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
     return einst
 
 
 # ----------------------------------------------------------------------------
-# Kursdaten laden
+# Yahoo: Meldungen abfangen, Kurse laden
 # ----------------------------------------------------------------------------
-class YahooFehler(logging.Handler):
-    """Sammelt die Fehlermeldungen von yfinance je Ticker, statt sie über die Tabelle zu schreiben."""
+class YahooMeldungen(logging.Handler):
+    """Sammelt die Meldungen von yfinance je Ticker, statt sie rot über die Tabelle zu schreiben."""
     def __init__(self):
-        super().__init__(level=logging.ERROR)
+        super().__init__(level=logging.WARNING)
         self.gruende = {}
 
     def emit(self, record):
-        # yfinance meldet z. B. "['SE', 'HIMS']: ConnectionError('... 403 ...')"
-        # oder "Failed to get ticker 'SE' reason: ..." – alle Meldungen je Ticker sammeln
+        # yfinance meldet z. B. "['SE', 'HIMS']: ConnectionError('... 403 ...')",
+        # "Failed to get ticker 'SE' reason: ..." oder "SOFI: No earnings dates found ..."
         text = record.getMessage()
         treffer = (re.match(r"\s*\[(.*?)\]:\s*(.*)", text, re.S)
                    or re.match(r"\s*Failed to get ticker ('[^']+') reason:\s*(.*)", text, re.S))
         if treffer:
             for ticker in re.findall(r"'([^']+)'", treffer.group(1)):
                 self.gruende[ticker] = self.gruende.get(ticker, "") + " " + treffer.group(2)
+            return
+        treffer = re.match(r"\s*([A-Z0-9][A-Z0-9.\-=^]*):\s+(.*)", text, re.S)
+        if treffer:
+            self.gruende[treffer.group(1)] = self.gruende.get(treffer.group(1), "") + " " + treffer.group(2)
+
+class YahooRuhig:
+    """Kontextmanager: Während alle Yahoo-Abfragen laufen, landen die yfinance-Meldungen im Sammler."""
+    def __init__(self, debug=False):
+        self.sammler = YahooMeldungen()
+        self.handler = [self.sammler] + ([logging.StreamHandler()] if debug else [])
+        self.log = logging.getLogger("yfinance")
+
+    def __enter__(self):
+        self.alte_weitergabe = self.log.propagate
+        if not any(isinstance(h, logging.NullHandler) for h in self.log.handlers):
+            self.log.addHandler(logging.NullHandler())  # späte Meldungen aus Threads nicht auf stderr
+        for h in self.handler:
+            self.log.addHandler(h)
+        self.log.propagate = False
+        return self.sammler
+
+    def __exit__(self, *fehler):
+        for h in self.handler:
+            self.log.removeHandler(h)
+        self.log.propagate = self.alte_weitergabe
+
+def frischer_yahoo_cache():
+    """yfinance merkt sich Antworten (auch Fehlerseiten) im laufenden Colab-Kernel – bei jedem Lauf leeren."""
+    try:
+        from yfinance.data import YfData
+        YfData.cache_get.cache_clear()
+    except Exception:
+        pass
 
 YAHOO_LIMIT = "Yahoo-Limit erreicht – in 1–2 Minuten erneut starten"
 KEINE_VERBINDUNG = "keine Verbindung zu Yahoo"
@@ -199,36 +296,24 @@ def tabelle_fuer(roh, ticker):
     df = df.dropna(subset=["High", "Low", "Close"])
     return df if not df.empty else None
 
-def lade_kurse(ticker_liste, periode, debug=False):
-    """Lädt alle Ticker in einem Rutsch (Tageskerzen); leere Ticker werden einmal nachgeladen."""
-    sammler = YahooFehler()
-    handler = [sammler] + ([logging.StreamHandler()] if debug else [])
-    yf_log = logging.getLogger("yfinance")
-    alte_weitergabe = yf_log.propagate
-    for h in handler:
-        yf_log.addHandler(h)
-    yf_log.propagate = False
+def lade_kurse(ticker_liste, sammler):
+    """Lädt 5 Jahre Tageskerzen aller Ticker in einem Rutsch; leere Ticker werden einmal nachgeladen."""
     daten, fehlend = {}, list(ticker_liste)
-    try:
-        for versuch in range(2):
-            if not fehlend:
-                break
-            if versuch:
-                time.sleep(3)
-            roh = yf.download(fehlend, period=periode, interval="1d", auto_adjust=True,
-                              group_by="ticker", progress=False, threads=True)
-            rest = []
-            for ticker in fehlend:
-                df = tabelle_fuer(roh, ticker)
-                if df is None:
-                    rest.append(ticker)
-                else:
-                    daten[ticker] = df
-            fehlend = rest
-    finally:
-        for h in handler:
-            yf_log.removeHandler(h)
-        yf_log.propagate = alte_weitergabe
+    for versuch in range(2):
+        if not fehlend:
+            break
+        if versuch:
+            time.sleep(3)
+        roh = yf.download(fehlend, period="5y", interval="1d", auto_adjust=True,
+                          group_by="ticker", progress=False, threads=True)
+        rest = []
+        for ticker in fehlend:
+            df = tabelle_fuer(roh, ticker)
+            if df is None:
+                rest.append(ticker)
+            else:
+                daten[ticker] = df
+        fehlend = rest
     gruende = {t: verstaendlicher_grund(sammler.gruende.get(t)) for t in fehlend}
     # Bei Verbindungsproblemen meldet yfinance andere Ticker oft fälschlich als "delisted"
     if any(g in (YAHOO_LIMIT, KEINE_VERBINDUNG) for g in gruende.values()):
@@ -244,6 +329,10 @@ def waehrung_von(ticker):
         return "EUR" if ticker.rsplit(".", 1)[1] in EURO_BOERSEN else None
     return "USD"
 
+def hat_zahlen(ticker):
+    """Krypto, Devisen und Indizes haben keine Quartalszahlen – gar nicht erst fragen."""
+    return not (ticker.startswith("^") or "=" in ticker or re.fullmatch(r".+-[A-Z]{3}", ticker))
+
 def kurs_umrechner(fx, index):
     """Dollar je Euro für jeden Tag des Index (fehlende Tage mit dem letzten bekannten Kurs)."""
     if fx is None:
@@ -253,306 +342,711 @@ def kurs_umrechner(fx, index):
 def kerze_noch_offen(df):
     """True, wenn die letzte Tageskerze von heute ist und die US-Börse noch nicht geschlossen hat."""
     try:
-        jetzt = pd.Timestamp.now(tz="America/New_York")
+        jetzt = pd.Timestamp.now(tz=NY)
     except Exception:
         return False
     return df.index[-1].date() == jetzt.date() and jetzt.time() < dt.time(16, 15)
 
 
 # ----------------------------------------------------------------------------
-# Indikatoren und Strategien
+# Yahoo: Quartalszahlen-Termine und Schlagzeilen (parallel, mit Zeitbudget und Bremse bei Yahoo-Limit)
+# ----------------------------------------------------------------------------
+def hole_zusatzdaten(termin_ticker, news_ticker, sammler, budget=YAHOO_ZEITBUDGET):
+    """Phase 1: Termine (Teil der Regeln), Phase 2: Schlagzeilen (nur Anzeige).
+    Gibt {ticker: {"zahlen", "zahlen_info", "news", "news_info"}} zurück."""
+    bremse = threading.Event()  # erster 429 von Yahoo: alle weiteren Abfragen sofort auslassen
+    alle = list(dict.fromkeys(list(termin_ticker) + list(news_ticker)))
+    erg = {t: {"zahlen": None, "zahlen_info": "nicht abgefragt", "news": None, "news_info": "nicht abgefragt"}
+           for t in alle}
+
+    def termine(t):
+        e = erg[t]
+        if bremse.is_set():
+            e["zahlen_info"] = YAHOO_LIMIT
+            return
+        try:
+            df = yf.Ticker(t).get_earnings_dates(limit=50)
+            if df is None or len(df) == 0:
+                e["zahlen_info"] = "keine Termine gefunden (bei ETFs normal, sonst Yahoo gerade nicht erreichbar)"
+            else:
+                e["zahlen"], e["zahlen_info"] = df, "ok"
+        except Exception as fehler:  # Yahoo-Limit, Formatwechsel, Zeitzone, Verbindung ...
+            if type(fehler).__name__ == "YFRateLimitError":
+                bremse.set()
+                e["zahlen_info"] = YAHOO_LIMIT
+            else:
+                e["zahlen_info"] = f"Termine nicht lesbar ({type(fehler).__name__})"
+
+    def schlagzeilen_holen(t):
+        e = erg[t]
+        if bremse.is_set():
+            e["news_info"] = YAHOO_LIMIT
+            return
+        try:
+            e["news"], e["news_info"] = yf.Ticker(t).get_news(count=10), "ok"
+        except Exception as fehler:
+            if type(fehler).__name__ == "YFRateLimitError":
+                bremse.set()
+                e["news_info"] = YAHOO_LIMIT
+            else:
+                e["news_info"] = f"nicht abrufbar ({type(fehler).__name__})"
+
+    start = time.perf_counter()
+    pool = ThreadPoolExecutor(max_workers=4)
+    offen = set()
+    if termin_ticker:
+        _, offen = wait([pool.submit(termine, t) for t in termin_ticker], timeout=budget * 2 / 3)
+    if news_ticker and not offen:
+        rest = max(budget - (time.perf_counter() - start), 1)
+        _, offen = wait([pool.submit(schlagzeilen_holen, t) for t in news_ticker], timeout=rest)
+    pool.shutdown(wait=False, cancel_futures=True)
+    for t, e in erg.items():
+        meldung = sammler.gruende.get(t, "")
+        # yfinance liefert bei kaputter News-Antwort still [] und meldet das nur ins Log
+        if e["news_info"] == "ok" and not e["news"] and "Failed to retrieve the news" in meldung:
+            e["news"], e["news_info"] = None, "nicht abrufbar (Yahoo-Antwort unlesbar)"
+        for art in ("zahlen_info", "news_info"):
+            if e[art] == "nicht abgefragt" and offen:
+                e[art] = "Zeitüberschreitung"
+    return erg
+
+def zahlen_termine(df):
+    """Yahoo-Termine -> sortierte Zeitpunkte in New Yorker Zeit (ohne NaT, auch für ältere yfinance ohne Zeitzone)."""
+    idx = pd.DatetimeIndex(df.index)
+    idx = idx[idx.notna()]
+    if idx.tz is None:
+        idx = idx.tz_localize(NY)
+    return idx.tz_convert(NY).sort_values()
+
+def reaktionstag(termin):
+    """Kalendertag, an dem die Zahlen auf den Kurs wirken: Bericht ab 16:00 New York -> am nächsten Tag,
+    sonst am selben Tag (00:00 = Uhrzeit unbekannt -> vorsichtig derselbe Tag). Wochenende/Feiertag rutschen
+    beim Einordnen in die Handelstage automatisch auf den nächsten Handelstag."""
+    tag = pd.Timestamp(termin.date())
+    return tag + pd.Timedelta(days=1) if termin.hour >= 16 else tag
+
+def uhrzeit_text(termin):
+    if termin.hour >= 16:
+        return "nach Börsenschluss"
+    if termin.hour == 0:
+        return "Uhrzeit unbekannt"
+    if termin.hour < 10:
+        return "vor Börsenbeginn"
+    return "während des Handels"
+
+def zahlen_regeln(termine, kurs_index):
+    """Für jeden Kurstag i: morgen[i] = Zahlen wirken am nächsten Handelstag (heute zum Schluss raus),
+    gesperrt[i] = Zahlen wirken in den nächsten ZAHLEN_SPERRE_TAGE Handelstagen (kein Einstieg),
+    gerade[i] = Zahlen haben heute oder gestern gewirkt (keine Gegenbewegungs-Trades)."""
+    n = len(kurs_index)
+    zukunft = pd.bdate_range(kurs_index[-1] + pd.Timedelta(days=1), periods=ZAHLEN_SPERRE_TAGE + 30)
+    lang = kurs_index.append(zukunft)              # Handelstage + geschätzte künftige Werktage
+    reak = np.zeros(len(lang) + ZAHLEN_SPERRE_TAGE + 2, bool)
+    for termin in termine:
+        pos = lang.searchsorted(reaktionstag(termin))
+        if pos < len(lang):
+            reak[pos] = True
+    morgen = reak[1:n + 1].copy()
+    gesperrt = np.zeros(n, bool)
+    for k in range(1, ZAHLEN_SPERRE_TAGE + 1):
+        gesperrt |= reak[k:n + k]
+    gerade = reak[:n] | np.r_[False, reak[:n - 1]]
+    return morgen, gesperrt, gerade, lang, reak
+
+
+# ----------------------------------------------------------------------------
+# Schlagzeilen: erkannte Ereignisse statt Stimmungs-Punkte (nur Anzeige und Warnung)
+# ----------------------------------------------------------------------------
+FIRMENNAMEN = {
+    "SE": r"sea (ltd|limited)|shopee|garena|monee", "HIMS": r"hims", "NOW": r"servicenow",
+    "INTU": r"intuit|turbotax|quickbooks", "CRWV": r"coreweave", "NBIS": r"nebius", "MELI": r"mercado ?libre",
+    "IREN": r"iren|iris energy", "NFLX": r"netflix", "AAPL": r"apple|iphone", "ASTS": r"ast spacemobile",
+    "SOFI": r"sofi",
+}
+NEWS_IGNORIEREN = re.compile(
+    r"\?\s*$|reasons? to|time to buy|should you|is it too late|could |strong buy|buy the dip|stock market today|"
+    r"law firm|class action|investor alert|securities fraud|secure counsel|rosen|pomerantz|levi & korsinsky|"
+    r"bragar|schall law|gross law|faruqi|bronstein", re.I)
+NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall, deutsches Etikett)
+    (r"\b(beats?|tops?|surpass\w*)\b.{0,40}\b(estimates?|expectations|forecasts?)\b", 1, "Zahlen besser als erwartet"),
+    (r"\bmiss(es|ed)?\b.{0,40}\b(estimates?|expectations|forecasts?)\b", -1, "Zahlen schlechter als erwartet"),
+    (r"\b(raises?|raised|lifts?|boosts?|hikes?)\b.{0,40}\b(guidance|outlook|forecast)\b", 1, "Prognose angehoben"),
+    (r"\b(cuts?|lowers?|lowered|slash\w*|trims?)\b.{0,40}\b(guidance|outlook|forecast)\b|\bweak (guidance|outlook)\b",
+     -1, "Prognose gesenkt"),
+    (r"\bupgraded?\b.{0,25}\b(to|at)\b|\bupgrades?\b.{0,40}\b(buy|outperform|overweight)\b", 1, "Analyst stuft hoch"),
+    (r"\bdowngrade[ds]?\b", -1, "Analyst stuft runter"),
+    (r"\b(stock|share|equity|convertible|notes?|secondary|public)\b.{0,25}\boffering\b|at-the-market|\bdilut\w*",
+     -1, "Kapitalerhöhung/Verwässerung"),
+    (r"\b(fda|sec|doj|ftc|antitrust|eu)\b.{0,40}\b(warns?|probe|investigat\w*|sues?|charges?)\b", -1,
+     "Behörde ermittelt/warnt"),
+    (r"\bshort[- ]sellers?\b|\bshort report\b", -1, "Leerverkäufer-Bericht"),
+    (r"\b(ceo|cfo|insider|director|founder)\b.{0,30}\bsells?\b", -1, "Insider verkauft"),
+    (r"\b(ceo|cfo)\b.{0,30}\b(resigns?|steps? down|departs?|ousted)\b", -1, "Chefwechsel"),
+    (r"going concern|bankruptcy|chapter 11|restate\w*|delist\w*", -1, "Warnung (Bilanz/Insolvenz/Delisting)"),
+    (r"\block-?up\b", -1, "Lock-up-Ende"),
+    (r"\b(buyback|repurchase)\b", 1, "Aktienrückkauf"),
+    (r"\b(to join|added to|joins?)\b.{0,20}\b(s&p|nasdaq-100|index)\b", 1, "Indexaufnahme"),
+    (r"\bstock split\b", 1, "Aktiensplit"),
+    (r"\b(signs?|wins?|secures?|lands?)\b.{0,30}\b(deal|contract|agreement)\b", 1, "Auftrag/Vertrag"),
+    (r"\b(to acquire|to be acquired|acquisition of|merger|takeover|buyout)\b", 0, "Übernahme/Fusion"),
+    (r"\bhalted\b|\btrading halt\b", 0, "Handelsaussetzung"),
+]
+VERNEINUNG = re.compile(r"\b(not|no|without|denies|despite)\b", re.I)
+
+def lies_schlagzeilen(liste, ab_zeit):
+    """Neue (seit Ende 2024) und alte yfinance-News-Struktur lesen, nur Meldungen ab 'ab_zeit'."""
+    aus = []
+    for a in liste or []:
+        if not isinstance(a, dict):
+            continue
+        c = a["content"] if isinstance(a.get("content"), dict) else a
+        titel = (c.get("title") or "").strip()
+        zeit = pd.to_datetime(c.get("pubDate") or c.get("displayTime"), utc=True, errors="coerce")
+        if pd.isna(zeit) and a.get("providerPublishTime"):
+            zeit = pd.to_datetime(a["providerPublishTime"], unit="s", utc=True, errors="coerce")
+        quelle = (c.get("provider") or {}).get("displayName") or a.get("publisher") or ""
+        if titel and not pd.isna(zeit) and zeit >= ab_zeit:
+            aus.append({"titel": titel, "zeit": zeit.tz_convert(BERLIN), "quelle": quelle,
+                        "video": str(c.get("contentType", "")).upper() == "VIDEO"})
+    return aus
+
+def ereignisse(titel, ticker):
+    """Erkannte Ereignisse einer Schlagzeile als Liste (Richtung, Etikett)."""
+    name = FIRMENNAMEN.get(ticker)
+    nennt_firma = re.search(rf"\b{re.escape(ticker)}\b", titel) or (name and re.search(rf"\b({name})\b", titel, re.I))
+    if NEWS_IGNORIEREN.search(titel) or (name and not nennt_firma):
+        return []
+    gefunden = []
+    for muster, richtung, etikett in NEWS_EREIGNISSE:
+        treffer = re.search(muster, titel, re.I)
+        if treffer and not VERNEINUNG.search(titel[max(0, treffer.start() - 25):treffer.start()]):
+            gefunden.append((richtung, etikett))
+    return gefunden
+
+def werte_news(zusatz, kurstag, scanner_zeilen):
+    """Für Ticker mit Signal: Schlagzeilen der letzten NEWS_TAGE Handelstage, erkannte Ereignisse, Warnungen."""
+    ab_zeit = (kurstag - pd.offsets.BDay(NEWS_TAGE - 1)).tz_localize(NY).tz_convert("UTC")
+    lesbar = {t: lies_schlagzeilen(e["news"], ab_zeit) for t, e in zusatz.items() if e.get("news")}
+    # Dieselbe Meldung bei mehreren Tickern = allgemeine Marktnachricht -> anzeigen, aber nicht werten
+    anzahl = {}
+    for liste in lesbar.values():
+        for s in {s["titel"] for s in liste}:
+            anzahl[s] = anzahl.get(s, 0) + 1
+    ergebnis = {}
+    for z in scanner_zeilen:
+        t = z["Ticker"]
+        e = zusatz.get(t)
+        if e is None or e["news_info"] == "nicht abgefragt":
+            continue
+        if e["news"] is None:
+            ergebnis[t] = {"spalte": "?", "zeilen": [], "info": e["news_info"]}
+            continue
+        richtung = 1 if z["Signal"] == KAUFEN else -1 if z["Signal"] == SHORT else 0
+        zeilen, etiketten, warnung = [], [], False
+        for s in lesbar.get(t, []):
+            ev = [] if s["video"] or anzahl.get(s["titel"], 0) > 1 else ereignisse(s["titel"], t)
+            for r, etikett in ev:
+                if etikett not in etiketten:
+                    etiketten.append(etikett)
+                if r == 0 or (richtung and r == -richtung):
+                    warnung = True
+            zeilen.append({**s, "ereignisse": [e2 for _, e2 in ev]})
+        spalte = ("⚠️ " if warnung else "📰 ") + ", ".join(etiketten) if etiketten else ""
+        ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "info": "ok"}
+    return ergebnis
+
+
+# ----------------------------------------------------------------------------
+# Indikatoren und Strategien (alles vektorisiert, jeder Wert eines Tages nur aus Kursen bis zu diesem Tag)
 # ----------------------------------------------------------------------------
 def calculate_indicators(df):
-    """Berechnet alle notwendigen Indikatoren für die erweiterten Strategien.
-    Jeder Wert eines Tages hängt nur von Kursen bis zu diesem Tag ab."""
+    """Berechnet alle Indikatoren für die Strategien."""
+    c = df['Close']
     # 1. RSI (Relative Strength Index) mit Wilder-Glättung wie bei TradingView/Brokern
-    delta = df['Close'].diff()
-    gain = delta.where(delta > 0, 0.0).ewm(alpha=1/14, adjust=False, min_periods=14).mean()
-    loss = (-delta.where(delta < 0, 0.0)).ewm(alpha=1/14, adjust=False, min_periods=14).mean()
-    rs = gain / loss
-    df['RSI'] = 100 - (100 / (1 + rs))
-
-    # 2. EMA 20 (Trendfilter)
-    df['EMA_20'] = df['Close'].ewm(span=20, adjust=False).mean()
-
-    # 3. Bollinger Bänder (20 Perioden, 2 Standardabweichungen)
-    df['SMA_20'] = df['Close'].rolling(window=20).mean()
-    df['Std_Dev'] = df['Close'].rolling(window=20).std()
-    df['Upper_Band'] = df['SMA_20'] + (df['Std_Dev'] * 2)
-    df['Lower_Band'] = df['SMA_20'] - (df['Std_Dev'] * 2)
-
-    # 4. ATR (Average True Range für mathematisch genaue Stop-Loss Platzierung, Wilder-Glättung)
-    high_low = df['High'] - df['Low']
-    high_close = np.abs(df['High'] - df['Close'].shift())
-    low_close = np.abs(df['Low'] - df['Close'].shift())
-    ranges = pd.concat([high_low, high_close, low_close], axis=1)
-    true_range = ranges.max(axis=1)
-    df['ATR'] = true_range.ewm(alpha=1/14, adjust=False, min_periods=14).mean()
-
+    delta = c.diff()
+    gain = delta.where(delta > 0, 0.0)
+    loss = -delta.where(delta < 0, 0.0)
+    df['RSI'] = 100 - 100 / (1 + gain.ewm(alpha=1/14, adjust=False, min_periods=14).mean()
+                             / loss.ewm(alpha=1/14, adjust=False, min_periods=14).mean())
+    # 2. RSI über 2 Tage (sehr kurzfristig überkauft/überverkauft)
+    df['RSI_2'] = 100 - 100 / (1 + gain.ewm(alpha=1/2, adjust=False, min_periods=2).mean()
+                               / loss.ewm(alpha=1/2, adjust=False, min_periods=2).mean())
+    # 3. EMA 20 und Trendlinien (gleitende Durchschnitte über 50 und 200 Tage)
+    df['EMA_20'] = c.ewm(span=20, adjust=False).mean()
+    df['SMA_50'] = c.rolling(50).mean()
+    df['SMA_200'] = c.rolling(200).mean()
+    # 4. Bollinger Bänder (20 Perioden, 2 Standardabweichungen)
+    sma20 = c.rolling(window=20).mean()
+    std20 = c.rolling(window=20).std()
+    df['Upper_Band'] = sma20 + 2 * std20
+    df['Lower_Band'] = sma20 - 2 * std20
+    # 5. ATR (Average True Range, Wilder-Glättung) für Stop, Ziel und Limit
+    ranges = pd.concat([df['High'] - df['Low'], (df['High'] - c.shift()).abs(), (df['Low'] - c.shift()).abs()], axis=1)
+    df['ATR'] = ranges.max(axis=1).ewm(alpha=1/14, adjust=False, min_periods=14).mean()
+    # 6. MACD (12/26) mit Signallinie (9)
+    df['MACD'] = c.ewm(span=12, adjust=False).mean() - c.ewm(span=26, adjust=False).mean()
+    df['MACD_Signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
+    # 7. Hoch, Tief und Ø-Volumen der 20 VORTAGE (heute zählt nicht mit)
+    df['Hoch_20'] = df['High'].shift(1).rolling(20).max()
+    df['Tief_20'] = df['Low'].shift(1).rolling(20).min()
+    volumen = df['Volume'] if 'Volume' in df else pd.Series(np.nan, index=df.index)
+    df['Volumen_20'] = volumen.shift(1).rolling(20).mean()
     return df
 
-def signal_aus(price, rsi, ema, lower_b, upper_b, atr, mit_short=True):
-    """Die Strategien. Gibt (Signal, Stop-Loss, Take-Profit) in der Währung der Kurse zurück."""
-    # --- STRATEGIE 1: EMA PULLBACK (Trendfolgend, long) ---
-    if price > ema and (price / ema) < 1.015 and rsi < 60:
-        stop_loss = price - (1.5 * atr)    # Stop 1,5 ATR unter dem Kurs
-        take_profit = price + (3.0 * atr)  # Ziel 3 ATR über dem Kurs -> CRV (Chance-Risiko-Verhältnis) 2:1
-        return KAUFEN, stop_loss, take_profit
+def strategie_signale(df, mit_short):
+    """Je Strategie: Bool-Array 'feuert' (Signal zum Schlusskurs) und Arrays Stop/Ziel in Kurswährung.
+    Vergleiche mit NaN ergeben False – fehlt ein Indikator (z. B. SMA200 bei jungen Aktien), ist nur
+    diese Strategie aus."""
+    c, atr, ema, rsi = df['Close'], df['ATR'], df['EMA_20'], df['RSI']
+    sma50, sma200 = df['SMA_50'], df['SMA_200']
+    volumen = df['Volume'] if 'Volume' in df else pd.Series(np.nan, index=df.index)
+    viel_volumen = (volumen > 0) & (df['Volumen_20'] > 0) & (volumen > 1.5 * df['Volumen_20'])
+    macd, macd_sig = df['MACD'], df['MACD_Signal']
+    kreuzt_hoch = (macd > macd_sig) & (macd.shift() <= macd_sig.shift())
+    kreuzt_runter = (macd < macd_sig) & (macd.shift() >= macd_sig.shift())
+    ueberverkauft = (rsi < 32) | (c <= df['Lower_Band'])
+    ueberhitzt = (rsi > 70) | (c >= df['Upper_Band'])
+    regeln = {
+        "ausbruch_long": ((c > df['Hoch_20']) & viel_volumen & (c > sma50), c - 2 * atr, c + 4 * atr),
+        "abbruch_short": ((c < df['Tief_20']) & viel_volumen & (c < sma50), c + 2 * atr, c - 4 * atr),
+        "rsi2_long": ((df['RSI_2'] < 10) & (c > sma200), c - 2 * atr, c + 2 * atr),
+        "rsi2_short": ((df['RSI_2'] > 90) & (c < sma200), c + 2 * atr, c - 2 * atr),
+        "gegenbewegung_long": (ueberverkauft & (c > sma200) & (ema - c >= 1.2 * atr), c - 1.2 * atr, ema),
+        "rueckfall_short": (ueberhitzt & (c < sma200) & (c - ema >= 1.2 * atr), c + 1.2 * atr, ema),
+        "macd_long": (kreuzt_hoch & (c > sma50), c - 1.5 * atr, c + 3 * atr),
+        "macd_short": (kreuzt_runter & (c < sma50), c + 1.5 * atr, c - 3 * atr),
+        "ruecksetzer_long": ((c > ema) & (c - ema <= 0.5 * atr) & (rsi < 60) & (c > sma50), c - 1.5 * atr, c + 3 * atr),
+        "erholung_short": ((c < ema) & (ema - c <= 0.5 * atr) & (rsi > 40) & (c < sma50), c + 1.5 * atr, c - 3 * atr),
+    }
+    genug = np.arange(len(df)) >= MIN_KERZEN - 1
+    signale = {}
+    for key, (bedingung, stop, ziel) in regeln.items():
+        r = STRATEGIEN[key]["richtung"]
+        if r < 0 and not mit_short:
+            continue
+        ok = (bedingung & atr.notna() & (stop > 0) & (ziel > 0) & (r * (c - stop) > 0) & (r * (ziel - c) > 0)
+              ).to_numpy(dtype=bool) & genug
+        signale[key] = (ok, stop.to_numpy(dtype=float), ziel.to_numpy(dtype=float))
+    return signale, ueberhitzt.to_numpy(dtype=bool), ueberverkauft.to_numpy(dtype=bool)
 
-    # --- STRATEGIE 2: RSI MEAN REVERSION (Antizyklisch, long) ---
-    if rsi < 32 or price <= lower_b:
-        stop_loss = price - (1.2 * atr)
-        take_profit = ema  # Kursziel ist die Rückkehr zum Mittelwert (EMA20)
-        return SCHARF_KAUFEN, stop_loss, take_profit
+def limit_kurs(r, kurs, atr, stop, ziel):
+    """Höchster Kaufkurs (Long) bzw. tiefster Verkaufskurs (Short) für den Einstieg am nächsten Tag:
+    Schluss ± 0,5 ATR, aber nie über die Mitte zwischen Stop und Ziel (dann bleibt das CRV mindestens 1)."""
+    mitte = (stop + ziel) / 2
+    return min(kurs + LIMIT_ATR * atr, mitte) if r > 0 else max(kurs - LIMIT_ATR * atr, mitte)
 
-    # --- STRATEGIE 3: ÜBERHITZT – Gewinne sichern bzw. Short auf Rückfall zum Mittelwert ---
-    if rsi > 70 or price >= upper_b:
-        if mit_short and ema < price:  # Short nur, wenn das Ziel (EMA) unter dem Kurs liegt
-            return SCHARF_SHORT, price + (1.2 * atr), ema
-        return TEILVERKAUF, price * 0.97, np.nan  # Nachziehender Stopp zur Gewinnsicherung, kein Kursziel
+def bereite_vor(ticker, df, fx, zahlen_df, einst):
+    """Alles, was Scanner, Tagebuch und Depot je Ticker brauchen, einmal als schnelle Listen/Arrays."""
+    df = calculate_indicators(df.copy())
+    signale, ueberhitzt, ueberverkauft = strategie_signale(df, einst.mit_short)
+    n = len(df)
+    offen = kerze_noch_offen(df)
+    d = {
+        "ticker": ticker, "df": df, "idx": df.index, "n": n,
+        "n_fertig": n - 1 if offen else n,  # Tagebuch und Depot nutzen nur abgeschlossene Kerzen
+        "offen": offen,
+        "O": df['Open'].fillna(df['Close']).to_numpy(dtype=float), "H": df['High'].to_numpy(dtype=float),
+        "L": df['Low'].to_numpy(dtype=float), "C": df['Close'].to_numpy(dtype=float),
+        "ATR": df['ATR'].to_numpy(dtype=float), "FX": kurs_umrechner(fx, df.index).to_numpy(dtype=float),
+        "signale": signale, "ueberhitzt": ueberhitzt, "ueberverkauft": ueberverkauft,
+        "pos": {tag: i for i, tag in enumerate(df.index)},
+        "termine": None,
+    }
+    d["morgen"] = d["gesperrt"] = d["gerade"] = np.zeros(n, bool)
+    if zahlen_df is not None:
+        termine = zahlen_termine(zahlen_df)
+        d["termine"] = termine
+        d["morgen"], d["gesperrt"], d["gerade"], d["lang"], d["reak"] = zahlen_regeln(termine, df.index)
+    return d
 
-    # --- STRATEGIE 4: EMA PULLBACK (Trendfolgend, short) – Spiegelbild von Strategie 1 ---
-    if mit_short and price < ema and (ema / price) < 1.015 and rsi > 40:
-        return SHORT, price + (1.5 * atr), price - (3.0 * atr)
-
-    return BEOBACHTEN, np.nan, np.nan
-
-def indikatoren_der_zeile(z):
-    werte = [float(z['Close']), float(z['RSI']), float(z['EMA_20']),
-             float(z['Lower_Band']), float(z['Upper_Band']), float(z['ATR'])]
-    return None if np.isnan(werte).any() else werte
-
-def positionsgroesse(kurs, stop, konto, risiko_prozent, bruchstuecke, bargeld=math.inf):
-    """Stückzahl, bei der der Stop-Loss höchstens risiko_prozent des Kontos kostet
-    (Position max. MAX_POSITION_PROZENT des Kontos und nicht mehr als das freie Geld). Long und Short."""
-    risiko_je_aktie = abs(kurs - stop)
-    if risiko_je_aktie <= 0 or bargeld <= 0 or kurs <= 0:
-        return 0
-    stueck = min(konto * risiko_prozent / 100 / risiko_je_aktie,
-                 konto * MAX_POSITION_PROZENT / 100 / kurs,
-                 bargeld / kurs)
-    return math.floor(stueck * 100 + 1e-9) / 100 if bruchstuecke else math.floor(stueck + 1e-9)
-
-def fehler_zeile(ticker, grund):
-    return {"Ticker": ticker, "Signal": FEHLER, "_fehler": grund}
-
-def evaluate_strategies(ticker, df, fx, einst):
-    try:
-        offen = kerze_noch_offen(df)
-        ignoriert = offen and einst.nur_schluss
-        if ignoriert:
-            df = df.iloc[:-1]
-        if len(df) < MIN_KERZEN:
-            return fehler_zeile(ticker, f"nur {len(df)} Kerzen – zu wenig Historie")
-
-        df = calculate_indicators(df.copy())
-        werte = indikatoren_der_zeile(df.iloc[-1])
-        if werte is None:
-            return fehler_zeile(ticker, "Indikatoren unvollständig")
-        empfehlung, stop_loss, take_profit = signal_aus(*werte, mit_short=einst.mit_short)
-
-        # In Euro umrechnen (Kurse sind in US-Dollar)
-        rate = kurs_umrechner(fx, df.index)
-        kurs = werte[0] / rate.iloc[-1]
-        vortag = float(df['Close'].iloc[-2]) / rate.iloc[-2]
-        stop = stop_loss / rate.iloc[-1] if stop_loss > 0 else np.nan
-        ziel = take_profit / rate.iloc[-1] if take_profit > 0 else np.nan
-
-        crv = stueck = np.nan
-        richtung = 1 if empfehlung in LONG_SIGNALE else -1 if empfehlung in SHORT_SIGNALE else 0
-        if richtung and stop > 0 and ziel > 0:
-            crv = richtung * (ziel - kurs) / (richtung * (kurs - stop))
-            stueck = positionsgroesse(kurs, stop, einst.konto, einst.risiko, einst.bruchstuecke)
-
-        return {
-            "Ticker": ticker,
-            "Signal": empfehlung,
-            "Kurs": kurs,
-            "Tag %": (kurs / vortag - 1) * 100 if vortag > 0 else np.nan,
-            "RSI": werte[1],
-            "Stop": stop,
-            "Ziel": ziel,
-            "CRV": crv,
-            "Stück": stueck,
-            "Einsatz": stueck * kurs,
-            "_stand": df.index[-1],
-            "_offen": offen and not ignoriert,
-            "_ignoriert": ignoriert,
-        }
-
-    except Exception as e:
-        return fehler_zeile(ticker, f"Rechenfehler: {str(e)[:80]}")
+def kandidaten(d, i, pausiert=frozenset()):
+    """Welche Strategien feuern am Tag i (Signal zum Schlusskurs) und was ist die Entscheidung?
+    Gibt (gewählte Strategie oder None, Grund fürs Warten oder None) zurück. Dieselbe Regel gilt für den
+    Scanner und beide Depot-Läufe – mit und ohne Lernen unterscheiden sich nur durch die Pausen."""
+    feuernd = [k for k, (ok, _, _) in d["signale"].items() if ok[i]]
+    if not feuernd:
+        return None, None
+    if len({STRATEGIEN[k]["richtung"] for k in feuernd}) > 1:
+        return None, "Signale widersprechen sich"
+    if d["gesperrt"][i]:
+        return None, "Quartalszahlen"
+    if d["gerade"][i]:
+        feuernd_ok = [k for k in feuernd if STRATEGIEN[k]["art"] != "gegen"]
+        if not feuernd_ok:
+            return None, "Zahlen gerade erst – Gegenbewegung riskant"
+        feuernd = feuernd_ok
+    aktiv = [k for k in feuernd if k not in pausiert]
+    if not aktiv:
+        return None, f"{strategie_name(feuernd[0])} pausiert"
+    return aktiv[0], None
 
 
 # ----------------------------------------------------------------------------
-# Virtuelles Depot: der Bot handelt die letzten Monate mit dem Startkapital nach
+# Gemeinsame Ein- und Ausstiegsregeln für Tagebuch und Depot
+# ----------------------------------------------------------------------------
+SPREAD = SPREAD_PROZENT / 100
+
+def mit_spread(kurs, r, einstieg):
+    """Ausführungskurs inkl. Spread: Kauf (Long-Einstieg, Short-Eindeckung) etwas teurer, Verkauf etwas billiger."""
+    kaufen = (r > 0) == einstieg
+    return kurs * (1 + SPREAD) if kaufen else kurs * (1 - SPREAD)
+
+def einstieg_moeglich(d, i, r, stop, limit):
+    """Einstieg zur Eröffnung am Tag i nur, wenn die Eröffnung nicht hinter dem Stop und nicht über dem Limit liegt."""
+    o = d["O"][i]
+    return r * (o - stop) > 0 and r * (limit - o) >= 0
+
+def pruefe_ausstieg(d, i, r, pos):
+    """Ausstieg am Tag i? Reihenfolge: Kurslücke über Stop/Ziel (nicht am Einstiegstag), Stop vor Ziel im
+    Tagesverlauf, vor Quartalszahlen zum Schluss, Zeitstopp zum Schluss. Gibt (Kurs in $, Grund) zurück."""
+    o, h, l, c = d["O"][i], d["H"][i], d["L"][i], d["C"][i]
+    gegen, fuer = (l, h) if r > 0 else (h, l)  # ungünstigster / günstigster Kurs des Tages
+    nicht_neu = pos["start"] != i
+    if nicht_neu and r * (o - pos["stop"]) <= 0:
+        return o, "Stop (Kurslücke)"
+    if nicht_neu and r * (o - pos["ziel"]) >= 0:
+        return o, "Ziel (Kurslücke)"
+    if r * (gegen - pos["stop"]) <= 0:
+        return pos["stop"], "Stop"
+    if r * (fuer - pos["ziel"]) >= 0:
+        return pos["ziel"], "Ziel"
+    if d["morgen"][i]:
+        return c, "vor Quartalszahlen"
+    if i - pos["start"] + 1 >= ZEITSTOPP_TAGE:
+        return c, "Zeitstopp"
+    return None, None
+
+
+# ----------------------------------------------------------------------------
+# Strategie-Tagebuch: jede Strategie handelt gedanklich mit, unabhängig vom Depot ("Lernen aus Fehlern")
+# ----------------------------------------------------------------------------
+def strategie_tagebuch(daten, einst):
+    """Jede Strategie wird für jeden Ticker unabhängig vom Depot durchgespielt (höchstens ein gedachter Trade
+    je Ticker und Strategie, gleiche Ein- und Ausstiegsregeln, ohne Kapitalgrenzen). Ergebnis je Trade in R:
+    1 R = der geplante Verlust bis zum Stop (am Signaltag). Kosten (Spread, Gebühren) sind abgezogen."""
+    gebuehr_in_r = 2 * einst.gebuehr / (einst.konto * einst.risiko / 100)
+    eintraege = []
+    for t, d in daten.items():
+        n = d["n_fertig"]
+        for key, (feuert, stop_a, ziel_a) in d["signale"].items():
+            r = STRATEGIEN[key]["richtung"]
+            gegen = STRATEGIEN[key]["art"] == "gegen"
+            i = TAGEBUCH_AB_KERZE
+            while i < n - 1:
+                if not feuert[i] or d["gesperrt"][i] or (gegen and d["gerade"][i]):
+                    i += 1
+                    continue
+                stop, ziel, kurs = stop_a[i], ziel_a[i], d["C"][i]
+                limit = limit_kurs(r, kurs, d["ATR"][i], stop, ziel)
+                j = i + 1
+                if not einstieg_moeglich(d, j, r, stop, limit):
+                    i += 1
+                    continue
+                einstieg = mit_spread(d["O"][j], r, True)
+                pos = {"start": j, "stop": stop, "ziel": ziel}
+                k = j
+                while k < n:
+                    preis, grund = pruefe_ausstieg(d, k, r, pos)
+                    if preis is not None:
+                        break
+                    k += 1
+                if k >= n:
+                    break  # am Datenende noch offen: zählt (noch) nicht
+                ausstieg = mit_spread(preis, r, False)
+                roh = r * (ausstieg - einstieg) / abs(kurs - stop)
+                eintraege.append({"strategie": key, "ticker": t, "signal_tag": d["idx"][i], "einstieg_tag": d["idx"][j],
+                                  "ausstieg_tag": d["idx"][k], "grund": grund,
+                                  "R": max(-R_GRENZE, min(R_GRENZE, roh)) - gebuehr_in_r})
+                i = k  # nächstes Signal frühestens am Ausstiegstag (zum Schlusskurs)
+    eintraege.sort(key=lambda e: (e["ausstieg_tag"], e["ticker"], VORRANG[e["strategie"]]))
+    return eintraege
+
+def lernverlauf(tagebuch, tage, einst):
+    """Geht Tag für Tag vor: Welche Strategien sind am Abend von Tag t pausiert? Es zählen nur gedachte Trades,
+    deren Ausstieg spätestens an Tag t war (beim Entscheiden also schon bekannt). Pause, wenn die letzten bis zu
+    60 Trades im Schnitt unter −0,1 R liegen (ab 20 Trades), wieder aktiv, sobald der Schnitt über 0 R ist."""
+    fenster = {k: deque(maxlen=LERNEN_FENSTER) for k in STRATEGIEN}
+    alle_r = {k: [] for k in STRATEGIEN}
+    pausiert = set()
+    zeiger = 0
+    pausen = {}
+    for tag in tage:
+        while zeiger < len(tagebuch) and tagebuch[zeiger]["ausstieg_tag"] <= tag:
+            e = tagebuch[zeiger]
+            fenster[e["strategie"]].append(e["R"])
+            alle_r[e["strategie"]].append(e["R"])
+            zeiger += 1
+        if einst.lernen:
+            for k, f in fenster.items():
+                n = len(f)
+                schnitt = sum(f) / n if n else 0.0
+                if k not in pausiert and n >= LERNEN_MIN_TRADES and schnitt < LERNEN_PAUSE_AB:
+                    pausiert.add(k)
+                elif k in pausiert and (n < LERNEN_MIN_TRADES or schnitt > LERNEN_WIEDER_AB):
+                    pausiert.discard(k)
+        pausen[tag] = frozenset(pausiert)
+    stand = {}
+    for k in STRATEGIEN:
+        f, a = list(fenster[k]), alle_r[k]
+        n = len(f)
+        schnitt = sum(f) / n if n else np.nan
+        streuung = float(np.std(a, ddof=1)) if len(a) > 1 else np.nan
+        stand[k] = {"n": n, "gesamt": len(a), "schnitt": schnitt,
+                    "spanne": 2 * streuung / math.sqrt(n) if n > 1 else np.nan,
+                    "quote": sum(1 for x in f if x > 0) / n * 100 if n else np.nan,
+                    "pausiert": k in pausiert}
+    return pausen, stand
+
+
+# ----------------------------------------------------------------------------
+# Virtuelles Depot: der Bot handelt die letzten Monate mit dem Startkapital
 # ----------------------------------------------------------------------------
 def positionswert(p, kurs_usd, fx):
-    """Wert einer Position in €. Long: Aktien zum aktuellen Kurs. Short: hinterlegter Einsatz
-    plus Gewinn (bzw. minus Verlust) aus dem gefallenen (bzw. gestiegenen) Kurs."""
+    """Wert einer Position in € (ohne Ausstiegskosten). Long: Aktien zum aktuellen Kurs. Short: hinterlegter
+    Einsatz plus Gewinn (bzw. minus Verlust) aus dem gefallenen (bzw. gestiegenen) Kurs."""
     if p["richtung"] > 0:
         return p["stueck"] * kurs_usd / fx
     return p["stueck"] * (p["einsatz_je_stueck"] + (p["einstieg_usd"] - kurs_usd) / fx)
 
-def simuliere_depot(daten, fx_je_ticker, einst):
-    """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch.
-    Regeln: Signal zum Schlusskurs -> Einstieg/Teilverkauf zur Eröffnung des nächsten Handelstags;
-    Stop/Ziel werden im Tagesverlauf geprüft (bei beidem am selben Tag zählt der Stop);
-    Gebühr je Order; Beträge in € zum jeweiligen Tageswechselkurs; je Ticker höchstens eine Position."""
-    tabellen = {}
-    for t, df in daten.items():
-        df = calculate_indicators(df.copy())
-        df["FX"] = kurs_umrechner(fx_je_ticker.get(t), df.index)
-        df["Nr"] = np.arange(len(df))
-        tabellen[t] = df
-    if not tabellen:
+def positionsgroesse(kurs, stop, konto, risiko_prozent, bruchstuecke, bargeld=math.inf, risiko_frei=math.inf):
+    """Stückzahl, bei der der Stop-Loss höchstens risiko_prozent des Kontos kostet. Zusätzlich: Position
+    höchstens MAX_POSITION_PROZENT des Kontos, nicht mehr als das freie Geld und nicht mehr als das noch freie
+    Gesamtrisiko. Gilt für Long und Short."""
+    risiko_je_aktie = abs(kurs - stop)
+    if risiko_je_aktie <= 0 or bargeld <= 0 or kurs <= 0 or risiko_frei <= 0:
+        return 0
+    stueck = min(konto * risiko_prozent / 100 / risiko_je_aktie,
+                 konto * MAX_POSITION_PROZENT / 100 / kurs,
+                 bargeld / kurs,
+                 risiko_frei / risiko_je_aktie)
+    return math.floor(stueck * 100 + 1e-9) / 100 if bruchstuecke else math.floor(stueck + 1e-9)
+
+def simuliere_depot(daten, pausen, einst, lernen):
+    """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
+    Schluss, Einstieg zur nächsten Eröffnung bis zum Limit, Stop/Ziel/Zahlen/Zeitstopp), dazu Kapital- und
+    Risikogrenzen, Gebühr und Spread je Order. Mit Lernen werden pausierte Strategien nicht gehandelt."""
+    alle_tage = sorted(set().union(*(set(d["idx"][:d["n_fertig"]]) for d in daten.values())))
+    if not alle_tage:
         return None
-    alle_tage = sorted(set().union(*(df.index for df in tabellen.values())))
     start = alle_tage[-1] - pd.DateOffset(months=einst.rueckblick)
-    tage = [d for d in alle_tage if d > start]
+    tage = [tag for tag in alle_tage if tag > start]
     if len(tage) < 5:
         return None
 
     gebuehr = einst.gebuehr
     bargeld = float(einst.konto)
     depotwert = float(einst.konto)  # zum letzten Schlusskurs – Grundlage für die Positionsgröße
-    positionen = {}    # Ticker -> offene Position
-    auftraege = {}     # Ticker -> Auftrag für die nächste Eröffnung
-    trades = []        # abgeschlossene Positionen
-    verlauf = []       # (Tag, Depotwert)
+    positionen, auftraege, trades, verlauf = {}, [], [], []
     letzter_kurs = {}  # Ticker -> (Schlusskurs in $, Wechselkurs) für Tage ohne Handel
-    gebuehren = 0.0
+    gebuehren = spread_kosten = 0.0
+    hoechstes_risiko = (0.0, 0)
+    reihenfolge = {t: i for i, t in enumerate(daten)}
 
-    def verkaufe(p, stueck, kurs_usd, rate):
-        """Schließt 'stueck' Aktien der Position (Long: verkaufen, Short: zurückkaufen)."""
-        nonlocal bargeld, gebuehren
-        teil = dict(p, stueck=stueck)
-        erloes = positionswert(teil, kurs_usd, rate) - gebuehr
-        bargeld += erloes
-        gebuehren += gebuehr
-        p["erloes"] += erloes
-        p["stueck"] -= stueck
+    def offenes_risiko():
+        """Geplantes Risiko aller offenen Positionen: Verlust vom Einstieg bis zum Stop (in €)."""
+        return sum(p["risiko_eur"] for p in positionen.values())
 
     for tag in tage:
-        # 1) Aufträge vom Vortag zur Eröffnung ausführen
-        for t in list(auftraege):
-            df = tabellen[t]
-            if tag not in df.index:
-                continue  # Ticker handelt heute nicht – Auftrag wartet
-            art, signal, stop, ziel = auftraege.pop(t)
-            z = df.loc[tag]
-            eroeffnung = float(z["Open"]) if not pd.isna(z["Open"]) else float(z["Close"])
-            rate = float(z["FX"])
-            if art == "einstieg":
-                r = 1 if signal in LONG_SIGNALE else -1
-                # Kurslücke über das Ziel oder hinter den Stop: Setup ungültig
-                if t in positionen or not (r * (eroeffnung - stop) > 0 and r * (ziel - eroeffnung) > 0):
-                    continue
-                stueck = positionsgroesse(eroeffnung / rate, stop / rate, depotwert, einst.risiko,
-                                          einst.bruchstuecke, bargeld - gebuehr)
-                einsatz = stueck * eroeffnung / rate
-                if stueck <= 0 or einsatz < MIN_EINSATZ:
-                    continue
-                bargeld -= einsatz + gebuehr
-                gebuehren += gebuehr
-                positionen[t] = {"ticker": t, "richtung": r, "signal": signal, "stueck": stueck,
-                                 "einstieg_usd": eroeffnung, "einsatz_je_stueck": eroeffnung / rate,
-                                 "stop": stop, "ziel": ziel, "kauf_tag": tag, "kosten": einsatz + gebuehr,
-                                 "erloes": 0.0, "teil_geschlossen": False}
-            elif art == "teil" and t in positionen:
-                # Gegensignal (überhitzt bei Long, überverkauft bei Short): Hälfte schließen, Stop nachziehen
-                p = positionen[t]
-                p["stop"] = max(p["stop"], stop) if p["richtung"] > 0 else min(p["stop"], stop)
-                if not p["teil_geschlossen"]:
-                    haelfte = (math.floor(p["stueck"] / 2 * 100) / 100 if einst.bruchstuecke
-                               else math.floor(p["stueck"] / 2))
-                    if haelfte > 0 and haelfte * eroeffnung / rate >= MIN_EINSATZ:
-                        p["teil_geschlossen"] = True
-                        verkaufe(p, haelfte, eroeffnung, rate)
-
-        # 2) Stop und Ziel im Tagesverlauf prüfen
-        for t in list(positionen):
-            p, df = positionen[t], tabellen[t]
-            if tag not in df.index:
+        # 1) Aufträge vom Vortag zur Eröffnung ausführen – in fester Reihenfolge (bestes CRV zuerst)
+        warten = []
+        for auftrag in auftraege:
+            t = auftrag["ticker"]
+            d = daten[t]
+            i = d["pos"].get(tag)
+            if i is None or i >= d["n_fertig"]:
+                warten.append(auftrag)  # Ticker handelt heute nicht – Auftrag wartet
                 continue
-            z = df.loc[tag]
-            r, rate = p["richtung"], float(z["FX"])
-            eroeffnung = float(z["Open"]) if not pd.isna(z["Open"]) else float(z["Close"])
-            gegen = float(z["Low"]) if r > 0 else float(z["High"])   # ungünstigster Kurs des Tages
-            fuer = float(z["High"]) if r > 0 else float(z["Low"])    # günstigster Kurs des Tages
-            preis = grund = None
-            if p["kauf_tag"] != tag and r * (eroeffnung - p["stop"]) <= 0:
-                preis, grund = eroeffnung, "Stop (Kurslücke)"
-            elif p["kauf_tag"] != tag and r * (eroeffnung - p["ziel"]) >= 0:
-                preis, grund = eroeffnung, "Ziel (Kurslücke)"
-            elif r * (gegen - p["stop"]) <= 0:
-                preis, grund = p["stop"], "Stop"
-            elif r * (fuer - p["ziel"]) >= 0:
-                preis, grund = p["ziel"], "Ziel"
-            if preis is not None:
-                verkaufe(p, p["stueck"], preis, rate)
-                del positionen[t]
-                if p["teil_geschlossen"]:
-                    grund += " (½ vorher)"
-                trades.append({**p, "verkauf_tag": tag, "verkauf_preis": preis / rate, "grund": grund})
+            r, stop = auftrag["richtung"], auftrag["stop"]
+            if t in positionen or not einstieg_moeglich(d, i, r, stop, auftrag["limit"]):
+                continue  # Kurslücke hinter den Stop oder über das Limit: Auftrag verfällt
+            if len(positionen) >= MAX_POSITIONEN:
+                continue
+            if r < 0 and sum(1 for p in positionen.values() if p["richtung"] < 0) >= MAX_SHORTS:
+                continue
+            rate = d["FX"][i]
+            ausfuehrung = mit_spread(d["O"][i], r, True)
+            risiko_frei = depotwert * MAX_GESAMTRISIKO_PROZENT / 100 - offenes_risiko()
+            stueck = positionsgroesse(ausfuehrung / rate, stop / rate, depotwert, einst.risiko, einst.bruchstuecke,
+                                      bargeld - gebuehr, risiko_frei)
+            einsatz = stueck * ausfuehrung / rate
+            if stueck <= 0 or einsatz < MIN_EINSATZ:
+                continue
+            bargeld -= einsatz + gebuehr
+            gebuehren += gebuehr
+            spread_kosten += stueck * d["O"][i] * SPREAD / rate
+            positionen[t] = {"ticker": t, "richtung": r, "strategie": auftrag["strategie"], "stueck": stueck,
+                             "einstieg_usd": ausfuehrung, "einsatz_je_stueck": ausfuehrung / rate, "stop": stop,
+                             "ziel": auftrag["ziel"], "start": i, "kauf_tag": tag, "kosten": einsatz + gebuehr,
+                             "erloes": 0.0, "risiko_eur": stueck * abs(ausfuehrung - stop) / rate}
+            letzter_kurs[t] = (d["O"][i], rate)
+        auftraege = warten
+
+        # 2) Stop, Ziel, Quartalszahlen und Zeitstopp prüfen
+        for t in list(positionen):
+            p, d = positionen[t], daten[t]
+            i = d["pos"].get(tag)
+            if i is None or i >= d["n_fertig"]:
+                continue
+            preis, grund = pruefe_ausstieg(d, i, p["richtung"], p)
+            if preis is None:
+                continue
+            rate = d["FX"][i]
+            ausfuehrung = mit_spread(preis, p["richtung"], False)
+            erloes = positionswert(p, ausfuehrung, rate) - gebuehr
+            bargeld += erloes
+            gebuehren += gebuehr
+            spread_kosten += p["stueck"] * preis * SPREAD / rate
+            p["erloes"] += erloes
+            del positionen[t]
+            trades.append({**p, "verkauf_tag": tag, "verkauf_preis": ausfuehrung / rate, "grund": grund})
 
         # 3) Signale zum Schlusskurs -> Aufträge für den nächsten Handelstag
-        for t, df in tabellen.items():
-            if tag not in df.index:
+        pausiert = pausen.get(tag, frozenset()) if lernen else frozenset()
+        neue = []
+        for t, d in daten.items():
+            i = d["pos"].get(tag)
+            if i is None or i >= d["n_fertig"]:
                 continue
-            z = df.loc[tag]
-            letzter_kurs[t] = (float(z["Close"]), float(z["FX"]))
-            werte = indikatoren_der_zeile(z)
-            if werte is None or z["Nr"] < MIN_KERZEN - 1:
+            letzter_kurs[t] = (d["C"][i], d["FX"][i])
+            if t in positionen or i < MIN_KERZEN - 1:
                 continue
-            signal, stop, ziel = signal_aus(*werte, mit_short=einst.mit_short)
-            p = positionen.get(t)
-            if p is None and (signal in LONG_SIGNALE or signal in SHORT_SIGNALE) and stop > 0 and ziel > 0:
-                auftraege[t] = ("einstieg", signal, stop, ziel)
-            elif p is not None and p["richtung"] > 0 and signal in (SCHARF_SHORT, TEILVERKAUF):
-                auftraege[t] = ("teil", signal, werte[0] * 0.97, np.nan)
-            elif p is not None and p["richtung"] < 0 and signal == SCHARF_KAUFEN:
-                auftraege[t] = ("teil", signal, werte[0] * 1.03, np.nan)
+            wahl, _ = kandidaten(d, i, pausiert)
+            if wahl is None:
+                continue
+            r = STRATEGIEN[wahl]["richtung"]
+            _, stop_a, ziel_a = d["signale"][wahl]
+            stop, ziel, kurs = stop_a[i], ziel_a[i], d["C"][i]
+            neue.append({"ticker": t, "richtung": r, "strategie": wahl, "stop": stop, "ziel": ziel,
+                         "limit": limit_kurs(r, kurs, d["ATR"][i], stop, ziel),
+                         "crv": r * (ziel - kurs) / (r * (kurs - stop))})
+        neue.sort(key=lambda a: (-a["crv"], VORRANG[a["strategie"]], reihenfolge[a["ticker"]]))
+        auftraege = [a for a in auftraege if a["ticker"] not in {n["ticker"] for n in neue}] + neue
 
         # 4) Depotwert zum Schlusskurs
         depotwert = bargeld + sum(positionswert(p, *letzter_kurs[t]) for t, p in positionen.items())
         verlauf.append((tag, depotwert))
+        risiko_jetzt = offenes_risiko() / depotwert * 100 if depotwert > 0 else 0.0
+        if risiko_jetzt > hoechstes_risiko[0]:
+            hoechstes_risiko = (risiko_jetzt, len(positionen))
 
-    # Vergleich: das Startkapital gleichmäßig aufteilen und jeden Ticker an seinem ersten Handelstag
-    # im Zeitraum kaufen und halten (Ticker, die erst später starten, z. B. Börsengänge, bleiben Bargeld)
-    anteil = einst.konto / len(tabellen)
-    halten = {}  # Ticker -> (Kauftag, Stück)
-    for t, df in tabellen.items():
-        eigene = df.index[df.index >= tage[0]]
-        if len(eigene) and eigene[0] - tage[0] <= pd.Timedelta(days=7):
-            z = df.loc[eigene[0]]
-            eroeffnung = float(z["Open"]) if not pd.isna(z["Open"]) else float(z["Close"])
-            halten[t] = (eigene[0], (anteil - gebuehr) / (eroeffnung / float(z["FX"])))
+    # Vergleich: Startkapital gleichmäßig aufteilen und jeden Ticker an seinem ersten Handelstag im Zeitraum
+    # kaufen und halten (Ticker, die erst später starten, z. B. Börsengänge, bleiben Bargeld)
+    anteil = einst.konto / len(daten)
+    halten = {}
+    for t, d in daten.items():
+        eigene = [tag for tag in d["idx"][:d["n_fertig"]] if tag >= tage[0]]
+        if eigene and eigene[0] - tage[0] <= pd.Timedelta(days=7):
+            i = d["pos"][eigene[0]]
+            halten[t] = (eigene[0], (anteil - gebuehr) / (mit_spread(d["O"][i], 1, True) / d["FX"][i]))
     vergleich = None
     if halten:
         kurse, werte_halten = {}, []
         for tag in tage:
-            wert = anteil * (len(tabellen) - len(halten))
+            wert = anteil * (len(daten) - len(halten))
             for t, (kauftag, stueck) in halten.items():
-                df = tabellen[t]
-                if tag in df.index:
-                    kurse[t] = float(df.loc[tag, "Close"]) / float(df.loc[tag, "FX"])
+                d = daten[t]
+                i = d["pos"].get(tag)
+                if i is not None and i < d["n_fertig"]:
+                    kurse[t] = d["C"][i] / d["FX"][i]
                 wert += stueck * kurse[t] if tag >= kauftag else anteil
             werte_halten.append(wert)
-        vergleich = pd.Series(werte_halten, index=[d for d, _ in verlauf])
+        vergleich = pd.Series(werte_halten, index=[tag for tag, _ in verlauf])
 
     for t, p in positionen.items():  # offene Positionen zum letzten Kurs bewerten
-        p["wert"] = positionswert(p, *letzter_kurs[t])
-        p["kurs_jetzt"] = letzter_kurs[t][0] / letzter_kurs[t][1]
-
-    werte = pd.Series([w for _, w in verlauf], index=[d for d, _ in verlauf])
+        kurs, fx = letzter_kurs[t]
+        p["wert"] = positionswert(p, kurs, fx)
+        p["kurs_jetzt"] = kurs / fx
+        d = daten[t]
+        p["tage"] = d["n_fertig"] - p["start"]
+    werte = pd.Series([w for _, w in verlauf], index=[tag for tag, _ in verlauf])
     hoch = werte.cummax()
     return {
         "start": tage[0], "ende": tage[-1], "start_wert": float(einst.konto), "end_wert": float(werte.iloc[-1]),
         "verlauf": werte, "vergleich": vergleich, "trades": trades, "offen": list(positionen.values()),
-        "nicht_gehalten": [t for t in tabellen if t not in halten],
-        "gebuehren": gebuehren, "max_rueckgang": float(((hoch - werte) / hoch).max() * 100), "bargeld": bargeld,
+        "nicht_gehalten": [t for t in daten if t not in halten], "gebuehren": gebuehren, "spread": spread_kosten,
+        "max_rueckgang": float(((hoch - werte) / hoch).max() * 100), "bargeld": bargeld,
+        "hoechstes_risiko": hoechstes_risiko, "offenes_risiko": offenes_risiko() / werte.iloc[-1] * 100,
     }
+
+def zufallsspanne(erg_a, erg_b):
+    """Wie groß kann der Unterschied zweier Depots allein durch Zufall sein? Es zählen nur Trades, die nur eines
+    der beiden Depots gemacht hat (gemeinsame heben sich auf); ±2 Standardabweichungen."""
+    def ergebnisse(erg):
+        aus = {(p["ticker"], p["kauf_tag"]): p["erloes"] - p["kosten"] for p in erg["trades"]}
+        aus.update({(p["ticker"], p["kauf_tag"]): p["erloes"] + p["wert"] - p["kosten"] for p in erg["offen"]})
+        return aus
+    a, b = ergebnisse(erg_a), ergebnisse(erg_b)
+    nur_einer = [v for k, v in a.items() if k not in b] + [v for k, v in b.items() if k not in a]
+    return 2 * math.sqrt(sum(v * v for v in nur_einer))
+
+
+# ----------------------------------------------------------------------------
+# Scanner: Entscheidung für heute je Ticker
+# ----------------------------------------------------------------------------
+def fehler_zeile(ticker, grund):
+    return {"Ticker": ticker, "Signal": FEHLER, "_fehler": grund}
+
+def naechster_termin(d, kurstag):
+    """Nächster bekannter Quartalszahlen-Termin nach dem letzten Kurstag (oder None)."""
+    if d["termine"] is None:
+        return None
+    zukunft = [t for t in d["termine"] if reaktionstag(t) > kurstag]
+    return zukunft[0] if zukunft else None
+
+def letzter_tag_vor(termin, kurstag):
+    """Letzter Handelstag (Mo–Fr, Feiertage nicht berücksichtigt) vor dem Reaktionstag der Zahlen."""
+    reak = reaktionstag(termin)
+    tage = pd.bdate_range(kurstag + pd.Timedelta(days=1), reak - pd.Timedelta(days=1))
+    return tage[-1] if len(tage) else None
+
+def scanner_zeile(t, d, pausiert, einst):
+    i = (d["n_fertig"] if einst.nur_schluss else d["n"]) - 1
+    if i + 1 < MIN_KERZEN:
+        return fehler_zeile(t, f"nur {i + 1} Kerzen – zu wenig Historie")
+    kurstag = d["idx"][i]
+    rate = d["FX"][i]
+    kurs = d["C"][i] / rate
+    if pd.isna(d["ATR"][i]) or pd.isna(kurs):
+        return fehler_zeile(t, "Indikatoren unvollständig")
+    wahl, grund = kandidaten(d, i, pausiert if einst.lernen else frozenset())
+    zeile = {"Ticker": t, "Kurs": kurs, "_stand": kurstag, "_offen": d["offen"] and not einst.nur_schluss,
+             "_kerze_offen": d["offen"], "_strategie": wahl}
+    termin = naechster_termin(d, kurstag)
+    if einst.ohne_zahlen:
+        zeile["Zahlen"] = "aus"
+    elif not hat_zahlen(t):
+        zeile["Zahlen"] = "–"
+    elif d["termine"] is None:
+        zeile["Zahlen"] = "?"
+    elif termin is None:
+        zeile["Zahlen"] = "? (fällig?)" if (len(d["termine"]) and kurstag - d["termine"][-1].tz_localize(None)
+                                             > pd.Timedelta(days=100)) else "–"
+    else:
+        zeile["Zahlen"] = datum(termin)
+    zeile["_termin"] = termin
+
+    if wahl is not None:
+        r = STRATEGIEN[wahl]["richtung"]
+        _, stop_a, ziel_a = d["signale"][wahl]
+        stop, ziel = stop_a[i] / rate, ziel_a[i] / rate
+        limit = limit_kurs(r, kurs, d["ATR"][i] / rate, stop, ziel)
+        stueck = positionsgroesse(kurs, stop, einst.konto, einst.risiko, einst.bruchstuecke)
+        zeile.update({"Signal": KAUFEN if r > 0 else SHORT, "Strategie": strategie_name(wahl), "Limit": limit,
+                      "Stop": stop, "Ziel": ziel, "CRV": r * (ziel - kurs) / (r * (kurs - stop)), "Stück": stueck,
+                      "Einsatz": stueck * kurs, "Risiko": stueck * abs(kurs - stop)})
+        if zeile["_offen"]:
+            zeile["Strategie"] += " (vorläufig)"
+    elif grund is not None:
+        if grund == "Quartalszahlen" and termin is not None:
+            grund = f"Quartalszahlen {datum(termin)}"
+        zeile.update({"Signal": WARTEN, "Strategie": grund})
+    elif d["ueberhitzt"][i]:
+        zeile.update({"Signal": SICHERN, "Strategie": "überhitzt – falls Long im Depot"})
+    elif einst.mit_short and d["ueberverkauft"][i]:
+        zeile.update({"Signal": SICHERN, "Strategie": "überverkauft – falls Short im Depot"})
+    else:
+        zeile.update({"Signal": BEOBACHTEN, "Strategie": ""})
+    return zeile
 
 
 # ----------------------------------------------------------------------------
@@ -575,7 +1069,46 @@ def farben_im_terminal():
         os.system("")  # schaltet ANSI-Farben in der Windows-Konsole ein
     return True
 
-def kopfzeilen(zeilen, einst, fx_heute, waehrung):
+def berlin(tag, uhr_ny):
+    """US-Börsenzeit (New York) an einem Tag -> Uhrzeit in Deutschland, z. B. '15:30'."""
+    return f"{pd.Timestamp(f'{tag:%Y-%m-%d} {uhr_ny}', tz=NY).tz_convert(BERLIN):%H:%M}"
+
+def handelsplan(zeile, nr, einst, waehrung):
+    """Ein Satz, was genau zu tun ist (für KAUFEN/SHORT)."""
+    t = zeile["Ticker"]
+    kaufen = zeile["Signal"] == KAUFEN
+    einstieg = zeile["_stand"] + pd.offsets.BDay(1)
+    zeitstopp = einstieg + pd.offsets.BDay(ZEITSTOPP_TAGE - 1)
+    raus, warum = zeitstopp, f"{ZEITSTOPP_TAGE} Handelstage"
+    if zeile["_termin"] is not None:
+        vor_zahlen = letzter_tag_vor(zeile["_termin"], zeile["_stand"])
+        if vor_zahlen is not None and vor_zahlen < raus:
+            raus, warum = vor_zahlen, f"Quartalszahlen {datum(zeile['_termin'])} {uhrzeit_text(zeile['_termin'])}"
+    stueck = de(zeile["Stück"], 2 if einst.bruchstuecke else 0)
+    if kaufen:
+        tun = f"{stueck} Stück kaufen, Limit {de(zeile['Limit'])} {waehrung} (höchster Kaufkurs)"
+    else:
+        tun = (f"{stueck} Stück leerverkaufen (z. B. per CFD/Turbo), Limit {de(zeile['Limit'])} {waehrung} "
+               f"(tiefster Verkaufskurs)")
+    return (f"{'🟢' if kaufen else '🔴'} {nr}. {t} · {zeile['Strategie']}: Am {datum(einstieg)} ab "
+            f"{berlin(einstieg, '09:30')} Uhr (US-Börsenstart) {tun}. Sofort Stop {de(zeile['Stop'])} {waehrung} "
+            f"setzen, Ziel {de(zeile['Ziel'])} {waehrung}. Greift der Stop, verlierst du ca. "
+            f"{de(zeile['Risiko'], 0)} {waehrung} (bei Kurslücken mehr). Spätestens {datum(raus)} vor "
+            f"{berlin(raus, '16:00')} Uhr {'verkaufen' if kaufen else 'eindecken'} ({warum}).")
+
+def marktampel(markt):
+    if markt is None:
+        return None
+    d = markt["df"]
+    i = markt["n_fertig"] - 1
+    sma = d["SMA_50"].iloc[i]
+    if pd.isna(sma):
+        return None
+    if d["Close"].iloc[i] > sma:
+        return "🟢 Markt (Nasdaq-100/QQQ) über der 50-Tage-Linie – Rückenwind für Long."
+    return "🔴 Markt (Nasdaq-100/QQQ) unter der 50-Tage-Linie – Vorsicht bei Long, Rückenwind für Short."
+
+def kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, ohne_zahlen):
     ok = [z for z in zeilen if "_stand" in z]
     stand = max(z["_stand"] for z in ok)
     risiko_betrag = einst.konto * einst.risiko / 100
@@ -584,21 +1117,32 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung):
     if fx_heute:
         titel += f" · 1 € = {de(fx_heute, 4)} $"
     anzahl = pd.Series([z["Signal"] for z in zeilen]).value_counts()
-    zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in PRIORITAET if s in anzahl)
+    zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in (KAUFEN, SHORT, WARTEN, SICHERN, BEOBACHTEN, FEHLER)
+                                 if s in anzahl)
     hinweise = []
+    ampel = marktampel(markt)
+    if ampel:
+        hinweise.append(ampel)
+    gesamt = einst.konto * MAX_GESAMTRISIKO_PROZENT / 100
+    hinweise.append(f"Regel: höchstens {MAX_POSITIONEN} Positionen gleichzeitig (davon höchstens {MAX_SHORTS} Short) "
+                    f"und zusammen höchstens {MAX_GESAMTRISIKO_PROZENT} % = {de(gesamt, 0)} {waehrung} Risiko – "
+                    f"bei mehr Signalen die oberen nehmen.")
     if not fx_heute:
         hinweise.append("⚠️ Wechselkurs EUR/USD nicht verfügbar – US-Kurse nicht umgerechnet (Beträge in $).")
+    if ohne_zahlen:
+        hinweise.append("⚠️ Ohne Quartalszahlen-Termine (--ohne-zahlen): Die Zahlen-Regel ist aus – Termine selbst prüfen.")
     if any(z["_offen"] for z in ok):
-        hinweise.append("⏳ US-Börse noch offen: Die heutige Kerze ist nicht fertig, Signale können sich bis "
-                        "Börsenschluss (16:00 New York) noch ändern. Mit --nur-schluss nur fertige Tage bewerten.")
-    if any(z["_ignoriert"] for z in ok):
+        hinweise.append("⏳ US-Börse noch offen: Die heutige Kerze ist nicht fertig. Signale sind vorläufig – vor "
+                        "allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. "
+                        "Mit --nur-schluss nur fertige Tage bewerten.")
+    if einst.nur_schluss and any(z["_kerze_offen"] for z in ok):
         hinweise.append("⏳ Laufende Tageskerze ignoriert (--nur-schluss): Kurs = letzter Schlusskurs.")
     for z in ok:
         if (stand - z["_stand"]).days > 5:
             hinweise.append(f"⚠️ {z['Ticker']}: letzte Kurse vom {z['_stand']:%d.%m.%Y} – veraltet?")
     return titel, zusammenfassung, hinweise
 
-def fusszeilen(zeilen, einst, waehrung):
+def fusszeilen(zeilen, einst, waehrung, news, zusatz):
     fuss = []
     fehler = {}
     for z in zeilen:
@@ -606,37 +1150,44 @@ def fusszeilen(zeilen, einst, waehrung):
             fehler.setdefault(z["_fehler"], []).append(z["Ticker"])
     for grund, ticker in fehler.items():
         fuss.append(f"❌ {', '.join(ticker)}: {grund}")
-    if fehler:
+    ohne_termine = [z["Ticker"] for z in zeilen if z.get("Zahlen", "").startswith("?")]
+    if ohne_termine:
+        gruende = sorted({zusatz.get(t, {}).get("zahlen_info", "") for t in ohne_termine} - {"ok", ""})
+        fuss.append(f"⚠️ Kein (aktueller) Quartalszahlen-Termin für {', '.join(ohne_termine)}"
+                    f"{' (' + '; '.join(gruende) + ')' if gruende else ''} – vor dem Kauf selbst prüfen.")
+    if fehler or ohne_termine:
         fuss.append("")
-    vorkommend = {z["Signal"] for z in zeilen}
-    for signal, text in LEGENDE.items():
-        if signal in SHORT_SIGNALE and not einst.mit_short:
-            continue
-        if signal != TEILVERKAUF or TEILVERKAUF in vorkommend:
-            fuss.append(f"{signal}: {text}")
+    heute = sorted({z["_strategie"] for z in zeilen if z.get("_strategie")}, key=VORRANG.get)
+    for key in heute:
+        fuss.append(f"{strategie_name(key)}: {STRATEGIEN[key]['regel']}")
     umrechnung = "US-Kurse umgerechnet" if waehrung == "€" else "Wechselkurs nicht verfügbar, nicht umgerechnet"
-    fuss.append(f"Kurs, Stop, Ziel und Einsatz in {waehrung} ({umrechnung}). Stück = so viele Aktien, "
-                f"dass du am Stop höchstens {prozent(einst.risiko)} % des Kontos verlierst "
-                f"(max. {MAX_POSITION_PROZENT} % des Kontos je Position). CRV = Chance ÷ Risiko.")
+    fuss.append(f"Beträge in {waehrung} ({umrechnung}). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den "
+                f"Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = "
+                f"1 ÷ (1 + CRV), bei CRV 2 also 34 %, bei CRV 1 über 50 %. ⏸ WARTEN = ein Signal ist da, aber eine "
+                f"Regel hält den Bot zurück (Grund in der Spalte Strategie).")
     if einst.mit_short:
-        fuss.append("🔻 Short = auf fallende Kurse setzen (z. B. per CFD oder Turbo-Schein). Verluste sind dabei "
-                    "nach oben offen – den Stop unbedingt setzen.")
-    fuss.append("💡 Kurs = letzter Kurs; der echte Kurs beim Einstieg am nächsten Tag weicht ab – Stückzahl dann "
-                "neu rechnen. Keine Anlageberatung.")
+        fuss.append("🔴 Short = auf fallende Kurse setzen (z. B. per CFD oder Turbo-Schein). Verluste sind nach oben "
+                    "offen. Bei Hebelprodukten zählt der Verlust am Stop, nicht der Einsatz: Hebel × Einsatz = echte "
+                    "Positionsgröße.")
+    fuss.append("Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. "
+                "Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.")
+    if any(n.get("zeilen") for n in news.values()):
+        fuss.append("📰 Schlagzeilen sind nur ein Hinweis: Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf "
+                    "selbst lesen. Sie unterdrücken keine Signale, weil sie sich nicht rückwirkend testen lassen.")
     return fuss
 
-def als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farbig=False):
+def als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farbig=False, mitte=()):
     # east_asian_width: Emojis zählen als 2 Zeichen breit, damit die Spalten bündig bleiben
     with pd.option_context("display.unicode.east_asian_width", True):
         text = tabelle.to_string(index=False, formatters=formate, na_rep="–")
     zeilen = text.splitlines()
     linie = "=" * len(zeilen[0])
-
     ausgabe = ["", titel, f"   {zusammenfassung}", *hinweise, linie, zeilen[0]]
-    for zeile, signal in zip(zeilen[1:], tabelle["Signal"]):
+    signale = tabelle["Signal"] if "Signal" in tabelle else [None] * len(tabelle)
+    for zeile, signal in zip(zeilen[1:], signale):
         code = ANSI.get(signal) if farbig else None
         ausgabe.append(f"{code}{zeile}\033[0m" if code else zeile)
-    ausgabe += [linie, *fuss]
+    ausgabe += [linie, *mitte, *fuss]
     return "\n".join(ausgabe)
 
 def absatz(text, stil=""):
@@ -652,8 +1203,8 @@ def tabelle_als_html(tabelle, formate, zellfarben=None, links=2):
         return (stil.format(formate, na_rep="–")
                 .hide(axis="index")
                 .set_table_styles([
-                    {"selector": "th", "props": "padding: 4px 10px; text-align: center;"},
-                    {"selector": "td", "props": "padding: 4px 10px; text-align: right;"},
+                    {"selector": "th", "props": "padding: 4px 8px; text-align: center;"},
+                    {"selector": "td", "props": "padding: 4px 8px; text-align: right;"},
                     {"selector": links_css, "props": "text-align: left; font-weight: bold;"},
                 ])
                 .to_html())
@@ -665,9 +1216,10 @@ def zeige(html_teil, text_teil):
     from IPython.display import display
     display({"text/html": html_teil, "text/plain": text_teil}, raw=True)
 
-def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, fuss, formate, notebook):
+def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen, fuss, formate, notebook):
+    mitte = ([""] + plan if plan else []) + ([""] + schlagzeilen if schlagzeilen else []) + [""]
     if not notebook:
-        print(als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farbig=farben_im_terminal()))
+        print(als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farben_im_terminal(), mitte))
         return
 
     def zeilenfarbe(zeile):
@@ -675,49 +1227,129 @@ def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, fuss, formate, note
         return [f"background-color: {bg}; color: {fg}" if bg else ""] * len(zeile)
 
     kopf = absatz(titel, "font-size: 1.15em; font-weight: bold;") + absatz(zusammenfassung)
-    kopf += "".join(absatz(h, "color: #b26a00;") for h in hinweise)
+    kopf += "".join(absatz(h, "opacity: 0.85;") for h in hinweise)
+    mitte_html = "".join(absatz(p, "margin: 4px 0;") for p in plan)
+    if schlagzeilen:
+        mitte_html += absatz(schlagzeilen[0], "font-weight: bold; margin-top: 8px;")
+        mitte_html += "".join(absatz(s, "font-size: 0.9em;") for s in schlagzeilen[1:])
     fuss_html = "".join(absatz(f, "font-size: 0.9em; opacity: 0.8;") for f in fuss)
-    zeige(kopf + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, formate, zeilenfarbe) + "</div>"
-          + fuss_html, als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate))
+    zeige(kopf + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, formate, zeilenfarbe, 3) + "</div>"
+          + mitte_html + '<div style="margin-top: 8px;">' + fuss_html + "</div>",
+          als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, mitte=mitte))
+
+
+# --- Lern-Tabelle -------------------------------------------------------------
+LERN_FORMATE = {"Ø je Trade": lambda v: de(v, 2, True) + " R" if not pd.isna(v) else "–",
+                "± Zufall": lambda v: "±" + de(v, 2) + " R" if not pd.isna(v) else "–"}
+
+def lern_tabelle(stand, einst, waehrung):
+    risiko = einst.konto * einst.risiko / 100
+    zeilen = []
+    for key, s in stand.items():
+        r = STRATEGIEN[key]["richtung"]
+        if r < 0 and not einst.mit_short:
+            continue
+        if s["n"] < LERNEN_MIN_TRADES:
+            einschaetzung = "zu wenig Daten"
+        elif s["schnitt"] - s["spanne"] > 0:
+            einschaetzung = "klar im Plus"
+        elif s["schnitt"] + s["spanne"] < 0:
+            einschaetzung = "klar im Minus"
+        else:
+            einschaetzung = "unklar – kann Zufall sein"
+        if not einst.lernen:
+            status = "– (ohne Lernen)"
+        elif s["pausiert"]:
+            status = "⏸ pausiert (lief zuletzt schlecht – kann auch Pech sein)"
+        elif s["n"] < LERNEN_MIN_TRADES:
+            status = f"aktiv (lernt noch: {s['n']}/{LERNEN_MIN_TRADES})"
+        else:
+            status = "✅ aktiv"
+        zeilen.append({"Strategie": strategie_name(key), "Trades": f"{s['n']} von {s['gesamt']}",
+                       "Ø je Trade": s["schnitt"],
+                       "≈ je Trade": f"{de(s['schnitt'] * risiko, 0, True)} {waehrung}" if s["n"] else "–",
+                       "± Zufall": s["spanne"], "Einschätzung": einschaetzung, "Status": status})
+    return pd.DataFrame(zeilen)
+
+def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
+    tabelle = lern_tabelle(stand, einst, waehrung)
+    titel = "🧠 WIE LIEFEN DIE STRATEGIEN ZULETZT? (Strategie-Tagebuch – jede Strategie handelt gedanklich mit)"
+    erklaerung = [
+        f"Gezählt werden die letzten bis zu {LERNEN_FENSTER} gedachten Trades je Strategie über alle Ticker, nach "
+        f"Spread und Gebühren. 1 R = der geplante Verlust bis zum Stop (bei dir {de(einst.konto * einst.risiko / 100, 0)} "
+        f"{waehrung}).",
+        f"Lernregel: Ab {LERNEN_MIN_TRADES} Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr als "
+        f"{de(-LERNEN_PAUSE_AB, 1)} R je Trade verliert, und wieder aktiv, sobald der Schnitt im Plus ist. Pausierte "
+        f"Strategien handeln im Tagebuch weiter.",
+        "± Zufall: So weit kann der Schnitt allein durch Glück oder Pech schwanken. Lässt man 10 Strategien ganz ohne "
+        "Vorteil je 20 Trades machen, zeigt die beste meist um +0,5 R – reiner Zufall. Erst ab etwa 100–200 Trades "
+        "lässt sich ein Vorteil von 0,2–0,3 R von Glück unterscheiden. 'Pausiert' ist eine Vorsichtsmaßnahme, kein Beweis.",
+        rueckschau_hinweis,
+    ]
+    text = "\n".join(["", titel, tabelle.to_string(index=False, formatters=LERN_FORMATE, na_rep="–"), *erklaerung])
+    if not notebook:
+        print(text)
+        return
+
+    def statusfarbe(zeile):
+        return ["color: #b26a00; font-weight: bold;" if s == "Status" and "pausiert" in zeile["Status"] else ""
+                for s in zeile.index]
+
+    zeige(absatz(titel, "font-size: 1.15em; font-weight: bold; margin-top: 18px;")
+          + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, LERN_FORMATE, statusfarbe, 1) + "</div>"
+          + "".join(absatz(e, "font-size: 0.9em; opacity: 0.8;") for e in erklaerung), text)
 
 
 # --- Ausgabe des virtuellen Depots -------------------------------------------
-TRADE_SPALTEN = ["Ticker", "Art", "Einstieg", "Einstiegskurs", "Ausstieg", "Ausstiegskurs", "Grund", "Einsatz",
-                 "Ergebnis", "Ergebnis %"]
+TRADE_SPALTEN = ["Ticker", "Art", "Strategie", "Einstieg", "Einstiegskurs", "Ausstieg", "Ausstiegskurs", "Grund",
+                 "Einsatz", "Ergebnis", "Ergebnis %"]
 TRADE_FORMATE = {
     "Einstiegskurs": lambda v: de(v, 2), "Ausstiegskurs": lambda v: de(v, 2), "Einsatz": lambda v: de(v, 0),
     "Ergebnis": lambda v: de(v, 2, True), "Ergebnis %": lambda v: de(v, 1, True),
 }
 
-def depot_auswertung(erg, waehrung):
+def depot_auswertung(erg, ohne, einst, waehrung):
     trades = erg["trades"]
     rendite = (erg["end_wert"] / erg["start_wert"] - 1) * 100
+    name = "mit Lernen" if einst.lernen else "ohne Lernen"
     zeilen = [
-        f"🤖 VIRTUELLES DEPOT · Der Bot handelt seit {erg['start']:%d.%m.%Y} mit "
-        f"{de(erg['start_wert'], 0)} {waehrung} nach seinen eigenen Signalen",
-        f"Depotwert heute: {de(erg['end_wert'])} {waehrung} ({de(rendite, 1, True)} %) · "
-        f"davon frei: {de(erg['bargeld'])} {waehrung} · {len(erg['offen'])} offene Position(en)",
+        f"🤖 VIRTUELLES DEPOT · Der Bot handelt seit {erg['start']:%d.%m.%Y} mit {de(erg['start_wert'], 0)} "
+        f"{waehrung} nach seinen eigenen Signalen",
+        f"Depotwert heute ({name}): {de(erg['end_wert'])} {waehrung} ({de(rendite, 1, True)} %) · davon frei: "
+        f"{de(erg['bargeld'])} {waehrung} · {len(erg['offen'])}/{MAX_POSITIONEN} Positionen offen, offenes Risiko "
+        f"{de(erg['offenes_risiko'], 1)} %",
     ]
+    if ohne is not None:
+        unterschied = erg["end_wert"] - ohne["end_wert"]
+        spanne = zufallsspanne(erg, ohne)
+        einordnung = ("Das liegt im Zufallsbereich – ob das Lernen hilft, lässt sich aus diesem Zeitraum nicht ablesen "
+                      "(das ist fast immer so)." if abs(unterschied) <= spanne else
+                      "Der Unterschied ist größer als die Zufallsspanne – ein Hinweis, kein Beweis.")
+        zeilen.append(f"Ohne Lernen: {de(ohne['end_wert'])} {waehrung} · Unterschied {de(unterschied, 0, True)} "
+                      f"{waehrung} · Zufallsspanne ±{de(spanne, 0)} {waehrung} → {einordnung}")
     if erg["vergleich"] is not None:
         v_ende = float(erg["vergleich"].iloc[-1])
-        ohne = f" (ohne {', '.join(erg['nicht_gehalten'])} – erst später gehandelt)" if erg["nicht_gehalten"] else ""
-        zeilen.append(f"Zum Vergleich – alle Ticker am {erg['start']:%d.%m.} kaufen und halten{ohne}: "
+        ohne_t = f" (ohne {', '.join(erg['nicht_gehalten'])} – erst später gehandelt)" if erg["nicht_gehalten"] else ""
+        zeilen.append(f"Zum Vergleich – alle Ticker am {erg['start']:%d.%m.} kaufen und halten{ohne_t}: "
                       f"{de(v_ende)} {waehrung} ({de((v_ende / erg['start_wert'] - 1) * 100, 1, True)} %)")
     if trades:
         gewinner = sum(1 for p in trades if p["erloes"] > p["kosten"])
         zeilen.append(f"Abgeschlossene Trades: {len(trades)} · Gewinner: {gewinner} "
                       f"({de(gewinner / len(trades) * 100, 0)} %) · größter Rückgang des Depots: "
-                      f"{de(erg['max_rueckgang'], 1)} % · Gebühren: {de(erg['gebuehren'])} {waehrung}")
+                      f"{de(erg['max_rueckgang'], 1)} % · höchstes gleichzeitiges Risiko: "
+                      f"{de(erg['hoechstes_risiko'][0], 1)} % ({erg['hoechstes_risiko'][1]} Positionen)")
         teile = []
-        for name, r in (("Long", 1), ("Short", -1)):
+        for name_r, r in (("Long", 1), ("Short", -1)):
             auswahl = [p for p in trades if p["richtung"] == r]
             if auswahl:
                 summe = sum(p["erloes"] - p["kosten"] for p in auswahl)
                 treffer = sum(1 for p in auswahl if p["erloes"] > p["kosten"])
-                teile.append(f"{name}: {len(auswahl)} Trades, {treffer} Gewinner, {de(summe, 2, True)} {waehrung}")
+                teile.append(f"{name_r}: {len(auswahl)} Trades, {treffer} Gewinner, {de(summe, 2, True)} {waehrung}")
+        teile.append(f"Kosten: Gebühren {de(erg['gebuehren'])} {waehrung} + Spread ca. {de(erg['spread'])} {waehrung}")
         zeilen.append(" · ".join(teile))
     else:
-        zeilen.append(f"Noch keine abgeschlossenen Trades · Gebühren: {de(erg['gebuehren'])} {waehrung}")
+        zeilen.append(f"Noch keine abgeschlossenen Trades · Kosten: Gebühren {de(erg['gebuehren'])} {waehrung} + "
+                      f"Spread ca. {de(erg['spread'])} {waehrung}")
     return zeilen
 
 def trade_tabelle(erg):
@@ -725,35 +1357,34 @@ def trade_tabelle(erg):
     for p in erg["offen"]:
         ergebnis = p["erloes"] + p["wert"] - p["kosten"]
         zeilen.append({"Ticker": p["ticker"], "Art": "Long" if p["richtung"] > 0 else "Short",
-                       "Einstieg": f"{p['kauf_tag']:%d.%m.%y}", "Einstiegskurs": p["einsatz_je_stueck"],
-                       "Ausstieg": "offen", "Ausstiegskurs": p["kurs_jetzt"],
-                       "Grund": "noch im Depot" + (" (½ geschlossen)" if p["teil_geschlossen"] else ""),
-                       "Einsatz": p["kosten"], "Ergebnis": ergebnis, "Ergebnis %": ergebnis / p["kosten"] * 100,
-                       "_offen": True, "_sort": p["kauf_tag"]})
+                       "Strategie": strategie_name(p["strategie"]), "Einstieg": f"{p['kauf_tag']:%d.%m.%y}",
+                       "Einstiegskurs": p["einsatz_je_stueck"], "Ausstieg": "offen", "Ausstiegskurs": p["kurs_jetzt"],
+                       "Grund": f"noch im Depot (Tag {p['tage']}/{ZEITSTOPP_TAGE})", "Einsatz": p["kosten"],
+                       "Ergebnis": ergebnis, "Ergebnis %": ergebnis / p["kosten"] * 100, "_offen": True,
+                       "_sort": p["kauf_tag"]})
     for p in erg["trades"]:
         ergebnis = p["erloes"] - p["kosten"]
         zeilen.append({"Ticker": p["ticker"], "Art": "Long" if p["richtung"] > 0 else "Short",
-                       "Einstieg": f"{p['kauf_tag']:%d.%m.%y}", "Einstiegskurs": p["einsatz_je_stueck"],
-                       "Ausstieg": f"{p['verkauf_tag']:%d.%m.%y}", "Ausstiegskurs": p["verkauf_preis"],
-                       "Grund": p["grund"], "Einsatz": p["kosten"], "Ergebnis": ergebnis,
-                       "Ergebnis %": ergebnis / p["kosten"] * 100, "_offen": False, "_sort": p["verkauf_tag"]})
+                       "Strategie": strategie_name(p["strategie"]), "Einstieg": f"{p['kauf_tag']:%d.%m.%y}",
+                       "Einstiegskurs": p["einsatz_je_stueck"], "Ausstieg": f"{p['verkauf_tag']:%d.%m.%y}",
+                       "Ausstiegskurs": p["verkauf_preis"], "Grund": p["grund"], "Einsatz": p["kosten"],
+                       "Ergebnis": ergebnis, "Ergebnis %": ergebnis / p["kosten"] * 100, "_offen": False,
+                       "_sort": p["verkauf_tag"]})
     if not zeilen:
         return None
     df = pd.DataFrame(zeilen)
     df = pd.concat([df[df["_offen"]], df[~df["_offen"]].sort_values("_sort", ascending=False)])
     return df[TRADE_SPALTEN].reset_index(drop=True)
 
-def depot_chart_svg(erg, waehrung):
-    """Liniendiagramm Depotwert vs. Kaufen-und-Halten als SVG (Hover zeigt die Werte je Tag)."""
-    bot = erg["verlauf"]
-    vergleich = erg["vergleich"]
-    reihen = [("Bot", bot, "--s1")] + ([("Kaufen & Halten", vergleich, "--s2")] if vergleich is not None else [])
-    B, H, L, R, O, U = 720, 260, 64, 170, 14, 28
-    alle = pd.concat([r for _, r, _ in reihen] + [pd.Series([erg["start_wert"]])])
+def depot_chart_svg(reihen, start_wert, waehrung):
+    """Liniendiagramm der Depotwerte als SVG (Hover zeigt die Werte je Tag). reihen = [(Name, Series, CSS-Farbe)]."""
+    erste = reihen[0][1]
+    B, H, L, R, O, U = 720, 260, 64, 190, 14, 28
+    alle = pd.concat([r for _, r, _ in reihen] + [pd.Series([start_wert])])
     lo, hi = float(alle.min()), float(alle.max())
-    rand = max((hi - lo) * 0.08, erg["start_wert"] * 0.01)
+    rand = max((hi - lo) * 0.08, start_wert * 0.01)
     lo, hi = lo - rand, hi + rand
-    n = len(bot)
+    n = len(erste)
 
     def x(i):
         return L + (B - L - R) * i / max(n - 1, 1)
@@ -762,8 +1393,7 @@ def depot_chart_svg(erg, waehrung):
         return O + (H - O - U) * (1 - (w - lo) / (hi - lo))
 
     teile = []
-    # Gitterlinien mit runden Werten
-    roh = (hi - lo) / 4
+    roh = (hi - lo) / 4  # Gitterlinien mit runden Werten
     schritt = 10 ** math.floor(math.log10(roh))
     schritt *= next(f for f in (1, 2, 2.5, 5, 10) if f * schritt >= roh)
     w = math.ceil(lo / schritt) * schritt
@@ -771,55 +1401,46 @@ def depot_chart_svg(erg, waehrung):
         teile.append(f'<line x1="{L}" x2="{B - R}" y1="{y(w):.1f}" y2="{y(w):.1f}" class="gitter"/>'
                      f'<text x="{L - 8}" y="{y(w) + 4:.1f}" text-anchor="end" class="achse">{de(w, 0)}</text>')
         w += schritt
-    # Startkapital als Bezugslinie
-    teile.append(f'<line x1="{L}" x2="{B - R}" y1="{y(erg["start_wert"]):.1f}" y2="{y(erg["start_wert"]):.1f}" '
-                 f'class="start"/>')
-    # Monatsbeschriftung
+    teile.append(f'<line x1="{L}" x2="{B - R}" y1="{y(start_wert):.1f}" y2="{y(start_wert):.1f}" class="start"/>')
     monate = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
     letzter_monat, beschriftet = None, False
-    for i, d in enumerate(bot.index):
-        if d.month != letzter_monat:
+    for i, tag in enumerate(erste.index):
+        if tag.month != letzter_monat:
             if letzter_monat is not None:
                 teile.append(f'<text x="{x(i):.1f}" y="{H - 8}" text-anchor="middle" class="achse">'
-                             f'{monate[d.month - 1]}</text>')
+                             f'{monate[tag.month - 1]}</text>')
                 beschriftet = True
-            letzter_monat = d.month
+            letzter_monat = tag.month
     if not beschriftet:
-        teile.append(f'<text x="{L}" y="{H - 8}" class="achse">{bot.index[0]:%d.%m.}</text>'
-                     f'<text x="{B - R}" y="{H - 8}" text-anchor="end" class="achse">{bot.index[-1]:%d.%m.}</text>')
-    # Linien, Endpunkte und Endbeschriftungen (nicht überlappend)
+        teile.append(f'<text x="{L}" y="{H - 8}" class="achse">{erste.index[0]:%d.%m.}</text>'
+                     f'<text x="{B - R}" y="{H - 8}" text-anchor="end" class="achse">{erste.index[-1]:%d.%m.}</text>')
     enden = []
-    for name, reihe, var in reihen:
+    for name, reihe, farbe in reihen:
         punkte = " ".join(f"{x(i):.1f},{y(v):.1f}" for i, v in enumerate(reihe.values))
-        teile.append(f'<polyline points="{punkte}" fill="none" stroke="var({var})" stroke-width="2" '
+        teile.append(f'<polyline points="{punkte}" fill="none" stroke="{farbe}" stroke-width="2" '
                      f'stroke-linejoin="round" stroke-linecap="round"/>')
-        enden.append({"y": y(reihe.iloc[-1]), "label_y": y(reihe.iloc[-1]), "name": name,
-                      "wert": reihe.iloc[-1], "var": var})
+        enden.append({"y": y(reihe.iloc[-1]), "name": name, "wert": reihe.iloc[-1], "farbe": farbe})
     enden.sort(key=lambda e: e["y"])
-    for i in range(1, len(enden)):
-        enden[i]["label_y"] = max(enden[i]["y"], enden[i - 1]["label_y"] + 16)
+    for k, e in enumerate(enden):  # Endbeschriftungen nicht überlappen lassen
+        e["label_y"] = e["y"] if k == 0 else max(e["y"], enden[k - 1]["label_y"] + 16)
     for e in enden:
-        teile.append(f'<circle cx="{x(n - 1):.1f}" cy="{e["y"]:.1f}" r="4" fill="var({e["var"]})"/>'
+        teile.append(f'<circle cx="{x(n - 1):.1f}" cy="{e["y"]:.1f}" r="4" fill="{e["farbe"]}"/>'
                      f'<text x="{x(n - 1) + 10:.1f}" y="{e["label_y"] + 4:.1f}" class="label">'
                      f'{html.escape(e["name"])} {de(e["wert"], 0)} {waehrung}</text>')
-    # Hover: unsichtbare Streifen je Tag mit Tooltip
     breite = (B - L - R) / max(n - 1, 1)
-    for i, d in enumerate(bot.index):
-        tip = f"{d:%d.%m.%Y} · Bot {de(bot.iloc[i])} {waehrung}"
-        if vergleich is not None:
-            tip += f" · Kaufen & Halten {de(vergleich.iloc[i])} {waehrung}"
+    for i, tag in enumerate(erste.index):  # Hover: unsichtbare Streifen je Tag mit Tooltip
+        tip = f"{tag:%d.%m.%Y} · " + " · ".join(f"{name} {de(r.iloc[i])} {waehrung}" for name, r, _ in reihen)
         teile.append(f'<rect x="{x(i) - breite / 2:.1f}" y="{O}" width="{breite:.1f}" height="{H - O - U}" '
                      f'class="hover"><title>{html.escape(tip)}</title></rect>')
-
     legende = "".join(f'<span style="margin-right: 16px;"><span style="display: inline-block; width: 16px; '
-                      f'height: 2px; background: var({var}); vertical-align: middle; margin-right: 6px;"></span>'
-                      f'{html.escape(name)}</span>' for name, _, var in reihen)
+                      f'height: 2px; background: {farbe}; vertical-align: middle; margin-right: 6px;"></span>'
+                      f'{html.escape(name)}</span>' for name, _, farbe in reihen)
     legende += ('<span><span style="display: inline-block; width: 16px; height: 1px; background: currentColor; '
                 'opacity: 0.5; vertical-align: middle; margin-right: 6px;"></span>Startkapital</span>')
     return f"""<div class="viz-root">
 <style>
 /* Texte und Hilfslinien erben die Schriftfarbe des Notebooks (hell wie dunkel lesbar) */
-.viz-root {{ --s1: #2a78d6; --s2: #eb6834; --start: currentColor; color: inherit; max-width: {B}px; }}
+.viz-root {{ color: inherit; max-width: {B}px; }}
 .viz-root .gitter {{ stroke: currentColor; stroke-opacity: 0.15; stroke-width: 1; }}
 .viz-root .start {{ stroke: currentColor; stroke-opacity: 0.5; stroke-width: 1; }}
 .viz-root .achse {{ fill: currentColor; fill-opacity: 0.7; font-size: 11px; }}
@@ -829,11 +1450,11 @@ def depot_chart_svg(erg, waehrung):
 </style>
 <div style="font-size: 12px; opacity: 0.8; margin: 4px 0;">{legende}</div>
 <svg viewBox="0 0 {B} {H}" width="100%" style="max-width: {B}px; font-family: inherit; overflow: visible;" role="img"
- aria-label="Depotwert des Bots im Vergleich zu Kaufen und Halten">{''.join(teile)}</svg>
+ aria-label="Depotwert des Bots im Vergleich">{''.join(teile)}</svg>
 </div>"""
 
-def zeige_depot(erg, einst, waehrung, notebook):
-    zusammenfassung = depot_auswertung(erg, waehrung)
+def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, rueckschau_hinweis):
+    zusammenfassung = depot_auswertung(erg, ohne, einst, waehrung)
     tabelle = trade_tabelle(erg)
     weggelassen = 0
     if tabelle is not None:
@@ -842,20 +1463,24 @@ def zeige_depot(erg, einst, waehrung, notebook):
         tabelle = tabelle.iloc[:anzeige]
     hinweis = (f"… {weggelassen} ältere Trades nicht angezeigt – alle Trades speichert --csv in einer eigenen Datei."
                if weggelassen else "")
-    regeln = (f"Regeln: Einstieg zur Eröffnung am Tag nach dem Signal, Ausstieg an Stop oder Ziel "
-              f"(bei beidem am selben Tag zählt der Stop); Gegensignal schließt die Hälfte zur Eröffnung; "
-              f"{de(einst.gebuehr)} {waehrung} Gebühr je Order; "
-              f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}; "
-              f"Positionsgröße wie im Scanner. "
-              f"{'Shorts ohne Leihgebühren/Finanzierungskosten gerechnet. ' if einst.mit_short else ''}"
+    regeln = (f"Regeln: Signal zum Schlusskurs, Einstieg zur Eröffnung des nächsten Handelstags nur bis zum Limit; "
+              f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), zum Schluss vor Quartalszahlen "
+              f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen, {MAX_SHORTS} Shorts und "
+              f"{MAX_GESAMTRISIKO_PROZENT} % Gesamtrisiko; {de(einst.gebuehr)} {waehrung} Gebühr + "
+              f"{prozent(SPREAD_PROZENT)} % Spread je Order; "
+              f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}. "
+              f"{'Shorts ohne Leih-/Finanzierungskosten gerechnet. ' if einst.mit_short else ''}"
+              f"Termine im Rückblick sind die tatsächlichen, live können sie sich verschieben. "
               f"Simulation mit vergangenen Kursen – kein echtes Geld, keine Garantie für die Zukunft.")
+    if ohne_zahlen_regel:
+        regeln += f" Zahlen-Regel nicht angewandt für: {', '.join(ohne_zahlen_regel)} (keine Termine)."
     text = "\n".join(["", zusammenfassung[0], *("   " + z for z in zusammenfassung[1:])])
     if tabelle is not None:
         with pd.option_context("display.unicode.east_asian_width", True):
             text += "\n\n" + tabelle.to_string(index=False, formatters=TRADE_FORMATE, na_rep="–")
     if hinweis:
         text += "\n" + hinweis
-    text += "\n" + regeln
+    text += "\n" + regeln + "\n" + rueckschau_hinweis
     if not notebook:
         print(text)
         return
@@ -865,27 +1490,38 @@ def zeige_depot(erg, einst, waehrung, notebook):
         return [f"background-color: {bg}; color: #1b1b1b; font-weight: bold;"
                 if bg and s in ("Ergebnis", "Ergebnis %") else "" for s in zeile.index]
 
+    reihen = [("Bot mit Lernen" if einst.lernen else "Bot", erg["verlauf"], "#2a78d6")]
+    if erg["vergleich"] is not None:
+        reihen.append(("Kaufen & Halten", erg["vergleich"], "#eb6834"))
+    if ohne is not None:
+        reihen.append(("Bot ohne Lernen", ohne["verlauf"], "#1baf7a"))
     teile = [absatz(zusammenfassung[0], "font-size: 1.15em; font-weight: bold; margin-top: 18px;")]
     teile += [absatz(z) for z in zusammenfassung[1:]]
-    teile.append(depot_chart_svg(erg, waehrung))
+    teile.append(depot_chart_svg(reihen, erg["start_wert"], waehrung))
     if tabelle is not None:
-        teile.append('<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, TRADE_FORMATE, ergebnisfarbe, 2)
+        teile.append('<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, TRADE_FORMATE, ergebnisfarbe, 3)
                      + "</div>")
     if hinweis:
         teile.append(absatz(hinweis, "font-size: 0.9em;"))
     teile.append(absatz(regeln, "font-size: 0.9em; opacity: 0.8;"))
+    teile.append(absatz(rueckschau_hinweis, "font-size: 0.9em; opacity: 0.8;"))
     zeige("".join(teile), text)
 
 def speichere_csv(tabelle, datei):
     # Semikolon + Dezimalkomma, damit ein deutsches Excel die Datei direkt richtig öffnet
     ganze = [s for s in ("Stück",) if s in tabelle and (tabelle[s].dropna() % 1 == 0).all()]
     try:
-        tabelle.astype({s: "Int64" for s in ganze}).to_csv(datei, index=False, sep=";", decimal=",", encoding="utf-8-sig", float_format="%.2f")
+        tabelle.astype({s: "Int64" for s in ganze}).to_csv(datei, index=False, sep=";", decimal=",",
+                                                          encoding="utf-8-sig", float_format="%.2f")
     except OSError as e:
         print(f"❌ CSV konnte nicht gespeichert werden ({e.strerror or e}): {os.path.abspath(datei)} "
               "– ist die Datei noch in Excel geöffnet oder der Ordner falsch?")
         return
     print(f"💾 Gespeichert: {os.path.abspath(datei)}")
+
+RUECKSCHAU = ("⚠️ Rückblick mit deiner heutigen Watchlist: Du hast diese Aktien heute ausgewählt – oft, weil sie "
+              "stark gestiegen sind. Im Rückblick sehen Kauf-Strategien und Kaufen & Halten deshalb besser aus und "
+              "Short-Strategien schlechter, als sie in Zukunft sein müssen.")
 
 
 def main():
@@ -902,53 +1538,106 @@ def main():
         print("Keine Ticker angegeben.")
         return None
 
-    print(f"🤖 Lade Kurse für {len(einst.ticker_liste)} Ticker und prüfe die Swing-Trading-Strategien ...")
-    periode = "1y" if einst.rueckblick <= 6 else "2y"  # Vorlauf für die Indikatoren vor dem Rückblick
+    print(f"🤖 Lade 5 Jahre Kurse für {len(einst.ticker_liste)} Ticker, Quartalszahlen-Termine und prüfe "
+          f"{len(STRATEGIEN) if einst.mit_short else len(STRATEGIEN) // 2} Strategien ...")
     unterstuetzt = [t for t in einst.ticker_liste if waehrung_von(t)]
-    daten, gruende = lade_kurse(unterstuetzt + [FX_TICKER], periode, einst.debug)
-    fx_daten = daten.pop(FX_TICKER, None)
+    frischer_yahoo_cache()
+    with YahooRuhig(einst.debug) as sammler:
+        extra = [x for x in (FX_TICKER, MARKT_TICKER) if x not in unterstuetzt]
+        roh, gruende = lade_kurse(unterstuetzt + extra, sammler)
+        termin_ticker = [t for t in unterstuetzt if t in roh and hat_zahlen(t)] if not einst.ohne_zahlen else []
+        zusatz = hole_zusatzdaten(termin_ticker, [], sammler)
+    fx_daten = roh.pop(FX_TICKER, None)
     fx = fx_daten["Close"] if fx_daten is not None else None
+    markt_df = roh.get(MARKT_TICKER) if MARKT_TICKER in unterstuetzt else roh.pop(MARKT_TICKER, None)
     waehrung = "€" if fx is not None else "$"
     # US-Werte werden mit EUR/USD umgerechnet, Werte von Euro-Börsen nicht
     fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt}
+
+    daten = {t: bereite_vor(t, roh[t], fx_je_ticker[t], zusatz.get(t, {}).get("zahlen"), einst)
+             for t in unterstuetzt if t in roh}
+    markt = bereite_vor(MARKT_TICKER, markt_df, None, None, einst) if markt_df is not None else None
+
+    if not daten:
+        print("\n❌ Für keinen Ticker konnten Kursdaten geladen werden – meist keine Verbindung zu Yahoo "
+              "oder Yahoo-Limit erreicht.")
+        for t in einst.ticker_liste:
+            print(f"❌ {t}: {gruende.get(t, 'Währung nicht unterstützt – nur US- und Euro-Börsen')}")
+        print("Internetverbindung prüfen oder in 1–2 Minuten erneut starten.")
+        return None
+
+    # Strategie-Tagebuch und Lernstand (nur abgeschlossene Kerzen)
+    tagebuch = strategie_tagebuch(daten, einst)
+    alle_tage = sorted(set().union(*(set(d["idx"][:d["n_fertig"]]) for d in daten.values())))
+    pausen, stand = lernverlauf(tagebuch, alle_tage, einst)
+    pausiert_heute = pausen[alle_tage[-1]] if alle_tage else frozenset()
+
+    # Scanner für heute
     zeilen = []
     for t in einst.ticker_liste:
         if t not in fx_je_ticker:
             zeilen.append(fehler_zeile(t, "Währung nicht unterstützt – nur US- und Euro-Börsen"))
         elif t in daten:
-            zeilen.append(evaluate_strategies(t, daten[t], fx_je_ticker[t], einst))
+            zeilen.append(scanner_zeile(t, daten[t], pausiert_heute, einst))
         else:
-            zeilen.append(fehler_zeile(t, gruende[t]))
-
+            zeilen.append(fehler_zeile(t, gruende.get(t, "keine Kursdaten")))
     if not any("_stand" in z for z in zeilen):
-        print("\n❌ Für keinen Ticker konnten Kursdaten ausgewertet werden – meist keine Verbindung zu Yahoo "
-              "oder Yahoo-Limit erreicht.")
-        for f in fusszeilen(zeilen, einst, waehrung):
-            if f.startswith("❌"):
-                print(f)
-        print("Internetverbindung prüfen oder in 1–2 Minuten erneut starten.")
+        for z in zeilen:
+            print(f"❌ {z['Ticker']}: {z.get('_fehler', '')}")
         return None
 
-    # Sortieren: wichtigste Signale oben, innerhalb eines Signals das beste CRV zuerst, Fehler ganz unten
+    # Schlagzeilen nur für Ticker mit Signal (sie beeinflussen nur die Anzeige)
+    news = {}
+    mit_signal = [z["Ticker"] for z in zeilen if z.get("Signal") in (KAUFEN, SHORT, WARTEN)]
+    if not einst.ohne_news and mit_signal:
+        with YahooRuhig(einst.debug) as sammler:
+            news_daten = hole_zusatzdaten([], mit_signal, sammler)
+        stand_tag = max(z["_stand"] for z in zeilen if "_stand" in z)
+        news = werte_news(news_daten, stand_tag, zeilen)
+        for t, e in news_daten.items():
+            zusatz.setdefault(t, {}).update({"news_info": e["news_info"]})
+    for z in zeilen:
+        z["News"] = news.get(z["Ticker"], {}).get("spalte", "")
+
+    # Sortieren: Einstiegssignale nach CRV (wie im Depot), dann Warten, Hinweise, Beobachten, Fehler
     tabelle = pd.DataFrame(zeilen).reindex(columns=SPALTEN + ["_fehler"])
     tabelle["_prio"] = tabelle["Signal"].map(PRIORITAET)
-    tabelle = tabelle.sort_values(["_prio", "CRV"], ascending=[True, False], na_position="last", kind="stable")
+    tabelle["_crv"] = tabelle["CRV"].fillna(-1e9)
+    tabelle = tabelle.sort_values(["_prio", "_crv"], ascending=[True, False], kind="stable")
+    reihenfolge = list(tabelle["Ticker"])
     tabelle = tabelle[SPALTEN].reset_index(drop=True)
+    for spalte in ("Strategie", "Zahlen", "News"):
+        tabelle[spalte] = tabelle[spalte].fillna("")
 
     fx_heute = float(fx.iloc[-1]) if fx is not None else None
-    titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung)
+    titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, einst.ohne_zahlen)
+    nach_ticker = {z["Ticker"]: z for z in zeilen}
+    einstiege = [nach_ticker[t] for t in reihenfolge if nach_ticker[t].get("Signal") in (KAUFEN, SHORT)]
+    plan = [handelsplan(z, nr, einst, waehrung) for nr, z in enumerate(einstiege[:MAX_POSITIONEN], 1)]
+    if len(einstiege) > MAX_POSITIONEN:
+        plan.append(f"… {len(einstiege) - MAX_POSITIONEN} weitere Signale – laut Regel höchstens {MAX_POSITIONEN} "
+                    f"Positionen gleichzeitig.")
+    schlagzeilen = []
+    for t in reihenfolge:
+        for s in news.get(t, {}).get("zeilen", []):
+            ereignis = f" [{', '.join(s['ereignisse'])}]" if s["ereignisse"] else ""
+            schlagzeilen.append(f"{t}{ereignis}: {s['titel']} ({s['quelle']}, {s['zeit']:%d.%m. %H:%M})")
+    if schlagzeilen:
+        schlagzeilen = [f"📰 SCHLAGZEILEN der letzten {NEWS_TAGE} Handelstage (nur Ticker mit Signal)"] + schlagzeilen[:10]
     notebook = im_notebook()
-    zeige_scanner(tabelle, titel, zusammenfassung, hinweise, fusszeilen(zeilen, einst, waehrung),
-                  tabellen_formate(einst), notebook)
+    zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
+                  fusszeilen(zeilen, einst, waehrung, news, zusatz), tabellen_formate(einst), notebook)
 
-    depot = None
+    # Lern-Tabelle und virtuelles Depot
+    zeige_lernen(stand, einst, waehrung, notebook, RUECKSCHAU)
+    depot = ohne = None
     if einst.rueckblick > 0:
-        # wie im Scanner: mit --nur-schluss auch im Depot keine unfertige Tageskerze
-        depot_daten = {t: df.iloc[:-1] if einst.nur_schluss and kerze_noch_offen(df) else df
-                       for t, df in daten.items() if t in fx_je_ticker}
-        depot = simuliere_depot(depot_daten, fx_je_ticker, einst)
+        depot = simuliere_depot(daten, pausen, einst, einst.lernen)
+        if einst.lernen:
+            ohne = simuliere_depot(daten, pausen, einst, False)
         if depot is not None:
-            zeige_depot(depot, einst, waehrung, notebook)
+            ohne_regel = [t for t, d in daten.items() if d["termine"] is None and hat_zahlen(t)]
+            zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, RUECKSCHAU)
 
     if einst.csv:
         speichere_csv(tabelle, einst.csv)
@@ -956,8 +1645,8 @@ def main():
         if trades is not None:
             name, endung = os.path.splitext(einst.csv)
             speichere_csv(trades, f"{name}_trades{endung or '.csv'}")
-    return tabelle, depot
+    return {"scanner": tabelle, "depot": depot, "depot_ohne_lernen": ohne, "tagebuch": tagebuch, "lernstand": stand}
 
 if __name__ == "__main__":
-    # Unter %run in Colab/Jupyter stehen Tabelle und Depot danach als 'ergebnis' zur Verfügung
+    # Unter %run in Colab/Jupyter stehen die Ergebnisse danach als 'ergebnis' zur Verfügung
     ergebnis = main()
