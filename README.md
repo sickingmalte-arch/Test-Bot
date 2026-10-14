@@ -46,17 +46,30 @@ python swing_scanner.py
 
 ### Was das Skript zeigt
 
-1. **Scanner (heute):** je Ticker ein Signal – 🚀 SCHARF KAUFEN, ⭐ KAUFEN, 🔥 SCHARF SHORT, 🔻 SHORT oder BEOBACHTEN – mit Kurs, Tagesänderung, RSI, Stop, Ziel, Chance-Risiko-Verhältnis (CRV) und der Positionsgröße, bei der ein Stop höchstens `--risiko` % des Kontos kostet (max. 25 % des Kontos je Position). Alle Beträge in Euro (US-Kurse zum aktuellen EUR/USD-Kurs umgerechnet).
-2. **Virtuelles Depot (Rückblick):** Der Bot handelt die letzten Monate mit dem Startkapital nach seinen eigenen Signalen – Long und Short – und zeigt Depotwert, Trades, Gewinnquote, größten Rückgang und den Vergleich mit „alle Ticker kaufen und halten“. Einstieg jeweils zur Eröffnung am Tag nach dem Signal, Ausstieg an Stop oder Ziel, 1 € Gebühr je Order. Es wird kein echtes Geld bewegt.
+1. **Scanner (heute):** je Ticker 🟢 KAUFEN, 🔴 SHORT, ⏸ WARTEN (mit Grund), ⚠️ GEWINNE SICHERN, BEOBACHTEN oder ❌ FEHLER – mit Strategie, Kurs, Limit (höchster Kaufkurs), Stop, Ziel, Chance-Risiko-Verhältnis (CRV), Stückzahl, Einsatz, Risiko in €, nächstem Quartalszahlen-Termin und erkannten Ereignissen aus den Schlagzeilen. Für die obersten Signale steht darunter ein Handelsplan in einem Satz (wann, wie viel, bis zu welchem Kurs, Stop, Ziel, spätestens raus am …). Alle Beträge in Euro.
+2. **Strategie-Tagebuch („Lernen“):** Jede der 10 Strategien handelt im Hintergrund gedanklich mit. Läuft eine Strategie über ihre letzten bis zu 60 Trades im Schnitt deutlich schlecht (unter −0,1 R ab 20 Trades), wird sie pausiert, bis sie wieder im Plus ist. Die Tabelle zeigt ehrlich, wie groß der Zufall dabei sein kann.
+3. **Virtuelles Depot (Rückblick):** Der Bot handelt die letzten Monate mit dem Startkapital nach seinen Signalen – einmal mit und einmal ohne Lernen – im Vergleich zu „alle Ticker kaufen und halten“. Es wird kein echtes Geld bewegt.
+
+### Strategien und Regeln
+
+- 10 Strategien, je 5 für steigende und fallende Kurse: Ausbruch/Abbruch (20-Tage-Hoch/-Tief mit Volumen), RSI-2-Rücksetzer/-Übertreibung, Gegenbewegung/Rückfall (überverkauft/überhitzt), MACD-Wende, Rücksetzer/Erholung an der EMA 20.
+- Trendregel: Trendstrategien nur in Richtung der 50-Tage-Linie, Gegenbewegungen nur in Richtung der 200-Tage-Linie; widersprechen sich Signale, wartet der Bot.
+- Quartalszahlen: kein Einstieg in den 3 Handelstagen davor, offene Positionen am Abend vorher schließen, kurz danach keine Gegenbewegungs-Trades.
+- Einstieg am nächsten Handelstag nur bis zum Limit; Ausstieg an Stop, Ziel, vor Quartalszahlen oder spätestens nach 20 Handelstagen.
+- Risiko: 1 % des Kontos je Trade, höchstens 5 Positionen (davon 2 Short) und 5 % Risiko gleichzeitig, höchstens 25 % des Kontos je Position. Kosten: 1 € Gebühr + 0,1 % Spread je Order.
+- Schlagzeilen sind nur ein Hinweis (⚠️, wenn ein erkanntes Ereignis gegen das Signal spricht) – sie lassen sich nicht rückwirkend testen.
 
 ### Optionen
 
 | Option | Bedeutung |
 | --- | --- |
-| `--ticker "AAPL, NFLX, SOFI"` | eigene Ticker-Liste statt `TICKER_LISTE` im Skript |
+| `--ticker "AAPL, NFLX, SOFI"` | eigene Ticker-Liste statt `TICKER_LISTE` im Skript (US-Werte und Euro-Börsen wie `SAP.DE`) |
 | `--konto 10000` | Kontogröße bzw. virtuelles Startkapital in € |
 | `--risiko 1` | max. Verlust pro Trade in % des Kontos, wenn der Stop greift (auch `1,5`) |
-| `--ohne-short` | nur auf steigende Kurse setzen (statt 🔥 SCHARF SHORT erscheint ⚠️ TEILVERKAUF) |
+| `--ohne-short` | nur auf steigende Kurse setzen |
+| `--ohne-lernen` | keine Strategien pausieren |
+| `--ohne-news` | keine Schlagzeilen laden (Quartalszahlen-Regel bleibt) |
+| `--ohne-zahlen` | keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann aus |
 | `--rueckblick 6` | Monate für das virtuelle Depot (0 = aus, max. 18) |
 | `--gebuehr 1` | Ordergebühr in € je Kauf/Verkauf |
 | `--bruchstuecke` | auch Bruchteile von Aktien handeln |
@@ -64,4 +77,6 @@ python swing_scanner.py
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
 
-Indikatoren: RSI (14, Wilder), EMA 20, Bollinger-Bänder (20, 2σ), ATR (14, Wilder) aus einem Jahr Tageskerzen von Yahoo Finance. Short-Positionen (z. B. per CFD oder Turbo-Schein) haben nach oben offene Verluste; Leih- und Finanzierungskosten sind im Rückblick nicht berücksichtigt. Vergangene Ergebnisse sind keine Garantie für die Zukunft; die Ausgabe ist keine Anlageberatung.
+Die festen Regeln (Positionsgrenzen, Lernregel, Zeitstopp …) stehen als Konstanten oben im Skript. Sie sind bewusst vorab festgelegt: Wer sie so lange verstellt, bis der Rückblick gut aussieht, passt sie nur an den Zufall der Vergangenheit an.
+
+Daten: 5 Jahre Tageskerzen, Quartalszahlen-Termine und Schlagzeilen von Yahoo Finance. Short-Positionen (z. B. per CFD oder Turbo-Schein) haben nach oben offene Verluste; Leih- und Finanzierungskosten sind im Rückblick nicht berücksichtigt. Der Rückblick nutzt die heutige Watchlist und sieht deshalb für Kauf-Strategien tendenziell zu gut aus. Vergangene Ergebnisse sind keine Garantie für die Zukunft; die Ausgabe ist keine Anlageberatung.
