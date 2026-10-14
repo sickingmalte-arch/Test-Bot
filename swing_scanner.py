@@ -110,7 +110,7 @@ VORRANG = {k: i for i, k in enumerate(STRATEGIEN)}
 
 def strategie_name(key):
     s = STRATEGIEN[key]
-    return f"{s['name']} {'↑' if s['richtung'] > 0 else '↓'}"
+    return f"{s['name']}\u00a0{'↑' if s['richtung'] > 0 else '↓'}"  # geschütztes Leerzeichen: Pfeil bleibt am Namen
 
 # Signale (Reihenfolge = Sortierung in der Tabelle)
 KAUFEN = "🟢 KAUFEN"
@@ -364,16 +364,23 @@ def kurs_umrechner(fx, index):
         return pd.Series(1.0, index=index)
     return fx.reindex(fx.index.union(index)).ffill().reindex(index).bfill()
 
+REGIONALBOERSEN = {"F", "SG", "MU", "BE", "DU", "HM", "HA"}  # deutsche Regionalbörsen handeln bis 22:00 Uhr
+
 def kerze_noch_offen(df, ticker=""):
-    """True, wenn die letzte Tageskerze noch läuft: bei Aktien von heute und die US-Börse noch nicht geschlossen,
+    """True, wenn die letzte Tageskerze noch läuft: bei Aktien von heute und die Börse noch nicht geschlossen
+    (US 16:00 New York, Euro-Börsen 17:30 Uhr, deutsche Regionalbörsen 22:00 Uhr – jeweils mit Puffer),
     bei Krypto (Tageskerze = UTC-Tag, Handel rund um die Uhr) die Kerze des heutigen UTC-Tags."""
     try:
         if re.fullmatch(r".+-[A-Z]{3}", ticker):
             return df.index[-1].date() >= pd.Timestamp.now(tz="UTC").date()
-        jetzt = pd.Timestamp.now(tz=NY)
+        if waehrung_von(ticker) == "EUR":
+            jetzt = pd.Timestamp.now(tz=BERLIN)
+            schluss = dt.time(22, 15) if ticker.rsplit(".", 1)[1] in REGIONALBOERSEN else dt.time(17, 45)
+        else:
+            jetzt, schluss = pd.Timestamp.now(tz=NY), dt.time(16, 15)
     except Exception:
         return False
-    return df.index[-1].date() == jetzt.date() and jetzt.time() < dt.time(16, 15)
+    return df.index[-1].date() == jetzt.date() and jetzt.time() < schluss
 
 
 # ----------------------------------------------------------------------------
@@ -500,11 +507,13 @@ NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall,
     (r"\b(beats?|tops?|surpass\w*)\b.{0,40}\b(estimates?|expectations|forecasts?)\b", 1, "Zahlen besser als erwartet"),
     (r"\bmiss(es|ed)?\b.{0,40}\b(estimates?|expectations|forecasts?)\b", -1, "Zahlen schlechter als erwartet"),
     (r"\b(raises?|raised|lifts?|boosts?|hikes?)\b.{0,40}\b(guidance|outlook|forecast)\b", 1, "Prognose angehoben"),
-    (r"\b(cuts?|lowers?|lowered|slash\w*|trims?)\b(?!\s+(interest\s+)?rates?\b).{0,40}\b(guidance|outlook|forecast)\b"
+    (r"(?<!\brate )(?<!\brate-)\b(cuts?|lowers?|lowered|slash\w*|trims?)\b(?!\s+(interest\s+)?rates?\b)[^,;]{0,40}"
+     r"\b(guidance|outlook|forecast)\b"
      r"|\bweak (guidance|outlook)\b",
      -1, "Prognose gesenkt"),
-    (r"\bupgraded\b.{0,25}\b(to|at)\b|\bupgrades?\b.{0,40}\b(buy|outperform|overweight)\b", 1, "Analyst stuft hoch"),
-    (r"\bdowngrade[ds]?\b", -1, "Analyst stuft runter"),
+    (r"\bupgraded\b.{0,25}\b(to|at|by)\b|\bupgrades?\b.{0,40}\b(buy|outperform|overweight)\b|\banalysts?\s+upgrades?\b",
+     1, "Analyst stuft hoch"),
+    (r"\bdowngrade[ds]?\b(?!\s+(the\s+)?(us|u\.s\.|united states|sovereign)\b)", -1, "Analyst stuft runter"),
     (r"\b(stock|share|equity|convertible|notes?|secondary|public)\b.{0,25}\boffering\b|at-the-market|(?<!non-)\bdilut\w*",
      -1, "Kapitalerhöhung/Verwässerung"),
     (r"\b(fda|sec|doj|ftc|antitrust|eu)\b.{0,40}\b(warns?|probe|investigat\w*|sues?|charges?)\b", -1,
@@ -515,13 +524,15 @@ NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall,
     (r"\b(ceo|cfo)\b.{0,30}\b(resigns?|steps? down|departs?|ousted)\b", -1, "Chefwechsel"),
     (r"going concern|bankruptcy|chapter 11|restate\w*|delist\w*", -1, "Warnung (Bilanz/Insolvenz/Delisting)"),
     (r"\block-?up\b", -1, "Lock-up-Ende"),
-    (r"\b(buyback|repurchase)\b", 1, "Aktienrückkauf"),
+    (r"\b(buybacks?|buy[- ]back|repurchase)\b", 1, "Aktienrückkauf"),
     (r"\b(to join|added to|joins?)\b.{0,20}\b(s&p|nasdaq-100|index)\b", 1, "Indexaufnahme"),
     (r"\bstock split\b", 1, "Aktiensplit"),
     (r"\b(signs?|wins?|secures?|lands?)\b.{0,30}\b(deal|contract|agreement)\b", 1, "Auftrag/Vertrag"),
     (r"\b(to acquire|to be acquired|acquisition of|merger|takeover|buyout)\b"
-     r"|\b(agrees?|deal|offer|bid|plans?)\s+to\s+buy\b|\bto buy\b.{0,40}\bfor \$\d", 0, "Übernahme/Fusion"),
-    (r"\btrading halt(ed)?\b|\bhalts? trading\b|\b(shares|stock|trading)\b.{0,20}\bhalted\b", 0, "Handelsaussetzung"),
+     r"|\b(agrees?|deal|offer|bid|talks)\s+to\s+buy\s+(?!back\b)|\bto buy\s+(?!back\b)(?-i:[A-Z])\S*(\s+\S+)?\s+for \$\d"
+     r"|\bto buy\s+(?!back\b)\S+\s+(firm|company|startup|maker|rival|business|unit|developer|operator|provider)\b",
+     0, "Übernahme/Fusion"),
+    (r"\btrading halt(ed)?\b|\bhalts? trading\b|\b(shares|stock|trading)\b.{0,20}(?<!streak )(?<!rally )\bhalted\b", 0, "Handelsaussetzung"),
 ]
 VERNEINUNG = re.compile(r"\b(not|no|without|denies|despite)\b", re.I)
 
@@ -574,17 +585,21 @@ def werte_news(zusatz, kurstag, scanner_zeilen):
             ergebnis[t] = {"spalte": "?", "zeilen": [], "info": e["news_info"]}
             continue
         richtung = 1 if z["Signal"] == KAUFEN else -1 if z["Signal"] == SHORT else 0
-        zeilen, etiketten, warnung = [], [], False
+        zeilen, etiketten, warnende, warnung = [], [], [], False
         for s in lesbar.get(t, []):
             ev = [] if s["video"] or anzahl.get(s["titel"], 0) > 1 else ereignisse(s["titel"], t)
+            warnt = False
             for r, etikett in ev:
+                gegen = r == 0 or (richtung and r == -richtung)
+                warnt = warnt or gegen
                 if etikett not in etiketten:
-                    etiketten.append(etikett)
-                if r == 0 or (richtung and r == -richtung):
-                    warnung = True
-            zeilen.append({**s, "ereignisse": [e2 for _, e2 in ev]})
+                    etiketten.insert(len(warnende) if gegen else len(etiketten), etikett)
+                    if gegen:
+                        warnende.append(etikett)
+            warnung = warnung or warnt
+            zeilen.append({**s, "ereignisse": [e2 for _, e2 in ev], "warnt": warnt})
         spalte = ("⚠️ " if warnung else "📰 ") + ", ".join(etiketten) if etiketten else ""
-        zeilen.sort(key=lambda z: not z["ereignisse"])  # Meldungen mit erkanntem Ereignis zuerst zeigen
+        zeilen.sort(key=lambda z: (not z["warnt"], not z["ereignisse"]))  # Warnungen, dann Ereignisse zuerst
         ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "info": "ok"}
     return ergebnis
 
@@ -878,6 +893,11 @@ def simuliere_depot(daten, pausen, einst, lernen):
     hoechstes_risiko = (0.0, 0)
     reihenfolge = {t: i for i, t in enumerate(daten)}
 
+    def in_euro(p, kurs, rate):
+        """Kurs in € für die Trade-Tabelle. Bei Shorts entsteht das Ergebnis in $ und wird zum heutigen Wechselkurs
+        umgerechnet – der Kurs wird so angezeigt, dass Einstieg − Ausstieg genau zum Ergebnis passt."""
+        return kurs / rate if p["richtung"] > 0 else p["einsatz_je_stueck"] - (p["einstieg_usd"] - kurs) / rate
+
     def offenes_risiko():
         """Geplantes Risiko aller offenen Positionen: Verlust vom Einstieg bis zum Stop (in €)."""
         return sum(p["risiko_eur"] for p in positionen.values())
@@ -937,7 +957,7 @@ def simuliere_depot(daten, pausen, einst, lernen):
             spread_kosten += p["stueck"] * preis * SPREAD / rate
             p["erloes"] += erloes
             del positionen[t]
-            trades.append({**p, "verkauf_tag": tag, "verkauf_preis": ausfuehrung / rate, "grund": grund})
+            trades.append({**p, "verkauf_tag": tag, "verkauf_preis": in_euro(p, ausfuehrung, rate), "grund": grund})
 
         # 3) Signale zum Schlusskurs -> Aufträge für den nächsten Handelstag
         pausiert = pausen.get(tag, frozenset()) if lernen else frozenset()
@@ -992,7 +1012,7 @@ def simuliere_depot(daten, pausen, einst, lernen):
     for t, p in positionen.items():  # offene Positionen zum letzten Kurs bewerten
         kurs, fx = letzter_kurs[t]
         p["wert"] = positionswert(p, kurs, fx)
-        p["kurs_jetzt"] = kurs / fx
+        p["kurs_jetzt"] = in_euro(p, kurs, fx)
         d = daten[t]
         p["tage"] = d["n_fertig"] - p["start"]
     werte = pd.Series([w for _, w in verlauf], index=[tag for tag, _ in verlauf])
@@ -1130,7 +1150,10 @@ def handelsplan(zeile, nr, einst, waehrung):
     if ist_krypto(t):  # Handel rund um die Uhr, Tageskerze nach UTC
         ab, bis = "", ""
     elif waehrung_von(t) == "USD":
-        ab, bis = f" ab {berlin(einstieg, '09:30')} Uhr (US-Börsenstart)", f" vor {berlin(raus, '16:00')} Uhr"
+        frueh = (raus.month, raus.day) in ((7, 3), (12, 24)) or (raus.month == 11 and raus.weekday() == 4
+                                                                   and 23 <= raus.day <= 29)
+        ab = f" ab {berlin(einstieg, '09:30')} Uhr (US-Börsenstart)"
+        bis = f" vor {berlin(raus, '13:00' if frueh else '16:00')} Uhr{' (verkürzter Handelstag)' if frueh else ''}"
     else:
         ab, bis = " ab 09:00 Uhr (Börsenstart)", " vor 17:30 Uhr"
     stueck = de(zeile["Stück"], 2 if einst.bruchstuecke else 0)
@@ -1186,7 +1209,7 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, ohne_zahlen):
     if ohne_zahlen:
         hinweise.append("⚠️ Ohne Quartalszahlen-Termine (--ohne-zahlen): Die Zahlen-Regel ist aus – Termine selbst prüfen.")
     if any(z["_offen"] for z in ok):
-        hinweise.append("⏳ Die heutige Tageskerze ist noch nicht fertig (US-Börse offen bzw. Krypto-Tag läuft). "
+        hinweise.append("⏳ Die heutige Tageskerze ist noch nicht fertig (Börse noch offen bzw. Krypto-Tag läuft). "
                         "Signale sind vorläufig – vor "
                         "allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. "
                         "Mit --nur-schluss nur fertige Tage bewerten.")
@@ -1247,9 +1270,11 @@ def kuerzen(text, laenge):
 
 def als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farbig=False, mitte=()):
     tabelle = tabelle.copy()
-    for spalte, laenge in (("Strategie", 28), ("News", 26)):  # Details stehen im Plan bzw. bei den Schlagzeilen
-        if spalte in tabelle:
-            tabelle[spalte] = tabelle[spalte].map(lambda v: kuerzen(v, laenge))
+    if "News" in tabelle:  # Details stehen bei den Schlagzeilen
+        tabelle["News"] = tabelle["News"].map(lambda v: kuerzen(v, 26))
+    if "Strategie" in tabelle and "Signal" in tabelle:  # Details stehen im Handelsplan; WARTEN-Gründe nur hier
+        mit_plan = tabelle["Signal"].isin([KAUFEN, SHORT])
+        tabelle.loc[mit_plan, "Strategie"] = tabelle.loc[mit_plan, "Strategie"].map(lambda v: kuerzen(v, 28))
     # east_asian_width: Emojis zählen als 2 Zeichen breit, damit die Spalten bündig bleiben
     with pd.option_context("display.unicode.east_asian_width", True):
         text = tabelle.to_string(index=False, formatters=formate, na_rep="–")
@@ -1276,11 +1301,12 @@ def tabelle_als_html(tabelle, formate, zellfarben=None, links=2, umbruch=()):
         return (stil.format(formate, na_rep="–")
                 .hide(axis="index")
                 .set_table_styles([
-                    {"selector": "th", "props": "padding: 4px 8px; text-align: center;"},
-                    {"selector": "td", "props": "padding: 4px 8px; text-align: right;"},
+                    {"selector": "th", "props": "padding: 4px 6px; text-align: center;"},
+                    {"selector": "td", "props": "padding: 4px 6px; text-align: right;"},
                     {"selector": links_css, "props": "text-align: left; font-weight: bold;"},
                     {"selector": "td, th", "props": "white-space: nowrap;"},
-                ] + [{"selector": f"td.col{tabelle.columns.get_loc(s)}", "props": "white-space: normal; text-align: left;"}
+                ] + [{"selector": f"td.col{tabelle.columns.get_loc(s)}",
+                      "props": "white-space: normal; text-align: left;" + (" min-width: 10em;" if s == "News" and tabelle[s].astype(str).str.len().max() > 20 else "")}
                      for s in umbruch if s in tabelle.columns])
                 .to_html())
     except (ImportError, AttributeError):  # ohne jinja2 gibt es keinen Styler
@@ -1301,6 +1327,9 @@ def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
         bg, fg = FARBEN.get(zeile["Signal"], (None, None))
         return [f"background-color: {bg}; color: {fg}" if bg else ""] * len(zeile)
 
+    # Schmale Ausgabe (z. B. Colab mit Seitenleiste): Signal, Strategie und News dürfen umbrechen,
+    # das Symbol bleibt dabei am Wort („⚠️ GEWINNE / SICHERN“)
+    signal_html = {**formate, "Signal": lambda v: str(v).replace(" ", "\u00a0", 1)}
     kopf = absatz(titel, "font-size: 1.15em; font-weight: bold;") + absatz(zusammenfassung)
     kopf += "".join(absatz(h, "opacity: 0.85;") for h in hinweise)
     mitte_html = "".join(absatz(p, "margin: 4px 0;") for p in plan)
@@ -1308,7 +1337,7 @@ def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
         mitte_html += absatz(schlagzeilen[0], "font-weight: bold; margin-top: 8px;")
         mitte_html += "".join(absatz(s, "font-size: 0.9em;") for s in schlagzeilen[1:])
     fuss_html = "".join(absatz(f, "font-size: 0.9em; opacity: 0.8;") for f in fuss)
-    zeige(kopf + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, formate, zeilenfarbe, 3, ("News",))
+    zeige(kopf + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, signal_html, zeilenfarbe, 3, ("Signal", "Strategie", "News"))
           + "</div>"
           + mitte_html + '<div style="margin-top: 8px;">' + fuss_html + "</div>",
           als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, mitte=mitte))
@@ -1365,7 +1394,9 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
         "Vorsichtsmaßnahme.",
         rueckschau_hinweis,
     ]
-    text = "\n".join(["", titel, tabelle.to_string(index=False, formatters=LERN_FORMATE, na_rep="–"), *erklaerung])
+    with pd.option_context("display.unicode.east_asian_width", True):
+        tabelle_text = tabelle.to_string(index=False, formatters=LERN_FORMATE, na_rep="–")
+    text = "\n".join(["", titel, tabelle_text, *erklaerung])
     if not notebook:
         print(text)
         return
@@ -1375,7 +1406,7 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
                 if s == "Status" and "pausiert" in zeile["Status"] else "" for s in zeile.index]
 
     zeige(absatz(titel, "font-size: 1.15em; font-weight: bold; margin-top: 18px;")
-          + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, LERN_FORMATE, statusfarbe, 1) + "</div>"
+          + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, LERN_FORMATE, statusfarbe, 1, ("Status",)) + "</div>"
           + "".join(absatz(e, "font-size: 0.9em; opacity: 0.8;") for e in erklaerung), text)
 
 
@@ -1556,7 +1587,9 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
               f"{MAX_GESAMTRISIKO_PROZENT} % Gesamtrisiko; {de(einst.gebuehr)} {waehrung} Gebühr + "
               f"{prozent(SPREAD_PROZENT)} % Spread je Order; "
               f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}. "
-              f"{'Shorts ohne Leih-/Finanzierungskosten gerechnet. ' if einst.mit_short else ''}"
+              f"{'Shorts ohne Leih-/Finanzierungskosten gerechnet' if einst.mit_short else ''}"
+              f"{'; ihr Gewinn entsteht in $, der Ausstiegskurs in € passt deshalb genau zum Ergebnis' if einst.mit_short and waehrung == '€' else ''}"
+              f"{'. ' if einst.mit_short else ''}"
               f"{'Ohne Quartalszahlen-Regel gerechnet (--ohne-zahlen). ' if ohne_zahlen else 'Termine im Rückblick sind die tatsächlichen, live können sie sich verschieben. '}"
               f"Simulation mit vergangenen Kursen – kein echtes Geld, keine Garantie für die Zukunft.")
     if ohne_zahlen_regel and not ohne_zahlen:
@@ -1586,7 +1619,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
     teile += [absatz(z) for z in zusammenfassung[1:]]
     teile.append(depot_chart_svg(reihen, erg["start_wert"], waehrung))
     if tabelle is not None:
-        teile.append('<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, TRADE_FORMATE, ergebnisfarbe, 3, ("Grund",))
+        teile.append('<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, TRADE_FORMATE, ergebnisfarbe, 3, ("Strategie", "Grund"))
                      + "</div>")
     if hinweis:
         teile.append(absatz(hinweis, "font-size: 0.9em;"))
@@ -1705,8 +1738,9 @@ def main():
     einstiege = [nach_ticker[t] for t in reihenfolge if nach_ticker[t].get("Signal") in (KAUFEN, SHORT)]
     plan = [handelsplan(z, nr, einst, waehrung) for nr, z in enumerate(einstiege[:MAX_POSITIONEN], 1)]
     if len(einstiege) > MAX_POSITIONEN:
-        plan.append(f"… {len(einstiege) - MAX_POSITIONEN} weitere Signale – laut Regel höchstens {MAX_POSITIONEN} "
-                    f"Positionen gleichzeitig.")
+        mehr = len(einstiege) - MAX_POSITIONEN
+        plan.append(f"… {mehr} {'weiteres Signal' if mehr == 1 else 'weitere Signale'} – laut Regel höchstens "
+                    f"{MAX_POSITIONEN} Positionen gleichzeitig.")
     schlagzeilen = []
     for t in reihenfolge:
         for s in news.get(t, {}).get("zeilen", []):
