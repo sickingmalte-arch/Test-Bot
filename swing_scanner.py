@@ -522,7 +522,7 @@ FIRMENNAMEN = {
     "IREN": r"iren|iris energy", "NFLX": r"netflix", "AAPL": r"apple|iphone", "ASTS": r"ast spacemobile",
     "SOFI": r"sofi", "NVDA": r"nvidia", "MSFT": r"microsoft", "AMZN": r"amazon|aws", "META": r"meta|facebook|instagram",
     "GOOGL": r"alphabet|google|youtube", "TSLA": r"tesla", "AMD": r"amd|advanced micro", "PLTR": r"palantir",
-    "JPM": r"jpmorgan|jp morgan|chase", "LLY": r"eli lilly|lilly", "XOM": r"exxon", "COST": r"costco",
+    "JPM": r"jpmorgan|jp morgan", "LLY": r"eli lilly|lilly", "XOM": r"exxon", "COST": r"costco",
 }
 NEWS_IGNORIEREN = re.compile(
     r"\?\s*$|reasons? to|time to buy|should you|is it too late|could |strong buy|buy the dip|stock market today|"
