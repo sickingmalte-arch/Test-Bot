@@ -522,7 +522,7 @@ FIRMENNAMEN = {
     "IREN": r"iren|iris energy", "NFLX": r"netflix", "AAPL": r"apple|iphone", "ASTS": r"ast spacemobile",
     "SOFI": r"sofi", "NVDA": r"nvidia", "MSFT": r"microsoft", "AMZN": r"amazon|aws", "META": r"meta|facebook|instagram",
     "GOOGL": r"alphabet|google|youtube", "TSLA": r"tesla", "AMD": r"amd|advanced micro", "PLTR": r"palantir",
-    "JPM": r"jpmorgan|jp morgan", "LLY": r"eli lilly|lilly", "XOM": r"exxon", "COST": r"costco",
+    "JPM": r"jpmorgan(?: ?chase)?|jp morgan", "LLY": r"eli lilly|lilly", "XOM": r"exxon(?: ?mobil)?", "COST": r"costco",
 }
 NEWS_IGNORIEREN = re.compile(
     r"\?\s*$|reasons? to|time to buy|should you|is it too late|could |strong buy|buy the dip|stock market today|"
@@ -758,6 +758,14 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst):
         d["morgen"], d["gesperrt"], d["gerade"], d["lang"], d["reak"] = zahlen_regeln(termine, df.index,
                                                                                       handelstag(ticker))
     return d
+
+def signal_zuletzt(df, mit_short):
+    """Feuert am letzten Kurstag irgendeine Strategie? (Die Signale hängen nicht von den Terminen ab.)"""
+    try:
+        signale = strategie_signale(calculate_indicators(df.copy()), mit_short)[0]
+        return any(ok[-1] for ok, _, _ in signale.values())
+    except Exception:
+        return False
 
 def kandidaten(d, i, pausiert=frozenset()):
     """Welche Strategien feuern am Tag i (Signal zum Schlusskurs) und was ist die Entscheidung?
@@ -1187,9 +1195,6 @@ def handelsplan(zeile, nr, einst, waehrung):
     t = zeile["Ticker"]
     kaufen = zeile["Signal"] == KAUFEN
     kopf = f"{'🟢' if kaufen else '🔴'} {nr}. {t} · {zeile['Strategie']}"
-    if not zeile["Stück"]:
-        return (f"{kopf}: Mit deinem Konto ist nicht einmal 1 Stück möglich (Risiko je Trade bzw. höchstens "
-                f"{MAX_POSITION_PROZENT} % des Kontos je Position) – auslassen oder --bruchstuecke nutzen.")
     schritt = handelstag(t)
     einstieg = zeile["_stand"] + schritt
     raus, warum = einstieg + (ZEITSTOPP_TAGE - 1) * schritt, f"{ZEITSTOPP_TAGE} Handelstage"
@@ -1719,6 +1724,8 @@ def main():
         extra = [x for x in (FX_TICKER, MARKT_TICKER) if x not in unterstuetzt]
         roh, gruende = lade_kurse(unterstuetzt + extra, sammler)
         termin_ticker = [t for t in unterstuetzt if t in roh and hat_zahlen(t)] if not einst.ohne_zahlen else []
+        # Termine zuerst für Ticker mit Signal holen – greift Yahoos Limit, fehlen sie eher bei den übrigen
+        termin_ticker.sort(key=lambda t: not signal_zuletzt(roh[t], einst.mit_short))
         zusatz = hole_zusatzdaten(termin_ticker, [], sammler)
     fx_daten = roh.pop(FX_TICKER, None)
     fx = fx_daten["Close"] if fx_daten is not None else None
@@ -1789,11 +1796,30 @@ def main():
     titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, einst.ohne_zahlen)
     nach_ticker = {z["Ticker"]: z for z in zeilen}
     einstiege = [nach_ticker[t] for t in reihenfolge if nach_ticker[t].get("Signal") in (KAUFEN, SHORT)]
-    plan = [handelsplan(z, nr, einst, waehrung) for nr, z in enumerate(einstiege[:MAX_POSITIONEN], 1)]
-    if len(einstiege) > MAX_POSITIONEN:
-        mehr = len(einstiege) - MAX_POSITIONEN
-        plan.append(f"… {mehr} {'weiteres Signal' if mehr == 1 else 'weitere Signale'} – laut Regel höchstens "
-                    f"{MAX_POSITIONEN} Positionen gleichzeitig.")
+    # Handelsplan nach denselben Grenzen wie das Depot: Anzahl, Shorts, Gesamtrisiko und Geld (bestes CRV zuerst)
+    plan, zu_klein, shorts, risiko_summe, geld_summe, mehr = [], [], 0, 0.0, 0.0, 0
+    for z in einstiege:
+        short = z["Signal"] == SHORT
+        if not z["Stück"]:
+            zu_klein.append(z["Ticker"])
+        elif (len(plan) >= MAX_POSITIONEN or (short and shorts >= MAX_SHORTS)
+                or risiko_summe + z["Risiko"] > einst.konto * MAX_GESAMTRISIKO_PROZENT / 100 + 0.005
+                or geld_summe + z["Einsatz"] + einst.gebuehr > einst.konto):
+            mehr += 1
+        else:
+            plan.append(handelsplan(z, len(plan) + 1, einst, waehrung))
+            shorts += short
+            risiko_summe += z["Risiko"]
+            geld_summe += z["Einsatz"] + einst.gebuehr
+    if zu_klein:
+        plan.append(f"Für {', '.join(zu_klein)} ist mit deinem Konto nicht einmal 1 Stück möglich (Risiko je Trade "
+                    f"bzw. höchstens {MAX_POSITION_PROZENT} % des Kontos je Position) – auslassen oder --bruchstuecke "
+                    f"nutzen.")
+    if mehr:
+        plan.append(f"… {mehr} {'weiteres Signal' if mehr == 1 else 'weitere Signale'} nicht im Plan – laut Regel "
+                    f"höchstens {MAX_POSITIONEN} Positionen gleichzeitig"
+                    f"{f' (davon {MAX_SHORTS} Short)' if einst.mit_short else ''}, zusammen höchstens "
+                    f"{MAX_GESAMTRISIKO_PROZENT} % Risiko und nicht mehr Geld als auf dem Konto.")
     schlagzeilen = []
     for t in reihenfolge:
         for s in news.get(t, {}).get("zeilen", []):
