@@ -7,10 +7,12 @@ und ein virtuelles Depot über die letzten Monate berechnen. Es werden keine ech
 import argparse
 import datetime as dt
 import html
+import json
 import logging
 import math
 import os
 import re
+import shutil
 import sys
 import threading
 import time
@@ -68,6 +70,8 @@ YAHOO_ZEITBUDGET = 45            # Sekunden je Abruf-Phase (Termine bzw. Schlagz
 
 FX_TICKER = "EURUSD=X"           # Wechselkurs bei Yahoo: Dollar je 1 Euro
 MARKT_TICKER = "QQQ"             # Nasdaq-100 als Marktampel (nur Anzeige)
+PAPIER_DATEI = "papier_depot.json"                                       # Papier-Depot außerhalb von Colab
+PAPIER_DATEI_COLAB = "/content/drive/MyDrive/swing_scanner/papier_depot.json"  # in Colab: Google Drive
 # Börsenendungen bei Yahoo, deren Kurse schon in Euro sind (z. B. SAP.DE, ASML.AS)
 EURO_BOERSEN = {"DE", "F", "SG", "MU", "BE", "DU", "HM", "HA", "PA", "AS", "MI", "MC", "BR", "VI", "LS", "HE", "IR"}
 NY = "America/New_York"
@@ -225,6 +229,11 @@ def lies_einstellungen():
                    help="Monate, die der Bot das virtuelle Depot rückwirkend durchspielt (0 = aus, max. 18)")
     p.add_argument("--nur-schluss", action="store_true",
                    help="laufende Tageskerze auch im Scanner ignorieren, nur abgeschlossene Tage bewerten")
+    p.add_argument("--papier", nargs="?", const="auto", metavar="DATEI",
+                   help="Papier-Depot: der Bot handelt ab heute vorwärts mit virtuellem Geld und speichert den Stand "
+                        "(in Colab in Google Drive, sonst in papier_depot.json)")
+    p.add_argument("--papier-neu", action="store_true",
+                   help="Papier-Depot neu anlegen (der bisherige Stand wird als Kopie aufbewahrt)")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--debug", action="store_true", help="Original-Meldungen von yfinance anzeigen")
     einst, unbekannt = p.parse_known_args()
@@ -240,6 +249,8 @@ def lies_einstellungen():
     einst.lernen = not einst.ohne_lernen
     einst.bruchstuecke = BRUCHSTUECKE or einst.bruchstuecke
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
+    if einst.papier_neu and not einst.papier:
+        einst.papier = "auto"
     return einst
 
 
@@ -930,17 +941,22 @@ def positionsgroesse(kurs, stop, konto, risiko_prozent, bruchstuecke, bargeld=ma
                  risiko_frei / risiko_je_aktie)
     return math.floor(stueck * 100 + 1e-9) / 100 if bruchstuecke else math.floor(stueck + 1e-9)
 
-def simuliere_depot(daten, pausen, einst, lernen):
+def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
     Schluss, Einstieg zur nächsten Eröffnung bis zum Limit, Stop/Ziel/Zahlen/Zeitstopp), dazu Kapital- und
-    Risikogrenzen, Gebühr und Spread je Order. Mit Lernen werden pausierte Strategien nicht gehandelt."""
+    Risikogrenzen, Gebühr und Spread je Order. Mit Lernen werden pausierte Strategien nicht gehandelt.
+    Papier-Depot: Mit 'zustand' geht es vom gespeicherten Stand aus nur über die Tage nach zustand["bis"] weiter
+    (beim Anlegen nur der letzte fertige Tag); 'signal_ticker' begrenzt, für welche Ticker neue Aufträge entstehen."""
     alle_tage = sorted(set().union(*(set(d["idx"][:d["n_fertig"]]) for d in daten.values())))
     if not alle_tage:
         return None
-    start = alle_tage[-1] - pd.DateOffset(months=einst.rueckblick)
-    tage = [tag for tag in alle_tage if tag > start]
-    if len(tage) < 5:
-        return None
+    if zustand is None:
+        start = alle_tage[-1] - pd.DateOffset(months=einst.rueckblick)
+        tage = [tag for tag in alle_tage if tag > start]
+        if len(tage) < 5:
+            return None
+    else:
+        tage = [tag for tag in alle_tage if tag > zustand["bis"]] if zustand["bis"] is not None else alle_tage[-1:]
 
     gebuehr = einst.gebuehr
     bargeld = float(einst.konto)
@@ -950,6 +966,17 @@ def simuliere_depot(daten, pausen, einst, lernen):
     gebuehren = spread_kosten = 0.0
     hoechstes_risiko = (0.0, 0)
     reihenfolge = {t: i for i, t in enumerate(daten)}
+    if zustand is not None:
+        bargeld, depotwert = zustand["bargeld"], zustand["depotwert"]
+        gebuehren, spread_kosten = zustand["gebuehren"], zustand["spread"]
+        hoechstes_risiko = tuple(zustand["hoechstes_risiko"])
+        positionen = {p["ticker"]: dict(p) for p in zustand["positionen"]}
+        auftraege = [dict(a) for a in zustand["auftraege"]]
+        for t, p in positionen.items():
+            d = daten[t]
+            p["start"] = d["pos"][p["kauf_tag"]]
+            i = d["pos"][letzter_tag_bis(d, zustand["bis"])]
+            letzter_kurs[t] = (d["C"][i], d["FX"][i])
 
     def in_euro(p, kurs, rate):
         """Kurs in € für die Trade-Tabelle. Bei Shorts entsteht das Ergebnis in $ und wird zum heutigen Wechselkurs
@@ -1025,7 +1052,7 @@ def simuliere_depot(daten, pausen, einst, lernen):
             if i is None or i >= d["n_fertig"]:
                 continue
             letzter_kurs[t] = (d["C"][i], d["FX"][i])
-            if t in positionen or i < MIN_KERZEN - 1:
+            if t in positionen or i < MIN_KERZEN - 1 or (signal_ticker is not None and t not in signal_ticker):
                 continue
             wahl, _ = kandidaten(d, i, pausiert)
             if wahl is None:
@@ -1043,6 +1070,17 @@ def simuliere_depot(daten, pausen, einst, lernen):
         # 4) Depotwert zum Schlusskurs
         depotwert = bargeld + sum(positionswert(p, *letzter_kurs[t]) for t, p in positionen.items())
         verlauf.append((tag, depotwert))
+
+    if zustand is not None:  # Papier-Depot: neuer Stand ohne Kaufen-und-Halten-Vergleich
+        for t, p in positionen.items():
+            kurs, fx = letzter_kurs[t]
+            p["wert"] = positionswert(p, kurs, fx)
+            p["kurs_jetzt"] = in_euro(p, kurs, fx)
+            p["tage"] = daten[t]["n_fertig"] - p["start"]
+        return {"bis": tage[-1] if tage else zustand["bis"], "tage": tage, "bargeld": bargeld,
+                "depotwert": depotwert, "positionen": list(positionen.values()), "auftraege": auftraege,
+                "trades": trades, "verlauf": verlauf, "gebuehren": gebuehren, "spread": spread_kosten,
+                "hoechstes_risiko": hoechstes_risiko, "offenes_risiko": offenes_risiko() / depotwert * 100}
 
     # Vergleich: Startkapital gleichmäßig aufteilen und jeden Ticker an seinem ersten Handelstag im Zeitraum
     # kaufen und halten (Ticker, die erst später starten, z. B. Börsengänge, bleiben Bargeld)
@@ -1082,6 +1120,11 @@ def simuliere_depot(daten, pausen, einst, lernen):
         "max_rueckgang": float(((hoch - werte) / hoch).max() * 100), "bargeld": bargeld,
         "hoechstes_risiko": hoechstes_risiko, "offenes_risiko": offenes_risiko() / werte.iloc[-1] * 100,
     }
+
+def letzter_tag_bis(d, tag):
+    """Letzter fertige Kurstag des Tickers am oder vor 'tag' (für Tage, an denen er nicht gehandelt wurde)."""
+    fertig = d["idx"][:d["n_fertig"]]
+    return fertig[max(fertig.searchsorted(tag, side="right") - 1, 0)]
 
 def zufallsspanne(erg_a, erg_b):
     """Wie groß kann der Unterschied zweier Depots allein durch Zufall sein? Es zählen nur Trades, die nur eines
@@ -1702,6 +1745,352 @@ RUECKSCHAU = ("⚠️ Rückblick mit deiner heutigen Watchlist: Du hast diese Ak
               "Short-Strategien schlechter, als sie in Zukunft sein müssen.")
 
 
+# ----------------------------------------------------------------------------
+# Papier-Depot: der Bot handelt ab dem ersten Lauf vorwärts mit virtuellem Geld (gleiche Regeln wie im Rückblick).
+# Jeder Lauf rechnet nur die neuen fertigen Kurstage seit dem letzten Lauf – verpasste Tage werden nachgeholt,
+# und jede Entscheidung nutzt nur Kurse, die es zu diesem Zeitpunkt schon gab.
+# ----------------------------------------------------------------------------
+PAPIER_VERSION = 1
+POSITION_FELDER = ("ticker", "richtung", "strategie", "stueck", "einstieg_usd", "einsatz_je_stueck", "stop", "ziel",
+                   "kauf_tag", "kosten", "erloes", "risiko_eur")
+TRADE_FELDER = POSITION_FELDER + ("verkauf_tag", "verkauf_preis", "grund")
+AUFTRAG_FELDER = ("ticker", "richtung", "strategie", "stop", "ziel", "limit", "crv")
+
+def in_colab():
+    return "google.colab" in sys.modules or "COLAB_RELEASE_TAG" in os.environ
+
+def papier_pfad(wert):
+    """(Datei, Fehlertext). In Colab liegt das Papier-Depot in Google Drive, damit es nach dem Schließen bleibt."""
+    if wert != "auto":
+        return os.path.abspath(os.path.expanduser(wert)), None
+    if not in_colab():
+        return os.path.abspath(PAPIER_DATEI), None
+    if not os.path.isdir("/content/drive/MyDrive"):
+        try:
+            from google.colab import drive
+            drive.mount("/content/drive")
+        except Exception:
+            pass
+    if not os.path.isdir("/content/drive/MyDrive"):
+        return None, ("Google Drive ist nicht verbunden – das Papier-Depot wurde nicht gespeichert. In Colab vorher in "
+                      "einer eigenen Zelle ausführen: from google.colab import drive; drive.mount('/content/drive')")
+    return PAPIER_DATEI_COLAB, None
+
+def lade_papier(pfad, neu_anlegen):
+    """(Stand oder None, Fehlertext). Mit neu_anlegen wird ein vorhandener Stand als Kopie aufbewahrt."""
+    if not os.path.exists(pfad):
+        return None, None
+    if neu_anlegen:
+        kopie = f"{os.path.splitext(pfad)[0]}_bis_{pd.Timestamp.now(tz=BERLIN):%Y-%m-%d_%H%M}.json"
+        try:
+            os.replace(pfad, kopie)
+        except OSError as fehler:
+            return None, f"Papier-Depot konnte nicht neu angelegt werden ({fehler})."
+        return None, None
+    try:
+        with open(pfad, encoding="utf-8") as f:
+            stand = json.load(f)
+        if not isinstance(stand, dict) or stand.get("version") != PAPIER_VERSION:
+            raise ValueError("unbekanntes Format")
+        for feld in ("startkapital", "bargeld", "depotwert", "positionen", "auftraege", "trades", "verlauf", "anker"):
+            if feld not in stand:
+                raise ValueError(f"Feld {feld} fehlt")
+        return stand, None
+    except (OSError, ValueError) as fehler:
+        return None, (f"Papier-Depot-Datei nicht lesbar ({fehler}) – sie bleibt unverändert. Mit --papier-neu "
+                      f"neu anlegen.")
+
+def speichere_papier(pfad, stand):
+    """Schreibt erst in eine Hilfsdatei und ersetzt dann (bricht der Lauf ab, bleibt der alte Stand heil);
+    der vorige Stand bleibt als .bak erhalten."""
+    ordner = os.path.dirname(pfad)
+    if ordner:
+        os.makedirs(ordner, exist_ok=True)
+    with open(pfad + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(stand, f, ensure_ascii=False, indent=1)
+    if os.path.exists(pfad):
+        shutil.copyfile(pfad, pfad + ".bak")
+    os.replace(pfad + ".tmp", pfad)
+
+def iso(tag):
+    return pd.Timestamp(tag).strftime("%Y-%m-%d")
+
+def speicherbar(wert):
+    if isinstance(wert, pd.Timestamp):
+        return iso(wert)
+    if isinstance(wert, (np.integer, np.bool_)):
+        return int(wert)
+    if isinstance(wert, np.floating):
+        return float(wert)
+    return wert
+
+def neues_papier(einst):
+    return {"version": PAPIER_VERSION, "startkapital": float(einst.konto), "angelegt": None, "bis": None,
+            "bargeld": float(einst.konto), "depotwert": float(einst.konto), "gebuehren": 0.0, "spread": 0.0,
+            "hoechstes_risiko": [0.0, 0], "positionen": [], "auftraege": [], "trades": [], "verlauf": [],
+            "anker": {}, "letzter_lauf": None}
+
+def als_tag(text, index):
+    """Datum aus der Datei als Zeitpunkt passend zum Kursindex (mit oder ohne Zeitzone)."""
+    tag = pd.Timestamp(text)
+    return tag.tz_localize(index.tz) if index.tz is not None else tag
+
+def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
+    """Rechnet das Papier-Depot bis zum letzten fertigen Kurstag weiter. Gibt (neuer Stand, Lauf, Bericht) zurück;
+    Lauf ist None, wenn diesmal nicht weitergerechnet werden konnte (der Stand bleibt dann unverändert)."""
+    bericht = {"neu": stand is None, "anpassungen": [], "warnung": None, "nicht_ausgefuehrt": []}
+    if stand is None:
+        stand = neues_papier(einst)
+    fehlen = [p["ticker"] for p in stand["positionen"] if p["ticker"] not in daten]
+    if fehlen:
+        bericht["warnung"] = (f"Keine Kurse für {', '.join(fehlen)} – das Papier-Depot wurde diesmal nicht "
+                              f"weitergerechnet (wird beim nächsten Lauf nachgeholt).")
+        return stand, None, bericht
+    index = next(iter(daten.values()))["idx"]
+    lauf = {"bis": als_tag(stand["bis"], index) if stand["bis"] else None, "bargeld": stand["bargeld"],
+            "depotwert": stand["depotwert"], "gebuehren": stand["gebuehren"], "spread": stand["spread"],
+            "hoechstes_risiko": stand["hoechstes_risiko"],
+            "positionen": [dict(p, kauf_tag=als_tag(p["kauf_tag"], daten[p["ticker"]]["idx"]))
+                           for p in stand["positionen"]],
+            "auftraege": [dict(a) for a in stand["auftraege"] if a["ticker"] in daten]}
+    for p in lauf["positionen"]:
+        if p["kauf_tag"] not in daten[p["ticker"]]["pos"]:
+            bericht["warnung"] = (f"Kaufdatum {iso(p['kauf_tag'])} von {p['ticker']} fehlt in den Kursdaten – das "
+                                  f"Papier-Depot wurde diesmal nicht weitergerechnet.")
+            return stand, None, bericht
+
+    # Yahoo rechnet ältere Kurse nach Aktiensplits und Dividenden um. Gespeicherte Kurse (Einstieg, Stop, Ziel,
+    # Limit) werden deshalb im selben Verhältnis angepasst; bei Splits auch die Stückzahl.
+    positionen = {p["ticker"]: p for p in lauf["positionen"]}
+    for t in sorted(set(positionen) | {a["ticker"] for a in lauf["auftraege"]}):
+        anker = stand["anker"].get(t)
+        if not anker or not anker[1] > 0:
+            continue
+        d = daten[t]
+        i = d["pos"].get(als_tag(anker[0], d["idx"]))
+        if i is None:
+            continue
+        r = d["C"][i] / anker[1]
+        if not (math.isfinite(r) and r > 0) or abs(r - 1) < 1e-9:
+            continue
+        for a in lauf["auftraege"]:
+            if a["ticker"] == t:
+                a["stop"], a["ziel"], a["limit"] = a["stop"] * r, a["ziel"] * r, a["limit"] * r
+        p = positionen.get(t)
+        if p is None:
+            continue
+        fx = d["FX"][i]
+        vorher = positionswert(p, anker[1], fx)
+        rate = p["einstieg_usd"] / p["einsatz_je_stueck"]  # Wechselkurs beim Einstieg
+        split = abs(1 - r) > 0.2
+        if split:
+            p["stueck"] = round(p["stueck"] / r, 6)
+        if split or p["richtung"] > 0:  # beim Short ist der Einsatz je Stück hinterlegtes Geld, kein Kurs
+            p["einsatz_je_stueck"] *= r
+        p["einstieg_usd"], p["stop"], p["ziel"] = p["einstieg_usd"] * r, p["stop"] * r, p["ziel"] * r
+        p["risiko_eur"] = p["stueck"] * abs(p["einstieg_usd"] - p["stop"]) / rate
+        ausgleich = vorher - positionswert(p, d["C"][i], fx)  # Depotwert bleibt gleich, Rest als Bargeld
+        lauf["bargeld"] += ausgleich
+        if split:
+            bericht["anpassungen"].append(f"{t}: Aktiensplit berücksichtigt – jetzt {de(p['stueck'], 0)} Stück")
+        elif abs(ausgleich) >= 0.01:
+            bericht["anpassungen"].append(f"{t}: Dividende bzw. Kursanpassung verrechnet ({de(ausgleich, 2, True)})")
+
+    erg = simuliere_depot(daten, pausen, einst, einst.lernen, zustand=lauf, signal_ticker=signal_ticker)
+    if erg is None:
+        bericht["warnung"] = "Keine fertigen Kurstage – das Papier-Depot wurde diesmal nicht weitergerechnet."
+        return stand, None, bericht
+
+    # Aufträge aus dem letzten Lauf, die am ersten neuen Handelstag ihres Tickers nicht ausgeführt wurden
+    gekauft = {(p["ticker"], p["kauf_tag"]) for p in erg["positionen"] + erg["trades"]}
+    for a in lauf["auftraege"]:
+        d = daten[a["ticker"]]
+        neu = [tag for tag in d["idx"][:d["n_fertig"]] if lauf["bis"] is not None and tag > lauf["bis"]]
+        if neu and neu[0] in set(erg["tage"]) and (a["ticker"], neu[0]) not in gekauft:
+            bericht["nicht_ausgefuehrt"].append(a["ticker"])
+
+    neu = dict(stand)
+    hoechstes = erg["hoechstes_risiko"]
+    neu.update({
+        "bis": iso(erg["bis"]), "bargeld": float(erg["bargeld"]), "depotwert": float(erg["depotwert"]),
+        "gebuehren": float(erg["gebuehren"]), "spread": float(erg["spread"]),
+        "hoechstes_risiko": [float(hoechstes[0]), int(hoechstes[1])],
+        "positionen": [{k: speicherbar(p[k]) for k in POSITION_FELDER} for p in erg["positionen"]],
+        "auftraege": [{k: speicherbar(a[k]) for k in AUFTRAG_FELDER} for a in erg["auftraege"]],
+        "trades": stand["trades"] + [{k: speicherbar(p[k]) for k in TRADE_FELDER} for p in erg["trades"]],
+        "verlauf": stand["verlauf"] + [[iso(tag), float(wert)] for tag, wert in erg["verlauf"]],
+        "letzter_lauf": f"{pd.Timestamp.now(tz=BERLIN):%Y-%m-%d %H:%M}",
+    })
+    neu["angelegt"] = neu["angelegt"] or iso(erg["bis"])
+    anker = {}
+    for t in sorted({p["ticker"] for p in neu["positionen"]} | {a["ticker"] for a in neu["auftraege"]}):
+        d = daten[t]
+        tag = letzter_tag_bis(d, erg["bis"])
+        anker[t] = [iso(tag), float(d["C"][d["pos"][tag]])]
+    neu["anker"] = anker
+    return neu, erg, bericht
+
+def papier_ansicht(stand, erg):
+    """Positionen und Trades für die Trade-Tabelle (Datumsangaben als Zeitpunkte)."""
+    trades = [dict(p, kauf_tag=pd.Timestamp(p["kauf_tag"]), verkauf_tag=pd.Timestamp(p["verkauf_tag"]))
+              for p in stand["trades"]]
+    return {"offen": erg["positionen"] if erg is not None else [], "trades": trades}
+
+def papier_vergleich(stand, markt, fx):
+    """Nasdaq-100 (QQQ) seit dem Start des Papier-Depots, umgerechnet in € und auf das Startkapital skaliert."""
+    if markt is None or not stand["verlauf"]:
+        return None
+    d = markt
+    kurse = pd.Series(d["C"][:d["n_fertig"]], index=d["idx"][:d["n_fertig"]])
+    if fx is not None:
+        kurse = kurse / kurs_umrechner(fx, kurse.index)
+    tage = [als_tag(t, d["idx"]) for t, _ in stand["verlauf"]]
+    werte = kurse.reindex(kurse.index.union(tage)).ffill().reindex(tage)
+    if werte.isna().any() or not werte.iloc[0] > 0:
+        return None
+    return pd.Series(stand["startkapital"] * werte.to_numpy() / werte.iloc[0], index=pd.DatetimeIndex(tage))
+
+def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, nach_ticker_name):
+    """Überschrift, Zusammenfassung und Hinweise des Papier-Depots als Textzeilen."""
+    start = pd.Timestamp(stand["angelegt"]) if stand["angelegt"] else None
+    kopf = (f"📒 PAPIER-DEPOT · Vorwärtstest seit {start:%d.%m.%Y} mit {de(stand['startkapital'], 0)} {waehrung}"
+            if start is not None else "📒 PAPIER-DEPOT")
+    zeilen = []
+    if bericht["warnung"]:
+        zeilen.append(f"⚠️ {bericht['warnung']}")
+    if bericht["neu"] and erg is not None:
+        zeilen.append(f"Neu angelegt mit {de(stand['startkapital'], 0)} {waehrung}. Ab jetzt handelt der Bot hier "
+                      f"vorwärts nach seinen Regeln – jede Entscheidung nur mit Kursen, die es da schon gab. Starte "
+                      f"ihn jeden Börsentag einmal (am besten abends nach 22:15 Uhr); verpasste Tage holt er nach.")
+    wert = stand["depotwert"]
+    rendite = (wert / stand["startkapital"] - 1) * 100
+    offen = erg["positionen"] if erg is not None else stand["positionen"]
+    risiko = erg["offenes_risiko"] if erg is not None else None
+    zeilen.append(f"Depotwert am {pd.Timestamp(stand['bis']):%d.%m.%Y}: {de(wert)} {waehrung} ({de(rendite, 1, True)} %)"
+                  f" · davon frei: {de(stand['bargeld'])} {waehrung} · {len(offen)}/{MAX_POSITIONEN} Positionen"
+                  + (f", offenes Risiko {de(risiko, 1)} %" if risiko is not None else ""))
+    if vergleich is not None and len(vergleich) > 1:
+        zeilen.append(f"Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: {de(vergleich.iloc[-1])} {waehrung} "
+                      f"({de((vergleich.iloc[-1] / stand['startkapital'] - 1) * 100, 1, True)} %)")
+    if erg is not None and not bericht["neu"]:
+        if erg["tage"]:
+            von, bis = erg["tage"][0], erg["tage"][-1]
+            zeitraum = f"am {bis:%d.%m.}" if von == bis else f"vom {von:%d.%m.} bis {bis:%d.%m.}"
+            teile = []
+            neu_rein = [p for p in erg["positionen"] + erg["trades"] if p["kauf_tag"] in set(erg["tage"])]
+            if neu_rein:
+                teile.append("eingestiegen: " + ", ".join(
+                    f"{p['ticker']} ({'Long' if p['richtung'] > 0 else 'Short'}, {de(p['stueck'], 2 if p['stueck'] % 1 else 0)} "
+                    f"Stück zu {de(p['einsatz_je_stueck'])} {waehrung})" for p in neu_rein))
+            if erg["trades"]:
+                teile.append("ausgestiegen: " + ", ".join(
+                    f"{p['ticker']} ({p['grund']}, {de(p['erloes'] - p['kosten'], 2, True)} {waehrung})"
+                    for p in erg["trades"]))
+            if bericht["nicht_ausgefuehrt"]:
+                teile.append("nicht ausgeführt (Limit nicht erreicht, Kurslücke oder kein Platz/Geld): "
+                             + ", ".join(bericht["nicht_ausgefuehrt"]))
+            zeilen.append(f"Neu {zeitraum}: " + ("; ".join(teile) if teile else "keine Käufe oder Verkäufe") + ".")
+        else:
+            zeilen.append(f"Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun "
+                          f"(Stand {pd.Timestamp(stand['bis']):%d.%m.%Y}).")
+    zeilen += bericht["anpassungen"]
+    trades = stand["trades"]
+    if trades:
+        gewinner = sum(1 for p in trades if p["erloes"] > p["kosten"])
+        summe = sum(p["erloes"] - p["kosten"] for p in trades)
+        werte = pd.Series([w for _, w in stand["verlauf"]])
+        rueckgang = float(((werte.cummax() - werte) / werte.cummax()).max() * 100) if len(werte) else 0.0
+        zeilen.append(f"Abgeschlossene Trades: {len(trades)} · Gewinner: {gewinner} ({de(gewinner / len(trades) * 100, 0)} %)"
+                      f" · Summe {de(summe, 2, True)} {waehrung} · größter Rückgang {de(rueckgang, 1)} % · Kosten: "
+                      f"Gebühren {de(stand['gebuehren'])} {waehrung} + Spread ca. {de(stand['spread'])} {waehrung}")
+    auftraege = stand["auftraege"]
+    if erg is not None and auftraege:
+        def kurs(t, wert):
+            return wert / (fx_heute if waehrung_von(t) == "USD" and fx_heute else 1)
+        zeilen.append("Aufträge für den nächsten Handelstag (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt "
+                      "sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): " + " · ".join(
+                          f"{'🟢' if a['richtung'] > 0 else '🔴'} {a['ticker']} {nach_ticker_name(a['strategie'])} "
+                          f"Limit {de(kurs(a['ticker'], a['limit']))}, Stop {de(kurs(a['ticker'], a['stop']))}, "
+                          f"Ziel {de(kurs(a['ticker'], a['ziel']))} {waehrung}" for a in auftraege))
+        zeilen.append("Das Papier-Depot berücksichtigt seine offenen Positionen und sein Geld – seine Aufträge können "
+                      "deshalb vom Handelsplan oben (für ein leeres Konto) abweichen.")
+    elif erg is not None:
+        zeilen.append("Keine Aufträge für den nächsten Handelstag.")
+    ort = "Google Drive › MyDrive › swing_scanner › papier_depot.json" if pfad == PAPIER_DATEI_COLAB else pfad
+    zeilen.append(f"Gespeichert in: {ort} (neu anfangen mit --papier-neu, der alte Stand bleibt als Kopie erhalten). "
+                  f"Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, "
+                  f"{de(einst.gebuehr)} {waehrung} Gebühr + {prozent(SPREAD_PROZENT)} % Spread je Order.")
+    return kopf, zeilen
+
+def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich, fx_heute):
+    kopf, zeilen = papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, strategie_name)
+    tabelle = trade_tabelle(papier_ansicht(stand, erg))
+    weggelassen = 0
+    if tabelle is not None:
+        anzeige = len(erg["positionen"] if erg is not None else []) + MAX_TRADES_ANZEIGE
+        weggelassen = max(len(tabelle) - anzeige, 0)
+        tabelle = tabelle.iloc[:anzeige]
+    hinweis = f"… {weggelassen} ältere Trades nicht angezeigt (alle stehen in der Datei)." if weggelassen else ""
+    text = "\n".join(["", kopf, *("   " + z for z in zeilen)])
+    if tabelle is not None:
+        with pd.option_context("display.unicode.east_asian_width", True):
+            text += "\n\n" + tabelle.to_string(index=False, formatters=TRADE_FORMATE, na_rep="–")
+    if hinweis:
+        text += "\n" + hinweis
+    if not notebook:
+        print(text)
+        return
+
+    def ergebnisfarbe(zeile):
+        bg = "#c8e6c9" if zeile["Ergebnis"] > 0 else "#ffcdd2" if zeile["Ergebnis"] < 0 else ""
+        return [f"background-color: {bg}; color: #1b1b1b; font-weight: bold;"
+                if bg and s in ("Ergebnis", "Ergebnis %") else "" for s in zeile.index]
+
+    teile = [absatz(kopf, "font-size: 1.15em; font-weight: bold; margin-top: 18px;")]
+    teile += [absatz(z) for z in zeilen]
+    if len(stand["verlauf"]) > 1:
+        verlauf = pd.Series([w for _, w in stand["verlauf"]],
+                            index=pd.DatetimeIndex([pd.Timestamp(t) for t, _ in stand["verlauf"]]))
+        reihen = [("Papier-Depot", verlauf, "#2a78d6")]
+        if vergleich is not None and len(vergleich) == len(verlauf):
+            reihen.append(("Nasdaq-100 (QQQ)", pd.Series(vergleich.to_numpy(), index=verlauf.index), "#eb6834"))
+        teile.append(depot_chart_svg(reihen, stand["startkapital"], waehrung))
+    if tabelle is not None:
+        teile.append('<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, TRADE_FORMATE, ergebnisfarbe, 3,
+                                                                       ("Strategie", "Grund")) + "</div>")
+    if hinweis:
+        teile.append(absatz(hinweis, "font-size: 0.9em;"))
+    zeige("".join(teile), text)
+
+
+def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusatz, pausen, einst, waehrung, notebook,
+                markt):
+    """Papier-Depot fortschreiben, anzeigen und speichern. Gibt den neuen Stand zurück (oder None)."""
+    def nur_hinweis(text):
+        print(f"\n📒 PAPIER-DEPOT\n⚠️ {text}")
+        return None
+    if fehler:
+        return nur_hinweis(fehler)
+    if fx is None:
+        return nur_hinweis("Ohne Euro-Wechselkurs wird das Papier-Depot diesmal nicht weitergerechnet (es führt alle "
+                           "Beträge in €) – beim nächsten Lauf wird nachgeholt.")
+    daten_p = dict(daten)
+    for t in extra:
+        if t in roh:
+            daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t), zusatz.get(t, {}).get("zahlen"), einst)
+    neu, erg, bericht = papier_fortschreiben(stand, daten_p, pausen, einst, set(daten))
+    if erg is not None:
+        try:
+            speichere_papier(datei, neu)
+        except OSError as problem:
+            bericht["warnung"] = f"Speichern fehlgeschlagen ({problem}) – dieser Lauf zählt nicht."
+            neu, erg = stand, None
+    if neu is None or neu["bis"] is None:
+        return nur_hinweis(bericht["warnung"] or "Das Papier-Depot konnte nicht angelegt werden.")
+    vergleich = papier_vergleich(neu, markt, fx) if erg is not None else None
+    zeige_papier(neu, erg, bericht, datei, einst, waehrung, notebook, vergleich, float(fx.iloc[-1]))
+    return neu
+
 def main():
     try:
         sys.stdout.reconfigure(errors="replace")  # Emojis -> '?' statt Absturz, wenn Windows in eine Datei umleitet
@@ -1716,14 +2105,26 @@ def main():
         print("Keine Ticker angegeben.")
         return None
 
+    papier_datei = papier_stand = papier_fehler = None
+    if einst.papier:
+        papier_datei, papier_fehler = papier_pfad(einst.papier)
+        if papier_datei:
+            papier_stand, papier_fehler = lade_papier(papier_datei, einst.papier_neu)
+
     print(f"🤖 Lade 5 Jahre Kurse für {len(einst.ticker_liste)} Ticker, Quartalszahlen-Termine und prüfe "
           f"{len(STRATEGIEN) if einst.mit_short else len(STRATEGIEN) // 2} Strategien ...")
     unterstuetzt = [t for t in einst.ticker_liste if waehrung_von(t)]
+    # Ticker, die das Papier-Depot noch hält oder kaufen will, aber nicht (mehr) auf der Watchlist stehen
+    papier_extra = []
+    if papier_stand is not None:
+        papier_extra = [t for t in dict.fromkeys(p["ticker"] for p in papier_stand["positionen"] + papier_stand["auftraege"])
+                        if t not in unterstuetzt and waehrung_von(t)]
     frischer_yahoo_cache()
     with YahooRuhig(einst.debug) as sammler:
         extra = [x for x in (FX_TICKER, MARKT_TICKER) if x not in unterstuetzt]
-        roh, gruende = lade_kurse(unterstuetzt + extra, sammler)
-        termin_ticker = [t for t in unterstuetzt if t in roh and hat_zahlen(t)] if not einst.ohne_zahlen else []
+        roh, gruende = lade_kurse(unterstuetzt + papier_extra + extra, sammler)
+        termin_ticker = ([t for t in unterstuetzt + papier_extra if t in roh and hat_zahlen(t)]
+                         if not einst.ohne_zahlen else [])
         # Termine zuerst für Ticker mit Signal holen – greift Yahoos Limit, fehlen sie eher bei den übrigen
         termin_ticker.sort(key=lambda t: not signal_zuletzt(roh[t], einst.mit_short))
         zusatz = hole_zusatzdaten(termin_ticker, [], sammler)
@@ -1732,7 +2133,7 @@ def main():
     markt_df = roh.get(MARKT_TICKER) if MARKT_TICKER in unterstuetzt else roh.pop(MARKT_TICKER, None)
     waehrung = "€" if fx is not None else "$"
     # US-Werte werden mit EUR/USD umgerechnet, Werte von Euro-Börsen nicht
-    fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt}
+    fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt + papier_extra}
 
     daten = {t: bereite_vor(t, roh[t], fx_je_ticker[t], zusatz.get(t, {}).get("zahlen"), einst)
              for t in unterstuetzt if t in roh}
@@ -1831,8 +2232,12 @@ def main():
     zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
                   fusszeilen(zeilen, einst, waehrung, news, zusatz), tabellen_formate(einst), notebook)
 
-    # Lern-Tabelle und virtuelles Depot
+    # Lern-Tabelle, Papier-Depot (vorwärts) und virtuelles Depot (Rückblick)
     zeige_lernen(stand, einst, waehrung, notebook, RUECKSCHAU)
+    papier = None
+    if einst.papier:
+        papier = papier_lauf(papier_datei, papier_stand, papier_fehler, daten, papier_extra, roh, fx, fx_je_ticker,
+                             zusatz, pausen, einst, waehrung, notebook, markt)
     depot = ohne = None
     if einst.rueckblick > 0:
         depot = simuliere_depot(daten, pausen, einst, einst.lernen)
@@ -1848,7 +2253,8 @@ def main():
         if trades is not None:
             name, endung = os.path.splitext(einst.csv)
             speichere_csv(trades, f"{name}_trades{endung or '.csv'}")
-    return {"scanner": tabelle, "depot": depot, "depot_ohne_lernen": ohne, "tagebuch": tagebuch, "lernstand": stand}
+    return {"scanner": tabelle, "depot": depot, "depot_ohne_lernen": ohne, "tagebuch": tagebuch, "lernstand": stand,
+            "papier": papier}
 
 if __name__ == "__main__":
     # Unter %run in Colab/Jupyter stehen die Ergebnisse danach als 'ergebnis' zur Verfügung
