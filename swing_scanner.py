@@ -62,6 +62,8 @@ LERNEN_FENSTER = 60              # die letzten 60 gedachten Trades je Strategie 
 LERNEN_MIN_TRADES = 20           # erst ab 20 Trades wird eine Strategie überhaupt pausiert
 LERNEN_PAUSE_AB = -0.10          # Pause, wenn der Schnitt unter −0,1 R fällt
 LERNEN_WIEDER_AB = 0.0           # wieder aktiv, sobald der Schnitt über 0 R steigt
+LERNEN_LANG_MIN = 50             # ab so vielen Trades insgesamt muss eine Strategie im Schnitt im Plus sein
+MARKTFILTER_TAGE = 200           # Marktfilter: Long nur über, Short nur unter der 200-Tage-Linie des Nasdaq-100
 TAGEBUCH_AB_KERZE = 100          # Tagebuch erst, wenn die Indikatoren eingeschwungen sind
 MIN_KERZEN = 50                  # Mindestanzahl Tageskerzen für den Scanner
 NEWS_TAGE = 3                    # Schlagzeilen der letzten 3 Handelstage
@@ -220,6 +222,8 @@ def lies_einstellungen():
     p.add_argument("--risiko", type=zahl, default=RISIKO_PROZENT, help="Risiko pro Trade in %% des Kontos")
     p.add_argument("--ohne-short", action="store_true", help="keine Short-Signale, nur auf steigende Kurse setzen")
     p.add_argument("--ohne-lernen", action="store_true", help="schlecht laufende Strategien nicht pausieren")
+    p.add_argument("--ohne-marktfilter", action="store_true",
+                   help="Long und Short unabhängig vom Gesamtmarkt (Nasdaq-100 über/unter der 200-Tage-Linie)")
     p.add_argument("--ohne-news", action="store_true", help="keine Schlagzeilen laden (Quartalszahlen-Regel bleibt)")
     p.add_argument("--ohne-zahlen", action="store_true",
                    help="keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann AUS")
@@ -247,6 +251,7 @@ def lies_einstellungen():
         p.error("--rueckblick muss zwischen 0 und 18 Monaten liegen")
     einst.mit_short = MIT_SHORT and not einst.ohne_short
     einst.lernen = not einst.ohne_lernen
+    einst.marktfilter = not einst.ohne_marktfilter
     einst.bruchstuecke = BRUCHSTUECKE or einst.bruchstuecke
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
     if einst.papier_neu and not einst.papier:
@@ -744,10 +749,34 @@ def limit_kurs(r, kurs, atr, stop, ziel):
     mitte = (stop + ziel) / 2
     return min(kurs + LIMIT_ATR * atr, mitte) if r > 0 else max(kurs - LIMIT_ATR * atr, mitte)
 
-def bereite_vor(ticker, df, fx, zahlen_df, einst):
-    """Alles, was Scanner, Tagebuch und Depot je Ticker brauchen, einmal als schnelle Listen/Arrays."""
+def markt_trend(markt_df):
+    """Nasdaq-100 (QQQ) je Tag: 1 = Schluss über der 200-Tage-Linie, 0 = darunter, NaN = noch zu wenig Daten."""
+    if markt_df is None or "Close" not in markt_df:
+        return None
+    c = markt_df["Close"]
+    sma = c.rolling(MARKTFILTER_TAGE).mean()
+    trend = (c > sma).astype(float).where(sma.notna())
+    return trend if trend.notna().any() else None
+
+def markt_vortag(trend, index):
+    """Marktlage für jeden Tag des Index vom letzten Börsentag DAVOR – so sieht auch ein Euro-Wert (Schluss vor
+    New York) nichts aus der Zukunft. NaN, wenn unbekannt (dann gilt kein Filter)."""
+    vortag = pd.DatetimeIndex(index) - pd.Timedelta(days=1)
+    if trend.index.tz is not None and vortag.tz is None:
+        vortag = vortag.tz_localize(trend.index.tz)
+    return trend.reindex(vortag, method="ffill").to_numpy(dtype=float)
+
+def bereite_vor(ticker, df, fx, zahlen_df, einst, markt=None):
+    """Alles, was Scanner, Tagebuch und Depot je Ticker brauchen, einmal als schnelle Listen/Arrays.
+    markt: Marktlage (markt_trend) – Long-Strategien nur im Aufwärtsmarkt, Short-Strategien nur im Abwärtsmarkt."""
     df = calculate_indicators(df.copy())
-    signale, ueberhitzt, ueberverkauft = strategie_signale(df, einst.mit_short)
+    roh, ueberhitzt, ueberverkauft = strategie_signale(df, einst.mit_short)
+    signale = roh
+    if markt is not None and getattr(einst, "marktfilter", True):
+        lage = markt_vortag(markt, df.index)
+        lang_ok, short_ok = lage != 0, lage != 1  # unbekannte Marktlage (NaN) sperrt nichts
+        signale = {k: (ok & (lang_ok if STRATEGIEN[k]["richtung"] > 0 else short_ok), stop, ziel)
+                   for k, (ok, stop, ziel) in roh.items()}
     n = len(df)
     offen = kerze_noch_offen(df, ticker)
     d = {
@@ -758,7 +787,7 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst):
         "O_ersatz": df['Open'].fillna(df['Close']).to_numpy(dtype=float), "H": df['High'].to_numpy(dtype=float),
         "L": df['Low'].to_numpy(dtype=float), "C": df['Close'].to_numpy(dtype=float),
         "ATR": df['ATR'].to_numpy(dtype=float), "FX": kurs_umrechner(fx, df.index).to_numpy(dtype=float),
-        "signale": signale, "ueberhitzt": ueberhitzt, "ueberverkauft": ueberverkauft,
+        "signale": signale, "signale_roh": roh, "ueberhitzt": ueberhitzt, "ueberverkauft": ueberverkauft,
         "pos": {tag: i for i, tag in enumerate(df.index)},
         "termine": None,
     }
@@ -884,10 +913,13 @@ def strategie_tagebuch(daten, einst):
 def lernverlauf(tagebuch, tage, einst):
     """Geht Tag für Tag vor: Welche Strategien sind am Abend von Tag t pausiert? Es zählen nur gedachte Trades,
     deren Ausstieg spätestens an Tag t war (beim Entscheiden also schon bekannt). Pause, wenn die letzten bis zu
-    60 Trades im Schnitt unter −0,1 R liegen (ab 20 Trades), wieder aktiv, sobald der Schnitt über 0 R ist."""
+    60 Trades im Schnitt unter −0,1 R liegen (ab 20 Trades), wieder aktiv, sobald der Schnitt über 0 R ist.
+    Außerdem: Ab 50 Trades insgesamt muss der Schnitt über die ganze Geschichte im Plus sein – eine Strategie, die
+    auf dieser Watchlist bisher nach Kosten Geld verloren hat, handelt der Bot nicht."""
     fenster = {k: deque(maxlen=LERNEN_FENSTER) for k in STRATEGIEN}
     alle_r = {k: [] for k in STRATEGIEN}
-    pausiert = set()
+    summe = {k: 0.0 for k in STRATEGIEN}
+    pausiert, im_minus = set(), set()
     zeiger = 0
     pausen = {}
     for tag in tage:
@@ -895,6 +927,7 @@ def lernverlauf(tagebuch, tage, einst):
             e = tagebuch[zeiger]
             fenster[e["strategie"]].append(e["R"])
             alle_r[e["strategie"]].append(e["R"])
+            summe[e["strategie"]] += e["R"]
             zeiger += 1
         if einst.lernen:
             for k, f in fenster.items():
@@ -904,7 +937,8 @@ def lernverlauf(tagebuch, tage, einst):
                     pausiert.add(k)
                 elif k in pausiert and (n < LERNEN_MIN_TRADES or schnitt > LERNEN_WIEDER_AB):
                     pausiert.discard(k)
-        pausen[tag] = frozenset(pausiert)
+            im_minus = {k for k in STRATEGIEN if len(alle_r[k]) >= LERNEN_LANG_MIN and summe[k] < 0}
+        pausen[tag] = frozenset(pausiert | im_minus)
     stand = {}
     for k in STRATEGIEN:
         f, a = list(fenster[k]), alle_r[k]
@@ -912,9 +946,10 @@ def lernverlauf(tagebuch, tage, einst):
         schnitt = sum(f) / n if n else np.nan
         streuung = float(np.std(a, ddof=1)) if len(a) > 1 else np.nan
         stand[k] = {"n": n, "gesamt": len(a), "schnitt": schnitt,
+                    "gesamt_schnitt": sum(a) / len(a) if a else np.nan,
                     "spanne": 2 * streuung / math.sqrt(n) if n > 1 else np.nan,
                     "quote": sum(1 for x in f if x > 0) / n * 100 if n else np.nan,
-                    "pausiert": k in pausiert}
+                    "pausiert": k in pausiert or k in im_minus, "im_minus": k in im_minus}
     return pausen, stand
 
 
@@ -1207,6 +1242,11 @@ def scanner_zeile(t, d, pausiert, einst):
         if grund == "Quartalszahlen" and termin is not None:
             grund = f"Quartalszahlen {datum(termin)}"
         zeile.update({"Signal": WARTEN, "Strategie": grund})
+    elif any(ok[i] for ok, _, _ in d["signale_roh"].values()):
+        gesperrt = [k for k, (ok, _, _) in d["signale_roh"].items() if ok[i]]
+        lang = STRATEGIEN[gesperrt[0]]["richtung"] > 0
+        zeile.update({"Signal": WARTEN, "Strategie": f"{strategie_name(gesperrt[0])} – Marktfilter "
+                                                     f"({'kein Long im Abwärtsmarkt' if lang else 'kein Short im Aufwärtsmarkt'})"})
     elif d["ueberhitzt"][i]:
         zeile.update({"Signal": SICHERN, "Strategie": "überhitzt – falls Long im Depot"})
     elif einst.mit_short and d["ueberverkauft"][i]:
@@ -1276,20 +1316,23 @@ def handelsplan(zeile, nr, einst, waehrung):
         satz += " Achtung: Quartalszahlen-Termin unbekannt – vor dem Kauf selbst prüfen."
     return satz
 
-def marktampel(markt, mit_short=True):
-    if markt is None:
+def marktampel(trend, stand, einst):
+    """Marktlage (Nasdaq-100 zur 200-Tage-Linie), wie sie für die heutigen Signale gilt (letzter Börsentag davor)."""
+    if trend is None:
+        return "⚠️ Keine Nasdaq-100-Daten – der Marktfilter ist diesmal aus." if einst.marktfilter else None
+    lage = markt_vortag(trend, [stand])[0]
+    if np.isnan(lage):
         return None
-    d = markt["df"]
-    i = markt["n_fertig"] - 1
-    sma = d["SMA_50"].iloc[i]
-    if pd.isna(sma):
-        return None
-    if d["Close"].iloc[i] > sma:
-        return "🟢 Markt (Nasdaq-100/QQQ) über der 50-Tage-Linie – Rückenwind für Long."
-    return ("🔴 Markt (Nasdaq-100/QQQ) unter der 50-Tage-Linie – Vorsicht bei Long"
-            + (", Rückenwind für Short." if mit_short else "."))
+    oben = lage == 1
+    text = f"Nasdaq-100 (QQQ) {'über' if oben else 'unter'} seiner 200-Tage-Linie"
+    if not einst.marktfilter:
+        return f"{'🟢' if oben else '🔴'} Markt: {text} (Marktfilter aus, --ohne-marktfilter)."
+    if oben:
+        return f"🟢 Marktfilter: {text} – der Bot kauft nur (Long), Short-Signale wartet er ab."
+    return (f"🔴 Marktfilter: {text} – der Bot kauft nicht, "
+            + ("nur Short-Signale zählen." if einst.mit_short else "mit --ohne-short wartet er ganz ab."))
 
-def kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, ohne_zahlen):
+def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen):
     ok = [z for z in zeilen if "_stand" in z]
     stand = max(z["_stand"] for z in ok)
     risiko_betrag = einst.konto * einst.risiko / 100
@@ -1301,7 +1344,7 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, ohne_zahlen):
     zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in (KAUFEN, SHORT, WARTEN, SICHERN, BEOBACHTEN, FEHLER)
                                  if s in anzahl)
     hinweise = []
-    ampel = marktampel(markt, einst.mit_short)
+    ampel = marktampel(trend, stand, einst)
     if ampel:
         hinweise.append(ampel)
     gesamt = einst.konto * MAX_GESAMTRISIKO_PROZENT / 100
@@ -1470,6 +1513,8 @@ def lern_tabelle(stand, einst, waehrung):
             einschaetzung = "unklar – kann Zufall sein"
         if not einst.lernen:
             status = "– (ohne Lernen)"
+        elif s["im_minus"]:
+            status = (f"⏸ aus (insgesamt im Minus: {de(s['gesamt_schnitt'], 2, True)} R über {s['gesamt']} Trades)")
         elif s["pausiert"]:
             status = "⏸ pausiert (lief zuletzt schlecht – kann auch Pech sein)"
         elif s["n"] < LERNEN_MIN_TRADES:
@@ -1491,8 +1536,9 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
         f"Spread und Gebühren. 1 R = der geplante Verlust bis zum Stop (bei dir {de(einst.konto * einst.risiko / 100, 0)} "
         f"{waehrung}).",
         f"Lernregel: Ab {LERNEN_MIN_TRADES} Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr als "
-        f"{de(-LERNEN_PAUSE_AB, 1)} R je Trade verliert, und wieder aktiv, sobald der Schnitt im Plus ist. Pausierte "
-        f"Strategien handeln im Tagebuch weiter.",
+        f"{de(-LERNEN_PAUSE_AB, 1)} R je Trade verliert, und wieder aktiv, sobald der Schnitt im Plus ist. Ab "
+        f"{LERNEN_LANG_MIN} Trades muss sie außerdem über ihre ganze Geschichte im Plus sein, sonst handelt der Bot sie "
+        f"gar nicht. Pausierte Strategien handeln im Tagebuch weiter und kommen zurück, wenn sie wieder gut laufen.",
         f"± Zufall: So weit kann der Schnitt allein durch Glück oder Pech schwanken. Lässt man {len(tabelle)} "
         f"Strategien ganz ohne Vorteil je 20 Trades machen, zeigt die beste meist um +0,5 R – reiner Zufall. Erst ab "
         f"etwa 100–200 Trades lässt sich ein Vorteil von 0,2–0,3 R von Glück unterscheiden. Bei {len(tabelle)} "
@@ -1524,7 +1570,7 @@ TRADE_FORMATE = {
     "Ergebnis": lambda v: de(v, 2, True), "Ergebnis %": lambda v: de(v, 1, True),
 }
 
-def depot_auswertung(erg, ohne, einst, waehrung):
+def depot_auswertung(erg, ohne, einst, waehrung, ohne_filter=None):
     trades = erg["trades"]
     rendite = (erg["end_wert"] / erg["start_wert"] - 1) * 100
     name = "mit Lernen" if einst.lernen else "ohne Lernen"
@@ -1547,6 +1593,14 @@ def depot_auswertung(erg, ohne, einst, waehrung):
                           "Der Unterschied ist größer als die Zufallsspanne – ein Hinweis, kein Beweis.")
             zeilen.append(f"Ohne Lernen: {de(ohne['end_wert'])} {waehrung} · Unterschied {de(unterschied, 0, True)} "
                           f"{waehrung} · Zufallsspanne ±{de(spanne, 0)} {waehrung} → {einordnung}")
+    if ohne_filter is not None:
+        unterschied = erg["end_wert"] - ohne_filter["end_wert"]
+        spanne = zufallsspanne(erg, ohne_filter)
+        einordnung = ("im Zufallsbereich – in diesem Zeitraum kein klarer Unterschied." if abs(unterschied) <= spanne
+                      else f"größer als der Zufall – der Marktfilter hat hier {'geholfen' if unterschied > 0 else 'geschadet'} "
+                           f"(ein Hinweis, kein Beweis).")
+        zeilen.append(f"Ohne Marktfilter: {de(ohne_filter['end_wert'])} {waehrung} · Unterschied "
+                      f"{de(unterschied, 0, True)} {waehrung} · Zufallsspanne ±{de(spanne, 0)} {waehrung} → {einordnung}")
     if erg["vergleich"] is not None:
         v_ende = float(erg["vergleich"].iloc[-1])
         ohne_t = f" (ohne {', '.join(erg['nicht_gehalten'])} – erst später gehandelt)" if erg["nicht_gehalten"] else ""
@@ -1675,8 +1729,9 @@ def depot_chart_svg(reihen, start_wert, waehrung):
  aria-label="Depotwert des Bots im Vergleich">{''.join(teile)}</svg>
 </div>"""
 
-def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, rueckschau_hinweis, ohne_zahlen=False):
-    zusammenfassung = depot_auswertung(erg, ohne, einst, waehrung)
+def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, rueckschau_hinweis, ohne_zahlen=False,
+                ohne_filter=None):
+    zusammenfassung = depot_auswertung(erg, ohne, einst, waehrung, ohne_filter)
     tabelle = trade_tabelle(erg)
     weggelassen = 0
     if tabelle is not None:
@@ -1688,6 +1743,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
     dollar_shorts = waehrung == "€" and any(p["richtung"] < 0 and waehrung_von(p["ticker"]) == "USD"
                                            for p in erg["trades"] + erg["offen"])
     regeln = (f"Regeln: Signal zum Schlusskurs, Einstieg zur Eröffnung des nächsten Handelstags nur bis zum Limit; "
+              f"{'Long nur, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt, Short nur darunter; ' if einst.marktfilter else ''}"
               f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), "
               f"{'' if ohne_zahlen else 'zum Schluss vor Quartalszahlen '}"
               f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen"
@@ -2116,7 +2172,7 @@ def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich
 
 
 def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusatz, pausen, einst, waehrung, notebook,
-                markt):
+                markt, trend):
     """Papier-Depot fortschreiben, anzeigen und speichern. Gibt den neuen Stand zurück (oder None)."""
     def nur_hinweis(text):
         print(f"\n📒 PAPIER-DEPOT\n⚠️ {text}")
@@ -2129,7 +2185,7 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
     daten_p = dict(daten)
     for t in extra:
         if t in roh:
-            daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t), zusatz.get(t, {}).get("zahlen"), einst)
+            daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t), zusatz.get(t, {}).get("zahlen"), einst, trend)
     # Quartalszahlen-Termine: Klappt die Abfrage diesmal nicht (Yahoo-Limit, Formatfehler), gelten die zuletzt
     # gespeicherten – sonst hielte das Papier-Depot eine Position unbemerkt über die Zahlen
     gemerkt = (stand or {}).get("termine")
@@ -2138,7 +2194,7 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
         for t, d in list(daten_p.items()):
             if d["termine"] is None and gemerkt.get(t):
                 daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t),
-                                         pd.DataFrame(index=pd.to_datetime(gemerkt[t], utc=True)), einst)
+                                         pd.DataFrame(index=pd.to_datetime(gemerkt[t], utc=True)), einst, trend)
     neu, erg, bericht = papier_fortschreiben(stand, daten_p, pausen, einst, set(daten))
     if erg is not None:
         grenze = pd.Timestamp.now(tz=NY) - pd.Timedelta(days=120)
@@ -2201,7 +2257,8 @@ def main():
     # US-Werte werden mit EUR/USD umgerechnet, Werte von Euro-Börsen nicht
     fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt + papier_extra}
 
-    daten = {t: bereite_vor(t, roh[t], fx_je_ticker[t], zusatz.get(t, {}).get("zahlen"), einst)
+    trend = markt_trend(markt_df)  # Marktfilter: Nasdaq-100 über/unter der 200-Tage-Linie
+    daten = {t: bereite_vor(t, roh[t], fx_je_ticker[t], zusatz.get(t, {}).get("zahlen"), einst, trend)
              for t in unterstuetzt if t in roh}
     markt = bereite_vor(MARKT_TICKER, markt_df, None, None, einst) if markt_df is not None else None
 
@@ -2260,7 +2317,7 @@ def main():
         tabelle[spalte] = tabelle[spalte].fillna("")
 
     fx_heute = float(fx.iloc[-1]) if fx is not None else None
-    titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung, markt, einst.ohne_zahlen)
+    titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, einst.ohne_zahlen)
     nach_ticker = {z["Ticker"]: z for z in zeilen}
     einstiege = [nach_ticker[t] for t in reihenfolge if nach_ticker[t].get("Signal") in (KAUFEN, SHORT)]
     # Handelsplan nach denselben Grenzen wie das Depot: Anzahl, Shorts, Gesamtrisiko und Geld (bestes CRV zuerst)
@@ -2303,15 +2360,22 @@ def main():
     papier = None
     if einst.papier:
         papier = papier_lauf(papier_datei, papier_stand, papier_fehler, daten, papier_extra, roh, fx, fx_je_ticker,
-                             zusatz, pausen, einst, waehrung, notebook, markt)
+                             zusatz, pausen, einst, waehrung, notebook, markt, trend)
     depot = ohne = None
     if einst.rueckblick > 0:
         depot = simuliere_depot(daten, pausen, einst, einst.lernen)
         if einst.lernen:
             ohne = simuliere_depot(daten, pausen, einst, False)
+        ohne_filter = None
+        if einst.marktfilter and trend is not None and depot is not None:
+            # Gegenprobe mit deinen echten Kursen: dieselben Regeln ohne Marktfilter (eigenes Tagebuch und Lernen)
+            daten_of = {t: dict(d, signale=d["signale_roh"]) for t, d in daten.items()}
+            pausen_of, _ = lernverlauf(strategie_tagebuch(daten_of, einst), alle_tage, einst)
+            ohne_filter = simuliere_depot(daten_of, pausen_of, einst, einst.lernen)
         if depot is not None:
             ohne_regel = [t for t, d in daten.items() if d["termine"] is None and hat_zahlen(t)]
-            zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, RUECKSCHAU, einst.ohne_zahlen)
+            zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, RUECKSCHAU, einst.ohne_zahlen,
+                        ohne_filter)
 
     if einst.csv:
         speichere_csv(tabelle, einst.csv)

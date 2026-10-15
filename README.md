@@ -55,7 +55,7 @@ python swing_scanner.py
 ### Was das Skript zeigt
 
 1. **Scanner (heute):** je Ticker 🟢 KAUFEN, 🔴 SHORT, ⏸ WARTEN (mit Grund), ⚠️ GEWINNE SICHERN, BEOBACHTEN oder ❌ FEHLER – mit Strategie, Kurs, Limit (höchster Kaufkurs), Stop, Ziel, Chance-Risiko-Verhältnis (CRV), Stückzahl, Einsatz, Risiko in €, nächstem Quartalszahlen-Termin und erkannten Ereignissen aus den Schlagzeilen. Für die besten Signale steht darunter ein Handelsplan in einem Satz (wann, wie viel, bis zu welchem Kurs, Stop, Ziel, spätestens raus am …) – nach denselben Grenzen wie im Depot: höchstens 5 Positionen, davon 2 Short, zusammen höchstens 5 % Risiko und nicht mehr Geld als auf dem Konto. Alle Beträge in Euro.
-2. **Strategie-Tagebuch („Lernen“):** Jede der 16 Strategien handelt im Hintergrund gedanklich mit. Läuft eine Strategie über ihre letzten bis zu 60 Trades im Schnitt deutlich schlecht (unter −0,1 R ab 20 Trades), wird sie pausiert, bis sie wieder im Plus ist. Die Tabelle zeigt ehrlich, wie groß der Zufall dabei sein kann.
+2. **Strategie-Tagebuch („Lernen“):** Jede der 16 Strategien handelt im Hintergrund gedanklich mit. Läuft eine Strategie über ihre letzten bis zu 60 Trades im Schnitt deutlich schlecht (unter −0,1 R ab 20 Trades), wird sie pausiert, bis sie wieder im Plus ist. Hat sie über ihre ganze Geschichte (ab 50 Trades) nach Kosten Geld verloren, handelt der Bot sie gar nicht. Die Tabelle zeigt ehrlich, wie groß der Zufall dabei sein kann.
 3. **Papier-Depot (Vorwärtstest, mit `--papier`):** Der Bot handelt ab dem ersten Lauf vorwärts mit virtuellem Geld nach genau denselben Regeln und speichert den Stand – in Colab in Google Drive (`MyDrive/swing_scanner/papier_depot.json`), sonst in `papier_depot.json`. Jeder Lauf rechnet die neuen Kurstage seit dem letzten Lauf, sobald sie für alle Werte der Liste fertig sind: Aufträge vom Vorabend zur Eröffnung (nur bis zum Limit), Stop, Ziel, Quartalszahlen, Zeitstopp, neue Signale zum Schluss. Verpasste Tage holt er nach, jede Entscheidung nutzt nur Kurse, die es da schon gab. Aktiensplits und Dividenden (Yahoo rechnet alte Kurse um) werden erkannt und verrechnet. Das ist der ehrliche Test: Anders als der Rückblick kennt das Papier-Depot die Zukunft nicht.
 4. **Virtuelles Depot (Rückblick):** Der Bot handelt die letzten Monate mit dem Startkapital nach seinen Signalen – einmal mit und einmal ohne Lernen – im Vergleich zu „alle Ticker kaufen und halten“. Es wird kein echtes Geld bewegt.
 
@@ -63,6 +63,7 @@ python swing_scanner.py
 
 - 16 Strategien, je 8 für steigende und fallende Kurse: Ausbruch/Abbruch (20-Tage-Hoch/-Tief mit Volumen), RSI-2-Rücksetzer/-Übertreibung, Gegenbewegung/Rückfall (überverkauft/überhitzt), MACD-Wende, Rücksetzer/Erholung an der EMA 20, dazu Trendfolge und Volatilität: Squeeze-Ausbruch/-Abbruch (Bollinger-Bänder erst sehr eng, dann Ausbruch), EMA-Kreuz (EMA 9 kreuzt EMA 21) und ATR-Ausbruch/-Abbruch (Schluss mehr als 2 ATR von der EMA 20, Keltner-Kanal).
 - Watchlist (`TICKER_LISTE` im Skript): SE, HIMS, NOW, INTU, CRWV, NBIS, MELI, IREN, NFLX, AAPL, ASTS, SOFI sowie NVDA, MSFT, AMZN, META, GOOGL, TSLA, AMD, PLTR, JPM, LLY, XOM, COST – keine Empfehlung, nur liquide Werte aus mehreren Branchen. Eigene Liste mit `--ticker`.
+- Marktfilter: Long nur, wenn der Nasdaq-100 (QQQ) am Vortag über seiner 200-Tage-Linie schloss, Short nur darunter – die meisten Aktien laufen mit dem Gesamtmarkt. Der Rückblick zeigt zum Vergleich, wie es mit deinen Kursen ohne Marktfilter gelaufen wäre (`--ohne-marktfilter` schaltet ihn ab).
 - Trendregel: Trendstrategien nur in Richtung der 50-Tage-Linie, Gegenbewegungen nur in Richtung der 200-Tage-Linie; widersprechen sich Signale, wartet der Bot.
 - Quartalszahlen: kein Einstieg in den 3 Handelstagen davor, offene Positionen am Abend vorher schließen, kurz danach keine Gegenbewegungs-Trades.
 - Einstieg am nächsten Handelstag nur bis zum Limit; Ausstieg an Stop, Ziel, vor Quartalszahlen oder spätestens nach 20 Handelstagen.
@@ -78,6 +79,7 @@ python swing_scanner.py
 | `--risiko 1` | max. Verlust pro Trade in % des Kontos, wenn der Stop greift (auch `1,5`) |
 | `--ohne-short` | nur auf steigende Kurse setzen |
 | `--ohne-lernen` | keine Strategien pausieren |
+| `--ohne-marktfilter` | Long und Short unabhängig davon, ob der Nasdaq-100 über oder unter seiner 200-Tage-Linie liegt |
 | `--ohne-news` | keine Schlagzeilen laden (Quartalszahlen-Regel bleibt) |
 | `--ohne-zahlen` | keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann aus |
 | `--rueckblick 6` | Monate für das virtuelle Depot (0 = aus, max. 18) |
