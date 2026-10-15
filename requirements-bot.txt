@@ -1,0 +1,4 @@
+# Nur für den automatischen Lauf (GitHub Actions) – ohne Dashboard
+yfinance>=0.2.54
+pandas>=2.0
+numpy>=1.24

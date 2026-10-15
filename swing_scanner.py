@@ -16,6 +16,7 @@ import shutil
 import sys
 import threading
 import time
+import urllib.parse
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, wait
 
@@ -239,6 +240,8 @@ def lies_einstellungen():
     p.add_argument("--papier-neu", action="store_true",
                    help="Papier-Depot neu anlegen (der bisherige Stand wird als Kopie aufbewahrt)")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
+    p.add_argument("--bericht", metavar="DATEI",
+                   help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
     p.add_argument("--debug", action="store_true", help="Original-Meldungen von yfinance anzeigen")
     einst, unbekannt = p.parse_known_args()
     if unbekannt:
@@ -1481,6 +1484,67 @@ def tabelle_als_html(tabelle, formate, zellfarben=None, links=2, umbruch=()):
     except (ImportError, AttributeError):  # ohne jinja2 gibt es keinen Styler
         return tabelle.to_html(index=False, na_rep="–", formatters=formate)
 
+# --- Bericht als Markdown-Datei (z. B. für GitHub, wo der Bot automatisch läuft) -----------------------
+BERICHT = []  # Abschnitte des laufenden Laufs
+TV_BOERSEN = {"DE": "XETR", "F": "FWB", "SG": "SWB", "MU": "MUN", "BE": "BER", "DU": "DUS", "HM": "HAM", "HA": "HAN",
+              "PA": "EURONEXT", "AS": "EURONEXT", "BR": "EURONEXT", "LS": "EURONEXT", "IR": "EURONEXT", "MI": "MIL",
+              "MC": "BME", "VI": "VIE", "HE": "OMXHEX"}
+
+def tradingview_link(ticker):
+    """Link zum Chart bei TradingView (Yahoo-Kürzel umgesetzt, z. B. SAP.DE -> XETR:SAP, BTC-EUR -> BTCEUR)."""
+    if re.fullmatch(r".+-[A-Z]{3}", ticker):
+        symbol = ticker.replace("-", "")
+    elif "." in ticker:
+        name, boerse = ticker.rsplit(".", 1)
+        symbol = f"{TV_BOERSEN.get(boerse, boerse)}:{name}"
+    else:
+        symbol = ticker.replace("-", ".")
+    return f"https://www.tradingview.com/chart/?symbol={urllib.parse.quote(symbol)}"
+
+def md_tabelle(tabelle, formate, links=False):
+    """Tabelle als Markdown (gleiche Zahlenformate wie im Terminal; Ticker optional als TradingView-Link)."""
+    spalten = list(tabelle.columns)
+    zeilen = ["| " + " | ".join(spalten) + " |",
+              "| " + " | ".join("---:" if pd.api.types.is_numeric_dtype(tabelle[s]) else "---" for s in spalten) + " |"]
+    for _, zeile in tabelle.iterrows():
+        zellen = []
+        for s in spalten:
+            wert = zeile[s]
+            if wert is None or (isinstance(wert, float) and math.isnan(wert)):
+                text = "–"
+            else:
+                text = formate[s](wert) if s in formate else str(wert)
+            if links and s == "Ticker" and text not in ("", "–"):
+                text = f"[{text}]({tradingview_link(text)})"
+            zellen.append(text.replace("|", "\\|").replace("\n", " "))
+        zeilen.append("| " + " | ".join(zellen) + " |")
+    return "\n".join(zeilen)
+
+def berichte(titel, zeilen=(), tabelle=None, formate=None, links=False, nachher=()):
+    """Einen Abschnitt für den Markdown-Bericht merken (zwei Leerzeichen am Zeilenende = Zeilenumbruch)."""
+    teil = [f"## {titel}", ""] + [f"{z}  " for z in zeilen if z]
+    if tabelle is not None and len(tabelle):
+        teil += ["", md_tabelle(tabelle, formate or {}, links), ""]
+    teil += [f"{z}  " for z in nachher if z]
+    BERICHT.append("\n".join(teil))
+
+def schreibe_bericht(datei, ok, absturz=False):
+    jetzt = pd.Timestamp.now(tz=BERLIN)
+    art = "automatischer Lauf bei GitHub" if os.environ.get("GITHUB_ACTIONS") else "Lauf von Hand"
+    kopf = ["# 📈 Swing-Bot – Bericht", "",
+            f"Stand: {WOCHENTAGE[jetzt.weekday()]} {jetzt:%d.%m.%Y %H:%M} Uhr ({art}). Ticker anklicken öffnet den "
+            f"Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.", ""]
+    if absturz:
+        kopf += ["> ❌ Dieser Lauf ist mit einem Fehler abgebrochen (Details bei GitHub im Tab „Actions“). "
+                 "Das Papier-Depot bleibt auf dem zuletzt gespeicherten Stand.", ""]
+    elif not ok:
+        kopf += ["> ❌ Dieser Lauf hat keine auswertbaren Kurse bekommen (Yahoo nicht erreichbar oder Yahoo-Limit). "
+                 "Das Papier-Depot ist unverändert, der nächste Lauf holt alles nach.", ""]
+    ordner = os.path.dirname(os.path.abspath(datei))
+    os.makedirs(ordner, exist_ok=True)
+    with open(datei, "w", encoding="utf-8") as f:
+        f.write("\n".join(kopf) + "\n" + "\n\n".join(BERICHT) + "\n")
+
 def zeige(html_teil, text_teil):
     """Im Notebook als HTML mit Textfassung (Spyder, qtconsole, jupyter console zeigen die Textfassung)."""
     from IPython.display import display
@@ -1488,6 +1552,7 @@ def zeige(html_teil, text_teil):
 
 def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen, fuss, formate, notebook):
     mitte = ([""] + plan if plan else []) + ([""] + schlagzeilen if schlagzeilen else []) + [""]
+    berichte(titel, [zusammenfassung, *hinweise], tabelle, formate, True, [*plan, *schlagzeilen, *fuss])
     if not notebook:
         print(als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, farben_im_terminal(), mitte))
         return
@@ -1571,6 +1636,7 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
     with pd.option_context("display.unicode.east_asian_width", True):
         tabelle_text = tabelle.to_string(index=False, formatters=LERN_FORMATE, na_rep="–")
     text = "\n".join(["", titel, tabelle_text, *erklaerung])
+    berichte(titel, (), tabelle, LERN_FORMATE, False, erklaerung)
     if not notebook:
         print(text)
         return
@@ -1787,6 +1853,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
     if hinweis:
         text += "\n" + hinweis
     text += "\n" + regeln + "\n" + rueckschau_hinweis
+    berichte(zusammenfassung[0], zusammenfassung[1:], tabelle, TRADE_FORMATE, True, [hinweis, regeln, rueckschau_hinweis])
     if not notebook:
         print(text)
         return
@@ -1884,8 +1951,9 @@ def lade_papier(pfad, neu_anlegen):
                 raise ValueError(f"Feld {feld} fehlt")
         return stand, None
     except (OSError, ValueError) as fehler:
-        return None, (f"Papier-Depot-Datei nicht lesbar ({fehler}) – sie bleibt unverändert. Mit --papier-neu "
-                      f"neu anlegen.")
+        abhilfe = ("Die Datei im Repository löschen (neu anfangen) oder bei GitHub eine frühere Fassung aus der "
+                   "Historie zurückholen." if os.environ.get("GITHUB_ACTIONS") else "Mit --papier-neu neu anlegen.")
+        return None, f"Papier-Depot-Datei nicht lesbar ({fehler}) – sie bleibt unverändert. {abhilfe}"
 
 def speichere_papier(pfad, stand):
     """Schreibt erst in eine Hilfsdatei und ersetzt dann (bricht der Lauf ab, bleibt der alte Stand heil);
@@ -2146,8 +2214,13 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                       "abweichen.")
     elif erg is not None:
         zeilen.append("Keine Aufträge für den nächsten Handelstag.")
-    ort = "Google Drive › MyDrive › swing_scanner › papier_depot.json" if pfad == PAPIER_DATEI_COLAB else pfad
-    zeilen.append(f"Gespeichert in: {ort} (neu anfangen mit --papier-neu, der alte Stand bleibt als Kopie erhalten). "
+    if os.environ.get("GITHUB_ACTIONS"):  # automatischer Lauf: Datei im Repository, alte Stände in der Git-Historie
+        ort = (f"{os.path.relpath(pfad)} im Repository (neu anfangen: die Datei im Repository löschen, "
+               f"die Historie bei GitHub behält den alten Stand)")
+    else:
+        ort = ("Google Drive › MyDrive › swing_scanner › papier_depot.json" if pfad == PAPIER_DATEI_COLAB else pfad) \
+            + " (neu anfangen mit --papier-neu, der alte Stand bleibt als Kopie erhalten)"
+    zeilen.append(f"Gespeichert in: {ort}. "
                   f"Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, "
                   f"{de(einst.gebuehr)} {waehrung} Gebühr + {prozent(SPREAD_PROZENT)} % Spread je Order.")
     return kopf, zeilen
@@ -2161,6 +2234,7 @@ def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich
         weggelassen = max(len(tabelle) - anzeige, 0)
         tabelle = tabelle.iloc[:anzeige]
     hinweis = f"… {weggelassen} ältere Trades nicht angezeigt (alle stehen in der Datei)." if weggelassen else ""
+    berichte(kopf, zeilen, tabelle, TRADE_FORMATE, True, [hinweis])
     text = "\n".join(["", kopf, *("   " + z for z in zeilen)])
     if tabelle is not None:
         with pd.option_context("display.unicode.east_asian_width", True):
@@ -2198,6 +2272,7 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
     """Papier-Depot fortschreiben, anzeigen und speichern. Gibt den neuen Stand zurück (oder None)."""
     def nur_hinweis(text):
         print(f"\n📒 PAPIER-DEPOT\n⚠️ {text}")
+        berichte("📒 PAPIER-DEPOT", [f"⚠️ {text}"])
         return None
     if fehler:
         return nur_hinweis(fehler)
@@ -2238,13 +2313,7 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
     zeige_papier(neu, erg, bericht, datei, einst, waehrung, notebook, vergleich, float(fx.iloc[-1]))
     return neu
 
-def main():
-    try:
-        sys.stdout.reconfigure(errors="replace")  # Emojis -> '?' statt Absturz, wenn Windows in eine Datei umleitet
-    except Exception:
-        pass
-
-    einst = lies_einstellungen()
+def auswerten(einst):
     if FX_TICKER in einst.ticker_liste:
         einst.ticker_liste.remove(FX_TICKER)
         print(f"Hinweis: {FX_TICKER} ist der Euro-Wechselkurs und wird nur zum Umrechnen genutzt.")
@@ -2411,6 +2480,23 @@ def main():
             speichere_csv(trades, f"{name}_trades{endung or '.csv'}")
     return {"scanner": tabelle, "depot": depot, "depot_ohne_lernen": ohne, "tagebuch": tagebuch, "lernstand": stand,
             "papier": papier}
+
+def main():
+    try:
+        sys.stdout.reconfigure(errors="replace")  # Emojis -> '?' statt Absturz, wenn Windows in eine Datei umleitet
+    except Exception:
+        pass
+    einst = lies_einstellungen()
+    BERICHT.clear()
+    ergebnis, absturz = None, True
+    try:
+        ergebnis = auswerten(einst)
+        absturz = False
+    finally:
+        if einst.bericht:
+            schreibe_bericht(einst.bericht, ergebnis is not None, absturz)
+            print(f"\n📝 Bericht gespeichert: {einst.bericht}")
+    return ergebnis
 
 if __name__ == "__main__":
     # Unter %run in Colab/Jupyter stehen die Ergebnisse danach als 'ergebnis' zur Verfügung

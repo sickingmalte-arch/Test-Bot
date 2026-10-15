@@ -52,6 +52,39 @@ python -m pip install -U yfinance pandas numpy
 python swing_scanner.py
 ```
 
+### Automatisch jeden Abend (GitHub Actions – ohne PC, ohne Colab)
+
+Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot jeden Börsentag (Mo–Fr) um 22:30 Uhr UTC – also 0:30 Uhr deutscher Sommerzeit bzw. 23:30 Uhr Winterzeit, nach US-Börsenschluss – kostenlos in der Cloud bei GitHub. Du musst keine Seite offen lassen und nichts neu laden.
+
+1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → „Merge“). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`.
+2. **Ergebnis ansehen:** Im Repository die Datei [`bericht/README.md`](bericht/README.md) öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot und Rückblick; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung).
+3. **Papier-Depot:** liegt in `papier/papier_depot.json` und wird nach jedem Lauf gespeichert. Der Bot holt verpasste Tage nach, falls GitHub einen Lauf auslässt oder Yahoo einmal nicht antwortet. Willst du dein bisheriges Depot aus Google Drive weiterführen: `MyDrive/swing_scanner/papier_depot.json` herunterladen und im Repository über **Add file → Upload files** in den Ordner `papier` hochladen (vor dem nächsten Lauf). Achtung: Drive-Depot und GitHub-Depot sind danach zwei getrennte Dateien – wenn du beide fortschreibst, laufen sie auseinander.
+4. **Sofort testen:** **Actions → Swing-Bot → Run workflow**. Ein Lauf dauert einige Minuten.
+5. **Einstellungen ohne Code:** **Settings → Secrets and variables → Actions → Tab „Variables“ → New repository variable**:
+
+| Name | Beispiel | Bedeutung |
+| --- | --- | --- |
+| `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000) |
+| `RISIKO` | `1` | Risiko je Trade in % (Standard 1) |
+| `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
+| `OPTIONEN` | `--ohne-short` | weitere Optionen aus der Tabelle unten, mit Leerzeichen getrennt |
+
+Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand) – `--papier-neu` bitte nicht als `OPTIONEN` eintragen, sonst fängt das Depot jeden Abend neu an.
+
+Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
+
+### TradingView: Signale direkt im Chart
+
+Die Datei [`tradingview/swing_bot_signale.pine`](tradingview/swing_bot_signale.pine) ist ein Indikator für TradingView (auch im kostenlosen Tarif). Er zeigt im Tageschart jeder Aktie die Signale der 16 Strategien: ▲ grün = KAUFEN, ▼ rot = SHORT, dazu ein Schild mit Strategie, Limit, Stop und Ziel sowie Linien für das letzte Signal. Roter Hintergrund = Abwärtsmarkt (Nasdaq-100 unter seiner 200-Tage-Linie).
+
+1. Die Datei auf GitHub öffnen und mit dem Kopieren-Knopf („Copy raw file“) kopieren.
+2. Bei TradingView einen Chart öffnen, unten **Pine-Editor** anklicken, den Inhalt komplett ersetzen und **Zum Chart hinzufügen** klicken (danach **Speichern**, dann findest du ihn unter „Indikatoren → Meine Skripte“ für jeden Chart).
+3. Tageschart (**1D**) wählen. Signale gelten zum Tagesschluss – wie beim Bot: Einstieg am nächsten Handelstag nur bis zum Limit.
+4. Zahnrad am Indikator: Short-Signale, Marktfilter und jede Strategie einzeln an/aus. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind, hier abschalten.
+5. Benachrichtigung aufs Handy: Rechtsklick im Chart → **Alarm hinzufügen** → Bedingung „Swing-Bot“ → „Swing-Bot: KAUFEN-Signal“ oder „SHORT-Signal“ → „Einmal pro Balkenschluss“.
+
+Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Quartalszahlen-Regel, Schlagzeilen und die Grenzen für Positionen und Risiko gibt es nur im Bot. Kurse stehen in der Währung des Charts (meist $), nicht in €. Durch leicht andere Startwerte der Indikatoren kann ein Signal in Einzelfällen abweichen – maßgeblich ist der Bericht des Bots. TradingView handelt damit nicht automatisch; der Bot handelt nur virtuell.
+
 ### Was das Skript zeigt
 
 1. **Scanner (heute):** je Ticker 🟢 KAUFEN, 🔴 SHORT, ⏸ WARTEN (mit Grund), ⚠️ GEWINNE SICHERN, BEOBACHTEN oder ❌ FEHLER – mit Strategie, Kurs, Limit (höchster Kaufkurs), Stop, Ziel, Chance-Risiko-Verhältnis (CRV), Stückzahl, Einsatz, Risiko in €, nächstem Quartalszahlen-Termin und erkannten Ereignissen aus den Schlagzeilen. Für die besten Signale steht darunter ein Handelsplan in einem Satz (wann, wie viel, bis zu welchem Kurs, Stop, Ziel, spätestens raus am …) – nach denselben Grenzen wie im Depot: höchstens 5 Positionen, davon 2 Short, zusammen höchstens 5 % Risiko und nicht mehr Geld als auf dem Konto. Alle Beträge in Euro.
@@ -88,6 +121,7 @@ python swing_scanner.py
 | `--nur-schluss` | laufende Tageskerze ignorieren, nur abgeschlossene Tage bewerten |
 | `--papier` | Papier-Depot fortschreiben (Vorwärtstest mit virtuellem Geld, Stand wird gespeichert); eigene Datei mit `--papier meine_datei.json` (in Colab ebenfalls im Drive-Ordner `swing_scanner`) |
 | `--papier-neu` | Papier-Depot neu anfangen (der bisherige Stand bleibt als Kopie mit Datum erhalten) |
+| `--bericht bericht/README.md` | alles zusätzlich als Markdown-Bericht speichern (Ticker als TradingView-Links; nutzt der automatische Lauf) |
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
 
