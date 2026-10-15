@@ -799,11 +799,14 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst, markt=None):
                                                                                       handelstag(ticker))
     return d
 
-def signal_zuletzt(df, mit_short):
-    """Feuert am letzten Kurstag irgendeine Strategie? (Die Signale hängen nicht von den Terminen ab.)"""
+def signal_zuletzt(df, mit_short, markt=None):
+    """Feuert am letzten Kurstag eine Strategie, die der Marktfilter erlaubt? (Die Signale hängen nicht von den
+    Terminen ab.)"""
     try:
-        signale = strategie_signale(calculate_indicators(df.copy()), mit_short)[0]
-        return any(ok[-1] for ok, _, _ in signale.values())
+        df = calculate_indicators(df.copy())
+        signale = strategie_signale(df, mit_short)[0]
+        lage = markt_vortag(markt, df.index[-1:])[0] if markt is not None else np.nan
+        return any(ok[-1] and lage != (0 if STRATEGIEN[k]["richtung"] > 0 else 1) for k, (ok, _, _) in signale.items())
     except Exception:
         return False
 
@@ -1316,21 +1319,39 @@ def handelsplan(zeile, nr, einst, waehrung):
         satz += " Achtung: Quartalszahlen-Termin unbekannt – vor dem Kauf selbst prüfen."
     return satz
 
-def marktampel(trend, stand, einst):
-    """Marktlage (Nasdaq-100 zur 200-Tage-Linie), wie sie für die heutigen Signale gilt (letzter Börsentag davor)."""
+def marktampel(trend, zeilen, einst):
+    """Marktlage (Nasdaq-100 zur 200-Tage-Linie), wie sie für die Signale der Tabelle gilt: je Zeile der letzte
+    QQQ-Schluss vor ihrem Kurstag. Hat QQQ die Linie gerade gekreuzt, gilt für Zeilen mit älterer Kerze noch die
+    Lage davor."""
     if trend is None:
         return "⚠️ Keine Nasdaq-100-Daten – der Marktfilter ist diesmal aus." if einst.marktfilter else None
-    lage = markt_vortag(trend, [stand])[0]
-    if np.isnan(lage):
+    tage = sorted({z["_stand"] for z in zeilen})
+    vortag = pd.DatetimeIndex(tage) - pd.Timedelta(days=1)
+    if trend.index.tz is not None and vortag.tz is None:
+        vortag = vortag.tz_localize(trend.index.tz)
+    bekannt = {}
+    for tag, pos in zip(tage, trend.index.searchsorted(vortag, side="right") - 1):
+        if pos >= 0 and not np.isnan(trend.iloc[pos]):
+            bekannt[tag] = (trend.index[pos], trend.iloc[pos])
+    if not bekannt:
         return None
+    qqq_tag, lage = bekannt[max(bekannt)]
     oben = lage == 1
-    text = f"Nasdaq-100 (QQQ) {'über' if oben else 'unter'} seiner 200-Tage-Linie"
+    text = f"Nasdaq-100 (QQQ) schloss am {datum(qqq_tag)} {'über' if oben else 'unter'} seiner 200-Tage-Linie"
     if not einst.marktfilter:
         return f"{'🟢' if oben else '🔴'} Markt: {text} (Marktfilter aus, --ohne-marktfilter)."
     if oben:
-        return f"🟢 Marktfilter: {text} – der Bot kauft nur (Long), Short-Signale wartet er ab."
-    return (f"🔴 Marktfilter: {text} – der Bot kauft nicht, "
-            + ("nur Short-Signale zählen." if einst.mit_short else "mit --ohne-short wartet er ganz ab."))
+        satz = f"🟢 Marktfilter: {text} – der Bot kauft nur (Long)" + (", Short-Signale wartet er ab." if einst.mit_short
+                                                                         else ".")
+    else:
+        satz = (f"🔴 Marktfilter: {text} – der Bot kauft nicht, "
+                + ("nur Short-Signale zählen." if einst.mit_short else "mit --ohne-short wartet er ganz ab."))
+    anders = [z["Ticker"] for z in zeilen if z["_stand"] in bekannt and bekannt[z["_stand"]][1] != lage]
+    if anders:
+        namen = ", ".join(anders[:4]) + (" …" if len(anders) > 4 else "")
+        satz += (f" Für {namen} (letzte Kerze älter) gilt noch die Lage davor ({'unter' if oben else 'über'} der "
+                 f"Linie) – die Signale in der Tabelle beachten das schon.")
+    return satz
 
 def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen):
     ok = [z for z in zeilen if "_stand" in z]
@@ -1344,7 +1365,7 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen):
     zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in (KAUFEN, SHORT, WARTEN, SICHERN, BEOBACHTEN, FEHLER)
                                  if s in anzahl)
     hinweise = []
-    ampel = marktampel(trend, stand, einst)
+    ampel = marktampel(trend, ok, einst)
     if ampel:
         hinweise.append(ampel)
     gesamt = einst.konto * MAX_GESAMTRISIKO_PROZENT / 100
@@ -1514,7 +1535,8 @@ def lern_tabelle(stand, einst, waehrung):
         if not einst.lernen:
             status = "– (ohne Lernen)"
         elif s["im_minus"]:
-            status = (f"⏸ aus (insgesamt im Minus: {de(s['gesamt_schnitt'], 2, True)} R über {s['gesamt']} Trades)")
+            status = (f"⏸ aus (insgesamt im Minus: Ø {de(s['gesamt_schnitt'], 2, True)} R je Trade über "
+                      f"{s['gesamt']} Trades)")
         elif s["pausiert"]:
             status = "⏸ pausiert (lief zuletzt schlecht – kann auch Pech sein)"
         elif s["n"] < LERNEN_MIN_TRADES:
@@ -1555,7 +1577,7 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
 
     def statusfarbe(zeile):
         return ["background-color: #fff3cd; color: #1b1b1b; font-weight: bold;"
-                if s == "Status" and "pausiert" in zeile["Status"] else "" for s in zeile.index]
+                if s == "Status" and zeile["Status"].startswith("⏸") else "" for s in zeile.index]
 
     zeige(absatz(titel, "font-size: 1.15em; font-weight: bold; margin-top: 18px;")
           + '<div style="margin: 8px 0;">' + tabelle_als_html(tabelle, LERN_FORMATE, statusfarbe, 1, ("Status",)) + "</div>"
@@ -1730,7 +1752,7 @@ def depot_chart_svg(reihen, start_wert, waehrung):
 </div>"""
 
 def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, rueckschau_hinweis, ohne_zahlen=False,
-                ohne_filter=None):
+                ohne_filter=None, filter_aktiv=False):
     zusammenfassung = depot_auswertung(erg, ohne, einst, waehrung, ohne_filter)
     tabelle = trade_tabelle(erg)
     weggelassen = 0
@@ -1743,7 +1765,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
     dollar_shorts = waehrung == "€" and any(p["richtung"] < 0 and waehrung_von(p["ticker"]) == "USD"
                                            for p in erg["trades"] + erg["offen"])
     regeln = (f"Regeln: Signal zum Schlusskurs, Einstieg zur Eröffnung des nächsten Handelstags nur bis zum Limit; "
-              f"{'Long nur, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt, Short nur darunter; ' if einst.marktfilter else ''}"
+              f"{'Long nur, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt, Short nur darunter; ' if filter_aktiv else ''}"
               f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), "
               f"{'' if ohne_zahlen else 'zum Schluss vor Quartalszahlen '}"
               f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen"
@@ -2182,6 +2204,9 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
     if fx is None:
         return nur_hinweis("Ohne Euro-Wechselkurs wird das Papier-Depot diesmal nicht weitergerechnet (es führt alle "
                            "Beträge in €) – beim nächsten Lauf wird nachgeholt.")
+    if einst.marktfilter and trend is None:
+        return nur_hinweis("Ohne Nasdaq-100-Kurse (QQQ) fehlt der Marktfilter – das Papier-Depot wird diesmal nicht "
+                           "weitergerechnet, beim nächsten Lauf wird nachgeholt.")
     daten_p = dict(daten)
     for t in extra:
         if t in roh:
@@ -2248,7 +2273,8 @@ def main():
         termin_ticker = ([t for t in unterstuetzt + papier_extra if t in roh and hat_zahlen(t)]
                          if not einst.ohne_zahlen else [])
         # Termine zuerst für Ticker mit Signal holen – greift Yahoos Limit, fehlen sie eher bei den übrigen
-        termin_ticker.sort(key=lambda t: not signal_zuletzt(roh[t], einst.mit_short))
+        trend_vorab = markt_trend(roh.get(MARKT_TICKER)) if einst.marktfilter else None
+        termin_ticker.sort(key=lambda t: not signal_zuletzt(roh[t], einst.mit_short, trend_vorab))
         zusatz = hole_zusatzdaten(termin_ticker, [], sammler)
     fx_daten = roh.pop(FX_TICKER, None)
     fx = fx_daten["Close"] if fx_daten is not None else None
@@ -2375,7 +2401,7 @@ def main():
         if depot is not None:
             ohne_regel = [t for t, d in daten.items() if d["termine"] is None and hat_zahlen(t)]
             zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, RUECKSCHAU, einst.ohne_zahlen,
-                        ohne_filter)
+                        ohne_filter, einst.marktfilter and trend is not None)
 
     if einst.csv:
         speichere_csv(tabelle, einst.csv)
