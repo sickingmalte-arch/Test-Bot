@@ -79,11 +79,11 @@ Die Datei [`tradingview/swing_bot_signale.pine`](tradingview/swing_bot_signale.p
 
 1. Die Datei auf GitHub öffnen und mit dem Kopieren-Knopf („Copy raw file“) kopieren.
 2. Bei TradingView einen Chart öffnen, unten **Pine-Editor** anklicken, den Inhalt komplett ersetzen und **Zum Chart hinzufügen** klicken (danach **Speichern**, dann findest du ihn unter „Indikatoren → Meine Skripte“ für jeden Chart).
-3. Tageschart (**1D**) wählen. Signale gelten zum Tagesschluss – wie beim Bot: Einstieg am nächsten Handelstag nur bis zum Limit.
+3. Tageschart (**1D**) wählen und unten rechts am Chart **ADJ** einschalten (Kurse für Dividenden bereinigen). Der Bot rechnet wie Yahoo mit dividendenbereinigten Kursen – ohne ADJ weichen die Signale bei Dividendenwerten wie XOM, JPM oder COST oft ab; der Indikator zeigt dann oben rechts einen roten Hinweis. Signale gelten zum Tagesschluss – wie beim Bot: Einstieg am nächsten Handelstag nur bis zum Limit.
 4. Zahnrad am Indikator: Short-Signale, Marktfilter und jede Strategie einzeln an/aus. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind, hier abschalten.
 5. Benachrichtigung aufs Handy: Rechtsklick im Chart → **Alarm hinzufügen** → Bedingung „Swing-Bot“ → „Swing-Bot: KAUFEN-Signal“ oder „SHORT-Signal“ → „Einmal pro Balkenschluss“.
 
-Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Quartalszahlen-Regel, Schlagzeilen und die Grenzen für Positionen und Risiko gibt es nur im Bot. Kurse stehen in der Währung des Charts (meist $), nicht in €. Durch leicht andere Startwerte der Indikatoren kann ein Signal in Einzelfällen abweichen – maßgeblich ist der Bericht des Bots. TradingView handelt damit nicht automatisch; der Bot handelt nur virtuell.
+Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Quartalszahlen-Regel, Schlagzeilen und die Grenzen für Positionen und Risiko gibt es nur im Bot. Kurse stehen in der Währung des Charts (meist $), nicht in €. In den ersten Monaten eines Charts können Signale durch andere Startwerte der Indikatoren abweichen – maßgeblich ist der Bericht des Bots. TradingView handelt damit nicht automatisch; der Bot handelt nur virtuell.
 
 ### Was das Skript zeigt
 

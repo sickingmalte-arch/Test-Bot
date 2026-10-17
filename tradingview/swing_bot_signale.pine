@@ -4,12 +4,14 @@
 //
 // Einfügen: TradingView → unten „Pine-Editor“ → alles ersetzen durch diesen Text → „Zum Chart hinzufügen“.
 // Nur für den Tageschart (1D) gedacht. Signale gelten zum Schlusskurs, Einstieg am nächsten Handelstag nur bis
-// zum Limit – wie im Bot.
+// zum Limit – wie im Bot. Unten rechts am Chart „ADJ“ einschalten (Kurse für Dividenden bereinigen): Der Bot rechnet
+// wie Yahoo mit dividendenbereinigten Kursen, sonst weichen die Signale bei Dividendenwerten oft ab. Ist ADJ aus,
+// zeigt die Infotafel oben rechts einen roten Hinweis.
 //
 // Was der Indikator NICHT kann (das macht nur der Bot): die Lernregel über alle Aktien deiner Watchlist, die
 // Quartalszahlen-Regel und die Schlagzeilen. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind,
-// kannst du unten in den Einstellungen abschalten. Durch etwas andere Startwerte der Indikatoren kann ein Signal
-// in Einzelfällen leicht abweichen – maßgeblich ist der Bericht des Bots.
+// kannst du unten in den Einstellungen abschalten. In den ersten Monaten eines Charts können Signale durch andere
+// Startwerte der Indikatoren abweichen – maßgeblich ist der Bericht des Bots.
 //
 //@version=5
 indicator("Swing-Bot Signale", shorttitle="Swing-Bot", overlay=true, max_labels_count=500, max_lines_count=60)
@@ -69,10 +71,11 @@ keltnerOben = ema20 + 2 * atr
 keltnerUnten = ema20 - 2 * atr
 
 // ---------- Marktfilter: Lage des Nasdaq-100 am letzten Börsentag davor ----------
+// Wie im Bot mit dividendenbereinigten Kursen – unabhängig von der ADJ-Einstellung des Charts
 marktLageBerechnen() =>
     linie = ta.sma(close, 200)
     na(linie) ? na : close > linie ? 1.0 : 0.0
-marktHeute = request.security(marktSymbol, "D", marktLageBerechnen())
+marktHeute = request.security(ticker.modify(marktSymbol, session.regular, adjustment.dividends), "D", marktLageBerechnen())
 marktLage = marktHeute[1]
 langErlaubt = not marktfilter or na(marktLage) or marktLage == 1
 shortErlaubt = mitShort and (not marktfilter or na(marktLage) or marktLage == 0)
@@ -145,12 +148,20 @@ if richtung != 0
         stopLinie := line.new(bar_index, stop, bar_index + 20, stop, color=color.red, style=line.style_dashed, width=2)
         zielLinie := line.new(bar_index, ziel, bar_index + 20, ziel, color=color.green, style=line.style_dashed, width=2)
 
-// Infotafel oben rechts: Marktlage und Hinweis auf den Tageschart
-var table tafel = table.new(position.top_right, 1, 2, bgcolor=color.new(color.gray, 85), border_width=1)
+// Ist der Chart nicht für Dividenden bereinigt, liegen ältere Kurse höher als beim Bot (Yahoo bereinigt sie)
+bereinigt = request.security(ticker.modify(syminfo.tickerid, syminfo.session, adjustment.dividends), timeframe.period, close)
+var bool unbereinigt = false
+if not na(bereinigt) and math.abs(bereinigt - c) > 0.0005 * c
+    unbereinigt := true
+
+// Infotafel oben rechts: Marktlage, Hinweis auf den Tageschart und auf ADJ
+var table tafel = table.new(position.top_right, 1, 3, bgcolor=color.new(color.gray, 85), border_width=1)
 if barstate.islast
     marktText = not marktfilter ? "Marktfilter aus" : na(marktLage) ? "Marktlage unbekannt" : marktLage == 1 ? "Nasdaq-100 über 200-Tage-Linie: nur Long" : "Nasdaq-100 unter 200-Tage-Linie: " + (mitShort ? "nur Short" : "kein Trade")
     table.cell(tafel, 0, 0, "Swing-Bot · " + marktText, text_color=chart.fg_color, text_size=size.small)
     table.cell(tafel, 0, 1, timeframe.isdaily ? "Signale zum Tagesschluss" : "Bitte Tageschart (1D) wählen", text_color=timeframe.isdaily ? chart.fg_color : color.red, text_size=size.small)
+    if unbereinigt
+        table.cell(tafel, 0, 2, "Unten rechts „ADJ“ einschalten (Dividenden bereinigen) – sonst weichen Signale vom Bot ab", text_color=color.red, text_size=size.small)
 
 // Alarme (Benachrichtigung aufs Handy): Rechtsklick im Chart → „Alarm hinzufügen“ → Bedingung „Swing-Bot“
 alertcondition(kaufSignal, title="Swing-Bot: KAUFEN-Signal", message="Swing-Bot: KAUFEN-Signal bei {{ticker}} (Schluss {{close}})")
