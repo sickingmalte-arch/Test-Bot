@@ -1,0 +1,76 @@
+# Swing-Bot automatisch: jeden Börsentag nach US-Schluss in der Cloud bei GitHub.
+# Ergebnis: bericht/README.md (Signale, Papier-Depot, Rückblick) und papier/papier_depot.json.
+# Einstellungen ohne Code ändern: Repository -> Settings -> Secrets and variables -> Actions ->
+# Tab "Variables": KONTO (z. B. 10000), RISIKO (z. B. 1), TICKER (z. B. "AAPL, NFLX, SOFI"),
+# OPTIONEN (z. B. "--ohne-short").
+name: Swing-Bot
+
+on:
+  schedule:
+    # 22:30 UTC Mo–Fr = 0:30 Uhr deutscher Sommerzeit / 23:30 Uhr Winterzeit,
+    # also nach US-Schluss (22:00 Uhr deutscher Zeit). GitHub startet oft ein paar Minuten später.
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+
+permissions:
+  contents: write # Bericht und Papier-Depot zurück ins Repository schreiben
+
+concurrency:
+  group: swing-bot # nie zwei Läufe gleichzeitig (das Papier-Depot würde sich sonst überschreiben)
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-bot.txt
+
+      - name: Pakete installieren
+        run: pip install -r requirements-bot.txt
+
+      - name: Bot laufen lassen
+        env:
+          KONTO: ${{ vars.KONTO || '10000' }}
+          RISIKO: ${{ vars.RISIKO || '1' }}
+          TICKER: ${{ vars.TICKER }}
+          OPTIONEN: ${{ vars.OPTIONEN }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -- --konto "$KONTO" --risiko "$RISIKO" --rueckblick 12 \
+                 --papier papier/papier_depot.json --bericht bericht/README.md
+          if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
+          # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
+          # shellcheck disable=SC2086
+          python swing_scanner.py "$@" $OPTIONEN
+
+      - name: Bericht in der Zusammenfassung anzeigen
+        if: always()
+        run: |
+          if [ -f bericht/README.md ]; then cat bericht/README.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Ergebnis speichern
+        if: always()
+        run: |
+          git config user.name "swing-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for ordner in papier bericht; do
+            if [ -e "$ordner" ]; then git add -A "$ordner"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "Nichts Neues zu speichern."
+            exit 0
+          fi
+          git commit -m "Swing-Bot: Bericht $(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M')"
+          for versuch in 1 2 3 4; do
+            git pull --rebase --quiet origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((versuch * 5))
+          done
+          echo "Speichern fehlgeschlagen." >&2
+          exit 1

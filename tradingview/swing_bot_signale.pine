@@ -1,0 +1,168 @@
+// Swing-Bot Signale – TradingView-Indikator zum Python-Bot swing_scanner.py
+// Zeigt im Tageschart die Kauf- (▲) und Short-Signale (▼) der 16 Strategien des Bots mit Limit, Stop und Ziel,
+// dazu den Marktfilter (Nasdaq-100 über/unter seiner 200-Tage-Linie, roter Hintergrund = Abwärtsmarkt).
+//
+// Einfügen: TradingView → unten „Pine-Editor“ → alles ersetzen durch diesen Text → „Zum Chart hinzufügen“.
+// Nur für den Tageschart (1D) gedacht. Signale gelten zum Schlusskurs, Einstieg am nächsten Handelstag nur bis
+// zum Limit – wie im Bot. Unten rechts am Chart „ADJ“ einschalten (Kurse für Dividenden bereinigen): Der Bot rechnet
+// wie Yahoo mit dividendenbereinigten Kursen, sonst weichen die Signale bei Dividendenwerten oft ab. Ist ADJ aus,
+// zeigt die Infotafel oben rechts einen roten Hinweis.
+//
+// Was der Indikator NICHT kann (das macht nur der Bot): die Lernregel über alle Aktien deiner Watchlist, die
+// Quartalszahlen-Regel und die Schlagzeilen. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind,
+// kannst du unten in den Einstellungen abschalten. In den ersten Monaten eines Charts können Signale durch andere
+// Startwerte der Indikatoren abweichen – maßgeblich ist der Bericht des Bots.
+//
+//@version=5
+indicator("Swing-Bot Signale", shorttitle="Swing-Bot", overlay=true, max_labels_count=500, max_lines_count=60)
+
+// ---------- Einstellungen ----------
+grpA = "Allgemein"
+mitShort = input.bool(true, "Short-Signale zeigen", group=grpA)
+marktfilter = input.bool(true, "Marktfilter: Long nur über, Short nur unter der 200-Tage-Linie", group=grpA)
+marktSymbol = input.symbol("NASDAQ:QQQ", "Marktbarometer", group=grpA)
+zeigeLinien = input.bool(true, "Limit, Stop und Ziel des letzten Signals zeichnen", group=grpA)
+
+grpS = "Strategien (im Bericht „aus“ oder „pausiert“? Hier abschalten)"
+s01 = input.bool(true, "Ausbruch ↑", group=grpS, inline="a")
+s02 = input.bool(true, "Abbruch ↓", group=grpS, inline="a")
+s03 = input.bool(true, "RSI-2-Rücksetzer ↑", group=grpS, inline="b")
+s04 = input.bool(true, "RSI-2-Übertreibung ↓", group=grpS, inline="b")
+s05 = input.bool(true, "Gegenbewegung ↑", group=grpS, inline="c")
+s06 = input.bool(true, "Rückfall ↓", group=grpS, inline="c")
+s07 = input.bool(true, "MACD-Wende ↑", group=grpS, inline="d")
+s08 = input.bool(true, "MACD-Wende ↓", group=grpS, inline="d")
+s09 = input.bool(true, "Rücksetzer ↑", group=grpS, inline="e")
+s10 = input.bool(true, "Erholung ↓", group=grpS, inline="e")
+s11 = input.bool(true, "Squeeze-Ausbruch ↑", group=grpS, inline="f")
+s12 = input.bool(true, "Squeeze-Abbruch ↓", group=grpS, inline="f")
+s13 = input.bool(true, "EMA-Kreuz ↑", group=grpS, inline="g")
+s14 = input.bool(true, "EMA-Kreuz ↓", group=grpS, inline="g")
+s15 = input.bool(true, "ATR-Ausbruch ↑", group=grpS, inline="h")
+s16 = input.bool(true, "ATR-Abbruch ↓", group=grpS, inline="h")
+
+// ---------- Indikatoren (wie im Bot) ----------
+c = close
+rsi14 = ta.rsi(c, 14)
+rsi2 = ta.rsi(c, 2)
+ema20 = ta.ema(c, 20)
+sma50 = ta.sma(c, 50)
+sma200 = ta.sma(c, 200)
+basis = ta.sma(c, 20)
+abw = ta.stdev(c, 20, false)
+oben = basis + 2 * abw
+unten = basis - 2 * abw
+atr = ta.atr(14)
+[macdLinie, signalLinie, macdHisto] = ta.macd(c, 12, 26, 9)
+hoch20 = ta.highest(high, 20)[1]
+tief20 = ta.lowest(low, 20)[1]
+volumen20 = ta.sma(volume, 20)[1]
+vielVolumen = volume > 0 and volumen20 > 0 and volume > 1.5 * volumen20
+kreuztHoch = macdLinie > signalLinie and macdLinie[1] <= signalLinie[1]
+kreuztRunter = macdLinie < signalLinie and macdLinie[1] >= signalLinie[1]
+ueberverkauft = rsi14 < 32 or c <= unten
+ueberhitzt = rsi14 > 70 or c >= oben
+ema9 = ta.ema(c, 9)
+ema21 = ta.ema(c, 21)
+breite = (oben - unten) / basis
+eng = breite <= ta.percentile_linear_interpolation(breite, 120, 15)
+squeezeVorher = ta.highest(eng ? 1 : 0, 5)[1] == 1
+keltnerOben = ema20 + 2 * atr
+keltnerUnten = ema20 - 2 * atr
+
+// ---------- Marktfilter: Lage des Nasdaq-100 am letzten Börsentag davor ----------
+// Wie im Bot mit dividendenbereinigten Kursen – unabhängig von der ADJ-Einstellung des Charts
+marktLageBerechnen() =>
+    linie = ta.sma(close, 200)
+    na(linie) ? na : close > linie ? 1.0 : 0.0
+marktHeute = request.security(ticker.modify(marktSymbol, session.regular, adjustment.dividends), "D", marktLageBerechnen())
+marktLage = marktHeute[1]
+langErlaubt = not marktfilter or na(marktLage) or marktLage == 1
+shortErlaubt = mitShort and (not marktfilter or na(marktLage) or marktLage == 0)
+
+// Gültig nur mit ATR, Stop/Ziel über 0 und auf der richtigen Seite, ab 50 Kerzen
+gueltig(bool bedingung, float st, float zi, int r) =>
+    bedingung and not na(atr) and st > 0 and zi > 0 and r * (c - st) > 0 and r * (zi - c) > 0 and bar_index >= 49
+
+// ---------- Die 16 Strategien (Reihenfolge = Vorrang) ----------
+f01 = langErlaubt and gueltig(c > hoch20 and vielVolumen and c > sma50, c - 2 * atr, c + 4 * atr, 1)
+f02 = shortErlaubt and gueltig(c < tief20 and vielVolumen and c < sma50, c + 2 * atr, c - 4 * atr, -1)
+f03 = langErlaubt and gueltig(rsi2 < 10 and c > sma200, c - 2 * atr, c + 2 * atr, 1)
+f04 = shortErlaubt and gueltig(rsi2 > 90 and c < sma200, c + 2 * atr, c - 2 * atr, -1)
+f05 = langErlaubt and gueltig(ueberverkauft and c > sma200 and ema20 - c >= 1.2 * atr, c - 1.2 * atr, ema20, 1)
+f06 = shortErlaubt and gueltig(ueberhitzt and c < sma200 and c - ema20 >= 1.2 * atr, c + 1.2 * atr, ema20, -1)
+f07 = langErlaubt and gueltig(kreuztHoch and c > sma50, c - 1.5 * atr, c + 3 * atr, 1)
+f08 = shortErlaubt and gueltig(kreuztRunter and c < sma50, c + 1.5 * atr, c - 3 * atr, -1)
+f09 = langErlaubt and gueltig(c > ema20 and c - ema20 <= 0.5 * atr and rsi14 < 60 and c > sma50, c - 1.5 * atr, c + 3 * atr, 1)
+f10 = shortErlaubt and gueltig(c < ema20 and ema20 - c <= 0.5 * atr and rsi14 > 40 and c < sma50, c + 1.5 * atr, c - 3 * atr, -1)
+f11 = langErlaubt and gueltig(squeezeVorher and c > oben and c[1] <= oben[1] and c > sma50, c - 2 * atr, c + 4 * atr, 1)
+f12 = shortErlaubt and gueltig(squeezeVorher and c < unten and c[1] >= unten[1] and c < sma50, c + 2 * atr, c - 4 * atr, -1)
+f13 = langErlaubt and gueltig(ema9 > ema21 and ema9[1] <= ema21[1] and c > sma50, c - 2 * atr, c + 4 * atr, 1)
+f14 = shortErlaubt and gueltig(ema9 < ema21 and ema9[1] >= ema21[1] and c < sma50, c + 2 * atr, c - 4 * atr, -1)
+f15 = langErlaubt and gueltig(c > keltnerOben and c[1] <= keltnerOben[1] and c > sma50, c - 2 * atr, c + 4 * atr, 1)
+f16 = shortErlaubt and gueltig(c < keltnerUnten and c[1] >= keltnerUnten[1] and c < sma50, c + 2 * atr, c - 4 * atr, -1)
+
+namen = array.from("Ausbruch ↑", "Abbruch ↓", "RSI-2-Rücksetzer ↑", "RSI-2-Übertreibung ↓", "Gegenbewegung ↑", "Rückfall ↓", "MACD-Wende ↑", "MACD-Wende ↓", "Rücksetzer ↑", "Erholung ↓", "Squeeze-Ausbruch ↑", "Squeeze-Abbruch ↓", "EMA-Kreuz ↑", "EMA-Kreuz ↓", "ATR-Ausbruch ↑", "ATR-Abbruch ↓")
+richtungen = array.from(1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1)
+feuert = array.from(f01, f02, f03, f04, f05, f06, f07, f08, f09, f10, f11, f12, f13, f14, f15, f16)
+aktiv = array.from(s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s15, s16)
+stops = array.from(c - 2 * atr, c + 2 * atr, c - 2 * atr, c + 2 * atr, c - 1.2 * atr, c + 1.2 * atr, c - 1.5 * atr, c + 1.5 * atr, c - 1.5 * atr, c + 1.5 * atr, c - 2 * atr, c + 2 * atr, c - 2 * atr, c + 2 * atr, c - 2 * atr, c + 2 * atr)
+ziele = array.from(c + 4 * atr, c - 4 * atr, c + 2 * atr, c - 2 * atr, ema20, ema20, c + 3 * atr, c - 3 * atr, c + 3 * atr, c - 3 * atr, c + 4 * atr, c - 4 * atr, c + 4 * atr, c - 4 * atr, c + 4 * atr, c - 4 * atr)
+
+// Feuern Long und Short zugleich, wartet der Bot (wie im Python-Skript, vor dem Abschalten einzelner Strategien)
+irgendLong = f01 or f03 or f05 or f07 or f09 or f11 or f13 or f15
+irgendShort = f02 or f04 or f06 or f08 or f10 or f12 or f14 or f16
+konflikt = irgendLong and irgendShort
+
+wahl = -1
+if not konflikt
+    for i = 0 to 15
+        if array.get(feuert, i) and array.get(aktiv, i)
+            wahl := i
+            break
+
+richtung = wahl >= 0 ? array.get(richtungen, wahl) : 0
+stop = wahl >= 0 ? array.get(stops, wahl) : na
+ziel = wahl >= 0 ? array.get(ziele, wahl) : na
+mitte = (stop + ziel) / 2
+limit = richtung > 0 ? math.min(c + 0.5 * atr, mitte) : richtung < 0 ? math.max(c - 0.5 * atr, mitte) : na
+kaufSignal = richtung > 0 and barstate.isconfirmed
+shortSignal = richtung < 0 and barstate.isconfirmed
+
+// ---------- Anzeige ----------
+bgcolor(marktfilter and marktLage == 0 ? color.new(color.red, 92) : na, title="Abwärtsmarkt (Marktfilter)")
+plotshape(richtung > 0, title="KAUFEN", style=shape.triangleup, location=location.belowbar, color=color.new(color.green, 0), size=size.small)
+plotshape(richtung < 0, title="SHORT", style=shape.triangledown, location=location.abovebar, color=color.new(color.red, 0), size=size.small)
+
+var line limitLinie = na
+var line stopLinie = na
+var line zielLinie = na
+if richtung != 0
+    texte = (richtung > 0 ? "KAUFEN · " : "SHORT · ") + array.get(namen, wahl) + "\nLimit " + str.tostring(limit, format.mintick) + "\nStop " + str.tostring(stop, format.mintick) + "\nZiel " + str.tostring(ziel, format.mintick)
+    label.new(bar_index, richtung > 0 ? low : high, texte, style=richtung > 0 ? label.style_label_up : label.style_label_down, color=richtung > 0 ? color.new(color.green, 15) : color.new(color.red, 15), textcolor=color.white, size=size.small)
+    if zeigeLinien
+        line.delete(limitLinie)
+        line.delete(stopLinie)
+        line.delete(zielLinie)
+        limitLinie := line.new(bar_index, limit, bar_index + 20, limit, color=color.blue, style=line.style_dotted, width=1)
+        stopLinie := line.new(bar_index, stop, bar_index + 20, stop, color=color.red, style=line.style_dashed, width=2)
+        zielLinie := line.new(bar_index, ziel, bar_index + 20, ziel, color=color.green, style=line.style_dashed, width=2)
+
+// Ist der Chart nicht für Dividenden bereinigt, liegen ältere Kurse höher als beim Bot (Yahoo bereinigt sie)
+bereinigt = request.security(ticker.modify(syminfo.tickerid, syminfo.session, adjustment.dividends), timeframe.period, close)
+var bool unbereinigt = false
+if not na(bereinigt) and math.abs(bereinigt - c) > 0.0005 * c
+    unbereinigt := true
+
+// Infotafel oben rechts: Marktlage, Hinweis auf den Tageschart und auf ADJ
+var table tafel = table.new(position.top_right, 1, 3, bgcolor=color.new(color.gray, 85), border_width=1)
+if barstate.islast
+    marktText = not marktfilter ? "Marktfilter aus" : na(marktLage) ? "Marktlage unbekannt" : marktLage == 1 ? "Nasdaq-100 über 200-Tage-Linie: nur Long" : "Nasdaq-100 unter 200-Tage-Linie: " + (mitShort ? "nur Short" : "kein Trade")
+    table.cell(tafel, 0, 0, "Swing-Bot · " + marktText, text_color=chart.fg_color, text_size=size.small)
+    table.cell(tafel, 0, 1, timeframe.isdaily ? "Signale zum Tagesschluss" : "Bitte Tageschart (1D) wählen", text_color=timeframe.isdaily ? chart.fg_color : color.red, text_size=size.small)
+    if unbereinigt
+        table.cell(tafel, 0, 2, "Unten rechts „ADJ“ einschalten (Dividenden bereinigen) – sonst weichen Signale vom Bot ab", text_color=color.red, text_size=size.small)
+
+// Alarme (Benachrichtigung aufs Handy): Rechtsklick im Chart → „Alarm hinzufügen“ → Bedingung „Swing-Bot“
+alertcondition(kaufSignal, title="Swing-Bot: KAUFEN-Signal", message="Swing-Bot: KAUFEN-Signal bei {{ticker}} (Schluss {{close}})")
+alertcondition(shortSignal, title="Swing-Bot: SHORT-Signal", message="Swing-Bot: SHORT-Signal bei {{ticker}} (Schluss {{close}})")
