@@ -75,15 +75,22 @@ Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später u
 
 ### TradingView: Signale direkt im Chart
 
-Die Datei [`tradingview/swing_bot_signale.pine`](tradingview/swing_bot_signale.pine) ist ein Indikator für TradingView (auch im kostenlosen Tarif). Er zeigt im Tageschart jeder Aktie die Signale der 16 Strategien: ▲ grün = KAUFEN, ▼ rot = SHORT, dazu ein Schild mit Strategie, Limit, Stop und Ziel sowie Linien für das letzte Signal. Roter Hintergrund = Abwärtsmarkt (Nasdaq-100 unter seiner 200-Tage-Linie).
+Die Datei [`tradingview/swing_bot_signale.pine`](tradingview/swing_bot_signale.pine) ist ein Indikator für TradingView (auch im kostenlosen Tarif). Er zeigt im Tageschart jeder Aktie, was der Bot kaufen würde und was nicht – zum Vergleich mit deinen eigenen Linien und Indikatoren:
+
+- **▲ grün = KAUFEN, ▼ rot = SHORT** mit Namen der Strategie; Maus darüber (am Handy antippen) zeigt Limit, Stop, Ziel und CRV.
+- **Jeder Trade wie mit dem Positions-Werkzeug von TradingView:** grüne Zielzone, rote Stop-Zone, graue Einstiegslinie vom Einstieg bis zum Ausstieg, dort das Ergebnis (✅ Ziel, ❌ Stop, ⏱ Zeitstopp nach 20 Tagen) in R – 1 R ist der geplante Verlust bis zum Stop, also bei 1 % Risiko und 10.000 € rund 100 €. Gerechnet wird wie im Papier-Depot des Bots: Einstieg am nächsten Handelstag zur Eröffnung nur bis zum Limit, Stop vor Ziel, nach Spread und Gebühren.
+- **Grau = der Bot handelt nicht**, mit Grund beim Antippen: ⏸ Marktfilter, Long- und Short-Signal zugleich oder Strategie ausgeschaltet; ✕ Auftrag verfallen, weil die Eröffnung über dem Limit lag.
+- **Auftrag für den nächsten Handelstag:** gestrichelte Linien rechts neben der letzten Kerze (Kauf-Limit, Stop, Ziel).
+- **Infotafel oben rechts:** heutige Entscheidung wie in der Tabelle des Bots (KAUFEN, SHORT, WARTEN mit Grund, GEWINNE SICHERN oder BEOBACHTEN), offene Position mit Tag x/20, Marktlage und die Bilanz der Trades im Chart (Anzahl, Trefferquote, Summe in R und ≈ €).
+- Roter Hintergrund = Abwärtsmarkt (Nasdaq-100 unter seiner 200-Tage-Linie). Auf Wunsch zeichnet er auch EMA 20, SMA 50 und SMA 200, die der Bot benutzt.
 
 1. Die Datei auf GitHub öffnen und mit dem Kopieren-Knopf („Copy raw file“) kopieren.
 2. Bei TradingView einen Chart öffnen, unten **Pine-Editor** anklicken, den Inhalt komplett ersetzen und **Zum Chart hinzufügen** klicken (danach **Speichern**, dann findest du ihn unter „Indikatoren → Meine Skripte“ für jeden Chart).
 3. Tageschart (**1D**) wählen und unten rechts am Chart **ADJ** einschalten (Kurse für Dividenden bereinigen). Der Bot rechnet wie Yahoo mit dividendenbereinigten Kursen – ohne ADJ weichen die Signale bei Dividendenwerten wie XOM, JPM oder COST oft ab; der Indikator zeigt dann oben rechts einen roten Hinweis. Signale gelten zum Tagesschluss – wie beim Bot: Einstieg am nächsten Handelstag nur bis zum Limit.
-4. Zahnrad am Indikator: Short-Signale, Marktfilter und jede Strategie einzeln an/aus. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind, hier abschalten.
+4. Zahnrad am Indikator: Short-Signale, Marktfilter, Trades, graue Signale, Infotafel, Konto, Risiko und jede Strategie einzeln an/aus. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind, hier abschalten. Wird es dir am Handy zu voll: graue Signale oder Infotafel ausschalten.
 5. Benachrichtigung aufs Handy: Rechtsklick im Chart → **Alarm hinzufügen** → Bedingung „Swing-Bot“ → „Swing-Bot: KAUFEN-Signal“ oder „SHORT-Signal“ → „Einmal pro Balkenschluss“.
 
-Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Quartalszahlen-Regel, Schlagzeilen und die Grenzen für Positionen und Risiko gibt es nur im Bot. Kurse stehen in der Währung des Charts (meist $), nicht in €. In den ersten Monaten eines Charts können Signale durch andere Startwerte der Indikatoren abweichen – maßgeblich ist der Bericht des Bots. TradingView handelt damit nicht automatisch; der Bot handelt nur virtuell.
+Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Quartalszahlen-Regel, Schlagzeilen und die Grenzen für Positionen und Risiko gibt es nur im Bot. Die Trades im Chart sind deshalb die eines Depots, das nur diese eine Aktie handelt – ihre Bilanz ist ein Vergleich, keine Vorhersage. Kurse stehen in der Währung des Charts (meist $), nicht in €. In den ersten Monaten eines Charts können Signale durch andere Startwerte der Indikatoren abweichen – maßgeblich ist der Bericht des Bots. TradingView handelt damit nicht automatisch; der Bot handelt nur virtuell.
 
 ### Was das Skript zeigt
 
