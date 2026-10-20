@@ -5,8 +5,10 @@ prüfen, jede Strategie im Tagebuch gedanklich mithandeln lassen ("lernen"), dar
 und ein virtuelles Depot über die letzten Monate berechnen. Es werden keine echten Orders gesendet.
 """
 import argparse
+import contextlib
 import datetime as dt
 import html
+import io
 import json
 import logging
 import math
@@ -198,17 +200,17 @@ SPALTEN = ["Ticker", "Signal", "Strategie", "Kurs", "Limit", "Stop", "Ziel", "CR
 # Einstellungen
 # ----------------------------------------------------------------------------
 def zahl(text):
-    """Erlaubt auch ein deutsches Komma, z. B. --risiko 1,5"""
+    """Erlaubt auch ein deutsches Komma und Einheiten, z. B. --risiko 1,5 oder 1 %"""
     try:
-        return float(str(text).replace(",", "."))
+        return float(re.sub(r"[\s€%]", "", str(text)).replace(",", "."))
     except ValueError:
         raise argparse.ArgumentTypeError(f"'{text}' ist keine Zahl")
 
 def betrag(text):
     """Kontogröße; erlaubt auch Tausenderpunkte, z. B. --konto 10.000"""
-    s = str(text).strip()
-    if re.fullmatch(r"\d{1,3}([.,]\d{3})+", s):
-        s = re.sub(r"[.,]", "", s)
+    s = re.sub(r"[€%]", "", str(text)).strip()
+    if re.fullmatch(r"\d{1,3}([.,\s]\d{3})+", s):
+        s = re.sub(r"[.,\s]", "", s)
     return zahl(s)
 
 def ticker_aus_text(text):
@@ -246,6 +248,8 @@ def lies_einstellungen():
     einst, unbekannt = p.parse_known_args()
     if unbekannt:
         print(f"Hinweis: unbekannte Angaben ignoriert: {' '.join(unbekannt)}")
+        BERICHT_HINWEISE.append(f"Nicht verstanden und ignoriert: {' '.join(unbekannt)} – Schreibweise prüfen"
+                                + (" (Variable OPTIONEN)" if os.environ.get("GITHUB_ACTIONS") else "") + ".")
     if not (0 < einst.konto < math.inf and 0 < einst.risiko < math.inf):
         p.error("--konto und --risiko müssen Zahlen größer als 0 sein")
     if not 0 <= einst.gebuehr < math.inf:
@@ -1486,17 +1490,24 @@ def tabelle_als_html(tabelle, formate, zellfarben=None, links=2, umbruch=()):
 
 # --- Bericht als Markdown-Datei (z. B. für GitHub, wo der Bot automatisch läuft) -----------------------
 BERICHT = []  # Abschnitte des laufenden Laufs
+BERICHT_HINWEISE = []  # Hinweise für den Kopf des Berichts (z. B. ignorierte Angaben)
+BERICHT_STATUS = {}  # z. B. "papier", "verbindung", "einstellungen" (Fehlertext)
 TV_BOERSEN = {"DE": "XETR", "F": "FWB", "SG": "SWB", "MU": "MUN", "BE": "BER", "DU": "DUS", "HM": "HAM", "HA": "HAN",
               "PA": "EURONEXT", "AS": "EURONEXT", "BR": "EURONEXT", "LS": "EURONEXT", "IR": "EURONEXT", "MI": "MIL",
               "MC": "BME", "VI": "VIE", "HE": "OMXHEX"}
 
 def tradingview_link(ticker):
-    """Link zum Chart bei TradingView (Yahoo-Kürzel umgesetzt, z. B. SAP.DE -> XETR:SAP, BTC-EUR -> BTCEUR)."""
+    """Link zum Chart bei TradingView (Yahoo-Kürzel umgesetzt, z. B. SAP.DE -> XETR:SAP, BTC-EUR -> BTCEUR);
+    None für Kürzel, die TradingView so nicht kennt (Indizes wie ^GSPC, Börsen außerhalb der Liste)."""
+    if ticker.startswith("^"):
+        return None
     if re.fullmatch(r".+-[A-Z]{3}", ticker):
         symbol = ticker.replace("-", "")
     elif "." in ticker:
         name, boerse = ticker.rsplit(".", 1)
-        symbol = f"{TV_BOERSEN.get(boerse, boerse)}:{name}"
+        if boerse not in TV_BOERSEN:
+            return None
+        symbol = f"{TV_BOERSEN[boerse]}:{name}"
     else:
         symbol = ticker.replace("-", ".")
     return f"https://www.tradingview.com/chart/?symbol={urllib.parse.quote(symbol)}"
@@ -1514,36 +1525,56 @@ def md_tabelle(tabelle, formate, links=False):
                 text = "–"
             else:
                 text = formate[s](wert) if s in formate else str(wert)
-            if links and s == "Ticker" and text not in ("", "–"):
+            if links and s == "Ticker" and text not in ("", "–") and tradingview_link(text):
                 text = f"[{text}]({tradingview_link(text)})"
             zellen.append(text.replace("|", "\\|").replace("\n", " "))
         zeilen.append("| " + " | ".join(zellen) + " |")
     return "\n".join(zeilen)
 
+def md_text(text):
+    """Freitext für Markdown: Zeichen entschärfen, die GitHub sonst als Formatierung oder HTML liest."""
+    return re.sub(r"([\\`*_\[\]<>])", r"\\\1", str(text))
+
 def berichte(titel, zeilen=(), tabelle=None, formate=None, links=False, nachher=()):
     """Einen Abschnitt für den Markdown-Bericht merken (zwei Leerzeichen am Zeilenende = Zeilenumbruch)."""
-    teil = [f"## {titel}", ""] + [f"{z}  " for z in zeilen if z]
+    teil = [f"## {md_text(titel)}", ""] + [f"{md_text(z)}  " for z in zeilen if z]
     if tabelle is not None and len(tabelle):
         teil += ["", md_tabelle(tabelle, formate or {}, links), ""]
-    teil += [f"{z}  " for z in nachher if z]
+    teil += [f"{md_text(z)}  " for z in nachher if z]
     BERICHT.append("\n".join(teil))
 
 def schreibe_bericht(datei, ok, absturz=False):
+    """Schreibt den Markdown-Bericht. Gibt zurück, ob das geklappt hat."""
     jetzt = pd.Timestamp.now(tz=BERLIN)
-    art = "automatischer Lauf bei GitHub" if os.environ.get("GITHUB_ACTIONS") else "Lauf von Hand"
+    github = bool(os.environ.get("GITHUB_ACTIONS"))
+    art = "automatischer Lauf bei GitHub" if github else "Lauf von Hand"
+    papier = " Das Papier-Depot bleibt auf dem zuletzt gespeicherten Stand." if BERICHT_STATUS.get("papier") else ""
     kopf = ["# 📈 Swing-Bot – Bericht", "",
             f"Stand: {WOCHENTAGE[jetzt.weekday()]} {jetzt:%d.%m.%Y %H:%M} Uhr ({art}). Ticker anklicken öffnet den "
             f"Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.", ""]
-    if absturz:
-        kopf += ["> ❌ Dieser Lauf ist mit einem Fehler abgebrochen (Details bei GitHub im Tab „Actions“). "
-                 "Das Papier-Depot bleibt auf dem zuletzt gespeicherten Stand.", ""]
+    if "einstellungen" in BERICHT_STATUS:
+        kopf += [f"> ❌ Einstellungen fehlerhaft – der Bot ist nicht gelaufen: {md_text(BERICHT_STATUS['einstellungen'])}. "
+                 + ("Variablen KONTO, RISIKO, TICKER und OPTIONEN prüfen (Settings → Secrets and variables → Actions)."
+                    if github else "Angaben beim Start prüfen."), ""]
+    elif absturz:
+        kopf += ["> ❌ Dieser Lauf wurde abgebrochen"
+                 + (" (Details bei GitHub im Tab „Actions“)." if github else " (Details in der Ausgabe).") + papier, ""]
+    elif not ok and BERICHT_STATUS.get("verbindung", True):
+        kopf += ["> ❌ Dieser Lauf hat keine auswertbaren Kurse bekommen (Yahoo nicht erreichbar oder Yahoo-Limit)."
+                 + (papier and " Das Papier-Depot ist unverändert, der nächste Lauf holt alles nach."), ""]
     elif not ok:
-        kopf += ["> ❌ Dieser Lauf hat keine auswertbaren Kurse bekommen (Yahoo nicht erreichbar oder Yahoo-Limit). "
-                 "Das Papier-Depot ist unverändert, der nächste Lauf holt alles nach.", ""]
-    ordner = os.path.dirname(os.path.abspath(datei))
-    os.makedirs(ordner, exist_ok=True)
-    with open(datei, "w", encoding="utf-8") as f:
-        f.write("\n".join(kopf) + "\n" + "\n\n".join(BERICHT) + "\n")
+        kopf += ["> ❌ Für keinen Ticker gab es auswertbare Kurse – Gründe unten. Ticker prüfen"
+                 + (" (Variable TICKER)." if github else ".") + papier, ""]
+    kopf += [x for h in BERICHT_HINWEISE for x in (f"> ⚠️ {md_text(h)}", "")]
+    try:
+        ordner = os.path.dirname(os.path.abspath(datei))
+        os.makedirs(ordner, exist_ok=True)
+        with open(datei, "w", encoding="utf-8") as f:
+            f.write("\n".join(kopf) + "\n" + "\n\n".join(BERICHT) + "\n")
+    except OSError as fehler:
+        print(f"❌ Bericht nicht gespeichert ({fehler}).")
+        return False
+    return True
 
 def zeige(html_teil, text_teil):
     """Im Notebook als HTML mit Textfassung (Spyder, qtconsole, jupyter console zeigen die Textfassung)."""
@@ -1826,7 +1857,8 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
         anzeige = len(erg["offen"]) + MAX_TRADES_ANZEIGE
         weggelassen = max(len(tabelle) - anzeige, 0)
         tabelle = tabelle.iloc[:anzeige]
-    hinweis = (f"… {weggelassen} ältere Trades nicht angezeigt – alle Trades speichert --csv in einer eigenen Datei."
+    hinweis = ((f"… {weggelassen} ältere Trades nicht angezeigt." if os.environ.get("GITHUB_ACTIONS") else
+                f"… {weggelassen} ältere Trades nicht angezeigt – alle Trades speichert --csv in einer eigenen Datei.")
                if weggelassen else "")
     dollar_shorts = waehrung == "€" and any(p["richtung"] < 0 and waehrung_von(p["ticker"]) == "USD"
                                            for p in erg["trades"] + erg["offen"])
@@ -2148,8 +2180,11 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                       "Ordner).")
     if bericht["neu"] and erg is not None:
         zeilen.append(f"Neu angelegt mit {de(stand['startkapital'], 0)} {waehrung}. Ab jetzt handelt der Bot hier "
-                      f"vorwärts nach seinen Regeln – jede Entscheidung nur mit Kursen, die es da schon gab. Starte "
-                      f"ihn jeden Börsentag einmal (am besten abends nach 22:15 Uhr); verpasste Tage holt er nach.")
+                      f"vorwärts nach seinen Regeln – jede Entscheidung nur mit Kursen, die es da schon gab. "
+                      + ("GitHub startet ihn jeden Börsentag automatisch; verpasste Tage holt er nach."
+                         if os.environ.get("GITHUB_ACTIONS") else
+                         "Starte ihn jeden Börsentag einmal (am besten abends nach 22:15 Uhr); verpasste Tage holt er "
+                         "nach."))
     wert = stand["depotwert"]
     rendite = (wert / stand["startkapital"] - 1) * 100
     offen = erg["positionen"] if erg is not None else stand["positionen"]
@@ -2317,8 +2352,11 @@ def auswerten(einst):
     if FX_TICKER in einst.ticker_liste:
         einst.ticker_liste.remove(FX_TICKER)
         print(f"Hinweis: {FX_TICKER} ist der Euro-Wechselkurs und wird nur zum Umrechnen genutzt.")
+        BERICHT_HINWEISE.append(f"{FX_TICKER} ist der Euro-Wechselkurs und wird nur zum Umrechnen genutzt.")
     if not einst.ticker_liste:
         print("Keine Ticker angegeben.")
+        BERICHT_STATUS["verbindung"] = False
+        berichte("❌ KEINE TICKER", ["Keine Ticker angegeben."])
         return None
 
     papier_datei = papier_stand = papier_fehler = None
@@ -2362,10 +2400,14 @@ def auswerten(einst):
             g in (YAHOO_LIMIT, KEINE_VERBINDUNG) for g in gruende.values())
         print("\n❌ Für keinen Ticker gibt es auswertbare Kurse"
               + (" – meist keine Verbindung zu Yahoo oder Yahoo-Limit erreicht." if verbindung else ":"))
-        for t in einst.ticker_liste:
-            print(f"❌ {t}: {gruende.get(t, 'Währung nicht unterstützt – nur US- und Euro-Börsen')}")
+        fehlerliste = [f"❌ {t}: {gruende.get(t, 'Währung nicht unterstützt – nur US- und Euro-Börsen')}"
+                       for t in einst.ticker_liste]
+        for z in fehlerliste:
+            print(z)
         if verbindung:
             print("Internetverbindung prüfen oder in 1–2 Minuten erneut starten.")
+        BERICHT_STATUS["verbindung"] = verbindung
+        berichte("❌ KEINE AUSWERTBAREN KURSE", fehlerliste)
         return None
 
     # Strategie-Tagebuch und Lernstand (nur abgeschlossene Kerzen)
@@ -2384,8 +2426,11 @@ def auswerten(einst):
         else:
             zeilen.append(fehler_zeile(t, gruende.get(t, "keine Kursdaten")))
     if not any("_stand" in z for z in zeilen):
-        for z in zeilen:
-            print(f"❌ {z['Ticker']}: {z.get('_fehler', '')}")
+        fehlerliste = [f"❌ {z['Ticker']}: {z.get('_fehler', '')}" for z in zeilen]
+        for z in fehlerliste:
+            print(z)
+        BERICHT_STATUS["verbindung"] = False
+        berichte("❌ KEINE AUSWERTBAREN KURSE", fehlerliste)
         return None
 
     # Schlagzeilen nur für Ticker mit Signal (sie beeinflussen nur die Anzeige)
@@ -2481,20 +2526,43 @@ def auswerten(einst):
     return {"scanner": tabelle, "depot": depot, "depot_ohne_lernen": ohne, "tagebuch": tagebuch, "lernstand": stand,
             "papier": papier}
 
+def bericht_datei_aus(argv):
+    """--bericht DATEI aus der Befehlszeile – auch wenn eine andere Angabe fehlerhaft ist."""
+    for i, a in enumerate(argv):
+        if a == "--bericht" and i + 1 < len(argv):
+            return argv[i + 1]
+        if a.startswith("--bericht="):
+            return a.split("=", 1)[1]
+    return None
+
 def main():
     try:
         sys.stdout.reconfigure(errors="replace")  # Emojis -> '?' statt Absturz, wenn Windows in eine Datei umleitet
     except Exception:
         pass
-    einst = lies_einstellungen()
     BERICHT.clear()
+    BERICHT_HINWEISE.clear()
+    BERICHT_STATUS.clear()
+    fehlertext = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(fehlertext):
+            einst = lies_einstellungen()
+    except SystemExit as ende:
+        sys.stderr.write(fehlertext.getvalue())
+        datei = bericht_datei_aus(sys.argv[1:])
+        if ende.code not in (0, None) and datei:
+            meldung = fehlertext.getvalue().strip().splitlines()
+            BERICHT_STATUS["einstellungen"] = re.sub(r"^.*?error: ", "", meldung[-1]) if meldung else "unbekannt"
+            schreibe_bericht(datei, False)
+        raise
+    sys.stderr.write(fehlertext.getvalue())
+    BERICHT_STATUS["papier"] = bool(einst.papier)
     ergebnis, absturz = None, True
     try:
         ergebnis = auswerten(einst)
         absturz = False
     finally:
-        if einst.bericht:
-            schreibe_bericht(einst.bericht, ergebnis is not None, absturz)
+        if einst.bericht and schreibe_bericht(einst.bericht, ergebnis is not None, absturz):
             print(f"\n📝 Bericht gespeichert: {einst.bericht}")
     return ergebnis
 

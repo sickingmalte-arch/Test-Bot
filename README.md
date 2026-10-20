@@ -31,17 +31,17 @@ Neue Zelle anlegen, einfügen und mit Umschalt + Enter ausführen:
 
 ```
 !pip install -q -U yfinance
-!wget -q -O swing_scanner.py https://raw.githubusercontent.com/sickingmalte-arch/Test-Bot/claude/new-session-hbq1tg/swing_scanner.py
+!curl -fsSL -o swing_scanner.py https://raw.githubusercontent.com/sickingmalte-arch/Test-Bot/main/swing_scanner.py
 %run swing_scanner.py --konto 10000 --risiko 1
 ```
 
-Mit `%run` erscheinen farbige Tabellen und ein Diagramm; mit `!python swing_scanner.py` die Textversion.
+Mit `%run` erscheinen farbige Tabellen und ein Diagramm; mit `!python swing_scanner.py` die Textversion. Das Skript kommt aus dem Hauptzweig `main` – steht in einem älteren Notebook noch `claude/new-session-hbq1tg` in der Adresse, dort durch `main` ersetzen.
 
 Mit Papier-Depot (Vorwärtstest mit virtuellem Geld, Stand in deinem Google Drive) – Colab fragt beim ersten Mal nach der Erlaubnis für Drive. Am besten jeden Börsentag einmal abends nach 22:15 Uhr starten (dann ist der US-Handelstag fertig; mit Krypto auf der Liste zählt ein Tag erst nach 2:00 Uhr). `--papier-neu` nur einmal zum Neuanfangen anhängen und danach wieder weglassen:
 
 ```
 !pip install -q -U yfinance
-!wget -q -O swing_scanner.py https://raw.githubusercontent.com/sickingmalte-arch/Test-Bot/claude/new-session-hbq1tg/swing_scanner.py
+!curl -fsSL -o swing_scanner.py https://raw.githubusercontent.com/sickingmalte-arch/Test-Bot/main/swing_scanner.py
 %run swing_scanner.py --konto 10000 --risiko 1 --papier
 ```
 
@@ -54,43 +54,45 @@ python swing_scanner.py
 
 ### Automatisch jeden Abend (GitHub Actions – ohne PC, ohne Colab)
 
-Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot jeden Börsentag (Mo–Fr) um 22:30 Uhr UTC – also 0:30 Uhr deutscher Sommerzeit bzw. 23:30 Uhr Winterzeit, nach US-Börsenschluss – kostenlos in der Cloud bei GitHub. Du musst keine Seite offen lassen und nichts neu laden.
+Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach jedem US-Börsentag kostenlos in der Cloud bei GitHub: um 22:30 Uhr UTC, also 0:30 Uhr deutscher Sommerzeit (dann Di–Sa) bzw. 23:30 Uhr Winterzeit (Mo–Fr). Du musst keine Seite offen lassen und nichts neu laden. Einrichten und Einstellungen gehen nur im Browser (am Handy notfalls „Desktop-Website“), nicht in der GitHub-App; lesen kannst du den Bericht auch in der App.
 
-1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → „Merge“). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`.
-2. **Ergebnis ansehen:** Im Repository die Datei [`bericht/README.md`](bericht/README.md) öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot und Rückblick; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung).
-3. **Papier-Depot:** liegt in `papier/papier_depot.json` und wird nach jedem Lauf gespeichert. Der Bot holt verpasste Tage nach, falls GitHub einen Lauf auslässt oder Yahoo einmal nicht antwortet. Willst du dein bisheriges Depot aus Google Drive weiterführen: `MyDrive/swing_scanner/papier_depot.json` herunterladen und im Repository über **Add file → Upload files** in den Ordner `papier` hochladen (vor dem nächsten Lauf). Achtung: Drive-Depot und GitHub-Depot sind danach zwei getrennte Dateien – wenn du beide fortschreibst, laufen sie auseinander.
-4. **Sofort testen:** **Actions → Swing-Bot → Run workflow**. Ein Lauf dauert einige Minuten.
+1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → **Merge**). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`.
+2. **Sofort testen:** **Actions → Swing-Bot → Run workflow**. Ein Lauf dauert einige Minuten. Danach gibt es die Ordner `bericht` und `papier`.
+3. **Ergebnis ansehen:** Im Repository die Datei `bericht/README.md` öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot und Rückblick; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung). Steht dort ❌, steht der Grund gleich dabei.
+4. **Papier-Depot:** liegt in `papier/papier_depot.json` und wird nach jedem Lauf gespeichert. Der Bot holt verpasste Tage nach, falls GitHub einen Lauf auslässt oder Yahoo einmal nicht antwortet. Dein bisheriges Depot aus Google Drive weiterführen: erst einmal Schritt 2, dann `MyDrive/swing_scanner/papier_depot.json` aus Drive herunterladen, im Repository den Ordner `papier` öffnen → **Add file → Upload files** → Datei hineinziehen (sie muss genau `papier_depot.json` heißen und ersetzt die vom ersten Lauf) → **Commit changes**. Nicht hochladen, während gerade ein Lauf arbeitet (sonst wird dieser Lauf nicht gespeichert; der nächste rechnet weiter). Drive-Depot und GitHub-Depot sind danach zwei getrennte Dateien – wenn du beide fortschreibst, laufen sie auseinander.
 5. **Einstellungen ohne Code:** **Settings → Secrets and variables → Actions → Tab „Variables“ → New repository variable**:
 
 | Name | Beispiel | Bedeutung |
 | --- | --- | --- |
-| `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000) |
-| `RISIKO` | `1` | Risiko je Trade in % (Standard 1) |
+| `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000; auch `10.000 €` geht) |
+| `RISIKO` | `1` | Risiko je Trade in % (Standard 1; auch `1,5 %` geht) |
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
-| `OPTIONEN` | `--ohne-short` | weitere Optionen aus der Tabelle unten, mit Leerzeichen getrennt |
+| `OPTIONEN` | `--ohne-short --ohne-news` | nur diese Schalter, mit Leerzeichen getrennt: `--ohne-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
 
-Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand) – `--papier-neu` bitte nicht als `OPTIONEN` eintragen, sonst fängt das Depot jeden Abend neu an.
+Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 
-Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
+Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Mit Krypto in `TICKER` rechnet das Papier-Depot einen Tag später weiter (der Krypto-Tag endet erst um 2:00 Uhr deutscher Sommerzeit). Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
 
 ### TradingView: Signale direkt im Chart
 
 Die Datei [`tradingview/swing_bot_signale.pine`](tradingview/swing_bot_signale.pine) ist ein Indikator für TradingView (auch im kostenlosen Tarif). Er zeigt im Tageschart jeder Aktie, was der Bot kaufen würde und was nicht – zum Vergleich mit deinen eigenen Linien und Indikatoren:
 
-- **▲ grün = KAUFEN, ▼ rot = SHORT** mit Namen der Strategie; Maus darüber (am Handy antippen) zeigt Limit, Stop, Ziel und CRV.
-- **Jeder Trade wie mit dem Positions-Werkzeug von TradingView:** grüne Zielzone, rote Stop-Zone, graue Einstiegslinie vom Einstieg bis zum Ausstieg, dort das Ergebnis (✅ Ziel, ❌ Stop, ⏱ Zeitstopp nach 20 Tagen) in R – 1 R ist der geplante Verlust bis zum Stop, also bei 1 % Risiko und 10.000 € rund 100 €. Gerechnet wird wie im Papier-Depot des Bots: Einstieg am nächsten Handelstag zur Eröffnung nur bis zum Limit, Stop vor Ziel, nach Spread und Gebühren.
-- **Grau = der Bot handelt nicht**, mit Grund beim Antippen: ⏸ Marktfilter, Long- und Short-Signal zugleich oder Strategie ausgeschaltet; ✕ Auftrag verfallen, weil die Eröffnung über dem Limit lag.
-- **Auftrag für den nächsten Handelstag:** gestrichelte Linien rechts neben der letzten Kerze (Kauf-Limit, Stop, Ziel).
-- **Infotafel oben rechts:** heutige Entscheidung wie in der Tabelle des Bots (KAUFEN, SHORT, WARTEN mit Grund, GEWINNE SICHERN oder BEOBACHTEN), offene Position mit Tag x/20, Marktlage und die Bilanz der Trades im Chart (Anzahl, Trefferquote, Summe in R und ≈ €).
+- **▲ Name = KAUFEN, ▼ Name = SHORT** (grünes bzw. rotes Schild mit der Strategie): Auftrag für den nächsten Handelstag. Maus darüber (am Handy antippen) zeigt Limit, Stop, Ziel und CRV. Ein blasses ▲/▼ ohne Schild ist ein Signal, während im Chart noch ein Trade läuft – der Bot gibt dann keinen neuen Auftrag (ein Alarm meldet es trotzdem).
+- **Jeder Trade wie mit dem Positions-Werkzeug von TradingView:** grüne Zielzone, rote Stop-Zone und Einstiegslinie vom Einstieg bis zum Ausstieg, eine gepunktete Linie zum Ausstiegskurs und dort ein Schild mit dem Ergebnis, z. B. „+1,9 R · Ziel“ (grün), „−1,0 R · Stop“ (rot) oder „+0,3 R · Zeitstopp“ (grau, nach 20 Handelstagen). 1 R ist der geplante Verlust bis zum Stop, bei 1 % Risiko und 10.000 € also rund 100 €. Gerechnet wird wie im Papier-Depot des Bots (Einstieg am nächsten Handelstag zur Eröffnung nur bis zum Limit, Stop vor Ziel, Kurslücken zur Eröffnung, nach Spread und Gebühren); das Ergebnis eines Trades zählt wie im Strategie-Tagebuch höchstens ±3 R. Beim laufenden Trade stehen rechts Preisschilder für Ziel, Einstieg (Tag x/20) und Stop.
+- **Grau = der Bot handelt nicht**, mit Grund beim Antippen: „⏸ Marktfilter“, „⏸ Long + Short zugleich“ oder „⏸ … aus“ (Strategie ausgeschaltet) am ersten Tag, an den Folgetagen nur graue Punkte; „✕“ = Auftrag verfallen, weil die Eröffnung über dem Limit (Short: darunter) oder schon hinter dem Stop lag.
+- **Auftrag für den nächsten Handelstag:** gestrichelte Linien rechts neben der letzten Kerze (Limit, Stop, Ziel).
+- **Infotafel** (Ort und Schriftgröße im Zahnrad wählbar): heutige Entscheidung wie in der Tabelle des Bots (KAUFEN, SHORT, WARTEN mit Grund, GEWINNE SICHERN oder BEOBACHTEN), Auftrag für morgen, offener Trade, Marktlage und die Bilanz der letzten 12 Monate (Trades, Trefferquote, Ergebnis in R und ≈ €, nicht genommene Signale). Erklärungen erscheinen beim Antippen der Zeilen.
 - Roter Hintergrund = Abwärtsmarkt (Nasdaq-100 unter seiner 200-Tage-Linie). Auf Wunsch zeichnet er auch EMA 20, SMA 50 und SMA 200, die der Bot benutzt.
 
-1. Die Datei auf GitHub öffnen und mit dem Kopieren-Knopf („Copy raw file“) kopieren.
-2. Bei TradingView einen Chart öffnen, unten **Pine-Editor** anklicken, den Inhalt komplett ersetzen und **Zum Chart hinzufügen** klicken (danach **Speichern**, dann findest du ihn unter „Indikatoren → Meine Skripte“ für jeden Chart).
-3. Tageschart (**1D**) wählen und unten rechts am Chart **ADJ** einschalten (Kurse für Dividenden bereinigen). Der Bot rechnet wie Yahoo mit dividendenbereinigten Kursen – ohne ADJ weichen die Signale bei Dividendenwerten wie XOM, JPM oder COST oft ab; der Indikator zeigt dann oben rechts einen roten Hinweis. Signale gelten zum Tagesschluss – wie beim Bot: Einstieg am nächsten Handelstag nur bis zum Limit.
-4. Zahnrad am Indikator: Short-Signale, Marktfilter, Trades, graue Signale, Infotafel, Konto, Risiko und jede Strategie einzeln an/aus. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind, hier abschalten. Wird es dir am Handy zu voll: graue Signale oder Infotafel ausschalten.
-5. Benachrichtigung aufs Handy: Rechtsklick im Chart → **Alarm hinzufügen** → Bedingung „Swing-Bot“ → „Swing-Bot: KAUFEN-Signal“ oder „SHORT-Signal“ → „Einmal pro Balkenschluss“.
+Einrichten geht nur am PC oder Tablet im Browser (die TradingView-Handy-App hat keinen Pine-Editor); danach ist der Indikator auch in der App unter **Indikatoren → Meine Skripte** verfügbar.
 
-Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Quartalszahlen-Regel, Schlagzeilen und die Grenzen für Positionen und Risiko gibt es nur im Bot. Die Trades im Chart sind deshalb die eines Depots, das nur diese eine Aktie handelt – ihre Bilanz ist ein Vergleich, keine Vorhersage. Kurse stehen in der Währung des Charts (meist $), nicht in €. In den ersten Monaten eines Charts können Signale durch andere Startwerte der Indikatoren abweichen – maßgeblich ist der Bericht des Bots. TradingView handelt damit nicht automatisch; der Bot handelt nur virtuell.
+1. Die Datei auf GitHub öffnen und mit dem Kopieren-Knopf („Copy raw file“) kopieren.
+2. Bei TradingView einen Chart öffnen, den **Pine-Editor** öffnen (seit 2025 rechts in der Seitenleiste, in älteren Ansichten unten), den Inhalt komplett ersetzen, **Zum Chart hinzufügen** und **Speichern** klicken.
+3. Tageschart (**1D**) wählen und unten rechts am Chart **ADJ** einschalten (Kurse für Dividenden bereinigen; in der App in den Chart-Einstellungen). Der Bot rechnet wie Yahoo mit dividendenbereinigten Kursen – ohne ADJ weichen die Signale bei Dividendenwerten wie XOM, JPM oder COST oft ab; die Infotafel zeigt dann rot „ADJ einschalten!“.
+4. Zahnrad am Indikator: Short-Signale, Marktfilter, Trades, graue Signale, Infotafel, Zeitraum (Standard 12 Monate, 0 = ganzer Chart), Konto, Risiko und jede Strategie einzeln an/aus. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind, hier abschalten. Wird es am Handy zu voll: graue Signale ausschalten oder die Infotafel nach unten bzw. auf „sehr klein“ stellen.
+5. Benachrichtigung aufs Handy: Rechtsklick im Chart → **Alarm hinzufügen** → Bedingung „Swing-Bot“ → „Swing-Bot: KAUFEN-Signal“ oder „SHORT-Signal“ → „Einmal pro Balkenschluss“. Ein Alarm gilt nur für eine Aktie; im kostenlosen Tarif gibt es nur wenige Alarme und sie laufen nach einiger Zeit ab – für die ganze Watchlist ist der Bericht des Bots besser. Nach Änderungen im Zahnrad den Alarm neu anlegen.
+
+Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Quartalszahlen-Regel, Schlagzeilen und die Grenzen für Positionen und Risiko gibt es nur im Bot. Die Trades im Chart sind deshalb die eines Depots, das nur diese eine Aktie handelt; wie der Rückblick des Bots beginnt es leer am Anfang des Zeitraums. Die €-Beträge rechnen 1 R = Konto × Risiko – der Bot kauft aber höchstens für 25 % des Kontos und nur ganze Aktien, bei teuren oder ruhigen Aktien riskiert er weniger. Kurse stehen in der Währung des Charts (meist $), nicht in €. In den ersten Monaten eines Charts können Signale durch andere Startwerte der Indikatoren abweichen – maßgeblich ist der Bericht des Bots. Die Bilanz ist ein Vergleich, keine Vorhersage. TradingView handelt damit nicht automatisch; der Bot handelt nur virtuell.
 
 ### Was das Skript zeigt
 

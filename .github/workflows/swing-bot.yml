@@ -1,14 +1,14 @@
-# Swing-Bot automatisch: jeden Börsentag nach US-Schluss in der Cloud bei GitHub.
+# Swing-Bot automatisch: in der Nacht nach jedem US-Börsentag in der Cloud bei GitHub.
 # Ergebnis: bericht/README.md (Signale, Papier-Depot, Rückblick) und papier/papier_depot.json.
 # Einstellungen ohne Code ändern: Repository -> Settings -> Secrets and variables -> Actions ->
 # Tab "Variables": KONTO (z. B. 10000), RISIKO (z. B. 1), TICKER (z. B. "AAPL, NFLX, SOFI"),
-# OPTIONEN (z. B. "--ohne-short").
+# OPTIONEN (nur Schalter wie "--ohne-short --ohne-news", siehe README).
 name: Swing-Bot
 
 on:
   schedule:
-    # 22:30 UTC Mo–Fr = 0:30 Uhr deutscher Sommerzeit / 23:30 Uhr Winterzeit,
-    # also nach US-Schluss (22:00 Uhr deutscher Zeit). GitHub startet oft ein paar Minuten später.
+    # 22:30 UTC Mo–Fr = 0:30 Uhr (Sommerzeit, also Di–Sa) bzw. 23:30 Uhr (Winterzeit) deutscher Zeit –
+    # nach US-Schluss (16:00 Uhr New York). GitHub startet oft ein paar Minuten später.
     - cron: "30 22 * * 1-5"
   workflow_dispatch: # Knopf "Run workflow" im Tab Actions
 
@@ -24,9 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          # neuester Stand des Zweigs (wartet ein Lauf auf den vorigen, sieht er dessen Papier-Depot)
+          ref: ${{ github.ref_name }}
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -36,6 +39,7 @@ jobs:
         run: pip install -r requirements-bot.txt
 
       - name: Bot laufen lassen
+        id: bot
         env:
           KONTO: ${{ vars.KONTO || '10000' }}
           RISIKO: ${{ vars.RISIKO || '1' }}
@@ -52,7 +56,13 @@ jobs:
 
       - name: Bericht in der Zusammenfassung anzeigen
         if: always()
+        env:
+          ERGEBNIS: ${{ steps.bot.outcome }}
         run: |
+          if [ "$ERGEBNIS" != "success" ]; then
+            echo "> ❌ Der Bot-Lauf ist nicht sauber durchgelaufen ($ERGEBNIS) – Details im Protokoll des Schritts Bot laufen lassen." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+          fi
           if [ -f bericht/README.md ]; then cat bericht/README.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Ergebnis speichern
@@ -69,8 +79,12 @@ jobs:
           fi
           git commit -m "Swing-Bot: Bericht $(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M')"
           for versuch in 1 2 3 4; do
-            git pull --rebase --quiet origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            if git pull --rebase --quiet origin "$GITHUB_REF_NAME"; then
+              git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
             sleep $((versuch * 5))
           done
-          echo "Speichern fehlgeschlagen." >&2
+          echo "::error::Nicht gespeichert: papier/ oder bericht/ wurde während des Laufs geändert (z. B. Datei hochgeladen). Der nächste Lauf rechnet vom gespeicherten Stand weiter."
           exit 1
