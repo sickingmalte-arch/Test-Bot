@@ -178,15 +178,26 @@ shortSignal = richtung < 0 and barstate.isconfirmed
 grund = konflikt ? "Long- und Short-Signal zugleich – der Bot wartet" : ersteFeuernd >= 0 and wahl < 0 ? array.get(namen, ersteFeuernd) + " ist ausgeschaltet" : not irgendLong and not irgendShort and irgendRoh ? array.get(namen, ersteRoh) + " – Marktfilter (" + (array.get(richtungen, ersteRoh) > 0 ? "kein Long im Abwärtsmarkt" : "kein Short im Aufwärtsmarkt") + ")" : ""
 grundRichtung = konflikt ? 0 : ersteFeuernd >= 0 ? array.get(richtungen, ersteFeuernd) : ersteRoh >= 0 ? array.get(richtungen, ersteRoh) : 0
 
-// ---------- Texte ----------
+// ---------- Farben (wie das Positions-Werkzeug von TradingView) und Texte ----------
+GRUEN = #089981
+ROT = #F23645
+BLAU = #2962FF
+GRAU = #787B86
+HELL = #D1D4DC
+
+// Deutsche Zahlen: Komma statt Punkt, Punkt als Tausendertrennzeichen
+deutsch(string s) =>
+    str.replace_all(str.replace_all(str.replace_all(s, ",", "§"), ".", ","), "§", ".")
 zahl(float x) =>
-    str.replace_all(str.tostring(x, format.mintick), ".", ",")
+    deutsch(str.tostring(x, format.mintick))
 rText(float r) =>
-    (r >= 0 ? "+" : "−") + str.replace_all(str.tostring(math.abs(r), "0.0"), ".", ",") + " R"
+    (r >= 0 ? "+" : "−") + deutsch(str.tostring(math.abs(r), "0.0")) + " R"
+rText2(float r) =>
+    (r >= 0 ? "+" : "−") + deutsch(str.tostring(math.abs(r), "0.00")) + " R"
 datumText(int t) =>
     str.tostring(dayofmonth(t), "00") + "." + str.tostring(month(t), "00") + "." + str.tostring(year(t) % 100, "00")
 euroText(float x) =>
-    (x >= 0 ? "+" : "−") + str.tostring(math.round(math.abs(x)), "#") + " €"
+    (x >= 0 ? "+" : "−") + deutsch(str.tostring(math.round(math.abs(x)), "#,###")) + " €"
 
 // ---------- Handeln wie das Papier-Depot des Bots (nur diese eine Aktie) ----------
 var int auftragRichtung = 0
@@ -206,13 +217,24 @@ var int posStrategie = -1
 var box zielBox = na
 var box stopBox = na
 var line einstiegLinie = na
+// Bilanz im gewählten Zeitraum
 var int anzahl = 0
 var int gewinner = 0
+var int nZiel = 0
+var int nStop = 0
+var int nZeit = 0
 var float summeR = 0.0
-var int ersterTrade = 0
+var float besterR = na
+var float schlechtesterR = na
+var int nFilter = 0
+var int nKonflikt = 0
+var int nAus = 0
+var int nVerfallen = 0
 
-gebuehrR = 2 * gebuehr / (konto * risikoProzent / 100)
+eineR = konto * risikoProzent / 100
+gebuehrR = 2 * gebuehr / eineR
 grenzeZeit = statistikMonate > 0 ? timenow - statistikMonate * 2629800000 : 0
+imZeitraum = time >= grenzeZeit
 
 // 1) Auftrag vom Vortag zur Eröffnung: nur bis zum Limit und nicht hinter dem Stop, sonst verfällt er
 if auftragRichtung != 0
@@ -227,12 +249,16 @@ if auftragRichtung != 0
         posZeit := time
         posStrategie := auftragStrategie
         if zeigeTrades
-            zielBox := box.new(bar_index, math.max(posZiel, posEinstieg), bar_index + 1, math.min(posZiel, posEinstieg), border_color=color.new(color.green, 40), border_width=1, bgcolor=color.new(color.green, 80), text="Ziel " + zahl(posZiel), text_size=size.small, text_color=color.new(color.green, 0), text_halign=text.align_left, text_valign=r > 0 ? text.align_top : text.align_bottom)
-            stopBox := box.new(bar_index, math.max(posStop, posEinstieg), bar_index + 1, math.min(posStop, posEinstieg), border_color=color.new(color.red, 40), border_width=1, bgcolor=color.new(color.red, 80), text="Stop " + zahl(posStop), text_size=size.small, text_color=color.new(color.red, 0), text_halign=text.align_left, text_valign=r > 0 ? text.align_bottom : text.align_top)
-            einstiegLinie := line.new(bar_index, posEinstieg, bar_index + 1, posEinstieg, color=color.new(color.gray, 0), width=2)
-    else if zeigeGrau and time >= grenzeZeit
-        warum = r * (open - auftragStop) <= 0 ? "Eröffnung " + zahl(open) + " schon hinter dem Stop " + zahl(auftragStop) : "Eröffnung " + zahl(open) + (r > 0 ? " über dem Limit " : " unter dem Limit ") + zahl(auftragLimit)
-        label.new(bar_index, open, "✕", style=label.style_label_center, color=color.new(color.gray, 30), textcolor=color.white, size=size.tiny, tooltip="Auftrag verfallen: " + warum + " – der Bot kauft nicht hinterher.")
+            eins = math.abs(posKurs - posStop)
+            zielBox := box.new(bar_index, math.max(posZiel, posEinstieg), bar_index + 1, math.min(posZiel, posEinstieg), border_color=color.new(GRUEN, 40), border_width=1, bgcolor=color.new(GRUEN, 75), text="Ziel " + zahl(posZiel) + " · " + rText(r * (posZiel - posEinstieg) / eins), text_size=size.small, text_color=color.new(GRUEN, 0), text_halign=text.align_left, text_valign=r > 0 ? text.align_top : text.align_bottom)
+            stopBox := box.new(bar_index, math.max(posStop, posEinstieg), bar_index + 1, math.min(posStop, posEinstieg), border_color=color.new(ROT, 40), border_width=1, bgcolor=color.new(ROT, 75), text="Stop " + zahl(posStop) + " · " + rText(r * (posStop - posEinstieg) / eins), text_size=size.small, text_color=color.new(ROT, 0), text_halign=text.align_left, text_valign=r > 0 ? text.align_bottom : text.align_top)
+            einstiegLinie := line.new(bar_index, posEinstieg, bar_index + 1, posEinstieg, color=color.new(HELL, 20), width=2)
+    else
+        if imZeitraum
+            nVerfallen += 1
+        if zeigeGrau and imZeitraum
+            warum = r * (open - auftragStop) <= 0 ? "Eröffnung " + zahl(open) + " schon hinter dem Stop " + zahl(auftragStop) : "Eröffnung " + zahl(open) + (r > 0 ? " über dem Limit " : " unter dem Limit ") + zahl(auftragLimit)
+            label.new(bar_index, open, "✕", style=label.style_label_center, color=color.new(GRAU, 30), textcolor=color.white, size=size.tiny, tooltip="Auftrag verfallen: " + warum + " – der Bot kauft nicht hinterher.")
     auftragRichtung := 0
 
 // 2) Ausstieg: Kurslücke über Stop/Ziel (nicht am Einstiegstag), Stop vor Ziel, Zeitstopp zum Schluss
@@ -268,19 +294,31 @@ if posRichtung != 0
         einstiegMitSpread = posEinstieg * (1 + SPREAD * r)
         ausstiegMitSpread = preis * (1 - SPREAD * r)
         ergebnisR = math.max(-R_GRENZE, math.min(R_GRENZE, r * (ausstiegMitSpread - einstiegMitSpread) / math.abs(posKurs - posStop))) - gebuehrR
+        gewonnen = ergebnisR > 0
         if posZeit >= grenzeZeit
             anzahl += 1
-            gewinner += ergebnisR > 0 ? 1 : 0
+            gewinner += gewonnen ? 1 : 0
+            nZiel += str.contains(ausstiegGrund, "Ziel") ? 1 : 0
+            nStop += str.contains(ausstiegGrund, "Stop") ? 1 : 0
+            nZeit += ausstiegGrund == "Zeitstopp" ? 1 : 0
             summeR += ergebnisR
-            ersterTrade := ersterTrade == 0 ? posZeit : ersterTrade
+            besterR := na(besterR) ? ergebnisR : math.max(besterR, ergebnisR)
+            schlechtesterR := na(schlechtesterR) ? ergebnisR : math.min(schlechtesterR, ergebnisR)
         if zeigeTrades
             rechts = math.max(bar_index, posStart + 1)
             box.set_right(zielBox, rechts)
             box.set_right(stopBox, rechts)
             line.set_x2(einstiegLinie, rechts)
-            symbol = str.contains(ausstiegGrund, "Ziel") ? "✅" : str.contains(ausstiegGrund, "Stop") ? "❌" : "⏱"
-            farbe = ergebnisR > 0 ? color.new(color.green, 10) : color.new(color.red, 10)
-            label.new(bar_index, preis, symbol + " " + rText(ergebnisR), style=label.style_label_left, color=farbe, textcolor=color.white, size=size.small, tooltip=array.get(namen, posStrategie) + (r > 0 ? " (Long)" : " (Short)") + "\nEinstieg " + zahl(posEinstieg) + " am " + datumText(posZeit) + "\nAusstieg " + zahl(preis) + " am " + datumText(time) + " – " + ausstiegGrund + "\nErgebnis " + rText(ergebnisR) + " ≈ " + euroText(ergebnisR * konto * risikoProzent / 100) + " bei " + str.replace_all(str.tostring(risikoProzent), ".", ",") + " % Risiko (nach Spread und Gebühren)")
+            // Abgeschlossen: die Zone, die „gewonnen“ hat, bleibt kräftiger
+            box.set_bgcolor(zielBox, color.new(GRUEN, gewonnen ? 78 : 90))
+            box.set_bgcolor(stopBox, color.new(ROT, gewonnen ? 90 : 78))
+            box.set_border_color(zielBox, color.new(GRUEN, 70))
+            box.set_border_color(stopBox, color.new(ROT, 70))
+            line.new(posStart, posEinstieg, bar_index, preis, color=color.new(HELL, 50), style=line.style_dotted, width=1)
+            farbe = str.contains(ausstiegGrund, "Ziel") ? GRUEN : str.contains(ausstiegGrund, "Stop") ? ROT : GRAU
+            oberhalb = (r > 0) == gewonnen
+            tipp = array.get(namen, posStrategie) + (r > 0 ? " · Long" : " · Short") + "\nEinstieg " + datumText(posZeit) + " zu " + zahl(posEinstieg) + "\nStop " + zahl(posStop) + " · Ziel " + zahl(posZiel) + "\nAusstieg " + datumText(time) + " zu " + zahl(preis) + " (" + ausstiegGrund + ")\n" + str.tostring(bar_index - posStart + 1) + " Handelstage · " + rText2(ergebnisR) + " ≈ " + euroText(ergebnisR * eineR) + "\n(nach Spread und Gebühren, 1 R = " + deutsch(str.tostring(eineR, "#,###")) + " € Risiko)"
+            label.new(bar_index, preis, rText(ergebnisR) + " · " + ausstiegGrund, style=oberhalb ? label.style_label_down : label.style_label_up, color=color.new(farbe, 10), textcolor=color.white, size=size.small, tooltip=tipp)
         posRichtung := 0
 
 // 3) Signal zum Schlusskurs: Auftrag für den nächsten Handelstag – nur ohne offene Position (wie im Bot)
@@ -292,26 +330,32 @@ if neuerAuftrag
     auftragLimit := limit
     auftragKurs := c
     auftragStrategie := wahl
-    label.new(bar_index, richtung > 0 ? low : high, array.get(namen, wahl), style=richtung > 0 ? label.style_label_up : label.style_label_down, color=richtung > 0 ? color.new(color.green, 15) : color.new(color.red, 15), textcolor=color.white, size=size.tiny, tooltip=(richtung > 0 ? "KAUFEN" : "SHORT") + " – Auftrag für den nächsten Handelstag\nLimit " + zahl(limit) + "\nStop " + zahl(stop) + "\nZiel " + zahl(ziel) + "\nCRV " + str.replace_all(str.tostring(crv, "0.0"), ".", ","))
-else if zeigeGrau and posRichtung == 0 and grund != "" and time >= grenzeZeit
-    label.new(bar_index, grundRichtung < 0 ? high : low, "⏸", style=grundRichtung < 0 ? label.style_label_down : label.style_label_up, color=color.new(color.gray, 40), textcolor=color.white, size=size.tiny, tooltip="Der Bot handelt nicht: " + grund)
+    label.new(bar_index, richtung > 0 ? low : high, array.get(namen, wahl), style=richtung > 0 ? label.style_label_up : label.style_label_down, color=color.new(richtung > 0 ? GRUEN : ROT, 15), textcolor=color.white, size=size.tiny, tooltip=(richtung > 0 ? "KAUFEN" : "SHORT") + " – Auftrag für den nächsten Handelstag\nLimit " + zahl(limit) + "\nStop " + zahl(stop) + "\nZiel " + zahl(ziel) + "\nCRV " + deutsch(str.tostring(crv, "0.0")))
+else if posRichtung == 0 and grund != "" and imZeitraum
+    nKonflikt += konflikt ? 1 : 0
+    nAus += not konflikt and ersteFeuernd >= 0 ? 1 : 0
+    nFilter += not konflikt and ersteFeuernd < 0 ? 1 : 0
+    if zeigeGrau
+        label.new(bar_index, grundRichtung < 0 ? high : low, "⏸", style=grundRichtung < 0 ? label.style_label_down : label.style_label_up, color=color.new(GRAU, 40), textcolor=color.white, size=size.tiny, tooltip="Der Bot handelt nicht: " + grund)
 
 // ---------- Anzeige ----------
-bgcolor(zeigeHintergrund and marktfilter and marktLage == 0 ? color.new(color.red, 92) : na, title="Abwärtsmarkt (Marktfilter)")
-plotshape(richtung > 0, title="KAUFEN", style=shape.triangleup, location=location.belowbar, color=color.new(color.green, neuerAuftrag ? 0 : 65), size=size.small)
-plotshape(richtung < 0, title="SHORT", style=shape.triangledown, location=location.abovebar, color=color.new(color.red, neuerAuftrag ? 0 : 65), size=size.small)
+bgcolor(zeigeHintergrund and marktfilter and marktLage == 0 ? color.new(ROT, 92) : na, title="Abwärtsmarkt (Marktfilter)")
+plotshape(richtung > 0, title="KAUFEN", style=shape.triangleup, location=location.belowbar, color=color.new(GRUEN, neuerAuftrag ? 0 : 65), size=size.small)
+plotshape(richtung < 0, title="SHORT", style=shape.triangledown, location=location.abovebar, color=color.new(ROT, neuerAuftrag ? 0 : 65), size=size.small)
 plot(zeigeMittel ? ema20 : na, "EMA 20", color=color.new(color.yellow, 10), linewidth=1)
 plot(zeigeMittel ? sma50 : na, "SMA 50", color=color.new(color.green, 10), linewidth=1)
 plot(zeigeMittel ? sma200 : na, "SMA 200", color=color.new(color.orange, 10), linewidth=2)
 
-// Auftrag für den nächsten Handelstag als Linien rechts neben der letzten Kerze
+// Rechts neben der letzten Kerze: offener Trade mit Preisschildern und Auftrag für den nächsten Handelstag
 var line auftragLimitLinie = na
 var line auftragStopLinie = na
 var line auftragZielLinie = na
 var label auftragLimitLabel = na
 var label auftragStopLabel = na
 var label auftragZielLabel = na
-var label offenLabel = na
+var label offenZielLabel = na
+var label offenEinstiegLabel = na
+var label offenStopLabel = na
 if barstate.islast
     line.delete(auftragLimitLinie)
     line.delete(auftragStopLinie)
@@ -319,16 +363,22 @@ if barstate.islast
     label.delete(auftragLimitLabel)
     label.delete(auftragStopLabel)
     label.delete(auftragZielLabel)
-    label.delete(offenLabel)
+    label.delete(offenZielLabel)
+    label.delete(offenEinstiegLabel)
+    label.delete(offenStopLabel)
     if zeigeAuftrag and auftragRichtung != 0
-        auftragLimitLinie := line.new(bar_index, auftragLimit, bar_index + 5, auftragLimit, color=color.new(color.blue, 0), style=line.style_dotted, width=2)
-        auftragStopLinie := line.new(bar_index, auftragStop, bar_index + 5, auftragStop, color=color.new(color.red, 0), style=line.style_dashed, width=2)
-        auftragZielLinie := line.new(bar_index, auftragZiel, bar_index + 5, auftragZiel, color=color.new(color.green, 0), style=line.style_dashed, width=2)
-        auftragLimitLabel := label.new(bar_index + 5, auftragLimit, (auftragRichtung > 0 ? "Kauf-Limit " : "Short-Limit ") + zahl(auftragLimit), style=label.style_label_left, color=color.new(color.blue, 20), textcolor=color.white, size=size.small)
-        auftragStopLabel := label.new(bar_index + 5, auftragStop, "Stop " + zahl(auftragStop), style=label.style_label_left, color=color.new(color.red, 20), textcolor=color.white, size=size.small)
-        auftragZielLabel := label.new(bar_index + 5, auftragZiel, "Ziel " + zahl(auftragZiel), style=label.style_label_left, color=color.new(color.green, 20), textcolor=color.white, size=size.small)
+        auftragLimitLinie := line.new(bar_index, auftragLimit, bar_index + 5, auftragLimit, color=BLAU, style=line.style_dotted, width=2)
+        auftragStopLinie := line.new(bar_index, auftragStop, bar_index + 5, auftragStop, color=ROT, style=line.style_dashed, width=2)
+        auftragZielLinie := line.new(bar_index, auftragZiel, bar_index + 5, auftragZiel, color=GRUEN, style=line.style_dashed, width=2)
+        auftragLimitLabel := label.new(bar_index + 5, auftragLimit, (auftragRichtung > 0 ? "Kauf-Limit " : "Short-Limit ") + zahl(auftragLimit) + " · gilt am nächsten Handelstag", style=label.style_label_left, color=color.new(BLAU, 15), textcolor=color.white, size=size.small)
+        auftragStopLabel := label.new(bar_index + 5, auftragStop, "Stop " + zahl(auftragStop), style=label.style_label_left, color=color.new(ROT, 15), textcolor=color.white, size=size.small)
+        auftragZielLabel := label.new(bar_index + 5, auftragZiel, "Ziel " + zahl(auftragZiel), style=label.style_label_left, color=color.new(GRUEN, 15), textcolor=color.white, size=size.small)
     if zeigeTrades and posRichtung != 0
-        offenLabel := label.new(bar_index + 1, posEinstieg, "offen · Tag " + str.tostring(bar_index - posStart + 1) + "/" + str.tostring(ZEITSTOPP_TAGE), style=label.style_label_left, color=color.new(color.gray, 20), textcolor=color.white, size=size.small)
+        eins = math.abs(posKurs - posStop)
+        laufendR = posRichtung * (close - posEinstieg) / eins
+        offenZielLabel := label.new(bar_index + 1, posZiel, "Ziel " + zahl(posZiel) + " · " + rText(posRichtung * (posZiel - posEinstieg) / eins), style=label.style_label_left, color=color.new(GRUEN, 15), textcolor=color.white, size=size.small)
+        offenEinstiegLabel := label.new(bar_index + 1, posEinstieg, "Einstieg " + zahl(posEinstieg) + " · läuft, Tag " + str.tostring(bar_index - posStart + 1) + "/" + str.tostring(ZEITSTOPP_TAGE) + " · jetzt " + rText(laufendR), style=label.style_label_left, color=color.new(GRAU, 15), textcolor=color.white, size=size.small, tooltip="Offener Trade im Chart (ohne Kosten gerechnet). Spätestens nach " + str.tostring(ZEITSTOPP_TAGE) + " Handelstagen steigt der Bot zum Schluss aus.")
+        offenStopLabel := label.new(bar_index + 1, posStop, "Stop " + zahl(posStop) + " · " + rText(posRichtung * (posStop - posEinstieg) / eins), style=label.style_label_left, color=color.new(ROT, 15), textcolor=color.white, size=size.small)
 
 // Ist der Chart nicht für Dividenden bereinigt, liegen ältere Kurse höher als beim Bot (Yahoo bereinigt sie)
 bereinigt = request.security(ticker.modify(syminfo.tickerid, syminfo.session, adjustment.dividends), timeframe.period, close)
@@ -337,24 +387,30 @@ if not na(bereinigt) and math.abs(bereinigt - c) > 0.0005 * c
     unbereinigt := true
 
 // Infotafel oben rechts: heutige Entscheidung, Auftrag, Position, Marktlage, Bilanz, Hinweise
-var table tafel = table.new(position.top_right, 1, 7, bgcolor=color.new(color.gray, 85), border_width=1)
+var table tafel = table.new(position.top_right, 2, 11, bgcolor=color.new(chart.bg_color, 10), frame_color=color.new(GRAU, 50), frame_width=1, border_color=color.new(GRAU, 80), border_width=1)
+zeile(int nr, string links, string rechts, color farbe) =>
+    table.cell(tafel, 0, nr, links, text_color=GRAU, text_size=size.small, text_halign=text.align_left)
+    table.cell(tafel, 1, nr, rechts, text_color=farbe, text_size=size.small, text_halign=text.align_left)
 if barstate.islast and zeigeTafel
-    vorlaeufig = barstate.isconfirmed ? "" : " (Kerze läuft noch – vorläufig)"
-    table.cell(tafel, 0, 0, "Swing-Bot · Schluss " + datumText(time) + vorlaeufig, text_color=chart.fg_color, text_size=size.small)
+    vorlaeufig = barstate.isconfirmed ? "" : " · vorläufig (Kerze läuft noch)"
+    zeile(0, "Swing-Bot", "Schluss " + datumText(time) + vorlaeufig, chart.fg_color)
     status = wahl >= 0 ? (richtung > 0 ? "🟢 KAUFEN – " : "🔴 SHORT – ") + array.get(namen, wahl) : grund != "" ? "⏸ WARTEN – " + grund : ueberhitzt ? "⚠️ GEWINNE SICHERN – überhitzt (falls Long im Depot)" : mitShort and ueberverkauft ? "⚠️ GEWINNE SICHERN – überverkauft (falls Short im Depot)" : "BEOBACHTEN – kein Signal"
-    statusFarbe = wahl >= 0 ? (richtung > 0 ? color.new(color.green, 20) : color.new(color.red, 20)) : grund != "" or ueberhitzt or (mitShort and ueberverkauft) ? color.new(color.orange, 30) : color.new(color.gray, 60)
-    table.cell(tafel, 0, 1, status, text_color=color.white, bgcolor=statusFarbe, text_size=size.small)
-    auftragText = auftragRichtung != 0 ? "Auftrag für den nächsten Handelstag: Limit " + zahl(auftragLimit) + " · Stop " + zahl(auftragStop) + " · Ziel " + zahl(auftragZiel) + (wahl >= 0 ? " · CRV " + str.replace_all(str.tostring(crv, "0.0"), ".", ",") : "") : wahl >= 0 ? "Signal, aber die Position im Chart ist noch offen – kein neuer Auftrag" : "Kein Auftrag für den nächsten Handelstag"
-    table.cell(tafel, 0, 2, auftragText, text_color=chart.fg_color, text_size=size.small)
-    positionText = posRichtung != 0 ? "Position im Chart: " + (posRichtung > 0 ? "Long" : "Short") + " seit " + datumText(posZeit) + " · Einstieg " + zahl(posEinstieg) + " · Stop " + zahl(posStop) + " · Ziel " + zahl(posZiel) + " · Tag " + str.tostring(bar_index - posStart + 1) + "/" + str.tostring(ZEITSTOPP_TAGE) : "Keine Position im Chart"
-    table.cell(tafel, 0, 3, positionText, text_color=chart.fg_color, text_size=size.small)
+    statusFarbe = wahl >= 0 ? (richtung > 0 ? GRUEN : ROT) : grund != "" or ueberhitzt or (mitShort and ueberverkauft) ? color.orange : chart.fg_color
+    zeile(1, "Heute", status, statusFarbe)
+    auftragText = auftragRichtung != 0 ? "Limit " + zahl(auftragLimit) + " · Stop " + zahl(auftragStop) + " · Ziel " + zahl(auftragZiel) + (wahl >= 0 ? " · CRV " + deutsch(str.tostring(crv, "0.0")) : "") : wahl >= 0 ? "keiner – die Position im Chart ist noch offen" : "keiner"
+    zeile(2, "Auftrag morgen", auftragText, chart.fg_color)
+    positionText = posRichtung != 0 ? (posRichtung > 0 ? "Long" : "Short") + " seit " + datumText(posZeit) + " zu " + zahl(posEinstieg) + " · Tag " + str.tostring(bar_index - posStart + 1) + "/" + str.tostring(ZEITSTOPP_TAGE) + " · " + rText(posRichtung * (close - posEinstieg) / math.abs(posKurs - posStop)) : "keine"
+    zeile(3, "Position im Chart", positionText, chart.fg_color)
     marktText = not marktfilter ? "Marktfilter aus" : na(marktLage) ? "Marktlage unbekannt" : marktLage == 1 ? "Nasdaq-100 über 200-Tage-Linie: nur Long" : "Nasdaq-100 unter 200-Tage-Linie: " + (mitShort ? "nur Short" : "kein Trade")
-    table.cell(tafel, 0, 4, marktText, text_color=chart.fg_color, text_size=size.small)
-    zeitraum = statistikMonate > 0 ? "letzte " + str.tostring(statistikMonate) + " Monate" : anzahl > 0 ? "seit " + datumText(ersterTrade) : "ganzer Chart"
-    bilanz = anzahl > 0 ? "Bilanz im Chart (" + zeitraum + "): " + str.tostring(anzahl) + " Trades · Treffer " + str.tostring(math.round(100.0 * gewinner / anzahl)) + " % · " + rText(summeR) + " ≈ " + euroText(summeR * konto * risikoProzent / 100) : "Bilanz im Chart (" + zeitraum + "): noch keine abgeschlossenen Trades"
-    table.cell(tafel, 0, 5, bilanz, text_color=anzahl > 0 ? (summeR >= 0 ? color.green : color.red) : chart.fg_color, text_size=size.small)
+    zeile(4, "Markt", marktText, na(marktLage) or not marktfilter ? chart.fg_color : marktLage == 1 ? GRUEN : ROT)
+    zeitraum = statistikMonate > 0 ? "letzte " + str.tostring(statistikMonate) + " Monate" : "ganzer Chart"
+    zeile(5, "Trades (" + zeitraum + ")", anzahl > 0 ? str.tostring(anzahl) + " · Ziel " + str.tostring(nZiel) + " · Stop " + str.tostring(nStop) + " · Zeitstopp " + str.tostring(nZeit) : "noch keine abgeschlossenen", chart.fg_color)
+    zeile(6, "Trefferquote", anzahl > 0 ? str.tostring(math.round(100.0 * gewinner / anzahl)) + " %" : "–", chart.fg_color)
+    zeile(7, "Ø je Trade", anzahl > 0 ? rText2(summeR / anzahl) + " ≈ " + euroText(summeR / anzahl * eineR) : "–", anzahl > 0 ? (summeR >= 0 ? GRUEN : ROT) : chart.fg_color)
+    zeile(8, "Summe", anzahl > 0 ? rText(summeR) + " ≈ " + euroText(summeR * eineR) + " · bester " + rText(besterR) + " · schlechtester " + rText(schlechtesterR) : "–", anzahl > 0 ? (summeR >= 0 ? GRUEN : ROT) : chart.fg_color)
+    zeile(9, "Nicht genommen", "Marktfilter " + str.tostring(nFilter) + " · Long+Short zugleich " + str.tostring(nKonflikt) + " · ausgeschaltet " + str.tostring(nAus) + " · Limit verpasst " + str.tostring(nVerfallen), GRAU)
     hinweis = not timeframe.isdaily ? "Bitte Tageschart (1D) wählen" : unbereinigt ? "Unten rechts „ADJ“ einschalten (Dividenden bereinigen) – sonst weichen Signale vom Bot ab" : "Nur diese Aktie, ohne Lernregel und Quartalszahlen – maßgeblich ist der Bericht des Bots"
-    table.cell(tafel, 0, 6, hinweis, text_color=not timeframe.isdaily or unbereinigt ? color.red : chart.fg_color, text_size=size.small)
+    zeile(10, "Hinweis", hinweis, not timeframe.isdaily or unbereinigt ? ROT : GRAU)
 
 // Alarme (Benachrichtigung aufs Handy): Rechtsklick im Chart → „Alarm hinzufügen“ → Bedingung „Swing-Bot“
 alertcondition(kaufSignal, title="Swing-Bot: KAUFEN-Signal", message="Swing-Bot: KAUFEN-Signal bei {{ticker}} (Schluss {{close}})")
