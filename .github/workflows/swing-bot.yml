@@ -59,11 +59,17 @@ jobs:
         env:
           ERGEBNIS: ${{ steps.bot.outcome }}
         run: |
-          if [ "$ERGEBNIS" != "success" ]; then
-            echo "> ❌ Der Bot-Lauf ist nicht sauber durchgelaufen ($ERGEBNIS) – Details im Protokoll des Schritts Bot laufen lassen." >> "$GITHUB_STEP_SUMMARY"
+          case "$ERGEBNIS" in
+            success) ;;
+            failure) echo "> ❌ Der Bot ist mit einem Fehler abgebrochen – der Grund steht unten im Bericht, Details im Schritt Bot laufen lassen." ;;
+            cancelled) echo "> ❌ Der Lauf wurde abgebrochen (von Hand oder nach 30 Minuten). Der nächste Lauf rechnet weiter." ;;
+            *) echo "> ❌ Der Bot ist gar nicht gestartet: ein Schritt davor (z. B. Pakete installieren) ist fehlgeschlagen – Details dort. Der nächste Lauf versucht es erneut." ;;
+          esac >> "$GITHUB_STEP_SUMMARY"
+          # Nur einen Bericht dieses Laufs zeigen, nicht den vom letzten Mal
+          if [ -f bericht/README.md ] && { [ "$ERGEBNIS" = "success" ] || [ "$ERGEBNIS" = "failure" ]; }; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat bericht/README.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          if [ -f bericht/README.md ]; then cat bericht/README.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Ergebnis speichern
         if: always()
@@ -86,5 +92,5 @@ jobs:
             fi
             sleep $((versuch * 5))
           done
-          echo "::error::Nicht gespeichert: papier/ oder bericht/ wurde während des Laufs geändert (z. B. Datei hochgeladen). Der nächste Lauf rechnet vom gespeicherten Stand weiter."
+          echo "::error::Nicht gespeichert – meist, weil papier/ oder bericht/ während des Laufs geändert wurde (z. B. Datei hochgeladen). Sonst steht der Grund im Protokoll darüber (z. B. Zweigschutz oder GitHub-Störung). Der nächste Lauf rechnet vom gespeicherten Stand weiter."
           exit 1

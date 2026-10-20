@@ -35,7 +35,9 @@ Neue Zelle anlegen, einfügen und mit Umschalt + Enter ausführen:
 %run swing_scanner.py --konto 10000 --risiko 1
 ```
 
-Mit `%run` erscheinen farbige Tabellen und ein Diagramm; mit `!python swing_scanner.py` die Textversion. Das Skript kommt aus dem Hauptzweig `main` – steht in einem älteren Notebook noch `claude/new-session-hbq1tg` in der Adresse, dort durch `main` ersetzen.
+Mit `%run` erscheinen farbige Tabellen und ein Diagramm; mit `!python swing_scanner.py` die Textversion.
+
+Das Skript kommt aus dem Hauptzweig `main` – das klappt erst, wenn der Pull Request übernommen ist (**Merge**, siehe GitHub Actions Schritt 1); bis dahin steht statt `main` noch `claude/new-session-hbq1tg` in der Adresse (sonst Fehler 404). In älteren Notebooks (auch `Trading_bot.ipynb`) danach die ganze `wget`-Zeile durch die `curl`-Zeile oben ersetzen, nicht nur den Zweig – `wget -q` verschweigt Fehler und hinterlässt eine leere Datei, dann zeigt `%run` gar nichts. Den Zweig `claude/new-session-hbq1tg` erst löschen, wenn alle Notebooks umgestellt sind.
 
 Mit Papier-Depot (Vorwärtstest mit virtuellem Geld, Stand in deinem Google Drive) – Colab fragt beim ersten Mal nach der Erlaubnis für Drive. Am besten jeden Börsentag einmal abends nach 22:15 Uhr starten (dann ist der US-Handelstag fertig; mit Krypto auf der Liste zählt ein Tag erst nach 2:00 Uhr). `--papier-neu` nur einmal zum Neuanfangen anhängen und danach wieder weglassen:
 
@@ -56,7 +58,7 @@ python swing_scanner.py
 
 Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach jedem US-Börsentag kostenlos in der Cloud bei GitHub: um 22:30 Uhr UTC, also 0:30 Uhr deutscher Sommerzeit (dann Di–Sa) bzw. 23:30 Uhr Winterzeit (Mo–Fr). Du musst keine Seite offen lassen und nichts neu laden. Einrichten und Einstellungen gehen nur im Browser (am Handy notfalls „Desktop-Website“), nicht in der GitHub-App; lesen kannst du den Bericht auch in der App.
 
-1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → **Merge**). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`.
+1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → **Merge**). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`. Willst du ein anderes Startkapital als 10.000 €, trag es vorher ein (Schritt 5).
 2. **Sofort testen:** **Actions → Swing-Bot → Run workflow**. Ein Lauf dauert einige Minuten. Danach gibt es die Ordner `bericht` und `papier`.
 3. **Ergebnis ansehen:** Im Repository die Datei `bericht/README.md` öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot und Rückblick; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung). Steht dort ❌, steht der Grund gleich dabei.
 4. **Papier-Depot:** liegt in `papier/papier_depot.json` und wird nach jedem Lauf gespeichert. Der Bot holt verpasste Tage nach, falls GitHub einen Lauf auslässt oder Yahoo einmal nicht antwortet. Dein bisheriges Depot aus Google Drive weiterführen: erst einmal Schritt 2, dann `MyDrive/swing_scanner/papier_depot.json` aus Drive herunterladen, im Repository den Ordner `papier` öffnen → **Add file → Upload files** → Datei hineinziehen (sie muss genau `papier_depot.json` heißen und ersetzt die vom ersten Lauf) → **Commit changes**. Nicht hochladen, während gerade ein Lauf arbeitet (sonst wird dieser Lauf nicht gespeichert; der nächste rechnet weiter). Drive-Depot und GitHub-Depot sind danach zwei getrennte Dateien – wenn du beide fortschreibst, laufen sie auseinander.
@@ -64,7 +66,7 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach j
 
 | Name | Beispiel | Bedeutung |
 | --- | --- | --- |
-| `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000; auch `10.000 €` geht) |
+| `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000; auch `10.000 €` oder `10.000,00` geht). Fürs Papier-Depot zählt der Betrag nur beim Anlegen – also am besten **vor** dem ersten Lauf eintragen; später geändert: `papier/papier_depot.json` löschen, dann fängt es mit dem neuen Betrag an (der Bericht weist darauf hin). |
 | `RISIKO` | `1` | Risiko je Trade in % (Standard 1; auch `1,5 %` geht) |
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
 | `OPTIONEN` | `--ohne-short --ohne-news` | nur diese Schalter, mit Leerzeichen getrennt: `--ohne-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
@@ -77,7 +79,7 @@ Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später u
 
 Die Datei [`tradingview/swing_bot_signale.pine`](tradingview/swing_bot_signale.pine) ist ein Indikator für TradingView (auch im kostenlosen Tarif). Er zeigt im Tageschart jeder Aktie, was der Bot kaufen würde und was nicht – zum Vergleich mit deinen eigenen Linien und Indikatoren:
 
-- **▲ Name = KAUFEN, ▼ Name = SHORT** (grünes bzw. rotes Schild mit der Strategie): Auftrag für den nächsten Handelstag. Maus darüber (am Handy antippen) zeigt Limit, Stop, Ziel und CRV. Ein blasses ▲/▼ ohne Schild ist ein Signal, während im Chart noch ein Trade läuft – der Bot gibt dann keinen neuen Auftrag (ein Alarm meldet es trotzdem).
+- **▲ Name = KAUFEN, ▼ Name = SHORT** (grünes bzw. rotes Schild mit der Strategie): Auftrag für den nächsten Handelstag. Maus darüber (am Handy antippen) zeigt Limit, Stop, Ziel und CRV. Ein blasses ▲/▼ ohne Schild ist ein Signal, während im Chart noch ein Trade läuft – der Bot gibt dann keinen neuen Auftrag (ein Alarm meldet es trotzdem). Vor dem eingestellten Zeitraum (Zahnrad, Standard 12 Monate) rechnet der Indikator keine Trades: Dort stehen Signale nur als kräftige ▲/▼ ohne Schild, ohne Zonen und ohne graue Signale.
 - **Jeder Trade wie mit dem Positions-Werkzeug von TradingView:** grüne Zielzone, rote Stop-Zone und Einstiegslinie vom Einstieg bis zum Ausstieg, eine gepunktete Linie zum Ausstiegskurs und dort ein Schild mit dem Ergebnis, z. B. „+1,9 R · Ziel“ (grün), „−1,0 R · Stop“ (rot) oder „+0,3 R · Zeitstopp“ (grau, nach 20 Handelstagen). 1 R ist der geplante Verlust bis zum Stop, bei 1 % Risiko und 10.000 € also rund 100 €. Gerechnet wird wie im Papier-Depot des Bots (Einstieg am nächsten Handelstag zur Eröffnung nur bis zum Limit, Stop vor Ziel, Kurslücken zur Eröffnung, nach Spread und Gebühren); das Ergebnis eines Trades zählt wie im Strategie-Tagebuch höchstens ±3 R. Beim laufenden Trade stehen rechts Preisschilder für Ziel, Einstieg (Tag x/20) und Stop.
 - **Grau = der Bot handelt nicht**, mit Grund beim Antippen: „⏸ Marktfilter“, „⏸ Long + Short zugleich“ oder „⏸ … aus“ (Strategie ausgeschaltet) am ersten Tag, an den Folgetagen nur graue Punkte; „✕“ = Auftrag verfallen, weil die Eröffnung über dem Limit (Short: darunter) oder schon hinter dem Stop lag.
 - **Auftrag für den nächsten Handelstag:** gestrichelte Linien rechts neben der letzten Kerze (Limit, Stop, Ziel).
@@ -88,7 +90,7 @@ Einrichten geht nur am PC oder Tablet im Browser (die TradingView-Handy-App hat 
 
 1. Die Datei auf GitHub öffnen und mit dem Kopieren-Knopf („Copy raw file“) kopieren.
 2. Bei TradingView einen Chart öffnen, den **Pine-Editor** öffnen (seit 2025 rechts in der Seitenleiste, in älteren Ansichten unten), den Inhalt komplett ersetzen, **Zum Chart hinzufügen** und **Speichern** klicken.
-3. Tageschart (**1D**) wählen und unten rechts am Chart **ADJ** einschalten (Kurse für Dividenden bereinigen; in der App in den Chart-Einstellungen). Der Bot rechnet wie Yahoo mit dividendenbereinigten Kursen – ohne ADJ weichen die Signale bei Dividendenwerten wie XOM, JPM oder COST oft ab; die Infotafel zeigt dann rot „ADJ einschalten!“.
+3. Tageschart (**1D**) wählen und unten rechts am Chart **ADJ** einschalten (Kurse für Dividenden bereinigen; in der App in den Chart-Einstellungen). Der Bot rechnet wie Yahoo mit dividendenbereinigten Kursen – ohne ADJ weichen die Signale bei Dividendenwerten wie XOM, JPM oder COST oft ab; die Infotafel zeigt dann rot „ADJ einschalten!“. Signale gelten erst zum Tagesschluss (US-Börsenschluss 22:00 Uhr deutscher Zeit) – wie beim Bot. Solange die Tageskerze läuft, steht in der Infotafel „vorläufig“: Schild und Auftrag können sich bis zum Schluss noch ändern oder verschwinden (Alarme melden sich erst zum Schluss).
 4. Zahnrad am Indikator: Short-Signale, Marktfilter, Trades, graue Signale, Infotafel, Zeitraum (Standard 12 Monate, 0 = ganzer Chart), Konto, Risiko und jede Strategie einzeln an/aus. Strategien, die im Bericht des Bots „aus“ oder „pausiert“ sind, hier abschalten. Wird es am Handy zu voll: graue Signale ausschalten oder die Infotafel nach unten bzw. auf „sehr klein“ stellen.
 5. Benachrichtigung aufs Handy: Rechtsklick im Chart → **Alarm hinzufügen** → Bedingung „Swing-Bot“ → „Swing-Bot: KAUFEN-Signal“ oder „SHORT-Signal“ → „Einmal pro Balkenschluss“. Ein Alarm gilt nur für eine Aktie; im kostenlosen Tarif gibt es nur wenige Alarme und sie laufen nach einiger Zeit ab – für die ganze Watchlist ist der Bericht des Bots besser. Nach Änderungen im Zahnrad den Alarm neu anlegen.
 

@@ -18,7 +18,8 @@
 // Was der Indikator NICHT kann (das macht nur der Bot): die Lernregel über alle Aktien deiner Watchlist, die
 // Quartalszahlen-Regel, die Schlagzeilen und die Grenzen für das ganze Depot (5 Positionen, 5 % Risiko, Geld).
 // Die Trades im Chart sind deshalb die eines Depots, das nur diese eine Aktie handelt; wie der Rückblick des Bots
-// beginnt es leer am Anfang des eingestellten Zeitraums (Standard: 12 Monate). Ergebnisse in R wie im
+// beginnt es leer am Anfang des eingestellten Zeitraums (Standard: 12 Monate; davor nur kräftige ▲/▼ ohne Trades).
+// Ergebnisse in R wie im
 // Strategie-Tagebuch (nach Spread und Gebühren, höchstens ±3 R); € = R × Konto × Risiko – der Bot kauft aber höchstens
 // für 25 % des Kontos und nur ganze Aktien, bei teuren oder ruhigen Aktien riskiert er weniger. Strategien, die im Bericht
 // des Bots „aus“ oder „pausiert“ sind, kannst du unten in den Einstellungen abschalten. In den ersten Monaten eines
@@ -250,6 +251,7 @@ imZeitraum = time >= grenzeZeit
 euroHinweis = "1 R = Konto × Risiko = " + deutsch(str.tostring(eineR, "#,###")) + " €. Der Bot kauft höchstens für 25 % des Kontos und nur ganze Aktien – bei teuren oder ruhigen Aktien riskiert er weniger, die €-Beträge sind dann kleiner."
 var label ausstiegLabel = na
 ausstiegHeute = false
+ausstiegTipp = ""
 
 // 1) Auftrag vom Vortag zur Eröffnung: nur bis zum Limit und nicht hinter dem Stop, sonst verfällt er
 if auftragRichtung != 0
@@ -345,6 +347,7 @@ if posRichtung != 0
             tipp = array.get(namen, posStrategie) + (r > 0 ? " · Long" : " · Short") + "\nEinstieg " + datumText(posZeit) + " zu " + zahl(posEinstieg) + "\nStop " + zahl(posStop) + " · Ziel " + zahl(posZiel) + "\nAusstieg " + datumText(time) + " zu " + zahl(preis) + " (" + ausstiegGrund + ")\n" + str.tostring(bar_index - posStart + 1) + " Handelstage · " + rText2(ergebnisR) + " ≈ " + euroText(ergebnisR * eineR) + "\nNach Spread und Gebühren, höchstens ±3 R wie im Strategie-Tagebuch. " + euroHinweis
             ausstiegLabel := label.new(bar_index, oberhalb ? high : low, rText(ergebnisR) + " · " + ausstiegGrund, style=oberhalb ? label.style_label_down : label.style_label_up, color=color.new(farbe, 10), textcolor=color.white, size=size.small, tooltip=tipp)
             ausstiegHeute := true
+            ausstiegTipp := tipp
         posRichtung := 0
 
 // 3) Signal zum Schlusskurs: Auftrag für den nächsten Handelstag – nur ohne offene Position (wie im Bot)
@@ -361,7 +364,7 @@ if neuerAuftrag
     // Am Ausstiegstag schon ein Schild an der Kerze? Dann dort anhängen statt ein zweites Schild zu stapeln
     if ausstiegHeute
         label.set_text(ausstiegLabel, label.get_text(ausstiegLabel) + "\nneu: " + signalText)
-        label.set_tooltip(ausstiegLabel, "Ausstieg und neues Signal am selben Tag.\n\n" + signalTipp)
+        label.set_tooltip(ausstiegLabel, ausstiegTipp + "\n\nAm selben Tag neues Signal:\n" + signalTipp)
     else
         label.new(bar_index, richtung > 0 ? low : high, signalText, style=richtung > 0 ? label.style_label_up : label.style_label_down, color=color.new(richtung > 0 ? GRUEN : ROT, 10), textcolor=color.white, size=size.small, tooltip=signalTipp)
 
@@ -372,9 +375,13 @@ if ersterTag
     nKonflikt += sperre == 1 ? 1 : 0
     nAus += sperre == 2 ? 1 : 0
     nFilter += sperre == 3 ? 1 : 0
-    if zeigeGrau
+    if zeigeGrau and ausstiegHeute
+        label.set_text(ausstiegLabel, label.get_text(ausstiegLabel) + "\n⏸ " + grundKurz)
+        label.set_tooltip(ausstiegLabel, ausstiegTipp + "\n\nAm selben Tag nicht genommen: " + grund + ".")
+    else if zeigeGrau
         label.new(bar_index, grundRichtung < 0 ? high : low, "⏸ " + grundKurz, style=grundRichtung < 0 ? label.style_label_down : label.style_label_up, color=GRAU, textcolor=color.white, size=size.tiny, tooltip="Der Bot handelt nicht: " + grund + ". Solange das so bleibt, folgen nur graue Punkte.")
-plotshape(zeigeGrau and gesperrt and not ersterTag, title="Nicht genommen (Folgetag)", style=shape.circle, location=location.belowbar, color=GRAU, size=size.tiny)
+plotshape(zeigeGrau and gesperrt and not ersterTag and grundRichtung < 0, title="Nicht genommen (Folgetag, Short)", style=shape.circle, location=location.abovebar, color=GRAU, size=size.tiny)
+plotshape(zeigeGrau and gesperrt and not ersterTag and grundRichtung >= 0, title="Nicht genommen (Folgetag)", style=shape.circle, location=location.belowbar, color=GRAU, size=size.tiny)
 
 // ---------- Anzeige ----------
 bgcolor(zeigeHintergrund and marktfilter and marktLage == 0 ? color.new(ROT, 92) : na, title="Abwärtsmarkt (Marktfilter)")
@@ -434,7 +441,7 @@ zeile(int nr, string links, string rechts, color farbe, color hintergrund, strin
     table.cell(tafel, 0, nr, links, text_color=GRAU, text_size=tafelSchrift, text_halign=text.align_left, tooltip=tipp)
     table.cell(tafel, 1, nr, rechts, text_color=farbe, bgcolor=hintergrund, text_size=tafelSchrift, text_halign=text.align_left, tooltip=tipp)
 if barstate.islast and zeigeTafel
-    zeile(0, "Swing-Bot", "Schluss " + datumText(time) + (barstate.isconfirmed ? "" : " · vorläufig"), chart.fg_color, na, barstate.isconfirmed ? "Entscheidung zum Schlusskurs dieses Tages – wie der Bot." : "Die Tageskerze läuft noch: Signal und Auftrag können sich bis zum Schluss ändern.")
+    zeile(0, "Swing-Bot", "Schluss " + datumText(time) + (barstate.isconfirmed ? "" : " · vorläufig (Kerze läuft)"), chart.fg_color, na, barstate.isconfirmed ? "Entscheidung zum Schlusskurs dieses Tages – wie der Bot." : "Die Tageskerze läuft noch: Signal und Auftrag können sich bis zum Schluss ändern.")
     zuWenig = bar_index < 49
     status = zuWenig ? "❌ zu wenig Historie" : wahl >= 0 ? (richtung > 0 ? "🟢 KAUFEN · " : "🔴 SHORT · ") + array.get(namen, wahl) : sperre != 0 ? "⏸ WARTEN · " + grundKurz : ueberhitzt ? "⚠️ GEWINNE SICHERN" : mitShort and ueberverkauft ? "⚠️ GEWINNE SICHERN" : "BEOBACHTEN"
     statusTipp = zuWenig ? "Unter 50 Tageskerzen – der Bot meldet hier einen Fehler und handelt nicht." : wahl >= 0 ? "Signal zum Schlusskurs: " + (richtung > 0 ? "KAUFEN" : "SHORT") + " mit " + array.get(namen, wahl) + "." : sperre != 0 ? "Der Bot handelt nicht: " + grund + "." : ueberhitzt ? "Überhitzt (RSI über 70 oder am oberen Bollinger-Band) – nur ein Hinweis, falls du Long im Depot hast." : mitShort and ueberverkauft ? "Überverkauft (RSI unter 32 oder am unteren Bollinger-Band) – nur ein Hinweis, falls du Short im Depot hast." : "Kein Signal – der Bot beobachtet."

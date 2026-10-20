@@ -199,19 +199,22 @@ SPALTEN = ["Ticker", "Signal", "Strategie", "Kurs", "Limit", "Stop", "Ziel", "CR
 # ----------------------------------------------------------------------------
 # Einstellungen
 # ----------------------------------------------------------------------------
-def zahl(text):
+def zahl(text, zeige=None):
     """Erlaubt auch ein deutsches Komma und Einheiten, z. B. --risiko 1,5 oder 1 %"""
     try:
         return float(re.sub(r"[\s€%]", "", str(text)).replace(",", "."))
     except ValueError:
-        raise argparse.ArgumentTypeError(f"'{text}' ist keine Zahl")
+        raise argparse.ArgumentTypeError(f"'{zeige if zeige is not None else text}' ist keine Zahl")
 
 def betrag(text):
-    """Kontogröße; erlaubt auch Tausenderpunkte, z. B. --konto 10.000"""
+    """Kontogröße; erlaubt auch Tausenderpunkte und Cent, z. B. --konto 10.000 oder 10.000,00 €"""
     s = re.sub(r"[€%]", "", str(text)).strip()
-    if re.fullmatch(r"\d{1,3}([.,\s]\d{3})+", s):
-        s = re.sub(r"[.,\s]", "", s)
-    return zahl(s)
+    m = re.fullmatch(r"(\d{1,3}(?:[.\s]\d{3})+)(?:,(\d*|-))?", s)
+    if m:
+        s = re.sub(r"[.\s]", "", m.group(1)) + ("." + m.group(2) if m.group(2) and m.group(2) != "-" else "")
+    elif re.fullmatch(r"\d{1,3}(,\d{3})+", s):
+        s = s.replace(",", "")
+    return zahl(s, text)
 
 def ticker_aus_text(text):
     """'aapl, NFLX nflx' -> ['AAPL', 'NFLX'] (groß geschrieben, ohne Duplikate, Reihenfolge bleibt)"""
@@ -2178,6 +2181,12 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
         zeilen.append("Mit --papier-neu neu angefangen – beim nächsten Lauf --papier-neu wieder weglassen, sonst beginnt "
                       "das Depot jedes Mal von vorn (ein vorheriger Stand bleibt jeweils als Kopie mit Datum im selben "
                       "Ordner).")
+    if not bericht["neu"] and abs(einst.konto - stand["startkapital"]) >= 0.5:
+        neu_anfangen = ("papier/papier_depot.json im Repository löschen" if os.environ.get("GITHUB_ACTIONS")
+                        else "einmal mit --papier-neu starten")
+        zeilen.append(f"ℹ️ Das Papier-Depot rechnet mit seinem Startkapital {de(stand['startkapital'], 0)} {waehrung} "
+                      f"weiter (Konto jetzt {de(einst.konto, 0)} {waehrung}). Neu anfangen mit dem neuen Betrag: "
+                      f"{neu_anfangen}.")
     if bericht["neu"] and erg is not None:
         zeilen.append(f"Neu angelegt mit {de(stand['startkapital'], 0)} {waehrung}. Ab jetzt handelt der Bot hier "
                       f"vorwärts nach seinen Regeln – jede Entscheidung nur mit Kursen, die es da schon gab. "
@@ -2530,7 +2539,8 @@ def bericht_datei_aus(argv):
     """--bericht DATEI aus der Befehlszeile – auch wenn eine andere Angabe fehlerhaft ist."""
     for i, a in enumerate(argv):
         if a == "--bericht" and i + 1 < len(argv):
-            return argv[i + 1]
+            # beginnt der nächste Teil mit '-', ist es eine andere Angabe: --bericht hatte keinen Dateinamen
+            return argv[i + 1] if argv[i + 1] == "-" or not argv[i + 1].startswith("-") else None
         if a.startswith("--bericht="):
             return a.split("=", 1)[1]
     return None
