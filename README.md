@@ -81,32 +81,49 @@ Der automatische Lauf schreibt jede Nacht Notizen für [Obsidian](https://obsidi
 
 - **`Start.md`** – Übersicht: heutige Signale, Übungsdepot, was der Bot gelernt hat, deine Regeln.
 - **`Tage/2026-10-21.md`** – Tagesnotiz: Marktlage, Entscheidungen, Übungsdepot, Änderungen beim Lernen.
-- **`Trades/…`** – je abgeschlossenem Trade im Übungsdepot eine Notiz: warum gekauft, was passiert ist (z. B. Stop durch Kurslücke, Gewinn wieder abgegeben) und **was der Bot daraus lernt**. Darunter ist Platz für deine Gedanken; diese Notiz ändert der Bot danach nicht mehr.
+- **`Trades/…`** – je abgeschlossenem Trade im Übungsdepot eine Notiz: warum gekauft, was passiert ist (z. B. Stop durch Kurslücke, Gewinn wieder abgegeben) und **was der Bot daraus lernt**. Darunter ist Platz für deine Gedanken; diese Notiz ändert der Bot danach nie mehr.
 - **`Strategien/…`** und **`Aktien/…`** – je eine Seite mit Bilanz, Lernstand (aktiv, pausiert, aus) und allen Trades, alles verlinkt.
 - **`Lehren.md`** – was der Bot aus allen Trades zieht: Lernregel, Ausstiegsgründe, Muster und ehrliche Hinweise zum Zufall.
-- **`Meine Regeln.md`** – die Seite gehört dir: **Haken setzen = Regel gilt.** Dort sperrst du Aktien oder schaltest Strategien aus; der Bot liest das bei jedem Lauf (für Signale, Papier-Depot und Rückblick) und meldet im Bericht, was er nicht verstanden hat.
+- **`Meine Regeln.md`** – die Seite gehört dir, der Bot ändert sie nie: **Haken setzen und hochladen = Regel gilt** (wie das Hochladen geht, steht unten). Dort sperrst du Aktien oder schaltest Strategien aus. Der Bot liest das bei jedem Lauf, meldet im Bericht, was er nicht verstanden hat, und zeigt auf der Startseite unter „Deine Regeln“, welche Regeln bei ihm angekommen sind.
 
-So lernt der Bot: Automatisch ändert er nur, welche Strategien er handelt (Lernregel: schlecht laufende Strategien pausieren), und er hält sich an deine Regeln. Muster wie „auf Aktie X läuft es schlecht“ zeigt er dir nur – bei wenigen Trades ist das oft Zufall. In den Notizen schreibt der Bot nur zwischen `BOT-ANFANG` und `BOT-ENDE`; was du darunter unter „Meine Notizen“ bzw. „Meine Gedanken“ schreibst, bleibt erhalten.
+**Was deine Regeln bewirken.** Ab dem nächsten Lauf nimmt der Bot gesperrte Aktien und ausgeschaltete Strategien nicht mehr für neue Signale und das Übungsdepot; offene Aufträge dafür streicht er, offene Positionen laufen normal zu Ende. Im Rückblick (Simulation der letzten 12 Monate) gelten die Regeln auch rückwirkend – wer im Nachhinein die Verlierer sperrt, lässt den Rückblick besser aussehen, als er war. Ehrlich ist nur das Übungsdepot.
+
+**So lernt der Bot.** Automatisch ändert er nur, welche Strategien er handelt (Lernregel: schlecht laufende Strategien pausieren), und er hält sich an deine Regeln. Muster wie „auf Aktie X läuft es schlecht“ zeigt er dir nur – bei wenigen Trades ist das oft Zufall. Ob du daraus eine Regel machst, entscheidest du.
+
+**Wo du selbst schreibst.** Am besten in den **Trade-Notizen unter „Meine Gedanken“** oder in eigenen Notizen im Ordner **`gehirn/Notizen`** – beide ändert der Bot nie. Danach **Git: Commit-and-sync**, sonst bleibt der Text nur auf diesem Gerät (dafür braucht es den Zugangs-Token, siehe „Regeln abhaken“). Auf den übrigen Seiten (Start, Tage, Strategien, Aktien, Lehren) besser nichts schreiben: Die schreibt der Bot fast jede Nacht neu, und ein nicht hochgeladener Text dort hält Obsidian davon ab, neue Notizen zu holen. (Was dort zwischen `BOT-ANFANG` und `BOT-ENDE` steht, ersetzt der Bot; Eigenschaften, Tags und hochgeladener Text darüber oder darunter bleiben erhalten.)
+
+> ⚠️ **Alles im Repository ist öffentlich.** Was du mit Commit-and-sync hochlädst – auch eingefügte Bilder –, kann jeder im Internet lesen. Keine persönlichen Daten, Kontonummern oder echten Depotdaten notieren.
 
 **Auf dem Handy einrichten (Android oder iPhone, einmalig ca. 10 Minuten).** Zum Lesen braucht es kein Passwort, weil das Repository öffentlich ist.
 
-1. Die App **Obsidian** installieren (Version 1.13 oder neuer). **Tresor erstellen** → Name `Test-Bot`. Bei der Frage nach Synchronisieren **„Vorerst überspringen“** – am iPhone **nicht** „In iCloud speichern“.
+1. Die App **Obsidian** installieren (Version 1.13 oder neuer). **Vault erstellen** → Name `Test-Bot`. Bei der Frage nach Synchronisieren **„Vorerst überspringen“** – am iPhone **nicht** „iCloud verwenden“.
 2. **Einstellungen** (Zahnrad) → **Externe Erweiterungen** → **Eingeschränkter Modus** ausschalten → bei **Community-Erweiterungen** auf **Durchsuchen** → **Git** (von Vinzent) → **Installieren** → **Aktivieren**.
 3. **Befehlspalette** öffnen (vom oberen Bildschirmrand nach unten wischen) → `clone` tippen → **Git: Clone an existing remote repo** → Adresse `https://github.com/sickingmalte-arch/Test-Bot.git` → **Vault Root** wählen → die Frage nach einem `.obsidian`-Ordner mit **NO** beantworten → die Tiefe leer lassen → warten, bis „Please restart Obsidian“ erscheint → die App ganz schließen und neu öffnen.
-4. **Einstellungen → Git**: **Pull on startup** einschalten (holt beim Öffnen die neuen Notizen), **Auto pull interval** z. B. `30`.
-5. Links im Dateibaum `gehirn` → `Start` öffnen und mit dem Stern als Lesezeichen merken.
+4. **Einstellungen → Git → Identity**: bei **Repository author name** deinen Vornamen und bei **Repository author email** eine E-Mail-Adresse eintragen (am besten die `…@users.noreply.github.com`-Adresse aus GitHub → Settings → Emails). **Wichtig:** Ohne Name und E-Mail holt die Handy-Version keine neuen Notizen (Fehler „Git author name and email are not set“).
+5. **Einstellungen → Git → Sync**: **Pull on startup** einschalten (holt beim Öffnen die neuen Notizen). Unter **Git → Automatic** bei **Auto pull interval (minutes)** z. B. `30` eintragen.
+6. Links im Dateibaum `gehirn` → `Start` öffnen und als Lesezeichen setzen (oben rechts **⋯** → **Lesezeichen**).
 
-Hängt oder stürzt das Klonen ab (die Handy-Version des Plugins gilt als experimentell): Die App **GitSync** (Android und iPhone) klont das Repository, danach den Ordner in Obsidian als Tresor öffnen.
+Hängt oder stürzt das Klonen ab (die Handy-Version des Plugins gilt als experimentell): Die App **GitSync** (Android und iPhone) klont das Repository, danach den Ordner in Obsidian als Vault öffnen.
 
-**Regeln abhaken.** Am einfachsten im Browser: auf GitHub `gehirn/Meine Regeln.md` öffnen → Stift-Symbol → aus `- [ ] HIMS` wird `- [x] HIMS` → **Commit changes**. Direkt in Obsidian geht es so (einmalig ein Zugangs-Token):
+**Regeln abhaken.** Am einfachsten im Browser: auf GitHub `gehirn/Meine Regeln.md` öffnen → Stift-Symbol → aus `- [ ] HIMS` wird `- [x] HIMS` → **Commit changes**. Eine Aktie, die noch nicht in der Liste steht, schreibst du als neue Zeile unter „Aktien sperren“, mit dem Kürzel wie im Bot (`- [x] TSLA`, nicht „Tesla“). Direkt in Obsidian geht es so (einmalig ein Zugangs-Token):
 
 1. Auf GitHub [diesen Link](https://github.com/settings/personal-access-tokens/new?name=Obsidian+Test-Bot&description=Obsidian+Git+Plugin&contents=write&expires_in=90) öffnen → **Only select repositories** → `Test-Bot` → **Generate token** → den Token (`github_pat_…`) kopieren. Er erscheint nur einmal und gehört **nie** in eine Notiz – alles im Repository ist öffentlich.
-2. In Obsidian **Einstellungen → Git → Identity**: Username `sickingmalte-arch`, beim Passwort/Token **Geheimnis hinzufügen** und den Token einfügen, dazu Name und E-Mail (am besten die `…@users.noreply.github.com`-Adresse aus GitHub → Settings → Emails).
-3. Nach dem Abhaken in `Meine Regeln`: Befehlspalette → **Git: Commit-and-sync**. Nicht kurz vor oder während des nächtlichen Laufs (um 0:30 bzw. 23:30 Uhr) – sonst wird dieser Lauf nicht gespeichert, der nächste rechnet weiter.
+2. Am Handy **Einstellungen → Git → Identity**: bei **Username on your Git server** `sickingmalte-arch` eintragen, bei **Git server password or access token** ein Geheimnis hinzufügen (Name nur mit kleinen Buchstaben, Zahlen und Bindestrichen, z. B. `github-token`) und den Token einfügen. Name und E-Mail hast du schon in Schritt 4 eingetragen.
+3. Nach dem Abhaken in `Meine Regeln`: Befehlspalette → **Git: Commit-and-sync**. Nicht kurz vor oder während des nächtlichen Laufs (um 0:30 bzw. 23:30 Uhr) – sonst wird dieser Lauf nicht gespeichert, der nächste rechnet weiter. Nach dem nächsten Lauf steht auf der Startseite unter „Deine Regeln“, ob die Regel angekommen ist.
+4. Der Token gilt 90 Tage (GitHub schickt vorher eine E-Mail). Danach den Link oben erneut öffnen, einen neuen Token erzeugen und unter **Git → Identity** das Geheimnis durch den neuen Token ersetzen. Solange das nicht passiert, kommen Haken aus Obsidian nicht beim Bot an.
 
-**Am PC (Windows).** [Git für Windows](https://git-scm.com/download/win) installieren (Standardwerte lassen). In PowerShell: `cd $HOME; mkdir Obsidian; cd Obsidian; git clone https://github.com/sickingmalte-arch/Test-Bot.git` (nicht in einen OneDrive-Ordner). Obsidian installieren → **Ordner als Tresor öffnen** → `Obsidian\Test-Bot` wählen → Plugin **Git** wie oben installieren → **Pull on startup** einschalten. Beim ersten „Commit-and-sync“ öffnet sich ein Anmeldefenster von GitHub.
+**Am PC (Windows).** [Git für Windows](https://git-scm.com/download/win) installieren (Standardwerte lassen). In PowerShell (Name und E-Mail wie in Schritt 4 oben):
 
-Tipps: Der Tresor ist das ganze Repository – unter **Einstellungen → Dateien & Links → Ignorierte Dateien** kannst du `bericht/`, `papier/` und `tradingview/` ausblenden. Obsidian-Einstellungen (`.obsidian/`) werden nicht hochgeladen. Am Handy gleicht Obsidian nur ab, solange die App offen ist.
+```powershell
+git config --global user.name "Dein Vorname"
+git config --global user.email "deine-adresse@users.noreply.github.com"
+cd $HOME; mkdir Obsidian; cd Obsidian
+git clone https://github.com/sickingmalte-arch/Test-Bot.git
+```
+
+Den Ordner nicht in OneDrive anlegen. Obsidian installieren → **Ordner als Vault öffnen** → `Obsidian\Test-Bot` wählen → Plugin **Git** wie oben installieren → **Git → Sync → Pull on startup** einschalten. Beim ersten „Commit-and-sync“ öffnet sich ein Anmeldefenster von GitHub (kein Token nötig).
+
+Tipps: Der Vault ist das ganze Repository. Unter **Einstellungen → Dateien & Links → Ignorierte Dateien** kannst du `bericht/`, `papier/` und `tradingview/` aus Suche und Graph heraushalten (im Dateibaum bleiben sie sichtbar). Obsidian-Einstellungen (`.obsidian/`, also auch dein Token) werden nicht hochgeladen. Am Handy holt Obsidian neue Notizen nur, solange die App offen ist.
 
 ### TradingView: Signale direkt im Chart
 
