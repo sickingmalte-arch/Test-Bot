@@ -181,3 +181,12 @@ cython_debug/
 .cursorindexingignore
 # Sicherungskopie des Papier-Depots (die Git-Historie hat ohnehin jeden alten Stand)
 papier/*.bak
+
+# Obsidian (das Repository ist zugleich dein Tresor): Einstellungen, Plugins und Zugangsdaten bleiben auf dem Gerät
+.obsidian/
+.trash/
+.DS_Store
+Thumbs.db
+
+# Zwischendateien beim Speichern (Papier-Depot, Gehirn)
+*.tmp

@@ -60,7 +60,7 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach j
 
 1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → **Merge**). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`. Willst du ein anderes Startkapital als 10.000 €, trag es vorher ein (Schritt 5).
 2. **Sofort testen:** **Actions → Swing-Bot → Run workflow**. Ein Lauf dauert einige Minuten. Danach gibt es die Ordner `bericht` und `papier`.
-3. **Ergebnis ansehen:** Im Repository die Datei `bericht/README.md` öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot und Rückblick; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung). Steht dort ❌, steht der Grund gleich dabei.
+3. **Ergebnis ansehen:** Im Repository die Datei `bericht/README.md` öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot und Rückblick; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung). Steht dort ❌, steht der Grund gleich dabei. Das Gehirn für Obsidian (Tagebuch, Lehren, deine Regeln) liegt im Ordner `gehirn` – siehe unten.
 4. **Papier-Depot:** liegt in `papier/papier_depot.json` und wird nach jedem Lauf gespeichert. Der Bot holt verpasste Tage nach, falls GitHub einen Lauf auslässt oder Yahoo einmal nicht antwortet. Dein bisheriges Depot aus Google Drive weiterführen: erst einmal Schritt 2, dann `MyDrive/swing_scanner/papier_depot.json` aus Drive herunterladen, im Repository den Ordner `papier` öffnen → **Add file → Upload files** → Datei hineinziehen (sie muss genau `papier_depot.json` heißen und ersetzt die vom ersten Lauf) → **Commit changes**. Nicht hochladen, während gerade ein Lauf arbeitet (sonst wird dieser Lauf nicht gespeichert; der nächste rechnet weiter). Drive-Depot und GitHub-Depot sind danach zwei getrennte Dateien – wenn du beide fortschreibst, laufen sie auseinander.
 5. **Einstellungen ohne Code:** **Settings → Secrets and variables → Actions → Tab „Variables“ → New repository variable**:
 
@@ -74,6 +74,39 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach j
 Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 
 Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Mit Krypto in `TICKER` rechnet das Papier-Depot einen Tag später weiter (der Krypto-Tag endet erst um 2:00 Uhr deutscher Sommerzeit). Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
+
+### Gehirn in Obsidian: Tagebuch, Lehren und deine Regeln
+
+Der automatische Lauf schreibt jede Nacht Notizen für [Obsidian](https://obsidian.md) in den Ordner `gehirn/` (lokal mit der Option `--gehirn`):
+
+- **`Start.md`** – Übersicht: heutige Signale, Übungsdepot, was der Bot gelernt hat, deine Regeln.
+- **`Tage/2026-10-21.md`** – Tagesnotiz: Marktlage, Entscheidungen, Übungsdepot, Änderungen beim Lernen.
+- **`Trades/…`** – je abgeschlossenem Trade im Übungsdepot eine Notiz: warum gekauft, was passiert ist (z. B. Stop durch Kurslücke, Gewinn wieder abgegeben) und **was der Bot daraus lernt**. Darunter ist Platz für deine Gedanken; diese Notiz ändert der Bot danach nicht mehr.
+- **`Strategien/…`** und **`Aktien/…`** – je eine Seite mit Bilanz, Lernstand (aktiv, pausiert, aus) und allen Trades, alles verlinkt.
+- **`Lehren.md`** – was der Bot aus allen Trades zieht: Lernregel, Ausstiegsgründe, Muster und ehrliche Hinweise zum Zufall.
+- **`Meine Regeln.md`** – die Seite gehört dir: **Haken setzen = Regel gilt.** Dort sperrst du Aktien oder schaltest Strategien aus; der Bot liest das bei jedem Lauf (für Signale, Papier-Depot und Rückblick) und meldet im Bericht, was er nicht verstanden hat.
+
+So lernt der Bot: Automatisch ändert er nur, welche Strategien er handelt (Lernregel: schlecht laufende Strategien pausieren), und er hält sich an deine Regeln. Muster wie „auf Aktie X läuft es schlecht“ zeigt er dir nur – bei wenigen Trades ist das oft Zufall. In den Notizen schreibt der Bot nur zwischen `BOT-ANFANG` und `BOT-ENDE`; was du darunter unter „Meine Notizen“ bzw. „Meine Gedanken“ schreibst, bleibt erhalten.
+
+**Auf dem Handy einrichten (Android oder iPhone, einmalig ca. 10 Minuten).** Zum Lesen braucht es kein Passwort, weil das Repository öffentlich ist.
+
+1. Die App **Obsidian** installieren (Version 1.13 oder neuer). **Tresor erstellen** → Name `Test-Bot`. Bei der Frage nach Synchronisieren **„Vorerst überspringen“** – am iPhone **nicht** „In iCloud speichern“.
+2. **Einstellungen** (Zahnrad) → **Externe Erweiterungen** → **Eingeschränkter Modus** ausschalten → bei **Community-Erweiterungen** auf **Durchsuchen** → **Git** (von Vinzent) → **Installieren** → **Aktivieren**.
+3. **Befehlspalette** öffnen (vom oberen Bildschirmrand nach unten wischen) → `clone` tippen → **Git: Clone an existing remote repo** → Adresse `https://github.com/sickingmalte-arch/Test-Bot.git` → **Vault Root** wählen → die Frage nach einem `.obsidian`-Ordner mit **NO** beantworten → die Tiefe leer lassen → warten, bis „Please restart Obsidian“ erscheint → die App ganz schließen und neu öffnen.
+4. **Einstellungen → Git**: **Pull on startup** einschalten (holt beim Öffnen die neuen Notizen), **Auto pull interval** z. B. `30`.
+5. Links im Dateibaum `gehirn` → `Start` öffnen und mit dem Stern als Lesezeichen merken.
+
+Hängt oder stürzt das Klonen ab (die Handy-Version des Plugins gilt als experimentell): Die App **GitSync** (Android und iPhone) klont das Repository, danach den Ordner in Obsidian als Tresor öffnen.
+
+**Regeln abhaken.** Am einfachsten im Browser: auf GitHub `gehirn/Meine Regeln.md` öffnen → Stift-Symbol → aus `- [ ] HIMS` wird `- [x] HIMS` → **Commit changes**. Direkt in Obsidian geht es so (einmalig ein Zugangs-Token):
+
+1. Auf GitHub [diesen Link](https://github.com/settings/personal-access-tokens/new?name=Obsidian+Test-Bot&description=Obsidian+Git+Plugin&contents=write&expires_in=90) öffnen → **Only select repositories** → `Test-Bot` → **Generate token** → den Token (`github_pat_…`) kopieren. Er erscheint nur einmal und gehört **nie** in eine Notiz – alles im Repository ist öffentlich.
+2. In Obsidian **Einstellungen → Git → Identity**: Username `sickingmalte-arch`, beim Passwort/Token **Geheimnis hinzufügen** und den Token einfügen, dazu Name und E-Mail (am besten die `…@users.noreply.github.com`-Adresse aus GitHub → Settings → Emails).
+3. Nach dem Abhaken in `Meine Regeln`: Befehlspalette → **Git: Commit-and-sync**. Nicht kurz vor oder während des nächtlichen Laufs (um 0:30 bzw. 23:30 Uhr) – sonst wird dieser Lauf nicht gespeichert, der nächste rechnet weiter.
+
+**Am PC (Windows).** [Git für Windows](https://git-scm.com/download/win) installieren (Standardwerte lassen). In PowerShell: `cd $HOME; mkdir Obsidian; cd Obsidian; git clone https://github.com/sickingmalte-arch/Test-Bot.git` (nicht in einen OneDrive-Ordner). Obsidian installieren → **Ordner als Tresor öffnen** → `Obsidian\Test-Bot` wählen → Plugin **Git** wie oben installieren → **Pull on startup** einschalten. Beim ersten „Commit-and-sync“ öffnet sich ein Anmeldefenster von GitHub.
+
+Tipps: Der Tresor ist das ganze Repository – unter **Einstellungen → Dateien & Links → Ignorierte Dateien** kannst du `bericht/`, `papier/` und `tradingview/` ausblenden. Obsidian-Einstellungen (`.obsidian/`) werden nicht hochgeladen. Am Handy gleicht Obsidian nur ab, solange die App offen ist.
 
 ### TradingView: Signale direkt im Chart
 
@@ -133,6 +166,7 @@ Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Qu
 | `--papier` | Papier-Depot fortschreiben (Vorwärtstest mit virtuellem Geld, Stand wird gespeichert); eigene Datei mit `--papier meine_datei.json` (in Colab ebenfalls im Drive-Ordner `swing_scanner`) |
 | `--papier-neu` | Papier-Depot neu anfangen (der bisherige Stand bleibt als Kopie mit Datum erhalten) |
 | `--bericht bericht/README.md` | alles zusätzlich als Markdown-Bericht speichern (Ticker als TradingView-Links; nutzt der automatische Lauf) |
+| `--gehirn` | Notizen für Obsidian in `gehirn/` schreiben (Tagesnotiz, Trade-Tagebuch mit Lehren, Strategie- und Aktien-Seiten) und dort `Meine Regeln.md` lesen (gesperrte Aktien, ausgeschaltete Strategien); eigener Ordner mit `--gehirn ORDNER` |
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
 
