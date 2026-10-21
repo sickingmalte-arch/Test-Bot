@@ -1,0 +1,96 @@
+# Swing-Bot automatisch: in der Nacht nach jedem US-Börsentag in der Cloud bei GitHub.
+# Ergebnis: bericht/README.md (Signale, Papier-Depot, Rückblick) und papier/papier_depot.json.
+# Einstellungen ohne Code ändern: Repository -> Settings -> Secrets and variables -> Actions ->
+# Tab "Variables": KONTO (z. B. 10000), RISIKO (z. B. 1), TICKER (z. B. "AAPL, NFLX, SOFI"),
+# OPTIONEN (nur Schalter wie "--ohne-short --ohne-news", siehe README).
+name: Swing-Bot
+
+on:
+  schedule:
+    # 22:30 UTC Mo–Fr = 0:30 Uhr (Sommerzeit, also Di–Sa) bzw. 23:30 Uhr (Winterzeit) deutscher Zeit –
+    # nach US-Schluss (16:00 Uhr New York). GitHub startet oft ein paar Minuten später.
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+
+permissions:
+  contents: write # Bericht und Papier-Depot zurück ins Repository schreiben
+
+concurrency:
+  group: swing-bot # nie zwei Läufe gleichzeitig (das Papier-Depot würde sich sonst überschreiben)
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # neuester Stand des Zweigs (wartet ein Lauf auf den vorigen, sieht er dessen Papier-Depot)
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-bot.txt
+
+      - name: Pakete installieren
+        run: pip install -r requirements-bot.txt
+
+      - name: Bot laufen lassen
+        id: bot
+        env:
+          KONTO: ${{ vars.KONTO || '10000' }}
+          RISIKO: ${{ vars.RISIKO || '1' }}
+          TICKER: ${{ vars.TICKER }}
+          OPTIONEN: ${{ vars.OPTIONEN }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -- --konto "$KONTO" --risiko "$RISIKO" --rueckblick 12 \
+                 --papier papier/papier_depot.json --bericht bericht/README.md
+          if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
+          # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
+          # shellcheck disable=SC2086
+          python swing_scanner.py "$@" $OPTIONEN
+
+      - name: Bericht in der Zusammenfassung anzeigen
+        if: always()
+        env:
+          ERGEBNIS: ${{ steps.bot.outcome }}
+        run: |
+          case "$ERGEBNIS" in
+            success) ;;
+            failure) echo "> ❌ Der Bot ist mit einem Fehler abgebrochen – der Grund steht unten im Bericht, Details im Schritt Bot laufen lassen." ;;
+            cancelled) echo "> ❌ Der Lauf wurde abgebrochen (von Hand oder nach 30 Minuten). Der nächste Lauf rechnet weiter." ;;
+            *) echo "> ❌ Der Bot ist gar nicht gestartet: ein Schritt davor (z. B. Pakete installieren) ist fehlgeschlagen – Details dort. Der nächste Lauf versucht es erneut." ;;
+          esac >> "$GITHUB_STEP_SUMMARY"
+          # Nur einen Bericht dieses Laufs zeigen, nicht den vom letzten Mal
+          if [ -f bericht/README.md ] && { [ "$ERGEBNIS" = "success" ] || [ "$ERGEBNIS" = "failure" ]; }; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat bericht/README.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Ergebnis speichern
+        if: always()
+        run: |
+          git config user.name "swing-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for ordner in papier bericht; do
+            if [ -e "$ordner" ]; then git add -A "$ordner"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "Nichts Neues zu speichern."
+            exit 0
+          fi
+          git commit -m "Swing-Bot: Bericht $(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M')"
+          for versuch in 1 2 3 4; do
+            if git pull --rebase --quiet origin "$GITHUB_REF_NAME"; then
+              git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $((versuch * 5))
+          done
+          echo "::error::Nicht gespeichert – meist, weil papier/ oder bericht/ während des Laufs geändert wurde (z. B. Datei hochgeladen). Sonst steht der Grund im Protokoll darüber (z. B. Zweigschutz oder GitHub-Störung). Der nächste Lauf rechnet vom gespeicherten Stand weiter."
+          exit 1
