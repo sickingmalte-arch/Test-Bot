@@ -1,5 +1,6 @@
 // Swing-Bot Signale – TradingView-Indikator zum Python-Bot swing_scanner.py
-// Zeigt im Tageschart, was der Bot kaufen (▲) oder shorten (▼) würde – und was nicht (grau, mit Grund):
+// Zeigt im Tageschart, was der Bot kaufen (▲) würde – und was nicht (grau, mit Grund); Short-Signale (▼) nur, wenn
+// im Zahnrad eingeschaltet (wie beim Bot standardmäßig aus):
 // jeder Trade wie mit dem Positions-Werkzeug von TradingView – grüne Zielzone, rote Stop-Zone, Einstiegslinie und
 // Ergebnis beim Ausstieg (+R/−R). Dazu der Auftrag für den nächsten Handelstag (Limit, Stop, Ziel), der Marktfilter
 // (Nasdaq-100 über/unter seiner 200-Tage-Linie, roter Hintergrund = Abwärtsmarkt) und eine Infotafel (Ort wählbar)
@@ -10,7 +11,9 @@
 // „Zum Chart hinzufügen“ → „Speichern“. Danach gibt es ihn auch in der Handy-App unter Indikatoren → Meine Skripte.
 // Nur für den Tageschart (1D) gedacht. Signale gelten zum Schlusskurs, Einstieg am nächsten Handelstag zur Eröffnung
 // nur bis zum Limit, Ausstieg an Stop oder Ziel (beides am selben Tag: Stop), Kurslücke darüber hinaus zur
-// Eröffnung, spätestens nach 20 Handelstagen zum Schluss – wie im Papier-Depot des Bots.
+// Eröffnung, spätestens nach 20 Handelstagen zum Schluss – wie im Papier-Depot des Bots. Stop und Ziel: Trend-Strategien
+// 3 ATR / 3 ATR, Gegenbewegungen (RSI-2, Gegenbewegung) 2,5 ATR / 2 ATR vom Schlusskurs – das Ziel liegt absichtlich
+// nicht weiter weg als der Stop (mehr Treffer, kleinere Gewinne je Treffer).
 // Unten rechts am Chart „ADJ“ einschalten (Kurse für Dividenden bereinigen): Der Bot rechnet wie Yahoo mit
 // dividendenbereinigten Kursen, sonst weichen die Signale bei Dividendenwerten oft ab. Ist ADJ aus, zeigt die
 // Infotafel einen roten Hinweis.
@@ -30,7 +33,7 @@ indicator("Swing-Bot Signale", shorttitle="Swing-Bot", overlay=true, max_labels_
 
 // ---------- Einstellungen ----------
 grpA = "Allgemein"
-mitShort = input.bool(true, "Short-Signale zeigen", group=grpA)
+mitShort = input.bool(false, "Short-Signale zeigen (im Test des Bots im Schnitt mit Verlust)", group=grpA)
 marktfilter = input.bool(true, "Marktfilter: Long nur über, Short nur unter der 200-Tage-Linie", group=grpA)
 marktSymbol = input.symbol("NASDAQ:QQQ", "Marktbarometer", group=grpA)
 zeigeHintergrund = input.bool(true, "Abwärtsmarkt rot hinterlegen", group=grpA)
@@ -71,6 +74,10 @@ s16 = input.bool(true, "ATR-Abbruch ↓", group=grpS, inline="h")
 ZEITSTOPP_TAGE = 20   // spätestens nach so vielen Handelstagen (inkl. Einstiegstag) aussteigen
 SPREAD = 0.001        // 0,1 % Spread je Order
 R_GRENZE = 3.0        // ein einzelner Trade zählt höchstens ±3 R (wie im Strategie-Tagebuch)
+STOP_TREND_ATR = 3.0  // Trend-Strategien: Stop 3 ATR und Ziel 3 ATR vom Schlusskurs
+ZIEL_TREND_ATR = 3.0
+STOP_GEGEN_ATR = 2.5  // Gegenbewegungen (RSI-2, Gegenbewegung): Stop 2,5 ATR und Ziel 2 ATR
+ZIEL_GEGEN_ATR = 2.0
 
 // ---------- Indikatoren (wie im Bot) ----------
 c = close
@@ -100,6 +107,10 @@ eng = breite <= ta.percentile_linear_interpolation(breite, 120, 15)
 squeezeVorher = ta.highest(eng ? 1 : 0, 5)[1] == 1
 keltnerOben = ema20 + 2 * atr
 keltnerUnten = ema20 - 2 * atr
+stT = STOP_TREND_ATR * atr
+ziT = ZIEL_TREND_ATR * atr
+stG = STOP_GEGEN_ATR * atr
+ziG = ZIEL_GEGEN_ATR * atr
 
 // ---------- Marktfilter: Lage des Nasdaq-100 am letzten Börsentag davor ----------
 // Wie im Bot mit dividendenbereinigten Kursen – unabhängig von der ADJ-Einstellung des Charts
@@ -116,29 +127,29 @@ gueltig(bool bedingung, float st, float zi, int r) =>
     bedingung and not na(atr) and st > 0 and zi > 0 and r * (c - st) > 0 and r * (zi - c) > 0 and bar_index >= 49
 
 // ---------- Die 16 Strategien (Reihenfolge = Vorrang), zuerst ohne Marktfilter ----------
-g01 = gueltig(c > hoch20 and vielVolumen and c > sma50, c - 2 * atr, c + 4 * atr, 1)
-g02 = mitShort and gueltig(c < tief20 and vielVolumen and c < sma50, c + 2 * atr, c - 4 * atr, -1)
-g03 = gueltig(rsi2 < 10 and c > sma200, c - 2 * atr, c + 2 * atr, 1)
-g04 = mitShort and gueltig(rsi2 > 90 and c < sma200, c + 2 * atr, c - 2 * atr, -1)
-g05 = gueltig(ueberverkauft and c > sma200 and ema20 - c >= 1.2 * atr, c - 1.2 * atr, ema20, 1)
-g06 = mitShort and gueltig(ueberhitzt and c < sma200 and c - ema20 >= 1.2 * atr, c + 1.2 * atr, ema20, -1)
-g07 = gueltig(kreuztHoch and c > sma50, c - 1.5 * atr, c + 3 * atr, 1)
-g08 = mitShort and gueltig(kreuztRunter and c < sma50, c + 1.5 * atr, c - 3 * atr, -1)
-g09 = gueltig(c > ema20 and c - ema20 <= 0.5 * atr and rsi14 < 60 and c > sma50, c - 1.5 * atr, c + 3 * atr, 1)
-g10 = mitShort and gueltig(c < ema20 and ema20 - c <= 0.5 * atr and rsi14 > 40 and c < sma50, c + 1.5 * atr, c - 3 * atr, -1)
-g11 = gueltig(squeezeVorher and c > oben and c[1] <= oben[1] and c > sma50, c - 2 * atr, c + 4 * atr, 1)
-g12 = mitShort and gueltig(squeezeVorher and c < unten and c[1] >= unten[1] and c < sma50, c + 2 * atr, c - 4 * atr, -1)
-g13 = gueltig(ema9 > ema21 and ema9[1] <= ema21[1] and c > sma50, c - 2 * atr, c + 4 * atr, 1)
-g14 = mitShort and gueltig(ema9 < ema21 and ema9[1] >= ema21[1] and c < sma50, c + 2 * atr, c - 4 * atr, -1)
-g15 = gueltig(c > keltnerOben and c[1] <= keltnerOben[1] and c > sma50, c - 2 * atr, c + 4 * atr, 1)
-g16 = mitShort and gueltig(c < keltnerUnten and c[1] >= keltnerUnten[1] and c < sma50, c + 2 * atr, c - 4 * atr, -1)
+g01 = gueltig(c > hoch20 and vielVolumen and c > sma50, c - stT, c + ziT, 1)
+g02 = mitShort and gueltig(c < tief20 and vielVolumen and c < sma50, c + stT, c - ziT, -1)
+g03 = gueltig(rsi2 < 10 and c > sma200, c - stG, c + ziG, 1)
+g04 = mitShort and gueltig(rsi2 > 90 and c < sma200, c + stG, c - ziG, -1)
+g05 = gueltig(ueberverkauft and c > sma200 and ema20 - c >= 1.2 * atr, c - stG, c + ziG, 1)
+g06 = mitShort and gueltig(ueberhitzt and c < sma200 and c - ema20 >= 1.2 * atr, c + stG, c - ziG, -1)
+g07 = gueltig(kreuztHoch and c > sma50, c - stT, c + ziT, 1)
+g08 = mitShort and gueltig(kreuztRunter and c < sma50, c + stT, c - ziT, -1)
+g09 = gueltig(c > ema20 and c - ema20 <= 0.5 * atr and rsi14 < 60 and c > sma50, c - stT, c + ziT, 1)
+g10 = mitShort and gueltig(c < ema20 and ema20 - c <= 0.5 * atr and rsi14 > 40 and c < sma50, c + stT, c - ziT, -1)
+g11 = gueltig(squeezeVorher and c > oben and c[1] <= oben[1] and c > sma50, c - stT, c + ziT, 1)
+g12 = mitShort and gueltig(squeezeVorher and c < unten and c[1] >= unten[1] and c < sma50, c + stT, c - ziT, -1)
+g13 = gueltig(ema9 > ema21 and ema9[1] <= ema21[1] and c > sma50, c - stT, c + ziT, 1)
+g14 = mitShort and gueltig(ema9 < ema21 and ema9[1] >= ema21[1] and c < sma50, c + stT, c - ziT, -1)
+g15 = gueltig(c > keltnerOben and c[1] <= keltnerOben[1] and c > sma50, c - stT, c + ziT, 1)
+g16 = mitShort and gueltig(c < keltnerUnten and c[1] >= keltnerUnten[1] and c < sma50, c + stT, c - ziT, -1)
 
 namen = array.from("Ausbruch ↑", "Abbruch ↓", "RSI-2-Rücksetzer ↑", "RSI-2-Übertreibung ↓", "Gegenbewegung ↑", "Rückfall ↓", "MACD-Wende ↑", "MACD-Wende ↓", "Rücksetzer ↑", "Erholung ↓", "Squeeze-Ausbruch ↑", "Squeeze-Abbruch ↓", "EMA-Kreuz ↑", "EMA-Kreuz ↓", "ATR-Ausbruch ↑", "ATR-Abbruch ↓")
 richtungen = array.from(1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1)
 roh = array.from(g01, g02, g03, g04, g05, g06, g07, g08, g09, g10, g11, g12, g13, g14, g15, g16)
 aktiv = array.from(s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s15, s16)
-stops = array.from(c - 2 * atr, c + 2 * atr, c - 2 * atr, c + 2 * atr, c - 1.2 * atr, c + 1.2 * atr, c - 1.5 * atr, c + 1.5 * atr, c - 1.5 * atr, c + 1.5 * atr, c - 2 * atr, c + 2 * atr, c - 2 * atr, c + 2 * atr, c - 2 * atr, c + 2 * atr)
-ziele = array.from(c + 4 * atr, c - 4 * atr, c + 2 * atr, c - 2 * atr, ema20, ema20, c + 3 * atr, c - 3 * atr, c + 3 * atr, c - 3 * atr, c + 4 * atr, c - 4 * atr, c + 4 * atr, c - 4 * atr, c + 4 * atr, c - 4 * atr)
+stops = array.from(c - stT, c + stT, c - stG, c + stG, c - stG, c + stG, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT)
+ziele = array.from(c + ziT, c - ziT, c + ziG, c - ziG, c + ziG, c - ziG, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT)
 
 // Marktfilter: Long-Strategien nur im Aufwärtsmarkt, Short-Strategien nur im Abwärtsmarkt
 feuert = array.new_bool(16, false)
@@ -177,8 +188,8 @@ if not konflikt
 richtung = wahl >= 0 ? array.get(richtungen, wahl) : 0
 stop = wahl >= 0 ? array.get(stops, wahl) : na
 ziel = wahl >= 0 ? array.get(ziele, wahl) : na
-mitte = (stop + ziel) / 2
-limit = richtung > 0 ? math.min(c + 0.5 * atr, mitte) : richtung < 0 ? math.max(c - 0.5 * atr, mitte) : na
+halb = c + (ziel - c) / 2  // Limit höchstens der halbe Weg vom Schluss zum Ziel
+limit = richtung > 0 ? math.min(c + 0.5 * atr, halb) : richtung < 0 ? math.max(c - 0.5 * atr, halb) : na
 crv = richtung != 0 ? richtung * (ziel - c) / (richtung * (c - stop)) : na
 kaufSignal = richtung > 0 and barstate.isconfirmed
 shortSignal = richtung < 0 and barstate.isconfirmed
