@@ -17,6 +17,7 @@ import re
 import shutil
 import sys
 import threading
+import unicodedata
 import time
 import urllib.parse
 from collections import deque
@@ -244,6 +245,10 @@ def lies_einstellungen():
                         "(in Colab in Google Drive, sonst in papier_depot.json)")
     p.add_argument("--papier-neu", action="store_true",
                    help="Papier-Depot neu anlegen (der bisherige Stand wird als Kopie aufbewahrt)")
+    p.add_argument("--gehirn", nargs="?", const="gehirn", metavar="ORDNER",
+                   help="Gehirn für Obsidian: Tagesnotiz, Trade-Tagebuch mit Lehren, Strategie- und Aktien-Seiten in "
+                        "ORDNER (Standard: gehirn); liest dort 'Meine Regeln.md' (gesperrte Aktien, ausgeschaltete "
+                        "Strategien)")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--bericht", metavar="DATEI",
                    help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
@@ -261,6 +266,8 @@ def lies_einstellungen():
         p.error("--rueckblick muss zwischen 0 und 18 Monaten liegen")
     einst.mit_short = MIT_SHORT and not einst.ohne_short
     einst.lernen = not einst.ohne_lernen
+    einst.sperre_ticker = frozenset()  # aus 'Meine Regeln' im Gehirn (--gehirn)
+    einst.sperre_strategien = frozenset()
     einst.marktfilter = not einst.ohne_marktfilter
     einst.bruchstuecke = BRUCHSTUECKE or einst.bruchstuecke
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
@@ -820,13 +827,17 @@ def signal_zuletzt(df, mit_short, markt=None):
     except Exception:
         return False
 
-def kandidaten(d, i, pausiert=frozenset()):
+def kandidaten(d, i, pausiert=frozenset(), aus=frozenset()):
     """Welche Strategien feuern am Tag i (Signal zum Schlusskurs) und was ist die Entscheidung?
     Gibt (gewählte Strategie oder None, Grund fürs Warten oder None) zurück. Dieselbe Regel gilt für den
-    Scanner und beide Depot-Läufe – mit und ohne Lernen unterscheiden sich nur durch die Pausen."""
+    Scanner und beide Depot-Läufe – mit und ohne Lernen unterscheiden sich nur durch die Pausen.
+    'aus': Strategien, die du in 'Meine Regeln' ausgeschaltet hast (gelten immer, auch ohne Lernen)."""
     feuernd = [k for k, (ok, _, _) in d["signale"].items() if ok[i]]
     if not feuernd:
         return None, None
+    if aus and all(k in aus for k in feuernd):
+        return None, f"{strategie_name(feuernd[0])} – von dir ausgeschaltet (Meine Regeln)"
+    feuernd = [k for k in feuernd if k not in aus]  # was du ausgeschaltet hast, zählt gar nicht (auch nicht als Widerspruch)
     if len({STRATEGIEN[k]["richtung"] for k in feuernd}) > 1:
         return None, "Signale widersprechen sich"
     if d["gesperrt"][i]:
@@ -1052,6 +1063,8 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
             if i is None or i >= d["n_fertig"]:
                 warten.append(auftrag)  # Ticker handelt heute nicht – Auftrag wartet
                 continue
+            if t in einst.sperre_ticker or auftrag["strategie"] in einst.sperre_strategien:
+                continue  # inzwischen in „Meine Regeln“ gesperrt: Auftrag wird gestrichen
             r, stop = auftrag["richtung"], auftrag["stop"]
             if t in positionen or not einstieg_moeglich(d, i, r, stop, auftrag["limit"]):
                 continue  # Kurslücke hinter den Stop oder über das Limit: Auftrag verfällt
@@ -1107,9 +1120,10 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
             if i is None or i >= d["n_fertig"]:
                 continue
             letzter_kurs[t] = (d["C"][i], d["FX"][i])
-            if t in positionen or i < MIN_KERZEN - 1 or (signal_ticker is not None and t not in signal_ticker):
+            if (t in positionen or i < MIN_KERZEN - 1 or (signal_ticker is not None and t not in signal_ticker)
+                    or t in einst.sperre_ticker):
                 continue
-            wahl, _ = kandidaten(d, i, pausiert)
+            wahl, _ = kandidaten(d, i, pausiert, einst.sperre_strategien)
             if wahl is None:
                 continue
             r = STRATEGIEN[wahl]["richtung"]
@@ -1222,7 +1236,9 @@ def scanner_zeile(t, d, pausiert, einst):
     kurs = d["C"][i] / rate
     if pd.isna(d["ATR"][i]) or pd.isna(kurs):
         return fehler_zeile(t, "Indikatoren unvollständig")
-    wahl, grund = kandidaten(d, i, pausiert if einst.lernen else frozenset())
+    wahl, grund = kandidaten(d, i, pausiert if einst.lernen else frozenset(), einst.sperre_strategien)
+    if wahl is not None and t in einst.sperre_ticker:
+        wahl, grund = None, f"{strategie_name(wahl)} – Aktie von dir gesperrt (Meine Regeln)"
     zeile = {"Ticker": t, "Kurs": kurs, "_stand": kurstag, "_offen": d["offen"] and not einst.nur_schluss,
              "_kerze_offen": d["offen"], "_strategie": wahl}
     termin = naechster_termin(d, kurstag)
@@ -1631,7 +1647,9 @@ def lern_tabelle(stand, einst, waehrung):
             einschaetzung = "klar im Minus"
         else:
             einschaetzung = "unklar – kann Zufall sein"
-        if not einst.lernen:
+        if key in einst.sperre_strategien:
+            status = "⛔ aus (von dir, Meine Regeln)"
+        elif not einst.lernen:
             status = "– (ohne Lernen)"
         elif s["im_minus"]:
             status = (f"⏸ aus (insgesamt im Minus: Ø {de(s['gesamt_schnitt'], 2, True)} R je Trade über "
@@ -2045,7 +2063,7 @@ def anpassungsfaktor(d, anker):
 def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
     """Rechnet das Papier-Depot bis zum letzten fertigen Kurstag weiter. Gibt (neuer Stand, Lauf, Bericht) zurück;
     Lauf ist None, wenn diesmal nicht weitergerechnet werden konnte (der Stand bleibt dann unverändert)."""
-    bericht = {"neu": stand is None, "anpassungen": [], "warnung": None, "nicht_ausgefuehrt": []}
+    bericht = {"neu": stand is None, "anpassungen": [], "warnung": None, "nicht_ausgefuehrt": [], "gestrichen": []}
     if stand is None:
         stand = neues_papier(einst)
     fehlen = [t for t in dict.fromkeys(x["ticker"] for x in stand["positionen"] + stand["auftraege"])
@@ -2109,7 +2127,10 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
         d = daten[a["ticker"]]
         neu = [tag for tag in d["idx"][:d["n_fertig"]] if lauf["bis"] is not None and tag > lauf["bis"]]
         if neu and neu[0] in set(erg["tage"]) and (a["ticker"], neu[0]) not in gekauft:
-            bericht["nicht_ausgefuehrt"].append(a["ticker"])
+            if a["ticker"] in einst.sperre_ticker or a["strategie"] in einst.sperre_strategien:
+                bericht["gestrichen"].append(a["ticker"])
+            else:
+                bericht["nicht_ausgefuehrt"].append(a["ticker"])
 
     neu = dict(stand)
     hoechstes = erg["hoechstes_risiko"]
@@ -2221,6 +2242,8 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
             if bericht["nicht_ausgefuehrt"]:
                 teile.append("nicht ausgeführt (Limit nicht erreicht, Kurslücke oder kein Platz/Geld): "
                              + ", ".join(bericht["nicht_ausgefuehrt"]))
+            if bericht.get("gestrichen"):
+                teile.append("gestrichen (Meine Regeln): " + ", ".join(bericht["gestrichen"]))
             zeilen.append(f"Neu {zeitraum}: " + ("; ".join(teile) if teile else "keine Käufe oder Verkäufe") + ".")
         else:
             zeilen.append(f"Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun "
@@ -2357,6 +2380,653 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
     zeige_papier(neu, erg, bericht, datei, einst, waehrung, notebook, vergleich, float(fx.iloc[-1]))
     return neu
 
+# ----------------------------------------------------------------------------
+# Gehirn für Obsidian: Notizen, die der Bot bei jedem Lauf schreibt – und „Meine Regeln“, die er liest
+# ----------------------------------------------------------------------------
+GEHIRN_ANFANG = "%% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%"
+GEHIRN_ANFANG_EINMAL = "%% BOT-ANFANG – einmal vom Bot geschrieben und danach nicht mehr geändert. %%"
+GEHIRN_ENDE = "%% BOT-ENDE %%"
+REGELN_DATEI = "Meine Regeln.md"
+
+class NotizFehler(Exception):
+    """Eine Notiz konnte nicht gelesen oder geschrieben werden (die übrigen Notizen werden trotzdem geschrieben)."""
+    def __init__(self, pfad, grund):
+        super().__init__(f"{pfad} {grund}")
+        self.pfad, self.grund = pfad, grund
+
+def notiz_name(text):
+    """Dateiname für Obsidian auf Windows, Android und iPhone: Zeichen, die Links oder Dateisysteme stören, werden
+    ersetzt (auch %%, Punkt oder Leerzeichen am Rand, reservierte Windows-Namen wie CON oder NUL)."""
+    name = unicodedata.normalize("NFC", str(text)).replace("%%", "%")
+    name = re.sub(r'[\\/:*?"<>|#^\[\]\x00-\x1f]', "-", name).strip(" .") or "-"
+    if re.fullmatch(r"(CON|PRN|AUX|NUL|COM\d|LPT\d)(\..*)?", name, re.IGNORECASE):
+        name += "_"
+    return name
+
+def strategie_datei(key):
+    s = STRATEGIEN[key]
+    return notiz_name(f"{s['name']} {'Long' if s['richtung'] > 0 else 'Short'}")
+
+def link_strategie(key):
+    return f"[[Strategien/{strategie_datei(key)}|{strategie_name(key)}]]"
+
+def link_aktie(t):
+    return f"[[Aktien/{notiz_name(t)}|{t}]]"
+
+def r_text(r, nachkomma=1):
+    return f"{de(r, nachkomma, True)} R"
+
+def dekodiere(roh):
+    """Text einer Notiz – auch wenn ein Windows-Editor sie nicht als UTF-8 gespeichert hat."""
+    kodierungen = (("utf-16",) if roh[:2] in (b"\xff\xfe", b"\xfe\xff") else ()) + ("utf-8-sig", "cp1252")
+    for kodierung in kodierungen:
+        try:
+            return roh.decode(kodierung)
+        except ValueError:
+            continue
+    return roh.decode("utf-8", errors="replace")
+
+def yaml_wert(v):
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if isinstance(v, (int, np.integer)):
+        return str(int(v))
+    if isinstance(v, (float, np.floating)):
+        return str(round(float(v), 2)) if math.isfinite(v) else '""'
+    if isinstance(v, (list, tuple)):  # Listen untereinander – so schreibt sie Obsidian selbst
+        return "".join(f"\n  - {yaml_wert(x)}" for x in v)
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(v)):
+        return str(v)
+    return json.dumps(str(v), ensure_ascii=False)
+
+def frontmatter_teilen(text):
+    """(Frontmatter ohne die ---‑Zeilen, Rest). Frontmatter gibt es nur, wenn die Datei mit --- beginnt."""
+    m = re.match(r"---[ \t]*\r?\n(.*?)^---[ \t]*(?:\r?\n|\Z)", text, re.S | re.M)
+    return (m.group(1), text[m.end():]) if m else ("", text)
+
+def eigenschaften_bloecke(frontmatter):
+    """Frontmatter in Einträge zerlegen: {Name: Originalzeilen}; eingerückte Folgezeilen (z. B. '  - x') gehören dazu."""
+    bloecke, name = {}, None
+    for zeile in frontmatter.splitlines():
+        m = re.match(r"([^\s#:-][^:]*):(.*)$", zeile)
+        if m:
+            name = m.group(1).strip()
+            bloecke[name] = [zeile]
+        elif name is not None and zeile.strip():
+            bloecke[name].append(zeile)
+    return bloecke
+
+def tags_aus(block):
+    """Tag-Werte aus einem tags-Eintrag (Liste untereinander, [a, b] oder einzelner Wert)."""
+    werte = [m.group(1) for z in block[1:] for m in [re.match(r"\s*-\s*(.+?)\s*$", z)] if m]
+    kopf = block[0].split(":", 1)[1].strip()
+    if kopf.startswith("["):
+        werte += kopf.strip("[]").split(",")
+    elif kopf:
+        werte += re.split(r"[,\s]+", kopf)
+    return [w.strip().strip("'\"").lstrip("#") for w in werte if w.strip().strip("'\"")]
+
+def schreibe_notiz(pfad, inhalt, eigenschaften=None, nur_neu=False, anfang=GEHIRN_ANFANG, rest_neu=""):
+    """Schreibt eine Notiz. Der Bot-Teil steht zwischen BOT-ANFANG und BOT-ENDE und wird jedes Mal ersetzt. Was
+    du darunter oder darüber schreibst und eigene Eigenschaften (Properties, Tags) bleiben erhalten.
+    nur_neu: eine bestehende Notiz nicht mehr ändern. Gibt zurück, ob die Notiz neu angelegt wurde."""
+    alt = None
+    if os.path.exists(pfad):
+        if nur_neu:
+            return False
+        try:
+            with open(pfad, "rb") as f:
+                alt = dekodiere(f.read())
+        except OSError as fehler:  # nie überschreiben, was sich nicht lesen ließ
+            raise NotizFehler(pfad, f"nicht lesbar ({fehler.strerror or type(fehler).__name__}) – "
+                                    "diesmal nicht aktualisiert") from fehler
+    eigenschaften = dict(eigenschaften or {})
+    eigene, oben, rest = [], "", rest_neu
+    if alt is not None:
+        frontmatter, koerper = frontmatter_teilen(alt.replace("\r\n", "\n"))
+        bloecke = eigenschaften_bloecke(frontmatter)
+        if "tags" in eigenschaften and "tags" in bloecke:
+            eigenschaften["tags"] = list(dict.fromkeys(list(eigenschaften["tags"]) + tags_aus(bloecke["tags"])))
+        eigene = [z for name, b in bloecke.items() if name not in eigenschaften for z in b]
+        start = koerper.find("%% BOT-ANFANG")
+        if start >= 0 and GEHIRN_ENDE in koerper[start:]:
+            oben, rest = koerper[:start], koerper[start:].split(GEHIRN_ENDE, 1)[1]
+        elif start >= 0:  # BOT-ENDE gelöscht: alten Bot-Teil ersetzen, deine Abschnitte darunter behalten
+            m = re.search(r"^#+ Meine (Notizen|Gedanken)\b", koerper[start:], re.M)
+            oben, rest = koerper[:start], ("\n\n" + koerper[start + m.start():] if m else rest_neu)
+        else:  # fremde Notiz ohne Markierung: nichts verlieren
+            rest = "\n\n" + koerper
+    kopf = ""
+    if eigenschaften or eigene:
+        kopf = ("---\n" + "".join(f"{k}:{'' if isinstance(v, (list, tuple)) else ' '}{yaml_wert(v)}\n"
+                                  for k, v in eigenschaften.items())
+                + "".join(z + "\n" for z in eigene) + "---\n")
+    text = kopf + oben + anfang + "\n" + inhalt.rstrip() + "\n" + GEHIRN_ENDE + rest
+    if text == alt:
+        return False  # unverändert: nicht neu schreiben (weniger Abgleich-Konflikte auf Handy und PC)
+    ordner = os.path.dirname(pfad) or "."
+    zwischen = os.path.join(ordner, "." + os.path.basename(pfad) + ".tmp")  # Punkt-Dateien sieht Obsidian nicht
+    try:
+        os.makedirs(ordner, exist_ok=True)
+        with open(zwischen, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+        os.replace(zwischen, pfad)
+    except OSError as fehler:
+        raise NotizFehler(pfad, f"nicht gespeichert ({fehler.strerror or type(fehler).__name__})") from fehler
+    return alt is None
+
+# --- Meine Regeln: der Bot liest die angehakten Kästchen ----------------------
+def regel_schluessel(text):
+    t = str(text).replace(" ", " ").replace("↑", " long ").replace("↓", " short ").lower()
+    t = re.sub(r"[()\-_]", " ", t)
+    return " ".join(t.split())
+
+def strategien_aus_text(text):
+    """Strategien zu einem Eintrag, z. B. 'EMA-Kreuz ↑', 'EMA-Kreuz Long' oder 'MACD-Wende' (dann beide Richtungen)."""
+    such = regel_schluessel(text)
+    treffer = [k for k in STRATEGIEN if such in (regel_schluessel(strategie_name(k)), regel_schluessel(k))]
+    return treffer or [k for k in STRATEGIEN if such == regel_schluessel(STRATEGIEN[k]["name"])]
+
+def regel_eintrag(text):
+    """Text eines Kästchens ohne Link-Klammern, Formatierung und Kommentar (alles nach „ – “)."""
+    eintrag = re.sub(r"\[\[(?:[^\]|]*/)?([^\]|]*)(?:\|([^\]]*))?\]\]", lambda m: m.group(2) or m.group(1), text)
+    return re.sub(r"\s+[–—-]\s.*$", "", eintrag).strip().strip("`*_").strip()
+
+def lies_meine_regeln(ordner):
+    """(gesperrte Ticker, ausgeschaltete Strategien, Hinweise) aus 'Meine Regeln.md'. Zählt nur angehakte Kästchen
+    (- [x]) unter Überschriften mit „Aktie“ bzw. „Strateg“ (tiefere Überschriften gehören dazu). Bricht nie ab."""
+    try:
+        with open(os.path.join(ordner, REGELN_DATEI), "rb") as f:
+            text = dekodiere(f.read())
+    except OSError:
+        return frozenset(), frozenset(), []
+    ticker, strategien, unbekannt, ausserhalb = set(), set(), [], []
+    bereich, ebene = None, 0
+    for zeile in text.splitlines():
+        kopf = re.match(r"\s*(#{1,6})\s+(.*)", zeile)
+        if kopf:
+            n, titel = len(kopf.group(1)), kopf.group(2).lower()
+            neu = "ticker" if ("aktie" in titel or "ticker" in titel) else "strategie" if "strateg" in titel else None
+            if neu or bereich is None or n <= ebene:
+                bereich, ebene = neu, n
+            continue
+        box = re.match(r"\s*(?:[-*+]|\d+[.)])\s+\[[xX]\]\s+(.+?)\s*$", zeile)
+        if not box:
+            continue
+        eintrag = regel_eintrag(box.group(1))
+        wort = eintrag.split()[0].upper() if eintrag.split() else ""
+        if bereich is None:
+            if strategien_aus_text(eintrag) or re.fullmatch(r"[A-Z0-9^][A-Z0-9.\-=^]{0,9}", eintrag.split()[0] if eintrag else ""):
+                ausserhalb.append(eintrag)
+        elif bereich == "ticker":
+            if re.fullmatch(r"[A-Z0-9^][A-Z0-9.\-=^]*", wort):
+                ticker.add(wort)
+            else:
+                unbekannt.append(eintrag)
+        else:
+            treffer = strategien_aus_text(eintrag)
+            strategien.update(treffer)
+            if not treffer:
+                unbekannt.append(eintrag)
+    hinweise = []
+    if unbekannt:
+        hinweise.append(f"In „Meine Regeln“ nicht erkannt: {', '.join(unbekannt)} – Schreibweise wie in der Liste verwenden.")
+    if ausserhalb:
+        hinweise.append(f"In „Meine Regeln“ angehakt, aber nicht unter „Aktien sperren“ bzw. „Strategien ausschalten“ – "
+                        f"nicht berücksichtigt: {', '.join(ausserhalb)}.")
+    return frozenset(ticker), frozenset(strategien), hinweise
+
+def meine_regeln_vorlage(ticker_liste):
+    zeilen = ["# 📝 Meine Regeln für den Bot", "",
+              "Der Bot liest diese Seite bei jedem Lauf. **Haken setzen = Regel gilt.** Er versteht nur die Kästchen – "
+              "für eigene Gedanken ist unten Platz.", "",
+              "> [!tip] So geht's",
+              "> - Kästchen antippen, damit ein Haken erscheint. Haken weg = Regel aus.",
+              "> - Eine andere Aktie sperren: unter „Aktien sperren“ eine neue Zeile `- [x] KÜRZEL`, z. B. `- [x] TSLA` "
+              "(das Kürzel wie im Bot, nicht der Firmenname).",
+              "> - Ein kurzer Grund darf dahinter stehen: `- [x] HIMS – zu wild`.",
+              "> - Damit der Bot den Haken sieht, muss die Seite bei GitHub ankommen: in Obsidian danach "
+              "**Git: Commit-and-sync** (braucht den Zugangs-Token aus der Anleitung) – oder gleich auf GitHub abhaken. "
+              "Ob es angekommen ist, steht nach dem nächsten Lauf auf der Startseite unter „Deine Regeln“.",
+              "> - Ab dem nächsten Lauf gilt die Regel für Signale und Papier-Depot; offene Aufträge dafür werden "
+              "gestrichen, offene Positionen laufen bis Stop, Ziel, Zeitstopp oder vor Quartalszahlen weiter. Im "
+              "Rückblick (Simulation der letzten Monate) gilt sie auch rückwirkend.", "",
+              "## Aktien sperren (der Bot kauft oder shortet sie nicht)", ""]
+    zeilen += [f"- [ ] {t}" for t in ticker_liste]
+    zeilen += ["", "## Strategien ausschalten (zusätzlich zur Lernregel des Bots)", ""]
+    zeilen += [f"- [ ] {strategie_name(k).replace(chr(160), ' ')}" for k in STRATEGIEN]
+    zeilen += ["", "## Meine Notizen", "", "Hier kannst du frei schreiben – der Bot liest diesen Teil nicht.", ""]
+    return "\n".join(zeilen)
+
+# --- Auswertungen fürs Gehirn ----------------------------------------------------
+def short_aus(key, einst):
+    return STRATEGIEN[key]["richtung"] < 0 and not einst.mit_short
+
+def strategie_status(key, stand, einst):
+    s = stand[key]
+    if short_aus(key, einst):
+        return "– aus (Short-Signale sind ausgeschaltet)"
+    if key in einst.sperre_strategien:
+        return "⛔ aus – von dir ausgeschaltet ([[Meine Regeln]])"
+    if not einst.lernen:
+        return "– (Lernen ausgeschaltet)"
+    if s["im_minus"]:
+        return f"⏸ aus – über ihre ganze Geschichte im Minus (Ø {r_text(s['gesamt_schnitt'], 2)} über {s['gesamt']} Trades)"
+    if s["pausiert"]:
+        return f"⏸ pausiert – die letzten {s['n']} Trades liefen schlecht (Ø {r_text(s['schnitt'], 2)})"
+    if s["n"] < LERNEN_MIN_TRADES:
+        return f"aktiv – lernt noch ({s['n']}/{LERNEN_MIN_TRADES} Trades)"
+    return f"✅ aktiv (Ø {r_text(s['schnitt'], 2)} über die letzten {s['n']} Trades)"
+
+def kennzahlen(werte):
+    """Anzahl, Ø, Trefferquote, Summe einer Liste von R-Werten."""
+    n = len(werte)
+    if not n:
+        return None
+    return {"n": n, "schnitt": sum(werte) / n, "quote": sum(1 for x in werte if x > 0) / n * 100, "summe": sum(werte)}
+
+def kennzahl_text(k):
+    if not k:
+        return "noch keine Trades"
+    return f"{k['n']} {'Trade' if k['n'] == 1 else 'Trades'} · Ø {r_text(k['schnitt'], 2)} · Treffer {de(k['quote'], 0)} %"
+
+def rangliste(eintraege, anzahl=3):
+    """Aktien nach Ø R (beste zuerst); bei vielen nur die besten und schwächsten."""
+    zeilen = [f"{i + 1}. {link_aktie(t)}: {kennzahl_text(k)}" for i, (t, k) in enumerate(eintraege)]
+    if len(zeilen) > 2 * anzahl:
+        zeilen = zeilen[:anzahl] + ["…"] + zeilen[-anzahl:]
+    return zeilen
+
+def papier_trade_info(tr, daten):
+    """Kennzahlen eines abgeschlossenen Papier-Depot-Trades (Beträge in €, Kurse wie im Bericht)."""
+    r = tr["richtung"]
+    je_dollar = tr["einsatz_je_stueck"] / tr["einstieg_usd"] if tr["einstieg_usd"] else 1.0
+    gewinn = tr["erloes"] - tr["kosten"]
+    risiko = tr["risiko_eur"]
+    info = {"ticker": tr["ticker"], "r": r, "strategie": tr["strategie"], "kauf_tag": str(tr["kauf_tag"])[:10],
+            "verkauf_tag": str(tr["verkauf_tag"])[:10], "grund": tr["grund"], "gewinn": gewinn,
+            "R": gewinn / risiko if risiko > 0 else 0.0, "einstieg": tr["einsatz_je_stueck"],
+            "ausstieg": tr["verkauf_preis"], "stop": tr["stop"] * je_dollar, "ziel": tr["ziel"] * je_dollar,
+            "einsatz": tr["kosten"], "stueck": tr["stueck"],
+            "crv": r * (tr["ziel"] - tr["einstieg_usd"]) / (r * (tr["einstieg_usd"] - tr["stop"]))
+            if r * (tr["einstieg_usd"] - tr["stop"]) > 0 else np.nan,
+            "tage": None, "tage_art": "Handelstage", "mfe": None, "mae": None}
+    d = daten.get(tr["ticker"])
+    if d is not None:
+        a = d["pos"].get(als_tag(info["kauf_tag"], d["idx"]))
+        b = d["pos"].get(als_tag(info["verkauf_tag"], d["idx"]))
+        if a is not None and b is not None and b >= a:
+            info["tage"] = b - a + 1
+            hoch, tief = np.nanmax(d["H"][a:b + 1]), np.nanmin(d["L"][a:b + 1])
+            eins = abs(tr["einstieg_usd"] - tr["stop"])
+            if eins > 0:
+                bester, schlechtester = (hoch, tief) if r > 0 else (tief, hoch)
+                info["mfe"] = r * (bester - tr["einstieg_usd"]) / eins
+                info["mae"] = r * (schlechtester - tr["einstieg_usd"]) / eins
+    if info["tage"] is None:
+        info["tage"] = max((pd.Timestamp(info["verkauf_tag"]) - pd.Timestamp(info["kauf_tag"])).days, 0) + 1
+        info["tage_art"] = "Kalendertage"
+    return info
+
+def trade_lehren(info, stand, einst):
+    """Was der Bot aus einem abgeschlossenen Trade festhält (Regeln, keine Vermutungen)."""
+    lehren, g, tage = [], info["grund"], f"{info['tage']} {info['tage_art']}"
+    ergebnis = r_text(info["R"], 2)
+    if g.startswith("Ziel"):
+        lehren.append(f"✅ Der Plan ging auf: Ziel nach {tage}"
+                      + (" – mit einer Kurslücke sogar darüber hinaus." if "Kurslücke" in g else "."))
+    elif g == "Stop (Kurslücke)":
+        lehren.append(f"⚠️ Kurslücke über den Stop: Die Aktie eröffnete schon hinter dem Stop. Geplant war ein Verlust von "
+                      f"etwa 1 R ({prozent(einst.risiko)} % des Kontos), es wurden {ergebnis}. Das kann kein Stop "
+                      f"verhindern – deshalb plant der Bot je Trade nur wenig Risiko ein.")
+    elif g == "Stop":
+        quote = 100 / (1 + info["crv"]) if info["crv"] and math.isfinite(info["crv"]) else None
+        lehren.append(f"❌ Stop nach {tage} – Verlust wie geplant ({ergebnis}). Das gehört dazu"
+                      + (f": Bei einem Chance-Risiko-Verhältnis von {de(info['crv'], 1)} reichen auf Dauer etwa "
+                         f"{de(quote, 0)} % Treffer." if quote else "."))
+    elif g == "Zeitstopp":
+        lehren.append(f"⏱ Nach {ZEITSTOPP_TAGE} Handelstagen weder Ziel noch Stop – der Bot steigt aus, damit das Geld "
+                      f"nicht festliegt ({ergebnis}).")
+    elif g == "vor Quartalszahlen":
+        lehren.append(f"📅 Vor den Quartalszahlen verkauft ({ergebnis}) – Regel: keine Position über die Zahlen halten, "
+                      f"weil der Kurs dann stark springen kann.")
+    if info["mfe"] is not None:
+        if info["mfe"] >= 1 and info["R"] <= 0:
+            lehren.append(f"↩️ Lag zwischendurch schon bei {r_text(info['mfe'])} im Plus und endete trotzdem bei "
+                          f"{ergebnis}. Der Bot zieht den Stop nicht nach – wie oft das vorkommt, zählt [[Lehren]].")
+        elif info["R"] > 0 and info["mae"] is not None and info["mae"] <= -0.7:
+            lehren.append(f"😅 Knapp: Zwischendurch lag der Trade bei {r_text(info['mae'])} – fast wäre der Stop gefallen.")
+    if info["strategie"] in stand:
+        lehren.append(f"🧠 {link_strategie(info['strategie'])} beim Schreiben dieser Notiz: "
+                      f"{strategie_status(info['strategie'], stand, einst)}.")
+    return lehren
+
+def lern_wechsel(pausen, tage, key, seit):
+    """Wann die Strategie pausiert bzw. wieder aktiv wurde (Tage nach 'seit')."""
+    wechsel, vorher = [], None
+    for tag in tage:
+        jetzt = key in pausen.get(tag, frozenset())
+        if vorher is not None and jetzt != vorher and tag > seit:
+            wechsel.append((tag, jetzt))
+        vorher = jetzt
+    return wechsel
+
+def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, alle_tage, daten, papier, depot, trend,
+                    papier_hinweis=None):
+    """Schreibt alle Notizen des Gehirns. Gibt (Zahl neuer Trade-Notizen, Hinweise) zurück; eine Notiz, die nicht
+    gelesen oder geschrieben werden kann, wird übersprungen und gemeldet."""
+    ok = [z for z in zeilen if "_stand" in z]
+    heute = max(z["_stand"] for z in ok)
+    tag_name = f"{heute:%Y-%m-%d}"
+    vorlaeufig = any(z["_offen"] for z in ok)
+    risiko = einst.konto * einst.risiko / 100
+    pfad = lambda *teile: os.path.join(ordner, *teile)
+    hinweise = []
+
+    def notiz(teile, *args, **kwargs):
+        try:
+            return schreibe_notiz(pfad(*teile), *args, **kwargs)
+        except NotizFehler as fehler:
+            hinweise.append(f"Gehirn: {os.path.relpath(fehler.pfad, os.path.dirname(ordner))} {fehler.grund}")
+            return False
+
+    # Meine Regeln: nur anlegen, nie überschreiben (die Seite gehört dir)
+    if not os.path.exists(pfad(REGELN_DATEI)):
+        try:
+            os.makedirs(ordner, exist_ok=True)
+            with open(pfad(REGELN_DATEI), "w", encoding="utf-8", newline="\n") as f:
+                f.write(meine_regeln_vorlage(einst.ticker_liste))
+        except OSError as fehler:
+            hinweise.append(f"Gehirn: {REGELN_DATEI} nicht angelegt ({fehler})")
+
+    vorige = sorted(f[:-3] for f in os.listdir(pfad("Tage")) if f.endswith(".md") and f[:-3] < tag_name) \
+        if os.path.isdir(pfad("Tage")) else []
+    papier = papier or {}
+
+    # Abgeschlossene Trades des Papier-Depots: je Trade eine Notiz (einmal angelegt, danach gehört sie dir)
+    trades = [papier_trade_info(tr, daten) for tr in papier.get("trades", [])]
+    trade_link = {}
+    for info in trades:
+        name = notiz_name(f"{info['kauf_tag']} {info['ticker']} {strategie_datei(info['strategie'])}")
+        trade_link[id(info)] = f"[[Trades/{name}|{info['ticker']} {r_text(info['R'])}]]"
+        zeichen = "✅" if info["R"] > 0 else "❌"
+        text = [f"# {zeichen} {info['ticker']} · {strategie_name(info['strategie'])} · {r_text(info['R'])}", "",
+                f"- Aktie: {link_aktie(info['ticker'])} · Strategie: {link_strategie(info['strategie'])} · "
+                f"{'Long (auf steigende Kurse)' if info['r'] > 0 else 'Short (auf fallende Kurse)'}",
+                f"- Einstieg: {datum(pd.Timestamp(info['kauf_tag']))} {info['kauf_tag'][:4]} zu {de(info['einstieg'])} "
+                f"{waehrung} · {de(info['stueck'], 2 if info['stueck'] % 1 else 0)} Stück · Einsatz "
+                f"{de(info['einsatz'], 0)} {waehrung}",
+                f"- Plan: Stop {de(info['stop'])} {waehrung} · Ziel {de(info['ziel'])} {waehrung}"
+                + (f" · Chance-Risiko {de(info['crv'], 1)}" if math.isfinite(info["crv"]) else ""),
+                f"- Ausstieg: {datum(pd.Timestamp(info['verkauf_tag']))} {info['verkauf_tag'][:4]} zu "
+                f"{de(info['ausstieg'])} {waehrung} – {info['grund']} · nach {info['tage']} {info['tage_art']}",
+                f"- Ergebnis: **{de(info['gewinn'], 2, True)} {waehrung} ({r_text(info['R'], 2)})** nach Gebühren "
+                f"und Spread"]
+        if info["mfe"] is not None:
+            text.append(f"- Im Trade: bestenfalls {r_text(info['mfe'])}, schlimmstenfalls {r_text(info['mae'])} "
+                        f"(1 R = geplanter Verlust bis zum Stop)")
+        text += ["", "## Was der Bot daraus lernt", ""] + [f"- {l}" for l in trade_lehren(info, stand, einst)]
+        text += ["", f"Übersicht: [[Start]] · [[Lehren]] · erfasst am [[Tage/{tag_name}]]"]
+        eigenschaften = {"typ": "trade", "aktie": info["ticker"], "strategie": strategie_datei(info["strategie"]),
+                         "richtung": "Long" if info["r"] > 0 else "Short", "einstieg": info["kauf_tag"],
+                         "ausstieg": info["verkauf_tag"], "grund": info["grund"],
+                         "ergebnis_eur": round(info["gewinn"], 2), "ergebnis_r": round(info["R"], 2),
+                         "tags": ["trade", "gewinn" if info["R"] > 0 else "verlust"]}
+        notiz(("Trades", name + ".md"), "\n".join(text), eigenschaften, nur_neu=True, anfang=GEHIRN_ANFANG_EINMAL,
+              rest_neu="\n\n## Meine Gedanken\n\n")
+    # Seit der letzten Tagesnotiz abgeschlossen (beim ersten Mal: am letzten gebuchten Tag)
+    seit = vorige[-1] if vorige else None
+    neu_zu = [i for i in trades if (i["verkauf_tag"] > seit if seit else i["verkauf_tag"] == papier.get("bis"))
+              and i["verkauf_tag"] <= tag_name]
+
+    nach_strategie = {}
+    for e in tagebuch:
+        nach_strategie.setdefault(e["strategie"], []).append(e)
+    ein_jahr = heute - pd.DateOffset(months=12)
+
+    # Strategie-Seiten
+    for key, s in STRATEGIEN.items():
+        eintraege = nach_strategie.get(key, [])
+        st = stand[key]
+        text = [f"# {strategie_name(key)}", "",
+                f"**Status:** {strategie_status(key, stand, einst)}", "",
+                f"**Regel:** {s['regel']}", "",
+                "## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)", "",
+                f"- Letzte {st['n']} Trades: " + (f"Ø {r_text(st['schnitt'], 2)} · Treffer {de(st['quote'], 0)} % · "
+                                                 f"± Zufall {de(st['spanne'], 2)} R" if st["n"] > 1 else
+                                                 kennzahl_text(kennzahlen([e['R'] for e in eintraege[-1:]]))),
+                f"- Ganze Geschichte: {kennzahl_text(kennzahlen([e['R'] for e in eintraege]))}",
+                f"- In Euro: 1 R ≈ {de(risiko, 0)} {waehrung} bei deinem Risiko je Trade"]
+        gruende = {}
+        for e in eintraege:
+            gruende.setdefault(e["grund"], []).append(e["R"])
+        if gruende:
+            text += ["", "### So endeten die Trades", ""]
+            for g, werte in sorted(gruende.items(), key=lambda x: -len(x[1])):
+                text.append(f"- {g}: {len(werte)}× ({de(len(werte) / len(eintraege) * 100, 0)} %), "
+                            f"Ø {r_text(sum(werte) / len(werte), 2)}")
+        je_aktie = {}
+        for e in eintraege:
+            je_aktie.setdefault(e["ticker"], []).append(e["R"])
+        genug = sorted(((t, kennzahlen(w)) for t, w in je_aktie.items() if len(w) >= 5), key=lambda x: -x[1]["schnitt"])
+        if genug:
+            text += ["", "### Rangliste der Aktien (ab 5 Trades, nach Ø R)", ""] + rangliste(genug)
+            text.append("- Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine "
+                        "Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.")
+        wechsel = lern_wechsel(pausen, alle_tage, key, ein_jahr)
+        text += ["", "### Lernverlauf (letzte 12 Monate)", ""]
+        text += ([f"- {datum(t)} {t:%Y}: {'⏸ pausiert/aus' if p else '✅ wieder aktiv'}" for t, p in wechsel[-10:]]
+                 or ["- keine Änderung"])
+        eigene = [i for i in trades if i["strategie"] == key]
+        text += ["", "## Trades im Übungsdepot (Papier-Depot)", ""]
+        text += ([f"- {trade_link[id(i)]} ({i['grund']}, {i['verkauf_tag']})" for i in reversed(eigene[-20:])]
+                 or ["- noch keine"])
+        text += ["", "Übersicht: [[Start]] · [[Lehren]] · [[Meine Regeln]]"]
+        status = ("aus" if short_aus(key, einst) or key in einst.sperre_strategien or st["im_minus"]
+                  else "pausiert" if st["pausiert"] else "aktiv")
+        notiz(("Strategien", strategie_datei(key) + ".md"), "\n".join(text),
+              {"typ": "strategie", "status": status, "tags": ["strategie"]})
+
+    # Aktien-Seiten: Watchlist und alles, was das Übungsdepot hält oder gehandelt hat
+    zeile_von = {z["Ticker"]: z for z in zeilen}
+    depot_ticker = [x["ticker"] for x in papier.get("positionen", []) + papier.get("auftraege", []) + papier.get("trades", [])]
+    stand_text = f"{datum(heute)} {heute:%Y}"
+    for t in dict.fromkeys(list(einst.ticker_liste) + depot_ticker):
+        z = zeile_von.get(t)
+        text = [f"# {t}", ""]
+        link = tradingview_link(t)
+        if link:
+            text.append(f"[Chart bei TradingView]({link})")
+        if t in einst.sperre_ticker:
+            text.append("**⛔ Von dir gesperrt** ([[Meine Regeln]]) – der Bot kauft oder shortet sie nicht.")
+        if z is None:
+            text += ["", f"**Stand {stand_text}:** nicht (mehr) auf deiner Watchlist – nur noch im Übungsdepot."]
+        else:
+            text += ["", f"**Stand {stand_text}:** {z.get('Signal', '–')}" + (f" – {z['Strategie']}" if z.get("Strategie") else "")
+                     + (f" · Limit {de(z['Limit'])} · Stop {de(z['Stop'])} · Ziel {de(z['Ziel'])} {waehrung}"
+                        if z.get("Signal") in (KAUFEN, SHORT) else "")
+                     + (f" · {z['_fehler']}" if z.get("_fehler") else "")]
+            if z.get("Zahlen"):
+                text.append(f"**Nächste Quartalszahlen:** {z['Zahlen']}")
+        offen = [p for p in papier.get("positionen", []) if p["ticker"] == t]
+        text += ["", "## Übungsdepot", ""]
+        text += [f"- Offen: {'Long' if p['richtung'] > 0 else 'Short'} mit {link_strategie(p['strategie'])} seit "
+                 f"{str(p['kauf_tag'])[:10]}" for p in offen]
+        eigene = [i for i in trades if i["ticker"] == t]
+        text += [f"- {trade_link[id(i)]} mit {link_strategie(i['strategie'])} ({i['grund']}, {i['verkauf_tag']})"
+                 for i in reversed(eigene[-20:])] or (["- noch keine Trades"] if not offen else [])
+        je = {}
+        for e in tagebuch:
+            if e["ticker"] == t:
+                je.setdefault(e["strategie"], []).append(e["R"])
+        text += ["", "## Strategie-Tagebuch auf dieser Aktie", ""]
+        text += ([f"- {link_strategie(k)}: {kennzahl_text(kennzahlen(w))}"
+                  for k, w in sorted(je.items(), key=lambda x: VORRANG[x[0]])] or ["- noch keine gedachten Trades"])
+        text += ["", "Übersicht: [[Start]] · [[Meine Regeln]]"]
+        notiz(("Aktien", notiz_name(t) + ".md"), "\n".join(text), {"typ": "aktie", "tags": ["aktie"]})
+
+    # Lehren: was der Bot aus allen Trades zieht
+    papier_k = kennzahlen([i["R"] for i in trades])
+    text = ["# 🎓 Lehren", "",
+            "Hier sammelt der Bot, was er aus seinen Fehlern und Erfolgen zieht. **Automatisch ändert er dabei nur, welche "
+            "Strategien er handelt** (Lernregel unten) – und hält sich an [[Meine Regeln]]. Muster wie „auf Aktie X läuft es "
+            "schlecht“ zeigt er dir nur: Bei wenigen Trades ist das oft Zufall, und wer jedem Zufall hinterherläuft, "
+            "verliert am Ende mehr.", "",
+            "## Was der Bot gerade daraus macht (Lernregel)", ""]
+    if einst.lernen:
+        text += [f"Ab {LERNEN_MIN_TRADES} gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als "
+                 f"{de(-LERNEN_PAUSE_AB, 1)} R je Trade verliert, und nimmt sie wieder, sobald der Schnitt im Plus ist. Ab "
+                 f"{LERNEN_LANG_MIN} Trades muss sie über ihre ganze Geschichte im Plus sein.", ""]
+    else:
+        text += ["Lernen ist ausgeschaltet (Option --ohne-lernen): Der Bot pausiert keine Strategien.", ""]
+    for key in STRATEGIEN:
+        text.append(f"- {link_strategie(key)}: {strategie_status(key, stand, einst)}")
+    letzte = [(t, k, p) for k in STRATEGIEN for t, p in lern_wechsel(pausen, alle_tage, k, heute - pd.Timedelta(days=30))]
+    text += ["", "### Änderungen der letzten 30 Tage", ""]
+    text += ([f"- {datum(t)}: {link_strategie(k)} {'⏸ pausiert/aus' if p else '✅ wieder aktiv'}"
+              for t, k, p in sorted(letzte)] or ["- keine"])
+    alle_r = [e["R"] for e in tagebuch]
+    text += ["", "## Muster im Strategie-Tagebuch (alle Strategien, alle Aktien)", "",
+             f"- Insgesamt: {kennzahl_text(kennzahlen(alle_r))}"]
+    gruende = {}
+    for e in tagebuch:
+        gruende.setdefault(e["grund"], []).append(e["R"])
+    for g, werte in sorted(gruende.items(), key=lambda x: -len(x[1])):
+        text.append(f"- {g}: {len(werte)}× ({de(len(werte) / max(len(alle_r), 1) * 100, 0)} %), "
+                    f"Ø {r_text(sum(werte) / len(werte), 2)}")
+    lang = kennzahlen([e["R"] for e in tagebuch if STRATEGIEN[e["strategie"]]["richtung"] > 0])
+    kurz = kennzahlen([e["R"] for e in tagebuch if STRATEGIEN[e["strategie"]]["richtung"] < 0])
+    text += [f"- Long: {kennzahl_text(lang)}"] + ([f"- Short: {kennzahl_text(kurz)}"] if einst.mit_short else [])
+    je_aktie = {}
+    for e in tagebuch:
+        je_aktie.setdefault(e["ticker"], []).append(e["R"])
+    genug = sorted(((t, kennzahlen(w)) for t, w in je_aktie.items() if len(w) >= 20), key=lambda x: -x[1]["schnitt"])
+    if len(genug) >= 2:
+        text += ["", "### Rangliste der Aktien (ab 20 Trades, nach Ø R)", ""] + rangliste(genug)
+        text.append("- Hinweis: Selbst 20–50 Trades je Aktie sind wenig. Sperren kannst du eine Aktie in [[Meine Regeln]].")
+    text += ["", "## Aus dem Übungsdepot (echte Vorwärts-Trades)", ""]
+    if papier_k:
+        abgegeben = [i for i in trades if i["mfe"] is not None and i["mfe"] >= 1 and i["R"] <= 0]
+        luecken = [i for i in trades if i["grund"] == "Stop (Kurslücke)"]
+        zeit = [i for i in trades if i["grund"] == "Zeitstopp"]
+        text += [f"- {kennzahl_text(papier_k)} · Summe {de(sum(i['gewinn'] for i in trades), 2, True)} {waehrung}",
+                 f"- Gewinn wieder abgegeben (erst mindestens +1 R, am Ende im Minus): {len(abgegeben)} von "
+                 f"{len(trades)}" + (" – wird das häufig, wäre ein nachgezogener Stop eine Idee für später."
+                                     if len(trades) >= 10 and len(abgegeben) / len(trades) >= 0.2 else ""),
+                 f"- Stop mit Kurslücke (größerer Verlust als geplant): {len(luecken)} von {len(trades)}",
+                 f"- Zeitstopp (nach {ZEITSTOPP_TAGE} Tagen ohne Ziel und Stop): {len(zeit)} von {len(trades)}"]
+        if len(trades) < 30:
+            text.append(f"- Erst {len(trades)} Trades – für belastbare Schlüsse braucht es deutlich mehr (etwa 100).")
+    elif papier:
+        text.append(f"- Noch keine abgeschlossenen Trades – das Übungsdepot läuft seit {papier.get('angelegt')}.")
+    else:
+        text.append("- Noch kein Übungsdepot.")
+    text += ["", "Übersicht: [[Start]] · [[Meine Regeln]]"]
+    notiz(("Lehren.md",), "\n".join(text), {"typ": "lehren"})
+
+    # Tagesnotiz
+    text = [f"# 📅 {WOCHENTAGE[heute.weekday()]} {heute:%d.%m.%Y}" + (" (vorläufig – Börse noch offen)" if vorlaeufig else ""),
+            "", (f"← [[Tage/{vorige[-1]}|Vortag]] · " if vorige else "") + "[[Start]] · [[Lehren]] · [[Meine Regeln]]",
+            "", "## Markt", ""]
+    ampel = marktampel(trend, ok, einst)
+    text.append(f"- {ampel}" if ampel else "- Marktfilter aus")
+    text += ["", "## Entscheidungen", ""]
+    for z in sorted(ok, key=lambda z: PRIORITAET.get(z.get("Signal"), 9)):
+        sig = z.get("Signal")
+        if sig in (KAUFEN, SHORT):
+            text.append(f"- {sig} {link_aktie(z['Ticker'])} mit {link_strategie(z['_strategie'])} – Limit "
+                        f"{de(z['Limit'])} · Stop {de(z['Stop'])} · Ziel {de(z['Ziel'])} {waehrung} · CRV {de(z['CRV'], 1)}")
+        elif sig in (WARTEN, SICHERN):
+            text.append(f"- {sig} {link_aktie(z['Ticker'])}: {z.get('Strategie', '')}")
+    beobachten = [link_aktie(z["Ticker"]) for z in ok if z.get("Signal") == BEOBACHTEN]
+    if beobachten:
+        text.append(f"- Beobachten: {', '.join(beobachten)}")
+    text += [f"- ❌ {z['Ticker']}: {z.get('_fehler', '')}" for z in zeilen if "_stand" not in z]
+    text += ["", "## Übungsdepot (Papier-Depot)", ""]
+    if papier_hinweis:
+        text.append(f"- ⚠️ {papier_hinweis}")
+    if papier:
+        verlauf = papier.get("verlauf") or []
+        wert = papier["depotwert"]
+        text.append(f"- Depotwert {de(wert)} {waehrung} ({de((wert / papier['startkapital'] - 1) * 100, 1, True)} % seit "
+                    f"{papier.get('angelegt')}) · Stand {papier.get('bis')}"
+                    + (f" · zum Vortag {de(wert - verlauf[-2][1], 2, True)} {waehrung}" if len(verlauf) >= 2 else ""))
+        text += [f"- Abgeschlossen: {trade_link[id(i)]} ({i['grund']}, {i['verkauf_tag']})" for i in neu_zu]
+        text += [f"- Offen: {link_aktie(p['ticker'])} {'Long' if p['richtung'] > 0 else 'Short'} mit "
+                 f"{link_strategie(p['strategie'])} seit {str(p['kauf_tag'])[:10]}" for p in papier["positionen"]]
+        text += [f"- Auftrag für den nächsten Handelstag: {link_aktie(a['ticker'])} mit {link_strategie(a['strategie'])}"
+                 for a in papier["auftraege"]]
+    elif not einst.papier:
+        text.append("- Kein Papier-Depot in diesem Lauf (Option --papier).")
+    else:
+        text.append("- Noch kein Papier-Depot.")
+    text += ["", "## Lernstand", ""]
+    if alle_tage:
+        vergleich = pd.Timestamp(vorige[-1]) if vorige else (alle_tage[-2] if len(alle_tage) >= 2 else alle_tage[-1])
+        if getattr(alle_tage[-1], "tz", None) is not None and vergleich.tz is None:
+            vergleich = vergleich.tz_localize(alle_tage[-1].tz)
+        aenderungen = [(t, k, p) for k in STRATEGIEN for t, p in lern_wechsel(pausen, alle_tage, k, vergleich)]
+        text += [f"- {datum(t)}: {'⏸' if p else '✅'} {link_strategie(k)} {'pausiert/aus' if p else 'wieder aktiv'}"
+                 for t, k, p in sorted(aenderungen)] or ["- keine Änderung"]
+        aktiv = [link_strategie(k) for k in STRATEGIEN if k not in pausen.get(alle_tage[-1], frozenset())
+                 and k not in einst.sperre_strategien and not short_aus(k, einst)]
+        text.append(f"- Aktiv: {', '.join(aktiv) if aktiv else 'keine'}")
+    if einst.sperre_ticker or einst.sperre_strategien:
+        text += ["", "## Deine Regeln", ""]
+        if einst.sperre_ticker:
+            text.append(f"- Gesperrt: {', '.join(link_aktie(t) for t in sorted(einst.sperre_ticker))}")
+        if einst.sperre_strategien:
+            text.append(f"- Ausgeschaltet: {', '.join(link_strategie(k) for k in STRATEGIEN if k in einst.sperre_strategien)}")
+    notiz(("Tage", tag_name + ".md"), "\n".join(text), {"typ": "tag", "datum": tag_name, "tags": ["tag"]})
+
+    # Startseite (ändert sich nur, wenn es Neues gibt – keine Uhrzeit, damit der Abgleich ruhig bleibt)
+    text = ["# 🧠 Gehirn des Swing-Bots", "",
+            f"Stand: Kurse bis {WOCHENTAGE[heute.weekday()]} {heute:%d.%m.%Y}" + (" (vorläufig)" if vorlaeufig else "")
+            + " · Simulation mit Spielgeld, keine Anlageberatung.", "",
+            "> [!info] So funktioniert das Gehirn",
+            "> - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, eine Notiz zu **jedem abgeschlossenen Trade** mit "
+            "dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.",
+            "> - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen "
+            "anhaken, dann hochladen – siehe Anleitung).",
+            "> - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene "
+            "Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er jede Nacht neu.",
+            "",
+            f"## Heute: [[Tage/{tag_name}]]", ""]
+    kauf = [f"{link_aktie(z['Ticker'])} ({z['Signal']})" for z in ok if z.get("Signal") in (KAUFEN, SHORT)]
+    text.append(f"- Signale: {', '.join(kauf) if kauf else 'keine'}" + (" – vorläufig" if vorlaeufig and kauf else ""))
+    if ampel:
+        text.append(f"- {ampel}")
+    text += ["", "## Übungsdepot", ""]
+    if papier_hinweis:
+        text.append(f"- ⚠️ {papier_hinweis}")
+    if papier:
+        text.append(f"- {de(papier['depotwert'])} {waehrung} ({de((papier['depotwert'] / papier['startkapital'] - 1) * 100, 1, True)} % "
+                    f"seit {papier.get('angelegt')}) · {len(papier['positionen'])} offen · {kennzahl_text(papier_k)}")
+        if trades:
+            text.append(f"- Letzte Trades: {', '.join(trade_link[id(i)] for i in reversed(trades[-5:]))}")
+    else:
+        text.append("- noch kein Papier-Depot")
+    if depot is not None:
+        halten = depot["vergleich"].iloc[-1] if depot.get("vergleich") is not None else None
+        text.append(f"- Rückblick {einst.rueckblick} Monate: {de((depot['end_wert'] / depot['start_wert'] - 1) * 100, 1, True)} %"
+                    + (f" (alle Aktien kaufen und halten: {de((halten / depot['start_wert'] - 1) * 100, 1, True)} %)"
+                       if halten is not None else ""))
+    text += ["", "## Was der Bot gelernt hat → [[Lehren]]", ""]
+    gruppen = {"✅ aktiv": [], "⏸ pausiert": [], "⏸ aus": [], "⛔ von dir aus": [], "– Short ausgeschaltet": []}
+    for key in STRATEGIEN:
+        st = stand[key]
+        gruppe = ("– Short ausgeschaltet" if short_aus(key, einst) else "⛔ von dir aus" if key in einst.sperre_strategien
+                  else "⏸ aus" if st["im_minus"] else "⏸ pausiert" if st["pausiert"] else "✅ aktiv")
+        gruppen[gruppe].append(link_strategie(key))
+    text += [f"- {g}: {', '.join(v)}" for g, v in gruppen.items() if v]
+    text += ["", "## Deine Regeln → [[Meine Regeln]]", "",
+             f"- Gesperrte Aktien: {', '.join(sorted(einst.sperre_ticker)) or 'keine'}",
+             f"- Ausgeschaltete Strategien: {', '.join(strategie_name(k) for k in STRATEGIEN if k in einst.sperre_strategien) or 'keine'}",
+             "", "## Aktien", "", " · ".join(link_aktie(t) for t in einst.ticker_liste)]
+    notiz(("Start.md",), "\n".join(text), {"typ": "start"})
+    return sum(1 for i in neu_zu), hinweise
+
+
 def auswerten(einst):
     if FX_TICKER in einst.ticker_liste:
         einst.ticker_liste.remove(FX_TICKER)
@@ -2368,11 +3038,35 @@ def auswerten(einst):
         berichte("❌ KEINE TICKER", ["Keine Ticker angegeben."])
         return None
 
+    # Gehirn (Obsidian): „Meine Regeln“ lesen – gesperrte Aktien und ausgeschaltete Strategien gelten überall
+    gehirn_ordner = None
+    if einst.gehirn:
+        gehirn_ordner, gehirn_fehler = papier_pfad(einst.gehirn)
+        hinweise_regeln = []
+        if gehirn_ordner:
+            einst.sperre_ticker, einst.sperre_strategien, hinweise_regeln = lies_meine_regeln(gehirn_ordner)
+        else:
+            hinweise_regeln = [gehirn_fehler.replace("das Papier-Depot wurde nicht gespeichert",
+                                                     "das Gehirn wurde nicht geschrieben")]
+        for h in hinweise_regeln:
+            print(f"Hinweis: {h}")
+            BERICHT_HINWEISE.append(h)
+
     papier_datei = papier_stand = papier_fehler = None
     if einst.papier:
         papier_datei, papier_fehler = papier_pfad(einst.papier)
         if papier_datei:
             papier_stand, papier_fehler = lade_papier(papier_datei, einst.papier_neu)
+
+    if einst.sperre_ticker:
+        bekannt = set(einst.ticker_liste) | {x["ticker"] for x in (papier_stand or {}).get("positionen", [])
+                                             + (papier_stand or {}).get("auftraege", [])}
+        fremd = sorted(einst.sperre_ticker - bekannt)
+        if fremd:
+            h = (f"In „Meine Regeln“ gesperrt, aber nicht auf deiner Watchlist: {', '.join(fremd)} – Kürzel wie im Bot "
+                 f"verwenden (z. B. NVDA statt Nvidia).")
+            print(f"Hinweis: {h}")
+            BERICHT_HINWEISE.append(h)
 
     print(f"🤖 Lade 5 Jahre Kurse für {len(einst.ticker_liste)} Ticker, Quartalszahlen-Termine und prüfe "
           f"{len(STRATEGIEN) if einst.mit_short else len(STRATEGIEN) // 2} Strategien ...")
@@ -2467,6 +3161,13 @@ def auswerten(einst):
 
     fx_heute = float(fx.iloc[-1]) if fx is not None else None
     titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, einst.ohne_zahlen)
+    if einst.sperre_ticker or einst.sperre_strategien:
+        hinweise.append("📝 Deine Regeln (Gehirn › Meine Regeln): "
+                        + " · ".join(x for x in (
+                            f"gesperrt {', '.join(sorted(einst.sperre_ticker))}" if einst.sperre_ticker else "",
+                            "ausgeschaltet " + ", ".join(strategie_name(k) for k in STRATEGIEN
+                                                         if k in einst.sperre_strategien)
+                            if einst.sperre_strategien else "") if x))
     nach_ticker = {z["Ticker"]: z for z in zeilen}
     einstiege = [nach_ticker[t] for t in reihenfolge if nach_ticker[t].get("Signal") in (KAUFEN, SHORT)]
     # Handelsplan nach denselben Grenzen wie das Depot: Anzahl, Shorts, Gesamtrisiko und Geld (bestes CRV zuerst)
@@ -2523,8 +3224,36 @@ def auswerten(einst):
             ohne_filter = simuliere_depot(daten_of, pausen_of, einst, einst.lernen)
         if depot is not None:
             ohne_regel = [t for t, d in daten.items() if d["termine"] is None and hat_zahlen(t)]
-            zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, RUECKSCHAU, einst.ohne_zahlen,
+            rueckschau = RUECKSCHAU + (
+                " ⚠️ Deine Regeln aus „Meine Regeln“ gelten hier für den ganzen Zeitraum – wer im Nachhinein die "
+                "Verlierer sperrt, lässt den Rückblick besser aussehen, als er war. Ehrlich ist nur das Papier-Depot."
+                if einst.sperre_ticker or einst.sperre_strategien else "")
+            zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, rueckschau, einst.ohne_zahlen,
                         ohne_filter, einst.marktfilter and trend is not None)
+
+    if gehirn_ordner:
+        try:
+            # Wurde das Papier-Depot diesmal nicht weitergerechnet, zeigt das Gehirn den gespeicherten Stand
+            papier_gehirn, papier_hinweis = papier, None
+            if einst.papier and papier is None and papier_stand is not None:
+                papier_gehirn = papier_stand
+                papier_hinweis = ("Das Übungsdepot wurde diesmal nicht weitergerechnet (Grund im Bericht) – der nächste "
+                                  "Lauf holt das nach.")
+            daten_gehirn = dict(daten)  # auch Aktien, die nur noch im Übungsdepot sind
+            for t in papier_extra:
+                if t in roh and t not in daten_gehirn:
+                    daten_gehirn[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t), zusatz.get(t, {}).get("zahlen"),
+                                                  einst, trend)
+            neu, gehirn_hinweise = schreibe_gehirn(gehirn_ordner, einst, waehrung, zeilen, tagebuch, stand, pausen,
+                                                   alle_tage, daten_gehirn, papier_gehirn, depot, trend, papier_hinweis)
+            print(f"\n🧠 Gehirn aktualisiert: {gehirn_ordner}" + (f" ({neu} neu abgeschlossene Trades)" if neu else ""))
+            for h in gehirn_hinweise:
+                print(f"⚠️ {h}")
+                BERICHT_HINWEISE.append(h)
+        except Exception as fehler:  # das Gehirn darf den Lauf (Bericht, Papier-Depot) nie verhindern
+            text = f"Gehirn konnte nicht geschrieben werden ({type(fehler).__name__}: {fehler})."
+            print(f"⚠️ {text}")
+            BERICHT_HINWEISE.append(text)
 
     if einst.csv:
         speichere_csv(tabelle, einst.csv)
