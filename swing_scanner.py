@@ -241,7 +241,8 @@ def lies_einstellungen():
     p.add_argument("--ohne-lernen", action="store_true", help="schlecht laufende Strategien nicht pausieren")
     p.add_argument("--ohne-marktfilter", action="store_true",
                    help="Long und Short unabhängig vom Gesamtmarkt (Nasdaq-100 über/unter der 200-Tage-Linie)")
-    p.add_argument("--ohne-news", action="store_true", help="keine Schlagzeilen laden (Quartalszahlen-Regel bleibt)")
+    p.add_argument("--ohne-news", action="store_true",
+                   help="keine Schlagzeilen laden – dann auch keine Nachrichten-Regel (Quartalszahlen-Regel bleibt)")
     p.add_argument("--ohne-zahlen", action="store_true",
                    help="keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann AUS")
     p.add_argument("--gebuehr", type=zahl, default=GEBUEHR, help="Ordergebühr in € je Kauf/Verkauf")
@@ -281,6 +282,7 @@ def lies_einstellungen():
     einst.lernen = not einst.ohne_lernen
     einst.sperre_ticker = frozenset()  # aus 'Meine Regeln' im Gehirn (--gehirn)
     einst.sperre_strategien = frozenset()
+    einst.nachrichten_sperre, einst.nachrichten_tag = frozenset(), None  # Nachrichten-Regel (nur für den letzten Kurstag)
     einst.marktfilter = not einst.ohne_marktfilter
     einst.bruchstuecke = BRUCHSTUECKE or einst.bruchstuecke
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
@@ -675,7 +677,7 @@ def werte_news(zusatz, kurstag, scanner_zeilen):
             zeilen.append({**s, "ereignisse": [e2 for _, e2 in ev], "warnt": warnt})
         spalte = ("⚠️ " if warnung else "📰 ") + ", ".join(etiketten) if etiketten else ""
         zeilen.sort(key=lambda z: (not z["warnt"], not z["ereignisse"]))  # Warnungen, dann Ereignisse zuerst
-        ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "info": "ok"}
+        ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "warnende": warnende, "info": "ok"}
     return ergebnis
 
 
@@ -1137,7 +1139,7 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
                 continue
             letzter_kurs[t] = (d["C"][i], d["FX"][i])
             if (t in positionen or i < MIN_KERZEN - 1 or (signal_ticker is not None and t not in signal_ticker)
-                    or t in einst.sperre_ticker):
+                    or t in einst.sperre_ticker or (t in einst.nachrichten_sperre and tag == einst.nachrichten_tag)):
                 continue
             wahl, _ = kandidaten(d, i, pausiert, einst.sperre_strategien)
             if wahl is None:
@@ -1500,8 +1502,10 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
     fuss.append("Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. "
                 "Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.")
     if any(n.get("zeilen") for n in news.values()):
-        fuss.append("📰 Schlagzeilen sind nur ein Hinweis: Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf "
-                    "selbst lesen. Sie unterdrücken keine Signale, weil sie sich nicht rückwirkend testen lassen.")
+        fuss.append("📰 Schlagzeilen: Spricht eine erkannte Meldung der letzten Tage gegen ein Signal (⚠️, z. B. "
+                    "Herabstufung, Kapitalerhöhung, Ermittlungen, Übernahme), wartet der Bot (⏸ WARTEN – Nachricht) und "
+                    "kauft auch im Papier-Depot nicht. Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf selbst "
+                    "lesen. Rückwirkend lässt sich diese Regel nicht testen; im Rückblick gilt sie nur für den letzten Tag.")
     return fuss
 
 def kuerzen(text, laenge):
@@ -3287,6 +3291,20 @@ def auswerten(einst):
         news = werte_news(news_daten, stand_tag, zeilen)
         for t, e in news_daten.items():
             zusatz.setdefault(t, {}).update({"news_info": e["news_info"]})
+        # Nachrichten-Regel: Spricht eine erkannte Schlagzeile der letzten Tage gegen das Signal (z. B. Herabstufung,
+        # Kapitalerhöhung, Klage einer Behörde) oder ist es ein Sonderfall (Übernahme, Handelsaussetzung), wartet der
+        # Bot – im Scanner und im Papier-Depot für diesen Tag. Rückwirkend lässt sich das nicht testen (alte
+        # Schlagzeilen gibt es bei Yahoo nicht), deshalb gilt die Regel nur ab heute.
+        sperre = set()
+        for z in zeilen:
+            n = news.get(z["Ticker"], {})
+            if z.get("Signal") in (KAUFEN, SHORT) and n.get("warnung"):
+                for feld in ("Limit", "Stop", "Ziel", "CRV", "Stück", "Einsatz", "Risiko"):
+                    z.pop(feld, None)
+                z.update({"Signal": WARTEN, "Strategie": f"{strategie_name(z['_strategie'])} – Nachricht: "
+                                                         f"{', '.join(n.get('warnende') or ['siehe Schlagzeilen'])}"})
+                sperre.add(z["Ticker"])
+        einst.nachrichten_sperre, einst.nachrichten_tag = frozenset(sperre), stand_tag
     for z in zeilen:
         z["News"] = news.get(z["Ticker"], {}).get("spalte", "")
 

@@ -69,7 +69,7 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach j
 | `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000; auch `10.000 €` oder `10.000,00` geht). Fürs Papier-Depot zählt der Betrag nur beim Anlegen – also am besten **vor** dem ersten Lauf eintragen; später geändert: `papier/papier_depot.json` löschen, dann fängt es mit dem neuen Betrag an (der Bericht weist darauf hin). |
 | `RISIKO` | `1` | Risiko je Trade in % (Standard 1; auch `1,5 %` geht) |
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
-| `OPTIONEN` | `--ohne-news --bruchstuecke` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
+| `OPTIONEN` | `--bruchstuecke --gebuehr 0` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
 
 Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 
@@ -174,7 +174,7 @@ Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Qu
 - Quartalszahlen: kein Einstieg in den 3 Handelstagen davor, offene Positionen am Abend vorher schließen, kurz danach keine Gegenbewegungs-Trades.
 - Einstieg am nächsten Handelstag nur bis zum Limit; Ausstieg an Stop, Ziel, vor Quartalszahlen oder spätestens nach 20 Handelstagen.
 - Risiko: 1 % des Kontos je Trade, höchstens 5 Positionen (mit `--mit-short` davon höchstens 2 Short) und 5 % Risiko gleichzeitig, höchstens 25 % des Kontos je Position. Kosten: 1 € Gebühr + 0,1 % Spread je Order.
-- Schlagzeilen sind nur ein Hinweis (⚠️, wenn ein erkanntes Ereignis gegen das Signal spricht) – sie lassen sich nicht rückwirkend testen.
+- Nachrichten: Für jede Aktie mit Signal liest der Bot die Schlagzeilen der letzten 3 Handelstage. Spricht eine erkannte Meldung gegen den Kauf (z. B. Herabstufung durch Analysten, Zahlen oder Prognose schlechter als erwartet, Kapitalerhöhung, Ermittlungen einer Behörde, Insider-Verkauf, Chefwechsel) oder ist es ein Sonderfall (Übernahme, Handelsaussetzung), kauft er nicht: Im Bericht steht dann ⏸ WARTEN mit dem Grund, und auch das Papier-Depot kauft an diesem Tag nicht. Die Wortsuche versteht keinen Zusammenhang, also vor einem Kauf selbst lesen. Alte Schlagzeilen gibt es bei Yahoo nicht, deshalb lässt sich diese Regel nicht rückwirkend testen; im Rückblick gilt sie nur für den letzten Tag. Mit `--ohne-news` ist sie aus.
 
 ### Test mit echten Kursen (2010–2026)
 
@@ -201,7 +201,7 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 | `--mit-short` | auch auf fallende Kurse setzen (Short) – im Test im Schnitt mit Verlust, nicht empfohlen |
 | `--ohne-lernen` | keine Strategien pausieren |
 | `--ohne-marktfilter` | kaufen (und mit `--mit-short` shorten) unabhängig davon, ob der Nasdaq-100 über oder unter seiner 200-Tage-Linie liegt |
-| `--ohne-news` | keine Schlagzeilen laden (Quartalszahlen-Regel bleibt) |
+| `--ohne-news` | keine Schlagzeilen laden – dann auch keine Nachrichten-Regel (Quartalszahlen-Regel bleibt) |
 | `--ohne-zahlen` | keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann aus |
 | `--rueckblick 6` | Monate für das virtuelle Depot (0 = aus, max. 18) |
 | `--gebuehr 1` | Ordergebühr in € je Kauf/Verkauf |
