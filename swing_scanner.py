@@ -259,6 +259,9 @@ def lies_einstellungen():
                    help="Gehirn für Obsidian: Tagesnotiz, Trade-Tagebuch mit Lehren, Strategie- und Aktien-Seiten in "
                         "ORDNER (Standard: gehirn); liest dort 'Meine Regeln.md' (gesperrte Aktien, ausgeschaltete "
                         "Strategien)")
+    p.add_argument("--nachricht", metavar="DATEI",
+                   help="bei Kauf-Signalen eine kurze Nachricht (Handelsplan) in DATEI schreiben, z. B. für eine "
+                        "Benachrichtigung aufs Handy; ohne Signal wird die Datei gelöscht")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--bericht", metavar="DATEI",
                    help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
@@ -1357,6 +1360,34 @@ def handelsplan(zeile, nr, einst, waehrung):
     if str(zeile.get("Zahlen", "")).startswith("?"):
         satz += " Achtung: Quartalszahlen-Termin unbekannt – vor dem Kauf selbst prüfen."
     return satz
+
+def schreibe_nachricht(datei, einstiege, plan, papier):
+    """Kurze Nachricht fürs Handy (z. B. als Kommentar bei GitHub): nur bei Kauf- oder Short-Signalen, sonst wird die
+    Datei gelöscht, damit keine alte Nachricht noch einmal verschickt wird. Gibt einen Hinweis zurück, falls etwas
+    nicht klappt."""
+    try:
+        if not einstiege:
+            if os.path.exists(datei):
+                os.remove(datei)
+            return None
+        heute = max(z["_stand"] for z in einstiege)
+        n = len(einstiege)
+        zeilen = [f"**{'🟢' if all(z['Signal'] == KAUFEN for z in einstiege) else '🔔'} Swing-Bot: {n} "
+                  f"{'neues Signal' if n == 1 else 'neue Signale'}** (Kurse bis {datum(heute)} {heute:%Y})", ""]
+        zeilen += [f"- {p}" for p in plan]
+        if any(z["_offen"] for z in einstiege):
+            zeilen += ["", "⚠️ Vorläufig: Die Börse war beim Lauf noch offen – das Signal kann bis zum Schluss wegfallen."]
+        auftraege = (papier or {}).get("auftraege") or []
+        if auftraege:
+            zeilen += ["", "📒 Übungsdepot: " + ", ".join(
+                f"{'kauft' if a['richtung'] > 0 else 'shortet'} {a['ticker']}" for a in auftraege)
+                + " zur nächsten Eröffnung (nur bis zum Limit)."]
+        zeilen += ["", "Simulation mit Spielgeld – keine Anlageberatung."]
+        with open(datei, "w", encoding="utf-8", newline="\n") as f:
+            f.write("\n".join(zeilen) + "\n")
+    except OSError as fehler:
+        return f"Nachricht nicht geschrieben ({fehler.strerror or type(fehler).__name__})."
+    return None
 
 def marktampel(trend, zeilen, einst):
     """Marktlage (Nasdaq-100 zur 200-Tage-Linie), wie sie für die Signale der Tabelle gilt: je Zeile der letzte
@@ -2750,6 +2781,8 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
     ok = [z for z in zeilen if "_stand" in z]
     heute = max(z["_stand"] for z in ok)
     tag_name = f"{heute:%Y-%m-%d}"
+    jahr, kw, _ = heute.isocalendar()
+    woche_name = f"{jahr}-W{kw:02d}"
     vorlaeufig = any(z["_offen"] for z in ok)
     risiko = einst.konto * einst.risiko / 100
     pfad = lambda *teile: os.path.join(ordner, *teile)
@@ -2975,7 +3008,8 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
 
     # Tagesnotiz
     text = [f"# 📅 {WOCHENTAGE[heute.weekday()]} {heute:%d.%m.%Y}" + (" (vorläufig – Börse noch offen)" if vorlaeufig else ""),
-            "", (f"← [[Tage/{vorige[-1]}|Vortag]] · " if vorige else "") + "[[Start]] · [[Lehren]] · [[Meine Regeln]]",
+            "", (f"← [[Tage/{vorige[-1]}|Vortag]] · " if vorige else "") + f"[[Wochen/{woche_name}|Woche {kw}]] · "
+            "[[Start]] · [[Lehren]] · [[Meine Regeln]]",
             "", "## Markt", ""]
     ampel = marktampel(trend, ok, einst)
     text.append(f"- {ampel}" if ampel else "- Marktfilter aus")
@@ -3028,19 +3062,77 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
             text.append(f"- Ausgeschaltet: {', '.join(link_strategie(k) for k in STRATEGIEN if k in einst.sperre_strategien)}")
     notiz(("Tage", tag_name + ".md"), "\n".join(text), {"typ": "tag", "datum": tag_name, "tags": ["tag"]})
 
+    # Wochenrückblick: eine Notiz je Kalenderwoche – während der Woche bei jedem Lauf neu, danach bleibt sie stehen
+    montag = (heute - pd.Timedelta(days=heute.weekday())).normalize()
+    von = f"{montag:%Y-%m-%d}"
+    vorwochen = sorted(f[:-3] for f in os.listdir(pfad("Wochen")) if f.endswith(".md") and f[:-3] < woche_name) \
+        if os.path.isdir(pfad("Wochen")) else []
+    text = [f"# 📆 Woche {kw}/{jahr} ({montag:%d.%m.}–{montag + pd.Timedelta(days=4):%d.%m.%Y})", "",
+            (f"← [[Wochen/{vorwochen[-1]}|Vorwoche]] · " if vorwochen else "") + "[[Start]] · [[Lehren]] · "
+            "[[Meine Regeln]]", "",
+            f"Stand: Kurse bis {WOCHENTAGE[heute.weekday()]} {heute:%d.%m.%Y}"
+            + (" – die Woche läuft noch" if heute.weekday() < 4 or vorlaeufig else ""), "",
+            "## Übungsdepot diese Woche", ""]
+    if papier:
+        vorher = [w for tg, w in (papier.get("verlauf") or []) if str(tg)[:10] < von]
+        anfang = vorher[-1] if vorher else papier["startkapital"]
+        wert = papier["depotwert"]
+        text.append(f"- Depotwert: {de(anfang)} → {de(wert)} {waehrung} ({de(wert - anfang, 2, True)} {waehrung}, "
+                    f"{de((wert / anfang - 1) * 100, 1, True)} %)")
+        woche = [i for i in trades if von <= i["verkauf_tag"] <= tag_name]
+        if woche:
+            text.append(f"- Abgeschlossen: {kennzahl_text(kennzahlen([i['R'] for i in woche]))} · Summe "
+                        f"{de(sum(i['gewinn'] for i in woche), 2, True)} {waehrung}")
+            text += [f"  - {trade_link[id(i)]} ({i['grund']}, {i['verkauf_tag']})" for i in woche]
+        else:
+            text.append("- Abgeschlossen: keine Trades")
+        gekauft = [x for x in list(papier["positionen"]) + trades if von <= str(x["kauf_tag"])[:10] <= tag_name]
+        text.append("- Neu gekauft: " + (", ".join(f"{link_aktie(x['ticker'])} ({strategie_name(x['strategie'])})"
+                                                   for x in gekauft) or "nichts"))
+        text.append("- Offen: " + (", ".join(link_aktie(x["ticker"]) for x in papier["positionen"]) or "nichts"))
+    else:
+        text.append("- noch kein Übungsdepot")
+    text += ["", "## Trefferquote im Übungsdepot (seit dem Start)", ""]
+    if trades:
+        je_aktie = {}
+        for i in trades:
+            je_aktie.setdefault(i["ticker"], []).append(i["R"])
+        text += [f"- Alle Trades: {kennzahl_text(kennzahlen([i['R'] for i in trades]))}",
+                 "- Je Aktie (Treffer von Trades): " + ", ".join(f"{link_aktie(a)} {sum(r > 0 for r in w)} von {len(w)}"
+                                                                for a, w in sorted(je_aktie.items())),
+                 "- Bei so wenigen Trades je Aktie ist das noch viel Zufall – mehr Trades zeigt das Strategie-Tagebuch "
+                 "in [[Lehren]] (Abschnitt „Trefferquote je Aktie“)."]
+    else:
+        text.append("- noch keine abgeschlossenen Trades")
+    text += ["", "## Lernstand diese Woche", ""]
+    if alle_tage:
+        seit = montag - pd.Timedelta(days=1)
+        if getattr(alle_tage[-1], "tz", None) is not None and seit.tz is None:
+            seit = seit.tz_localize(alle_tage[-1].tz)
+        wechsel = [(tg, k, ps) for k in STRATEGIEN for tg, ps in lern_wechsel(pausen, alle_tage, k, seit)]
+        text += [f"- {datum(tg)}: {'⏸' if ps else '✅'} {link_strategie(k)} {'pausiert/aus' if ps else 'wieder aktiv'}"
+                 for tg, k, ps in sorted(wechsel)] or ["- keine Änderung"]
+    text += ["", "## Markt", "", f"- {ampel}" if ampel else "- Marktfilter aus",
+             "", "## Tagesnotizen der Woche", "",
+             " · ".join(f"[[Tage/{v}|{WOCHENTAGE[pd.Timestamp(v).weekday()]} {pd.Timestamp(v):%d.%m.}]]"
+                        for v in [v for v in vorige if v >= von] + [tag_name])]
+    notiz(("Wochen", woche_name + ".md"), "\n".join(text), {"typ": "woche", "woche": woche_name, "tags": ["woche"]},
+          rest_neu="\n\n## Meine Gedanken zur Woche\n\n")
+
     # Startseite (ändert sich nur, wenn es Neues gibt – keine Uhrzeit, damit der Abgleich ruhig bleibt)
     text = ["# 🧠 Gehirn des Swing-Bots", "",
             f"Stand: Kurse bis {WOCHENTAGE[heute.weekday()]} {heute:%d.%m.%Y}" + (" (vorläufig)" if vorlaeufig else "")
             + " · Simulation mit Spielgeld, keine Anlageberatung.", "",
             "> [!info] So funktioniert das Gehirn",
-            "> - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, eine Notiz zu **jedem abgeschlossenen Trade** mit "
+            "> - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, den **Wochenrückblick**, eine Notiz zu **jedem "
+            "abgeschlossenen Trade** mit "
             "dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.",
             "> - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen "
             "anhaken, dann hochladen – siehe Anleitung).",
             "> - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene "
             "Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er jede Nacht neu.",
             "",
-            f"## Heute: [[Tage/{tag_name}]]", ""]
+            f"## Heute: [[Tage/{tag_name}]] · Diese Woche: [[Wochen/{woche_name}|Woche {kw}]]", ""]
     kauf = [f"{link_aktie(z['Ticker'])} ({z['Signal']})" for z in ok if z.get("Signal") in (KAUFEN, SHORT)]
     text.append(f"- Signale: {', '.join(kauf) if kauf else 'keine'}" + (" – vorläufig" if vorlaeufig and kauf else ""))
     if ampel:
@@ -3279,6 +3371,12 @@ def auswerten(einst):
                 if einst.sperre_ticker or einst.sperre_strategien else "")
             zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, rueckschau, einst.ohne_zahlen,
                         ohne_filter, einst.marktfilter and trend is not None)
+
+    if einst.nachricht:
+        h = schreibe_nachricht(einst.nachricht, einstiege, plan, papier)
+        if h:
+            print(f"⚠️ {h}")
+            BERICHT_HINWEISE.append(h)
 
     if gehirn_ordner:
         try:

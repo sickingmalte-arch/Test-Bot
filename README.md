@@ -71,7 +71,16 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach j
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
 | `OPTIONEN` | `--ohne-news --bruchstuecke` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
 
-Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
+Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
+
+**Nachricht aufs Handy bei Kauf-Signalen.** Hat der Bot ein Signal, schreibt er nach dem Lauf einen Kommentar ins Thema **„📲 Swing-Bot: Signale“** (Tab **Issues**; das Thema legt er beim ersten Signal selbst an): Aktie, Strategie, Stückzahl, Limit, Stop, Ziel und bis wann verkaufen – dazu ein Link zum Bericht. GitHub schickt dir dazu eine E-Mail, und mit der **GitHub-App** kommt eine Push-Nachricht. Einmalig einrichten:
+
+1. App **GitHub** (Android oder iPhone) installieren und mit deinem Konto anmelden.
+2. In der App (sie ist auf Englisch): **Profile → Zahnrad (Settings) → Notifications** → Push-Nachrichten einschalten und dort **Direct mentions** (direkte Erwähnungen) anhaken. In den Handy-Einstellungen Benachrichtigungen für die GitHub-App erlauben.
+3. E-Mails: im Browser **github.com/settings/notifications** → bei **Participating, @mentions and custom** „Email“ angehakt lassen (Standard). Keine E-Mails gewünscht: Haken weg, die Push-Nachricht kommt trotzdem.
+4. Fertig – der Bot erwähnt dich (@Benutzername) in jedem Kommentar, damit die Nachricht sicher ankommt.
+
+Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jeden Börsentag, weil 24 Aktien beobachtet werden; die Nachricht nennt die besten nach denselben Grenzen wie der Handelsplan im Bericht. Steht der Tab „Issues“ nicht im Repository, ist er ausgeschaltet: **Settings → General → Features → Issues** anhaken. Klappt das Senden einmal nicht, bleibt der Lauf trotzdem grün und Bericht, Papier-Depot und Gehirn werden normal gespeichert.
 
 Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Mit Krypto in `TICKER` rechnet das Papier-Depot einen Tag später weiter (der Krypto-Tag endet erst um 2:00 Uhr deutscher Sommerzeit). Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
 
@@ -81,6 +90,7 @@ Der automatische Lauf schreibt jede Nacht Notizen für [Obsidian](https://obsidi
 
 - **`Start.md`** – Übersicht: heutige Signale, Übungsdepot, was der Bot gelernt hat, deine Regeln.
 - **`Tage/2026-10-21.md`** – Tagesnotiz: Marktlage, Entscheidungen, Übungsdepot, Änderungen beim Lernen.
+- **`Wochen/2026-W43.md`** – Wochenrückblick: Depotwert am Wochenanfang und jetzt, abgeschlossene und neue Trades der Woche, Trefferquote im Übungsdepot (gesamt und je Aktie), Änderungen beim Lernen und Links zu den Tagesnotizen. Während der Woche schreibt der Bot sie jede Nacht neu, danach bleibt sie stehen. Unten ist unter „Meine Gedanken zur Woche“ Platz für dich – am besten erst, wenn die Woche vorbei ist (dann ändert der Bot die Notiz nicht mehr).
 - **`Trades/…`** – je abgeschlossenem Trade im Übungsdepot eine Notiz: warum gekauft, was passiert ist (z. B. Stop durch Kurslücke, Gewinn wieder abgegeben) und **was der Bot daraus lernt**. Darunter ist Platz für deine Gedanken; diese Notiz ändert der Bot danach nie mehr.
 - **`Strategien/…`** und **`Aktien/…`** – je eine Seite mit Bilanz, Lernstand (aktiv, pausiert, aus) und allen Trades, alles verlinkt.
 - **`Lehren.md`** – was der Bot aus allen Trades zieht: Lernregel, Ausstiegsgründe, Muster und ehrliche Hinweise zum Zufall.
@@ -90,7 +100,7 @@ Der automatische Lauf schreibt jede Nacht Notizen für [Obsidian](https://obsidi
 
 **So lernt der Bot.** Automatisch ändert er nur, welche Strategien er handelt (Lernregel: schlecht laufende Strategien pausieren), und er hält sich an deine Regeln. Muster wie „auf Aktie X läuft es schlecht“ zeigt er dir nur – bei wenigen Trades ist das oft Zufall. Ob du daraus eine Regel machst, entscheidest du.
 
-**Wo du selbst schreibst.** Am besten in den **Trade-Notizen unter „Meine Gedanken“** oder in eigenen Notizen im Ordner **`gehirn/Notizen`** – beide ändert der Bot nie. Danach **Git: Commit-and-sync**, sonst bleibt der Text nur auf diesem Gerät (dafür braucht es den Zugangs-Token, siehe „Regeln abhaken“). Auf den übrigen Seiten (Start, Tage, Strategien, Aktien, Lehren) besser nichts schreiben: Die schreibt der Bot fast jede Nacht neu, und ein nicht hochgeladener Text dort hält Obsidian davon ab, neue Notizen zu holen. (Was dort zwischen `BOT-ANFANG` und `BOT-ENDE` steht, ersetzt der Bot; Eigenschaften, Tags und hochgeladener Text darüber oder darunter bleiben erhalten.)
+**Wo du selbst schreibst.** Am besten in den **Trade-Notizen unter „Meine Gedanken“**, in **abgeschlossenen Wochenrückblicken** (Woche vorbei) oder in eigenen Notizen im Ordner **`gehirn/Notizen`** – die ändert der Bot nicht mehr. Danach **Git: Commit-and-sync**, sonst bleibt der Text nur auf diesem Gerät (dafür braucht es den Zugangs-Token, siehe „Regeln abhaken“). Auf den übrigen Seiten (Start, Tage, Strategien, Aktien, Lehren) besser nichts schreiben: Die schreibt der Bot fast jede Nacht neu, und ein nicht hochgeladener Text dort hält Obsidian davon ab, neue Notizen zu holen. (Was dort zwischen `BOT-ANFANG` und `BOT-ENDE` steht, ersetzt der Bot; Eigenschaften, Tags und hochgeladener Text darüber oder darunter bleiben erhalten.)
 
 > ⚠️ **Alles im Repository ist öffentlich.** Was du mit Commit-and-sync hochlädst – auch eingefügte Bilder –, kann jeder im Internet lesen. Keine persönlichen Daten, Kontonummern oder echten Depotdaten notieren.
 
@@ -201,6 +211,7 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 | `--papier-neu` | Papier-Depot neu anfangen (der bisherige Stand bleibt als Kopie mit Datum erhalten) |
 | `--bericht bericht/README.md` | alles zusätzlich als Markdown-Bericht speichern (Ticker als TradingView-Links; nutzt der automatische Lauf) |
 | `--gehirn` | Notizen für Obsidian in `gehirn/` schreiben (Tagesnotiz, Trade-Tagebuch mit Lehren, Strategie- und Aktien-Seiten) und dort `Meine Regeln.md` lesen (gesperrte Aktien, ausgeschaltete Strategien); eigener Ordner mit `--gehirn ORDNER` |
+| `--nachricht DATEI` | bei Kauf-Signalen den Handelsplan als kurze Nachricht in DATEI schreiben (nutzt der automatische Lauf für die Nachricht aufs Handy; ohne Signal wird die Datei gelöscht) |
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
 

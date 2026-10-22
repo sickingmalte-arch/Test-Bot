@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: write # Bericht und Papier-Depot zurück ins Repository schreiben
+  issues: write # bei Kauf-Signalen ein Kommentar im Thema „Swing-Bot: Signale“ (Nachricht aufs Handy)
 
 concurrency:
   group: swing-bot # nie zwei Läufe gleichzeitig (das Papier-Depot würde sich sonst überschreiben)
@@ -49,7 +50,8 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: |
           set -- --konto "$KONTO" --risiko "$RISIKO" --rueckblick 12 \
-                 --papier papier/papier_depot.json --bericht bericht/README.md --gehirn gehirn
+                 --papier papier/papier_depot.json --bericht bericht/README.md --gehirn gehirn \
+                 --nachricht "$RUNNER_TEMP/nachricht.md"
           if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
           # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
           # shellcheck disable=SC2086
@@ -95,3 +97,31 @@ jobs:
           done
           echo "::error::Nicht gespeichert – meist, weil papier/, bericht/ oder gehirn/ während des Laufs geändert wurde (z. B. Datei hochgeladen). Sonst steht der Grund im Protokoll darüber (z. B. Zweigschutz oder GitHub-Störung). Der nächste Lauf rechnet vom gespeicherten Stand weiter."
           exit 1
+
+      - name: Nachricht aufs Handy
+        # Bei Kauf-Signalen ein Kommentar im Thema „📲 Swing-Bot: Signale“ (Tab Issues). GitHub schickt dir dazu eine
+        # E-Mail und – mit der GitHub-App – eine Push-Nachricht. Klappt das nicht, bleibt der Lauf trotzdem grün.
+        if: always() && steps.bot.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BESITZER: ${{ github.repository_owner }}
+          BERICHT: ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/bericht/README.md
+        run: |
+          datei="$RUNNER_TEMP/nachricht.md"
+          if [ ! -s "$datei" ]; then
+            echo "Kein Signal – keine Nachricht."
+            exit 0
+          fi
+          { echo; echo "Ganzer Bericht: $BERICHT"; echo; echo "@$BESITZER"; } >> "$datei"
+          gh label create swing-bot-signale --repo "$GITHUB_REPOSITORY" --color 1F883D \
+            --description "Nachrichten des Swing-Bots" 2>/dev/null || true
+          nummer=$(gh issue list --repo "$GITHUB_REPOSITORY" --label swing-bot-signale --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -z "$nummer" ]; then
+            nummer=$(gh issue create --repo "$GITHUB_REPOSITORY" --label swing-bot-signale \
+              --title "📲 Swing-Bot: Signale" \
+              --body "Hier schreibt der Bot nach jedem Lauf mit Kauf-Signal einen Kommentar. GitHub schickt dir dazu eine E-Mail und – mit der GitHub-App – eine Push-Nachricht aufs Handy. Keine Nachrichten mehr: rechts auf Unsubscribe klicken. Wird dieses Thema geschlossen, legt der Bot beim nächsten Signal ein neues an." \
+              | grep -o '[0-9]*$')
+          fi
+          gh issue comment "$nummer" --repo "$GITHUB_REPOSITORY" --body-file "$datei"
