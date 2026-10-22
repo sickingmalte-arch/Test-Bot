@@ -69,7 +69,7 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach j
 | `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000; auch `10.000 €` oder `10.000,00` geht). Fürs Papier-Depot zählt der Betrag nur beim Anlegen – also am besten **vor** dem ersten Lauf eintragen; später geändert: `papier/papier_depot.json` löschen, dann fängt es mit dem neuen Betrag an (der Bericht weist darauf hin). |
 | `RISIKO` | `1` | Risiko je Trade in % (Standard 1; auch `1,5 %` geht) |
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
-| `OPTIONEN` | `--ohne-news --bruchstuecke` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
+| `OPTIONEN` | `--bruchstuecke --gebuehr 0` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
 
 Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 
@@ -173,23 +173,32 @@ Der Indikator kennt nur den einen Chart: Lernregel über die ganze Watchlist, Qu
 - Trendregel: Trendstrategien nur in Richtung der 50-Tage-Linie, Gegenbewegungen nur in Richtung der 200-Tage-Linie; widersprechen sich Signale, wartet der Bot.
 - Quartalszahlen: kein Einstieg in den 3 Handelstagen davor, offene Positionen am Abend vorher schließen, kurz danach keine Gegenbewegungs-Trades.
 - Einstieg am nächsten Handelstag nur bis zum Limit; Ausstieg an Stop, Ziel, vor Quartalszahlen oder spätestens nach 20 Handelstagen.
-- Risiko: 1 % des Kontos je Trade, höchstens 5 Positionen (mit `--mit-short` davon höchstens 2 Short) und 5 % Risiko gleichzeitig, höchstens 25 % des Kontos je Position. Kosten: 1 € Gebühr + 0,1 % Spread je Order.
-- Schlagzeilen sind nur ein Hinweis (⚠️, wenn ein erkanntes Ereignis gegen das Signal spricht) – sie lassen sich nicht rückwirkend testen.
+- Risiko: 1 % des Kontos je Trade, höchstens 5 Positionen (mit `--mit-short` davon höchstens 2 Short), davon höchstens 2 aus derselben Branche (z. B. Technologie – die Watchlist ist sehr technologielastig; Branchen stehen in `BRANCHEN` oben im Skript, fehlende Ticker zählen als eigene Branche), und 5 % Risiko gleichzeitig, höchstens 25 % des Kontos je Position. Kosten: 1 € Gebühr + 0,1 % Spread je Order.
+- Nachrichten: Für jede Aktie mit Signal liest der Bot die Schlagzeilen der letzten 3 Handelstage. Spricht eine erkannte Meldung gegen den Kauf (z. B. Herabstufung durch Analysten, Zahlen oder Prognose schlechter als erwartet, Kapitalerhöhung, Ermittlungen einer Behörde, Insider-Verkauf, Chefwechsel) oder ist es ein Sonderfall (Übernahme, Handelsaussetzung), kauft er nicht: Im Bericht steht dann ⏸ WARTEN mit dem Grund, und auch das Papier-Depot kauft an diesem Tag nicht. Die Wortsuche versteht keinen Zusammenhang, also vor einem Kauf selbst lesen. Alte Schlagzeilen gibt es bei Yahoo nicht, deshalb lässt sich diese Regel nicht rückwirkend testen; im Rückblick gilt sie nur für den letzten Tag. Mit `--ohne-news` ist sie aus.
 
 ### Test mit echten Kursen (2010–2026)
 
-Die Regeln wurden mit echten Tageskursen von 2010 bis 2026 geprüft – mit deiner Watchlist und zur Kontrolle mit 60 anderen US-Aktien. Entwickelt wurde nur mit 2015–2021; die Jahre 2022–2026 kamen erst ganz am Ende dazu, damit sich der Bot nicht die Vergangenheit „merkt“. Simuliert ist das Depot des Bots (1 % Risiko je Trade, höchstens 5 Positionen, Gebühren und Spread). Wichtig: Beide Gruppen sind heute bekannte, noch gehandelte Aktien – viele davon spätere Gewinner oder erst nach 2019 an die Börse gekommen (z. B. APP, COIN, SMCI, RKLB). Aktien, die in dieser Zeit abgestürzt oder verschwunden sind, fehlen. Kauf-Strategien und vor allem Kaufen und Halten sehen dadurch besser aus, als man es damals hätte wissen können. Aussagekräftig ist vor allem der Vergleich vorher → jetzt, nicht die Höhe der Renditen.
+Die Regeln wurden mit echten Tageskursen von 2010 bis 2026 geprüft – mit deiner Watchlist und zur Kontrolle mit 60 anderen US-Aktien. Stop- und Zielabstände wurden nur mit 2015–2021 entwickelt; die Jahre 2022–2026 kamen erst ganz am Ende dazu, damit sich der Bot nicht die Vergangenheit „merkt“. Spätere Änderungen (z. B. die Branchen-Grenze) mussten in allen drei Zeiträumen und bei beiden Aktiengruppen bestehen – dadurch ist 2022–2026 kein ganz unberührter Test mehr. Simuliert ist das Depot des Bots (1 % Risiko je Trade, höchstens 5 Positionen, Gebühren und Spread) – jeweils als Mittel aus 16 Durchläufen, denn schon die Reihenfolge der Aktien in der Liste verschiebt ein einzelnes Ergebnis um 1–3 Prozentpunkte. „Vorher“ ist der Bot vor den Verbesserungen (Ziel doppelt so weit wie der Stop, mit Shorts), „jetzt“ die heutige Version. Wichtig: Beide Gruppen sind heute bekannte, noch gehandelte Aktien – viele davon spätere Gewinner oder erst nach 2019 an die Börse gekommen (z. B. APP, COIN, SMCI, RKLB). Aktien, die in dieser Zeit abgestürzt oder verschwunden sind, fehlen. Kauf-Strategien und vor allem Kaufen und Halten sehen dadurch besser aus, als man es damals hätte wissen können. Aussagekräftig ist vor allem der Vergleich vorher → jetzt, nicht die Höhe der Renditen.
 
 | Zeitraum | Aktien | Trefferquote vorher → jetzt | Rendite pro Jahr vorher → jetzt | größter Rückgang vorher → jetzt |
 | --- | --- | --- | --- | --- |
-| 2010–2014 | Watchlist | 44 % → 55 % | 4,4 % → 7,9 % | 34 % → 16 % |
-| 2010–2014 | 60 andere | 45 % → 53 % | 9,1 % → 7,6 % | 16 % → 13 % |
-| 2015–2021 | Watchlist | 47 % → 60 % | 9,7 % → 14,1 % | 19 % → 16 % |
-| 2015–2021 | 60 andere | 43 % → 58 % | 3,0 % → 9,7 % | 25 % → 15 % |
-| 2022–2026 | Watchlist | 49 % → 56 % | 14,8 % → 5,9 % | 21 % → 14 % |
-| 2022–2026 | 60 andere | 40 % → 53 % | 5,3 % → 2,7 % | 20 % → 12 % |
+| 2010–2014 | Watchlist | 45 % → 56 % | 4,7 % → 9,2 % | 33 % → 14 % |
+| 2010–2014 | 60 andere | 46 % → 54 % | 9,1 % → 9,1 % | 18 % → 13 % |
+| 2015–2021 | Watchlist | 47 % → 58 % | 10,8 % → 12,7 % | 19 % → 16 % |
+| 2015–2021 | 60 andere | 43 % → 57 % | 3,1 % → 8,1 % | 23 % → 16 % |
+| 2022–2026 | Watchlist | 48 % → 57 % | 12,2 % → 6,4 % | 22 % → 16 % |
+| 2022–2026 | 60 andere | 41 % → 52 % | 5,7 % → 4,8 % | 21 % → 10 % |
 
-Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgänge werden kleiner. Dafür bringt ein Treffer weniger (etwa 1 R statt bis zu 2 R). Ob am Ende mehr Geld herauskommt, hängt vom Zeitraum ab: 2015–2021 (beide Gruppen) und 2010–2014 mit der Watchlist hätte die neue Version mehr verdient, 2010–2014 mit den 60 anderen und vor allem 2022–2026 die alte. Bei 2022–2026 lag die Trefferquote bei 17 von 23 Watchlist-Aktien über 50 % (vorher 9). Dass jede einzelne Aktie über 50 % liegt, lässt sich nicht garantieren: Mit meist 15–23 Trades je Aktie landen einige allein durch Zufall darunter. Alle Aktien zu kaufen und zu halten hätte in jedem Zeitraum mehr gebracht, allerdings mit größeren Rückgängen: 20–35 % statt höchstens 16 %, mit der Watchlist allein 2022 rund −30 %.
+Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgänge werden überall kleiner. Dafür bringt ein Treffer weniger (etwa 1 R statt bis zu 2 R). Ob am Ende mehr Geld herauskommt, hängt vom Zeitraum ab: 2010–2021 meist ja (mit den 60 anderen 2010–2014 gleich), 2022–2026 nein – da hätte die alte Version mehr verdient. Bei 2022–2026 lag die Trefferquote bei 16 von 22 Watchlist-Aktien über 50 % (vorher 7). Dass jede einzelne Aktie über 50 % liegt, lässt sich nicht garantieren: Mit meist 15–23 Trades je Aktie landen einige allein durch Zufall darunter. Alle Aktien zu kaufen und zu halten hätte in jedem Zeitraum mehr gebracht, allerdings mit größeren Rückgängen: 20–35 % statt höchstens 16 %, mit der Watchlist allein 2022 rund −30 %.
+
+**Geprüft und nicht übernommen** (gleicher Test: 2010–2014, 2015–2021, 2022–2026, Watchlist und 60 andere Aktien; übernommen wird nur, was überall hilft oder zumindest nirgends erkennbar schadet):
+
+- *Weniger Strategien* (z. B. nur RSI-2 und Gegenbewegung, oder ohne MACD und EMA-Kreuz): Über 16 Jahre liegen alle 8 Kauf-Strategien im Plus – auch MACD-Wende und EMA-Kreuz. Nur zwei Strategien zu behalten, kostete im Schnitt 5 Prozentpunkte Rendite pro Jahr. Die kurze Tabelle im Bericht (60 Trades) ist für so eine Entscheidung zu zufällig.
+- *Ruhigere Lernregel* (erst ab 100 Trades, nur bei „klar im Minus“): im Schnitt 0,5–0,9 Prozentpunkte weniger Rendite. Ganz ohne Lernregel war es in 4 von 6 Fällen schlechter – die jetzige Regel bleibt.
+- *Relative Stärke bei der Auswahl* (stärkste Aktien der letzten 3–6 Monate zuerst): leicht schlechter; 12 Monate im Schnitt besser, aber nicht überall.
+- *Gewinner laufen lassen* (nachgezogener Stop statt Ziel bei Trend-Strategien): mehr Gewinn je Trade, aber die Trefferquote fällt auf etwa 50 % und die Rendite war nur in der Hälfte der Fälle besser.
+- *Chance-Risiko lernen oder aus dem Chart lesen, nur klare Signale* (Bestätigung durch mehrere Strategien, Qualitätspunkte, Filter): halfen höchstens bis 2021 und 2022–2026 nicht.
+- *Höchstens 2 Positionen je Branche* wurde übernommen: Rendite in 5 von 6 Fällen besser (im Schnitt +0,4 Prozentpunkte, im sechsten innerhalb des Zufalls), größter Rückgang nie schlechter, meist 1–2 Prozentpunkte kleiner.
 
 ### Optionen
 
@@ -201,7 +210,7 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 | `--mit-short` | auch auf fallende Kurse setzen (Short) – im Test im Schnitt mit Verlust, nicht empfohlen |
 | `--ohne-lernen` | keine Strategien pausieren |
 | `--ohne-marktfilter` | kaufen (und mit `--mit-short` shorten) unabhängig davon, ob der Nasdaq-100 über oder unter seiner 200-Tage-Linie liegt |
-| `--ohne-news` | keine Schlagzeilen laden (Quartalszahlen-Regel bleibt) |
+| `--ohne-news` | keine Schlagzeilen laden – dann auch keine Nachrichten-Regel (Quartalszahlen-Regel bleibt) |
 | `--ohne-zahlen` | keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann aus |
 | `--rueckblick 6` | Monate für das virtuelle Depot (0 = aus, max. 18) |
 | `--gebuehr 1` | Ordergebühr in € je Kauf/Verkauf |

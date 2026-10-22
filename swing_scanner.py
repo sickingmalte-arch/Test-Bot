@@ -59,6 +59,20 @@ MAX_POSITION_PROZENT = 25        # eine einzelne Position höchstens so viel % d
 MAX_POSITIONEN = 5               # höchstens so viele Positionen gleichzeitig
 MAX_SHORTS = 2                   # davon höchstens so viele Shorts
 MAX_GESAMTRISIKO_PROZENT = 5     # alle offenen Positionen zusammen höchstens so viel % Risiko bis zum Stop
+MAX_JE_BRANCHE = 2              # höchstens so viele Positionen aus derselben Branche (nicht alles auf eine Karte)
+# Branche je Ticker (grob nach GICS-Sektoren). Ticker, die hier fehlen, zählen als eigene Branche (keine Grenze).
+BRANCHEN = {
+    "Technologie": "NOW INTU CRWV NBIS IREN AAPL NVDA MSFT AMD PLTR ADBE CRM ORCL AVGO QCOM TXN INTC CSCO IBM SNOW "
+                   "DDOG NET CRWD ZS PANW MU AMAT LRCX MRVL SMCI DELL ARM APP SHOP MSTR ASML TSM SAP",
+    "Kommunikation": "GOOGL GOOG META NFLX ASTS ROKU DIS RBLX SPOT T VZ",
+    "Konsum": "SE MELI AMZN TSLA HD NKE SBUX MCD ABNB DKNG RIVN BABA PDD LULU CMG",
+    "Finanzen": "JPM SOFI PYPL COIN GS BAC V MA AFRM UPST HOOD MS WFC C BRK-B AXP",
+    "Gesundheit": "LLY HIMS UNH JNJ PFE MRK ABBV NVO ISRG TMO",
+    "Energie": "XOM CVX OXY COP SLB",
+    "Basiskonsum": "COST KO PEP WMT CELH PG",
+    "Industrie": "BA CAT GE RKLB UBER LMT RTX DE HON",
+}
+BRANCHE = {t: b for b, liste in BRANCHEN.items() for t in liste.split()}
 MIN_EINSATZ = 25                 # kleinere Trades lohnen wegen der Gebühr nicht (in €)
 ZEITSTOPP_TAGE = 20              # spätestens nach so vielen Handelstagen (inkl. Einstiegstag) aussteigen
 ZAHLEN_SPERRE_TAGE = 3           # kein Einstieg, wenn Quartalszahlen in den nächsten 3 Handelstagen wirken
@@ -241,7 +255,8 @@ def lies_einstellungen():
     p.add_argument("--ohne-lernen", action="store_true", help="schlecht laufende Strategien nicht pausieren")
     p.add_argument("--ohne-marktfilter", action="store_true",
                    help="Long und Short unabhängig vom Gesamtmarkt (Nasdaq-100 über/unter der 200-Tage-Linie)")
-    p.add_argument("--ohne-news", action="store_true", help="keine Schlagzeilen laden (Quartalszahlen-Regel bleibt)")
+    p.add_argument("--ohne-news", action="store_true",
+                   help="keine Schlagzeilen laden – dann auch keine Nachrichten-Regel (Quartalszahlen-Regel bleibt)")
     p.add_argument("--ohne-zahlen", action="store_true",
                    help="keine Quartalszahlen-Termine laden – die Zahlen-Regel ist dann AUS")
     p.add_argument("--gebuehr", type=zahl, default=GEBUEHR, help="Ordergebühr in € je Kauf/Verkauf")
@@ -281,6 +296,7 @@ def lies_einstellungen():
     einst.lernen = not einst.ohne_lernen
     einst.sperre_ticker = frozenset()  # aus 'Meine Regeln' im Gehirn (--gehirn)
     einst.sperre_strategien = frozenset()
+    einst.nachrichten_sperre, einst.nachrichten_tag = frozenset(), None  # Nachrichten-Regel (nur für den letzten Kurstag)
     einst.marktfilter = not einst.ohne_marktfilter
     einst.bruchstuecke = BRUCHSTUECKE or einst.bruchstuecke
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
@@ -675,7 +691,7 @@ def werte_news(zusatz, kurstag, scanner_zeilen):
             zeilen.append({**s, "ereignisse": [e2 for _, e2 in ev], "warnt": warnt})
         spalte = ("⚠️ " if warnung else "📰 ") + ", ".join(etiketten) if etiketten else ""
         zeilen.sort(key=lambda z: (not z["warnt"], not z["ereignisse"]))  # Warnungen, dann Ereignisse zuerst
-        ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "info": "ok"}
+        ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "warnende": warnende, "info": "ok"}
     return ergebnis
 
 
@@ -1016,6 +1032,11 @@ def positionsgroesse(kurs, stop, konto, risiko_prozent, bruchstuecke, bargeld=ma
                  risiko_frei / risiko_je_aktie)
     return math.floor(stueck * 100 + 1e-9) / 100 if bruchstuecke else math.floor(stueck + 1e-9)
 
+def gleiche_branche(ticker, andere):
+    """Wie viele der anderen Ticker gehören zur selben Branche? Unbekannte Ticker bilden ihre eigene Branche."""
+    b = BRANCHE.get(ticker)
+    return sum(1 for x in andere if b is not None and BRANCHE.get(x) == b)
+
 def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
     Schluss, Einstieg zur nächsten Eröffnung bis zum Limit, Stop/Ziel/Zahlen/Zeitstopp), dazu Kapital- und
@@ -1084,7 +1105,7 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
             r, stop = auftrag["richtung"], auftrag["stop"]
             if t in positionen or not einstieg_moeglich(d, i, r, stop, auftrag["limit"]):
                 continue  # Kurslücke hinter den Stop oder über das Limit: Auftrag verfällt
-            if len(positionen) >= MAX_POSITIONEN:
+            if len(positionen) >= MAX_POSITIONEN or gleiche_branche(t, positionen) >= MAX_JE_BRANCHE:
                 continue
             if r < 0 and sum(1 for p in positionen.values() if p["richtung"] < 0) >= MAX_SHORTS:
                 continue
@@ -1137,7 +1158,7 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
                 continue
             letzter_kurs[t] = (d["C"][i], d["FX"][i])
             if (t in positionen or i < MIN_KERZEN - 1 or (signal_ticker is not None and t not in signal_ticker)
-                    or t in einst.sperre_ticker):
+                    or t in einst.sperre_ticker or (t in einst.nachrichten_sperre and tag == einst.nachrichten_tag)):
                 continue
             wahl, _ = kandidaten(d, i, pausiert, einst.sperre_strategien)
             if wahl is None:
@@ -1440,7 +1461,8 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen):
         hinweise.append(ampel)
     gesamt = einst.konto * MAX_GESAMTRISIKO_PROZENT / 100
     shorts = f" (davon höchstens {MAX_SHORTS} Short)" if einst.mit_short else ""
-    hinweise.append(f"Regel: höchstens {MAX_POSITIONEN} Positionen gleichzeitig{shorts} "
+    hinweise.append(f"Regel: höchstens {MAX_POSITIONEN} Positionen gleichzeitig{shorts}, höchstens {MAX_JE_BRANCHE} aus "
+                    f"derselben Branche "
                     f"und zusammen höchstens {MAX_GESAMTRISIKO_PROZENT} % = {de(gesamt, 0)} {waehrung} Risiko – "
                     f"bei mehr Signalen die oberen nehmen.")
     if not fx_heute:
@@ -1500,8 +1522,10 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
     fuss.append("Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. "
                 "Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.")
     if any(n.get("zeilen") for n in news.values()):
-        fuss.append("📰 Schlagzeilen sind nur ein Hinweis: Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf "
-                    "selbst lesen. Sie unterdrücken keine Signale, weil sie sich nicht rückwirkend testen lassen.")
+        fuss.append("📰 Schlagzeilen: Spricht eine erkannte Meldung der letzten Tage gegen ein Signal (⚠️, z. B. "
+                    "Herabstufung, Kapitalerhöhung, Ermittlungen, Übernahme), wartet der Bot (⏸ WARTEN – Nachricht) und "
+                    "kauft auch im Papier-Depot nicht. Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf selbst "
+                    "lesen. Rückwirkend lässt sich diese Regel nicht testen; im Rückblick gilt sie nur für den letzten Tag.")
     return fuss
 
 def kuerzen(text, laenge):
@@ -1945,7 +1969,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
               f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), "
               f"{'' if ohne_zahlen else 'zum Schluss vor Quartalszahlen '}"
               f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen"
-              f"{f', {MAX_SHORTS} Shorts' if einst.mit_short else ''} und "
+              f"{f', {MAX_SHORTS} Shorts' if einst.mit_short else ''}, {MAX_JE_BRANCHE} je Branche und "
               f"{MAX_GESAMTRISIKO_PROZENT} % Gesamtrisiko; {de(einst.gebuehr)} {waehrung} Gebühr + "
               f"{prozent(SPREAD_PROZENT)} % Spread je Order; "
               f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}. "
@@ -2297,7 +2321,8 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                     f"{p['ticker']} ({p['grund']}, {de(p['erloes'] - p['kosten'], 2, True)} {waehrung})"
                     for p in erg["trades"]))
             if bericht["nicht_ausgefuehrt"]:
-                teile.append("nicht ausgeführt (Limit nicht erreicht, Kurslücke oder kein Platz/Geld): "
+                teile.append("nicht ausgeführt (Limit nicht erreicht, Kurslücke, kein Platz/Geld oder schon "
+                             f"{MAX_JE_BRANCHE} aus derselben Branche im Depot): "
                              + ", ".join(bericht["nicht_ausgefuehrt"]))
             if bericht.get("gestrichen"):
                 teile.append("gestrichen (Meine Regeln): " + ", ".join(bericht["gestrichen"]))
@@ -2905,6 +2930,8 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
     for t in dict.fromkeys(list(einst.ticker_liste) + depot_ticker):
         z = zeile_von.get(t)
         text = [f"# {t}", ""]
+        if BRANCHE.get(t):
+            text += [f"Branche: {BRANCHE[t]} (höchstens {MAX_JE_BRANCHE} Positionen aus einer Branche zugleich)", ""]
         link = tradingview_link(t)
         if link:
             text.append(f"[Chart bei TradingView]({link})")
@@ -3287,6 +3314,20 @@ def auswerten(einst):
         news = werte_news(news_daten, stand_tag, zeilen)
         for t, e in news_daten.items():
             zusatz.setdefault(t, {}).update({"news_info": e["news_info"]})
+        # Nachrichten-Regel: Spricht eine erkannte Schlagzeile der letzten Tage gegen das Signal (z. B. Herabstufung,
+        # Kapitalerhöhung, Klage einer Behörde) oder ist es ein Sonderfall (Übernahme, Handelsaussetzung), wartet der
+        # Bot – im Scanner und im Papier-Depot für diesen Tag. Rückwirkend lässt sich das nicht testen (alte
+        # Schlagzeilen gibt es bei Yahoo nicht), deshalb gilt die Regel nur ab heute.
+        sperre = set()
+        for z in zeilen:
+            n = news.get(z["Ticker"], {})
+            if z.get("Signal") in (KAUFEN, SHORT) and n.get("warnung"):
+                for feld in ("Limit", "Stop", "Ziel", "CRV", "Stück", "Einsatz", "Risiko"):
+                    z.pop(feld, None)
+                z.update({"Signal": WARTEN, "Strategie": f"{strategie_name(z['_strategie'])} – Nachricht: "
+                                                         f"{', '.join(n.get('warnende') or ['siehe Schlagzeilen'])}"})
+                sperre.add(z["Ticker"])
+        einst.nachrichten_sperre, einst.nachrichten_tag = frozenset(sperre), stand_tag
     for z in zeilen:
         z["News"] = news.get(z["Ticker"], {}).get("spalte", "")
 
@@ -3312,17 +3353,19 @@ def auswerten(einst):
     nach_ticker = {z["Ticker"]: z for z in zeilen}
     einstiege = [nach_ticker[t] for t in reihenfolge if nach_ticker[t].get("Signal") in (KAUFEN, SHORT)]
     # Handelsplan nach denselben Grenzen wie das Depot: Anzahl, Shorts, Gesamtrisiko und Geld (bestes CRV zuerst)
-    plan, zu_klein, shorts, risiko_summe, geld_summe, mehr = [], [], 0, 0.0, 0.0, 0
+    plan, zu_klein, shorts, risiko_summe, geld_summe, mehr, im_plan = [], [], 0, 0.0, 0.0, 0, []
     for z in einstiege:
         short = z["Signal"] == SHORT
         if not z["Stück"]:
             zu_klein.append(z["Ticker"])
         elif (len(plan) >= MAX_POSITIONEN or (short and shorts >= MAX_SHORTS)
+                or gleiche_branche(z["Ticker"], im_plan) >= MAX_JE_BRANCHE
                 or risiko_summe + z["Risiko"] > einst.konto * MAX_GESAMTRISIKO_PROZENT / 100 + 0.005
                 or geld_summe + z["Einsatz"] + einst.gebuehr > einst.konto):
             mehr += 1
         else:
             plan.append(handelsplan(z, len(plan) + 1, einst, waehrung))
+            im_plan.append(z["Ticker"])
             shorts += short
             risiko_summe += z["Risiko"]
             geld_summe += z["Einsatz"] + einst.gebuehr
@@ -3333,8 +3376,9 @@ def auswerten(einst):
     if mehr:
         plan.append(f"… {mehr} {'weiteres Signal' if mehr == 1 else 'weitere Signale'} nicht im Plan – laut Regel "
                     f"höchstens {MAX_POSITIONEN} Positionen gleichzeitig"
-                    f"{f' (davon {MAX_SHORTS} Short)' if einst.mit_short else ''}, zusammen höchstens "
-                    f"{MAX_GESAMTRISIKO_PROZENT} % Risiko und nicht mehr Geld als auf dem Konto.")
+                    f"{f' (davon {MAX_SHORTS} Short)' if einst.mit_short else ''}, höchstens {MAX_JE_BRANCHE} aus "
+                    f"derselben Branche, zusammen höchstens {MAX_GESAMTRISIKO_PROZENT} % Risiko und nicht mehr Geld als "
+                    f"auf dem Konto.")
     schlagzeilen = []
     for t in reihenfolge:
         for s in news.get(t, {}).get("zeilen", []):
