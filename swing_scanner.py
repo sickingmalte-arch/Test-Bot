@@ -43,7 +43,8 @@ TICKER_LISTE = [
 ]
 KONTO = 10_000              # Kontogröße / virtuelles Startkapital in €
 RISIKO_PROZENT = 1.0        # max. Verlust pro Trade in % des Kontos, wenn der Stop-Loss greift
-MIT_SHORT = True            # auch auf fallende Kurse setzen (Short-Signale)
+MIT_SHORT = False           # auch auf fallende Kurse setzen (Short-Signale) – aus: alle 8 Short-Strategien haben im Test
+                            # 2010–2026 im Schnitt Geld verloren (einschalten mit --mit-short)
 GEBUEHR = 1.0               # Ordergebühr in € je Kauf/Verkauf (z. B. Neobroker)
 SPREAD_PROZENT = 0.1        # geschätzter Spread je Order in % (Kauf etwas teurer, Verkauf etwas billiger)
 BRUCHSTUECKE = False        # True = auch Bruchteile von Aktien (z. B. 0,35 Stück)
@@ -60,7 +61,13 @@ MAX_GESAMTRISIKO_PROZENT = 5     # alle offenen Positionen zusammen höchstens s
 MIN_EINSATZ = 25                 # kleinere Trades lohnen wegen der Gebühr nicht (in €)
 ZEITSTOPP_TAGE = 20              # spätestens nach so vielen Handelstagen (inkl. Einstiegstag) aussteigen
 ZAHLEN_SPERRE_TAGE = 3           # kein Einstieg, wenn Quartalszahlen in den nächsten 3 Handelstagen wirken
-LIMIT_ATR = 0.5                  # Einstieg nur bis Schlusskurs ± 0,5 ATR (Limit-Order), höchstens bis Mitte Stop/Ziel
+LIMIT_ATR = 0.5                  # Einstieg nur bis Schlusskurs ± 0,5 ATR (Limit-Order), höchstens halber Weg zum Ziel
+# Stop und Ziel: weiter Stop, Ziel nicht weiter als der Stop – im Test 2010–2026 (84 Aktien) gut 55 % Treffer statt
+# gut 45 %, dafür kleinere Gewinne je Treffer
+STOP_TREND_ATR = 3               # Trend-Strategien: Stop 3 ATR vom Schlusskurs ...
+ZIEL_TREND_ATR = 3               # ... und Ziel 3 ATR (weiter Stop, Ziel nicht weiter als der Stop: mehr Treffer)
+STOP_GEGEN_ATR = 2.5             # Gegenbewegungs-Strategien (RSI-2, Gegenbewegung): Stop 2,5 ATR ...
+ZIEL_GEGEN_ATR = 2               # ... und Ziel 2 ATR (kurze Rückkehr zur Mitte, Ziel näher als der Stop)
 R_GRENZE = 3.0                   # ein einzelner Tagebuch-Trade zählt höchstens ±3 R
 LERNEN_FENSTER = 60              # die letzten 60 gedachten Trades je Strategie zählen
 LERNEN_MIN_TRADES = 20           # erst ab 20 Trades wird eine Strategie überhaupt pausiert
@@ -90,54 +97,54 @@ BERLIN = "Europe/Berlin"
 STRATEGIEN = {
     "ausbruch_long":      {"name": "Ausbruch", "richtung": 1, "art": "trend",
                            "regel": "Schluss über dem 20-Tage-Hoch mit 1,5-fachem Volumen, über der 50-Tage-Linie. "
-                                    "Stop −2 ATR, Ziel +4 ATR"},
+                                    "Stop −3 ATR, Ziel +3 ATR"},
     "abbruch_short":      {"name": "Abbruch", "richtung": -1, "art": "trend",
                            "regel": "Schluss unter dem 20-Tage-Tief mit 1,5-fachem Volumen, unter der 50-Tage-Linie. "
-                                    "Stop +2 ATR, Ziel −4 ATR"},
+                                    "Stop +3 ATR, Ziel −3 ATR"},
     "rsi2_long":          {"name": "RSI-2-Rücksetzer", "richtung": 1, "art": "gegen",
                            "regel": "RSI(2) unter 10 über der 200-Tage-Linie (kurzer Rücksetzer im langen Aufwärtstrend). "
-                                    "Stop −2 ATR, Ziel +2 ATR – braucht über 50 % Treffer"},
+                                    "Stop −2,5 ATR, Ziel +2 ATR – braucht etwa 56 % Treffer"},
     "rsi2_short":         {"name": "RSI-2-Übertreibung", "richtung": -1, "art": "gegen",
                            "regel": "RSI(2) über 90 unter der 200-Tage-Linie (kurze Erholung im langen Abwärtstrend). "
-                                    "Stop +2 ATR, Ziel −2 ATR – braucht über 50 % Treffer"},
+                                    "Stop +2,5 ATR, Ziel −2 ATR – braucht etwa 56 % Treffer"},
     "gegenbewegung_long": {"name": "Gegenbewegung", "richtung": 1, "art": "gegen",
                            "regel": "RSI(14) unter 32 oder am unteren Bollinger-Band, über der 200-Tage-Linie, "
-                                    "EMA 20 mindestens 1,2 ATR über dem Kurs. Stop −1,2 ATR, Ziel EMA 20"},
+                                    "EMA 20 mindestens 1,2 ATR über dem Kurs. Stop −2,5 ATR, Ziel +2 ATR"},
     "rueckfall_short":    {"name": "Rückfall", "richtung": -1, "art": "gegen",
                            "regel": "RSI(14) über 70 oder am oberen Bollinger-Band, unter der 200-Tage-Linie, "
-                                    "EMA 20 mindestens 1,2 ATR unter dem Kurs. Stop +1,2 ATR, Ziel EMA 20"},
+                                    "EMA 20 mindestens 1,2 ATR unter dem Kurs. Stop +2,5 ATR, Ziel −2 ATR"},
     "macd_long":          {"name": "MACD-Wende", "richtung": 1, "art": "trend",
                            "regel": "MACD kreuzt heute seine Signallinie nach oben, über der 50-Tage-Linie. "
-                                    "Stop −1,5 ATR, Ziel +3 ATR"},
+                                    "Stop −3 ATR, Ziel +3 ATR"},
     "macd_short":         {"name": "MACD-Wende", "richtung": -1, "art": "trend",
                            "regel": "MACD kreuzt heute seine Signallinie nach unten, unter der 50-Tage-Linie. "
-                                    "Stop +1,5 ATR, Ziel −3 ATR"},
+                                    "Stop +3 ATR, Ziel −3 ATR"},
     "ruecksetzer_long":   {"name": "Rücksetzer", "richtung": 1, "art": "trend",
                            "regel": "Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. "
-                                    "Stop −1,5 ATR, Ziel +3 ATR"},
+                                    "Stop −3 ATR, Ziel +3 ATR"},
     "erholung_short":     {"name": "Erholung", "richtung": -1, "art": "trend",
                            "regel": "Kurs bis 0,5 ATR unter der EMA 20, RSI(14) über 40, unter der 50-Tage-Linie. "
-                                    "Stop +1,5 ATR, Ziel −3 ATR"},
+                                    "Stop +3 ATR, Ziel −3 ATR"},
     "squeeze_long":       {"name": "Squeeze-Ausbruch", "richtung": 1, "art": "trend",
                            "regel": "Bollinger-Bänder waren an einem der 5 Vortage so eng wie selten (unterste 15 % der "
                                     "letzten 120 Tage), heute erster Schluss über dem oberen Band, über der 50-Tage-Linie "
-                                    "(Ausbruch nach ruhiger Phase). Stop −2 ATR, Ziel +4 ATR"},
+                                    "(Ausbruch nach ruhiger Phase). Stop −3 ATR, Ziel +3 ATR"},
     "squeeze_short":      {"name": "Squeeze-Abbruch", "richtung": -1, "art": "trend",
                            "regel": "Bollinger-Bänder waren an einem der 5 Vortage so eng wie selten (unterste 15 % der "
                                     "letzten 120 Tage), heute erster Schluss unter dem unteren Band, unter der "
-                                    "50-Tage-Linie. Stop +2 ATR, Ziel −4 ATR"},
+                                    "50-Tage-Linie. Stop +3 ATR, Ziel −3 ATR"},
     "ema_kreuz_long":     {"name": "EMA-Kreuz", "richtung": 1, "art": "trend",
                            "regel": "EMA 9 kreuzt heute die EMA 21 nach oben (neuer Aufwärtstrend), über der "
-                                    "50-Tage-Linie. Stop −2 ATR, Ziel +4 ATR"},
+                                    "50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR"},
     "ema_kreuz_short":    {"name": "EMA-Kreuz", "richtung": -1, "art": "trend",
                            "regel": "EMA 9 kreuzt heute die EMA 21 nach unten (neuer Abwärtstrend), unter der "
-                                    "50-Tage-Linie. Stop +2 ATR, Ziel −4 ATR"},
+                                    "50-Tage-Linie. Stop +3 ATR, Ziel −3 ATR"},
     "atr_ausbruch_long":  {"name": "ATR-Ausbruch", "richtung": 1, "art": "trend",
                            "regel": "Schluss erstmals mehr als 2 ATR über der EMA 20 (Keltner-Kanal – Bewegung größer "
-                                    "als das normale Schwanken), über der 50-Tage-Linie. Stop −2 ATR, Ziel +4 ATR"},
+                                    "als das normale Schwanken), über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR"},
     "atr_abbruch_short":  {"name": "ATR-Abbruch", "richtung": -1, "art": "trend",
                            "regel": "Schluss erstmals mehr als 2 ATR unter der EMA 20 (Keltner-Kanal), unter der "
-                                    "50-Tage-Linie. Stop +2 ATR, Ziel −4 ATR"},
+                                    "50-Tage-Linie. Stop +3 ATR, Ziel −3 ATR"},
 }
 VORRANG = {k: i for i, k in enumerate(STRATEGIEN)}
 
@@ -227,7 +234,9 @@ def lies_einstellungen():
     p.add_argument("--ticker", help='z. B. "AAPL, NFLX, SOFI" (Standard: TICKER_LISTE im Skript)')
     p.add_argument("--konto", type=betrag, default=KONTO, help="Kontogröße / Startkapital in € (z. B. 10000)")
     p.add_argument("--risiko", type=zahl, default=RISIKO_PROZENT, help="Risiko pro Trade in %% des Kontos")
-    p.add_argument("--ohne-short", action="store_true", help="keine Short-Signale, nur auf steigende Kurse setzen")
+    p.add_argument("--mit-short", action="store_true",
+                   help="auch Short-Signale (auf fallende Kurse setzen) – im Test im Schnitt mit Verlust, nicht empfohlen")
+    p.add_argument("--ohne-short", action="store_true", help="keine Short-Signale (Standard)")
     p.add_argument("--ohne-lernen", action="store_true", help="schlecht laufende Strategien nicht pausieren")
     p.add_argument("--ohne-marktfilter", action="store_true",
                    help="Long und Short unabhängig vom Gesamtmarkt (Nasdaq-100 über/unter der 200-Tage-Linie)")
@@ -264,7 +273,7 @@ def lies_einstellungen():
         p.error("--gebuehr muss 0 oder größer sein")
     if not 0 <= einst.rueckblick <= 18:
         p.error("--rueckblick muss zwischen 0 und 18 Monaten liegen")
-    einst.mit_short = MIT_SHORT and not einst.ohne_short
+    einst.mit_short = (MIT_SHORT or einst.mit_short) and not einst.ohne_short
     einst.lernen = not einst.ohne_lernen
     einst.sperre_ticker = frozenset()  # aus 'Meine Regeln' im Gehirn (--gehirn)
     einst.sperre_strategien = frozenset()
@@ -729,25 +738,27 @@ def strategie_signale(df, mit_short):
     squeeze_vorher = df['Squeeze'].astype(float).shift(1).rolling(5, min_periods=1).max() == 1  # an einem der 5 Vortage
     ema9, ema21 = df['EMA_9'], df['EMA_21']
     k_oben, k_unten = df['Keltner_Oben'], df['Keltner_Unten']
+    st, zt = STOP_TREND_ATR * atr, ZIEL_TREND_ATR * atr  # Trend: Abstand Stop / Ziel
+    sg, zg = STOP_GEGEN_ATR * atr, ZIEL_GEGEN_ATR * atr  # Gegenbewegung: Abstand Stop / Ziel
     regeln = {
-        "ausbruch_long": ((c > df['Hoch_20']) & viel_volumen & (c > sma50), c - 2 * atr, c + 4 * atr),
-        "abbruch_short": ((c < df['Tief_20']) & viel_volumen & (c < sma50), c + 2 * atr, c - 4 * atr),
-        "rsi2_long": ((df['RSI_2'] < 10) & (c > sma200), c - 2 * atr, c + 2 * atr),
-        "rsi2_short": ((df['RSI_2'] > 90) & (c < sma200), c + 2 * atr, c - 2 * atr),
-        "gegenbewegung_long": (ueberverkauft & (c > sma200) & (ema - c >= 1.2 * atr), c - 1.2 * atr, ema),
-        "rueckfall_short": (ueberhitzt & (c < sma200) & (c - ema >= 1.2 * atr), c + 1.2 * atr, ema),
-        "macd_long": (kreuzt_hoch & (c > sma50), c - 1.5 * atr, c + 3 * atr),
-        "macd_short": (kreuzt_runter & (c < sma50), c + 1.5 * atr, c - 3 * atr),
-        "ruecksetzer_long": ((c > ema) & (c - ema <= 0.5 * atr) & (rsi < 60) & (c > sma50), c - 1.5 * atr, c + 3 * atr),
-        "erholung_short": ((c < ema) & (ema - c <= 0.5 * atr) & (rsi > 40) & (c < sma50), c + 1.5 * atr, c - 3 * atr),
+        "ausbruch_long": ((c > df['Hoch_20']) & viel_volumen & (c > sma50), c - st, c + zt),
+        "abbruch_short": ((c < df['Tief_20']) & viel_volumen & (c < sma50), c + st, c - zt),
+        "rsi2_long": ((df['RSI_2'] < 10) & (c > sma200), c - sg, c + zg),
+        "rsi2_short": ((df['RSI_2'] > 90) & (c < sma200), c + sg, c - zg),
+        "gegenbewegung_long": (ueberverkauft & (c > sma200) & (ema - c >= 1.2 * atr), c - sg, c + zg),
+        "rueckfall_short": (ueberhitzt & (c < sma200) & (c - ema >= 1.2 * atr), c + sg, c - zg),
+        "macd_long": (kreuzt_hoch & (c > sma50), c - st, c + zt),
+        "macd_short": (kreuzt_runter & (c < sma50), c + st, c - zt),
+        "ruecksetzer_long": ((c > ema) & (c - ema <= 0.5 * atr) & (rsi < 60) & (c > sma50), c - st, c + zt),
+        "erholung_short": ((c < ema) & (ema - c <= 0.5 * atr) & (rsi > 40) & (c < sma50), c + st, c - zt),
         "squeeze_long": (squeeze_vorher & (c > oben) & (c.shift() <= oben.shift()) & (c > sma50),
-                         c - 2 * atr, c + 4 * atr),
+                         c - st, c + zt),
         "squeeze_short": (squeeze_vorher & (c < unten) & (c.shift() >= unten.shift()) & (c < sma50),
-                          c + 2 * atr, c - 4 * atr),
-        "ema_kreuz_long": ((ema9 > ema21) & (ema9.shift() <= ema21.shift()) & (c > sma50), c - 2 * atr, c + 4 * atr),
-        "ema_kreuz_short": ((ema9 < ema21) & (ema9.shift() >= ema21.shift()) & (c < sma50), c + 2 * atr, c - 4 * atr),
-        "atr_ausbruch_long": ((c > k_oben) & (c.shift() <= k_oben.shift()) & (c > sma50), c - 2 * atr, c + 4 * atr),
-        "atr_abbruch_short": ((c < k_unten) & (c.shift() >= k_unten.shift()) & (c < sma50), c + 2 * atr, c - 4 * atr),
+                          c + st, c - zt),
+        "ema_kreuz_long": ((ema9 > ema21) & (ema9.shift() <= ema21.shift()) & (c > sma50), c - st, c + zt),
+        "ema_kreuz_short": ((ema9 < ema21) & (ema9.shift() >= ema21.shift()) & (c < sma50), c + st, c - zt),
+        "atr_ausbruch_long": ((c > k_oben) & (c.shift() <= k_oben.shift()) & (c > sma50), c - st, c + zt),
+        "atr_abbruch_short": ((c < k_unten) & (c.shift() >= k_unten.shift()) & (c < sma50), c + st, c - zt),
     }
     genug = np.arange(len(df)) >= MIN_KERZEN - 1
     signale = {}
@@ -762,9 +773,10 @@ def strategie_signale(df, mit_short):
 
 def limit_kurs(r, kurs, atr, stop, ziel):
     """Höchster Kaufkurs (Long) bzw. tiefster Verkaufskurs (Short) für den Einstieg am nächsten Tag:
-    Schluss ± 0,5 ATR, aber nie über die Mitte zwischen Stop und Ziel (dann bleibt das CRV mindestens 1)."""
-    mitte = (stop + ziel) / 2
-    return min(kurs + LIMIT_ATR * atr, mitte) if r > 0 else max(kurs - LIMIT_ATR * atr, mitte)
+    Schluss ± 0,5 ATR, aber höchstens der halbe Weg vom Schluss zum Ziel (sonst bliebe zu wenig Gewinn bis zum Ziel).
+    Liegt das Ziel näher als der Stop (CRV unter 1, hohe Trefferquote), sperrt das keine normalen Einstiege."""
+    halb = kurs + (ziel - kurs) / 2
+    return min(kurs + LIMIT_ATR * atr, halb) if r > 0 else max(kurs - LIMIT_ATR * atr, halb)
 
 def markt_trend(markt_df):
     """Nasdaq-100 (QQQ) je Tag: 1 = Schluss über der 200-Tage-Linie, 0 = darunter, NaN = noch zu wenig Daten."""
@@ -1371,7 +1383,7 @@ def marktampel(trend, zeilen, einst):
                                                                          else ".")
     else:
         satz = (f"🔴 Marktfilter: {text} – der Bot kauft nicht, "
-                + ("nur Short-Signale zählen." if einst.mit_short else "mit --ohne-short wartet er ganz ab."))
+                + ("nur Short-Signale zählen." if einst.mit_short else "er wartet ab (Short-Signale sind aus)."))
     anders = [z["Ticker"] for z in zeilen if z["_stand"] in bekannt and bekannt[z["_stand"]][1] != lage]
     if anders:
         namen = ", ".join(anders[:4]) + (" …" if len(anders) > 4 else "")
@@ -1443,7 +1455,8 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
     umrechnung = "US-Kurse umgerechnet" if waehrung == "€" else "Wechselkurs nicht verfügbar, nicht umgerechnet"
     fuss.append(f"Beträge in {waehrung} ({umrechnung}). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den "
                 f"Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = "
-                f"1 ÷ (1 + CRV), bei CRV 2 also 34 %, bei CRV 1 über 50 %. ⏸ WARTEN = ein Signal ist da, aber eine "
+                f"1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht "
+                f"weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine "
                 f"Regel hält den Bot zurück (Grund in der Spalte Strategie).")
     if any(z.get("Signal") == SICHERN for z in zeilen):
         fuss.append("⚠️ GEWINNE SICHERN = überhitzt bzw. überverkauft. Nur ein Hinweis für eine Position, die du schon "
@@ -1884,7 +1897,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
     dollar_shorts = waehrung == "€" and any(p["richtung"] < 0 and waehrung_von(p["ticker"]) == "USD"
                                            for p in erg["trades"] + erg["offen"])
     regeln = (f"Regeln: Signal zum Schlusskurs, Einstieg zur Eröffnung des nächsten Handelstags nur bis zum Limit; "
-              f"{'Long nur, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt, Short nur darunter; ' if filter_aktiv else ''}"
+              f"{('Long nur, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt, Short nur darunter; ' if einst.mit_short else 'gekauft wird nur, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt; ') if filter_aktiv else ''}"
               f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), "
               f"{'' if ohne_zahlen else 'zum Schluss vor Quartalszahlen '}"
               f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen"
@@ -2605,7 +2618,7 @@ def short_aus(key, einst):
 def strategie_status(key, stand, einst):
     s = stand[key]
     if short_aus(key, einst):
-        return "– aus (Short-Signale sind ausgeschaltet)"
+        return "– aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)"
     if key in einst.sperre_strategien:
         return "⛔ aus – von dir ausgeschaltet ([[Meine Regeln]])"
     if not einst.lernen:
@@ -2860,6 +2873,8 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
             if e["ticker"] == t:
                 je.setdefault(e["strategie"], []).append(e["R"])
         text += ["", "## Strategie-Tagebuch auf dieser Aktie", ""]
+        if je:
+            text.append(f"- **Alle Strategien zusammen:** {kennzahl_text(kennzahlen([x for w in je.values() for x in w]))}")
         text += ([f"- {link_strategie(k)}: {kennzahl_text(kennzahlen(w))}"
                   for k, w in sorted(je.items(), key=lambda x: VORRANG[x[0]])] or ["- noch keine gedachten Trades"])
         text += ["", "Übersicht: [[Start]] · [[Meine Regeln]]"]
@@ -2904,6 +2919,12 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
     if len(genug) >= 2:
         text += ["", "### Rangliste der Aktien (ab 20 Trades, nach Ø R)", ""] + rangliste(genug)
         text.append("- Hinweis: Selbst 20–50 Trades je Aktie sind wenig. Sperren kannst du eine Aktie in [[Meine Regeln]].")
+        unter = sorted((x for x in genug if x[1]["quote"] <= 50), key=lambda x: x[1]["quote"])
+        text += ["", "### Trefferquote je Aktie (Ziel: über 50 %)", "",
+                 f"- {len(genug) - len(unter)} von {len(genug)} Aktien (ab 20 Trades) treffen öfter als jedes zweite Mal."]
+        liste = ", ".join(f"{link_aktie(a)} {de(k['quote'], 0)} %" for a, k in unter)
+        text.append(f"- Darunter: {liste} – bei 20–50 Trades kann das Zufall sein." if unter
+                    else "- Keine Aktie liegt bei 50 % oder darunter.")
     text += ["", "## Aus dem Übungsdepot (echte Vorwärts-Trades)", ""]
     if papier_k:
         abgegeben = [i for i in trades if i["mfe"] is not None and i["mfe"] >= 1 and i["R"] <= 0]
