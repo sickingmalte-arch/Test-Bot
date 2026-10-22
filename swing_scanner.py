@@ -59,6 +59,20 @@ MAX_POSITION_PROZENT = 25        # eine einzelne Position höchstens so viel % d
 MAX_POSITIONEN = 5               # höchstens so viele Positionen gleichzeitig
 MAX_SHORTS = 2                   # davon höchstens so viele Shorts
 MAX_GESAMTRISIKO_PROZENT = 5     # alle offenen Positionen zusammen höchstens so viel % Risiko bis zum Stop
+MAX_JE_BRANCHE = 2              # höchstens so viele Positionen aus derselben Branche (nicht alles auf eine Karte)
+# Branche je Ticker (grob nach GICS-Sektoren). Ticker, die hier fehlen, zählen als eigene Branche (keine Grenze).
+BRANCHEN = {
+    "Technologie": "NOW INTU CRWV NBIS IREN AAPL NVDA MSFT AMD PLTR ADBE CRM ORCL AVGO QCOM TXN INTC CSCO IBM SNOW "
+                   "DDOG NET CRWD ZS PANW MU AMAT LRCX MRVL SMCI DELL ARM APP SHOP MSTR ASML TSM SAP",
+    "Kommunikation": "GOOGL GOOG META NFLX ASTS ROKU DIS RBLX SPOT T VZ",
+    "Konsum": "SE MELI AMZN TSLA HD NKE SBUX MCD ABNB DKNG RIVN BABA PDD LULU CMG",
+    "Finanzen": "JPM SOFI PYPL COIN GS BAC V MA AFRM UPST HOOD MS WFC C BRK-B AXP",
+    "Gesundheit": "LLY HIMS UNH JNJ PFE MRK ABBV NVO ISRG TMO",
+    "Energie": "XOM CVX OXY COP SLB",
+    "Basiskonsum": "COST KO PEP WMT CELH PG",
+    "Industrie": "BA CAT GE RKLB UBER LMT RTX DE HON",
+}
+BRANCHE = {t: b for b, liste in BRANCHEN.items() for t in liste.split()}
 MIN_EINSATZ = 25                 # kleinere Trades lohnen wegen der Gebühr nicht (in €)
 ZEITSTOPP_TAGE = 20              # spätestens nach so vielen Handelstagen (inkl. Einstiegstag) aussteigen
 ZAHLEN_SPERRE_TAGE = 3           # kein Einstieg, wenn Quartalszahlen in den nächsten 3 Handelstagen wirken
@@ -1018,6 +1032,11 @@ def positionsgroesse(kurs, stop, konto, risiko_prozent, bruchstuecke, bargeld=ma
                  risiko_frei / risiko_je_aktie)
     return math.floor(stueck * 100 + 1e-9) / 100 if bruchstuecke else math.floor(stueck + 1e-9)
 
+def gleiche_branche(ticker, andere):
+    """Wie viele der anderen Ticker gehören zur selben Branche? Unbekannte Ticker bilden ihre eigene Branche."""
+    b = BRANCHE.get(ticker)
+    return sum(1 for x in andere if b is not None and BRANCHE.get(x) == b)
+
 def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
     Schluss, Einstieg zur nächsten Eröffnung bis zum Limit, Stop/Ziel/Zahlen/Zeitstopp), dazu Kapital- und
@@ -1086,7 +1105,7 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
             r, stop = auftrag["richtung"], auftrag["stop"]
             if t in positionen or not einstieg_moeglich(d, i, r, stop, auftrag["limit"]):
                 continue  # Kurslücke hinter den Stop oder über das Limit: Auftrag verfällt
-            if len(positionen) >= MAX_POSITIONEN:
+            if len(positionen) >= MAX_POSITIONEN or gleiche_branche(t, positionen) >= MAX_JE_BRANCHE:
                 continue
             if r < 0 and sum(1 for p in positionen.values() if p["richtung"] < 0) >= MAX_SHORTS:
                 continue
@@ -1442,7 +1461,8 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen):
         hinweise.append(ampel)
     gesamt = einst.konto * MAX_GESAMTRISIKO_PROZENT / 100
     shorts = f" (davon höchstens {MAX_SHORTS} Short)" if einst.mit_short else ""
-    hinweise.append(f"Regel: höchstens {MAX_POSITIONEN} Positionen gleichzeitig{shorts} "
+    hinweise.append(f"Regel: höchstens {MAX_POSITIONEN} Positionen gleichzeitig{shorts}, höchstens {MAX_JE_BRANCHE} aus "
+                    f"derselben Branche "
                     f"und zusammen höchstens {MAX_GESAMTRISIKO_PROZENT} % = {de(gesamt, 0)} {waehrung} Risiko – "
                     f"bei mehr Signalen die oberen nehmen.")
     if not fx_heute:
@@ -1949,7 +1969,7 @@ def zeige_depot(erg, ohne, einst, waehrung, notebook, ohne_zahlen_regel, ruecksc
               f"Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), "
               f"{'' if ohne_zahlen else 'zum Schluss vor Quartalszahlen '}"
               f"oder nach {ZEITSTOPP_TAGE} Handelstagen; höchstens {MAX_POSITIONEN} Positionen"
-              f"{f', {MAX_SHORTS} Shorts' if einst.mit_short else ''} und "
+              f"{f', {MAX_SHORTS} Shorts' if einst.mit_short else ''}, {MAX_JE_BRANCHE} je Branche und "
               f"{MAX_GESAMTRISIKO_PROZENT} % Gesamtrisiko; {de(einst.gebuehr)} {waehrung} Gebühr + "
               f"{prozent(SPREAD_PROZENT)} % Spread je Order; "
               f"{'Bruchteile von Aktien erlaubt' if einst.bruchstuecke else 'nur ganze Aktien'}. "
@@ -2301,7 +2321,8 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                     f"{p['ticker']} ({p['grund']}, {de(p['erloes'] - p['kosten'], 2, True)} {waehrung})"
                     for p in erg["trades"]))
             if bericht["nicht_ausgefuehrt"]:
-                teile.append("nicht ausgeführt (Limit nicht erreicht, Kurslücke oder kein Platz/Geld): "
+                teile.append("nicht ausgeführt (Limit nicht erreicht, Kurslücke, kein Platz/Geld oder schon "
+                             f"{MAX_JE_BRANCHE} aus derselben Branche im Depot): "
                              + ", ".join(bericht["nicht_ausgefuehrt"]))
             if bericht.get("gestrichen"):
                 teile.append("gestrichen (Meine Regeln): " + ", ".join(bericht["gestrichen"]))
@@ -2909,6 +2930,8 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
     for t in dict.fromkeys(list(einst.ticker_liste) + depot_ticker):
         z = zeile_von.get(t)
         text = [f"# {t}", ""]
+        if BRANCHE.get(t):
+            text += [f"Branche: {BRANCHE[t]} (höchstens {MAX_JE_BRANCHE} Positionen aus einer Branche zugleich)", ""]
         link = tradingview_link(t)
         if link:
             text.append(f"[Chart bei TradingView]({link})")
@@ -3330,17 +3353,19 @@ def auswerten(einst):
     nach_ticker = {z["Ticker"]: z for z in zeilen}
     einstiege = [nach_ticker[t] for t in reihenfolge if nach_ticker[t].get("Signal") in (KAUFEN, SHORT)]
     # Handelsplan nach denselben Grenzen wie das Depot: Anzahl, Shorts, Gesamtrisiko und Geld (bestes CRV zuerst)
-    plan, zu_klein, shorts, risiko_summe, geld_summe, mehr = [], [], 0, 0.0, 0.0, 0
+    plan, zu_klein, shorts, risiko_summe, geld_summe, mehr, im_plan = [], [], 0, 0.0, 0.0, 0, []
     for z in einstiege:
         short = z["Signal"] == SHORT
         if not z["Stück"]:
             zu_klein.append(z["Ticker"])
         elif (len(plan) >= MAX_POSITIONEN or (short and shorts >= MAX_SHORTS)
+                or gleiche_branche(z["Ticker"], im_plan) >= MAX_JE_BRANCHE
                 or risiko_summe + z["Risiko"] > einst.konto * MAX_GESAMTRISIKO_PROZENT / 100 + 0.005
                 or geld_summe + z["Einsatz"] + einst.gebuehr > einst.konto):
             mehr += 1
         else:
             plan.append(handelsplan(z, len(plan) + 1, einst, waehrung))
+            im_plan.append(z["Ticker"])
             shorts += short
             risiko_summe += z["Risiko"]
             geld_summe += z["Einsatz"] + einst.gebuehr
@@ -3351,8 +3376,9 @@ def auswerten(einst):
     if mehr:
         plan.append(f"… {mehr} {'weiteres Signal' if mehr == 1 else 'weitere Signale'} nicht im Plan – laut Regel "
                     f"höchstens {MAX_POSITIONEN} Positionen gleichzeitig"
-                    f"{f' (davon {MAX_SHORTS} Short)' if einst.mit_short else ''}, zusammen höchstens "
-                    f"{MAX_GESAMTRISIKO_PROZENT} % Risiko und nicht mehr Geld als auf dem Konto.")
+                    f"{f' (davon {MAX_SHORTS} Short)' if einst.mit_short else ''}, höchstens {MAX_JE_BRANCHE} aus "
+                    f"derselben Branche, zusammen höchstens {MAX_GESAMTRISIKO_PROZENT} % Risiko und nicht mehr Geld als "
+                    f"auf dem Konto.")
     schlagzeilen = []
     for t in reihenfolge:
         for s in news.get(t, {}).get("zeilen", []):
