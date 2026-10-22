@@ -1,8 +1,8 @@
 """Swing-Trading-Scanner mit Strategie-Tagebuch und virtuellem Depot.
 
-Ablauf: Kurse (5 Jahre Tageskerzen) und Quartalszahlen-Termine von Yahoo laden, 16 Strategien je Ticker
-prüfen, jede Strategie im Tagebuch gedanklich mithandeln lassen ("lernen"), daraus den Scanner für heute
-und ein virtuelles Depot über die letzten Monate berechnen. Es werden keine echten Orders gesendet.
+Ablauf: Kurse (5 Jahre Tageskerzen) und Quartalszahlen-Termine von Yahoo laden, 8 Strategien (mit --mit-short
+16) je Ticker prüfen, jede Strategie im Tagebuch gedanklich mithandeln lassen ("lernen"), daraus den Scanner für
+heute und ein virtuelles Depot über die letzten Monate berechnen. Es werden keine echten Orders gesendet.
 """
 import argparse
 import contextlib
@@ -22,6 +22,7 @@ import time
 import urllib.parse
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, wait
+from statistics import NormalDist
 
 import numpy as np
 import pandas as pd
@@ -1680,8 +1681,19 @@ def lern_tabelle(stand, einst, waehrung):
                        "± Zufall": s["spanne"], "Einschätzung": einschaetzung, "Status": status})
     return pd.DataFrame(zeilen)
 
+def zufall_kennzahlen(stand, einst, anzahl):
+    """(typischer bester Ø von 'anzahl' Strategien ohne Vorteil nach je 20 Trades, Trades bis ein Vorteil von 0,1 R
+    sicher erkennbar ist) – aus der Streuung der Tagebuch-Trades (± Zufall = 2 Streuungen / Wurzel der Anzahl)."""
+    streuungen = [s["spanne"] * math.sqrt(s["n"]) / 2 for k, s in stand.items()
+                  if (STRATEGIEN[k]["richtung"] > 0 or einst.mit_short) and s["n"] > 1 and not np.isnan(s["spanne"])]
+    sigma = float(np.median(streuungen)) if streuungen else 0.8
+    beste = sigma / math.sqrt(20) * NormalDist().inv_cdf(0.5 ** (1 / max(anzahl, 1)))  # Median des Besten ohne Vorteil
+    noetig = max(50, int(round((2 * sigma / 0.1) ** 2 / 50)) * 50)
+    return beste, noetig
+
 def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
     tabelle = lern_tabelle(stand, einst, waehrung)
+    beste, noetig = zufall_kennzahlen(stand, einst, len(tabelle))
     titel = "🧠 WIE LIEFEN DIE STRATEGIEN ZULETZT? (Strategie-Tagebuch – jede Strategie handelt gedanklich mit)"
     erklaerung = [
         f"Gezählt werden die letzten bis zu {LERNEN_FENSTER} gedachten Trades je Strategie über alle Ticker, nach "
@@ -1692,8 +1704,9 @@ def zeige_lernen(stand, einst, waehrung, notebook, rueckschau_hinweis):
         f"{LERNEN_LANG_MIN} Trades muss sie außerdem über ihre ganze Geschichte im Plus sein, sonst handelt der Bot sie "
         f"gar nicht. Pausierte Strategien handeln im Tagebuch weiter und kommen zurück, wenn sie wieder gut laufen.",
         f"± Zufall: So weit kann der Schnitt allein durch Glück oder Pech schwanken. Lässt man {len(tabelle)} "
-        f"Strategien ganz ohne Vorteil je 20 Trades machen, zeigt die beste meist um +0,5 R – reiner Zufall. Erst ab "
-        f"etwa 100–200 Trades lässt sich ein Vorteil von 0,2–0,3 R von Glück unterscheiden. Bei {len(tabelle)} "
+        f"Strategien ganz ohne Vorteil je 20 Trades machen, zeigt die beste meist um {de(beste, 2, True)} R – reiner "
+        f"Zufall. Einen Vorteil von 0,1 R je Trade kann man erst nach etwa {noetig} Trades von Glück unterscheiden. "
+        f"Bei {len(tabelle)} "
         f"Strategien wirkt auch ohne echten Vorteil oft eine 'klar im Plus' oder 'klar im Minus' – das sind Hinweise, "
         f"keine Beweise. 'Pausiert' ist eine Vorsichtsmaßnahme.",
         rueckschau_hinweis,
@@ -2704,8 +2717,9 @@ def trade_lehren(info, stand, einst):
         lehren.append(f"📅 Vor den Quartalszahlen verkauft ({ergebnis}) – Regel: keine Position über die Zahlen halten, "
                       f"weil der Kurs dann stark springen kann.")
     if info["mfe"] is not None:
-        if info["mfe"] >= 1 and info["R"] <= 0:
-            lehren.append(f"↩️ Lag zwischendurch schon bei {r_text(info['mfe'])} im Plus und endete trotzdem bei "
+        if gewinn_abgegeben(info):
+            lehren.append(f"↩️ Lag zwischendurch schon bei {r_text(info['mfe'])} im Plus (mehr als der halbe Weg zum "
+                          f"Ziel) und endete trotzdem bei "
                           f"{ergebnis}. Der Bot zieht den Stop nicht nach – wie oft das vorkommt, zählt [[Lehren]].")
         elif info["R"] > 0 and info["mae"] is not None and info["mae"] <= -0.7:
             lehren.append(f"😅 Knapp: Zwischendurch lag der Trade bei {r_text(info['mae'])} – fast wäre der Stop gefallen.")
@@ -2713,6 +2727,11 @@ def trade_lehren(info, stand, einst):
         lehren.append(f"🧠 {link_strategie(info['strategie'])} beim Schreiben dieser Notiz: "
                       f"{strategie_status(info['strategie'], stand, einst)}.")
     return lehren
+
+def gewinn_abgegeben(info):
+    """Erst mehr als den halben Weg zum Ziel im Plus, am Ende trotzdem nicht im Gewinn (Ziel-Ausstiege zählen nicht)."""
+    return (info["mfe"] is not None and info["R"] <= 0 and not info["grund"].startswith("Ziel")
+            and math.isfinite(info["crv"]) and info["crv"] > 0 and info["mfe"] >= 0.5 * info["crv"])
 
 def lern_wechsel(pausen, tage, key, seit):
     """Wann die Strategie pausiert bzw. wieder aktiv wurde (Tage nach 'seit')."""
@@ -2803,33 +2822,39 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         st = stand[key]
         text = [f"# {strategie_name(key)}", "",
                 f"**Status:** {strategie_status(key, stand, einst)}", "",
-                f"**Regel:** {s['regel']}", "",
-                "## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)", "",
-                f"- Letzte {st['n']} Trades: " + (f"Ø {r_text(st['schnitt'], 2)} · Treffer {de(st['quote'], 0)} % · "
-                                                 f"± Zufall {de(st['spanne'], 2)} R" if st["n"] > 1 else
-                                                 kennzahl_text(kennzahlen([e['R'] for e in eintraege[-1:]]))),
-                f"- Ganze Geschichte: {kennzahl_text(kennzahlen([e['R'] for e in eintraege]))}",
-                f"- In Euro: 1 R ≈ {de(risiko, 0)} {waehrung} bei deinem Risiko je Trade"]
-        gruende = {}
-        for e in eintraege:
-            gruende.setdefault(e["grund"], []).append(e["R"])
-        if gruende:
-            text += ["", "### So endeten die Trades", ""]
-            for g, werte in sorted(gruende.items(), key=lambda x: -len(x[1])):
-                text.append(f"- {g}: {len(werte)}× ({de(len(werte) / len(eintraege) * 100, 0)} %), "
-                            f"Ø {r_text(sum(werte) / len(werte), 2)}")
-        je_aktie = {}
-        for e in eintraege:
-            je_aktie.setdefault(e["ticker"], []).append(e["R"])
-        genug = sorted(((t, kennzahlen(w)) for t, w in je_aktie.items() if len(w) >= 5), key=lambda x: -x[1]["schnitt"])
-        if genug:
-            text += ["", "### Rangliste der Aktien (ab 5 Trades, nach Ø R)", ""] + rangliste(genug)
-            text.append("- Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine "
-                        "Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.")
-        wechsel = lern_wechsel(pausen, alle_tage, key, ein_jahr)
-        text += ["", "### Lernverlauf (letzte 12 Monate)", ""]
-        text += ([f"- {datum(t)} {t:%Y}: {'⏸ pausiert/aus' if p else '✅ wieder aktiv'}" for t, p in wechsel[-10:]]
-                 or ["- keine Änderung"])
+                f"**Regel:** {s['regel']}", ""]
+        if short_aus(key, einst):
+            text += ["## Strategie-Tagebuch", "",
+                     "- Short-Signale sind aus – diese Strategie rechnet auch im Tagebuch nicht mit. Mit `--mit-short` "
+                     "berechnet der Bot ihr Tagebuch beim nächsten Lauf aus den Kursen der letzten 5 Jahre neu."]
+        else:
+            text += ["## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)", "",
+                     f"- Letzte {st['n']} Trades: "
+                     + (f"Ø {r_text(st['schnitt'], 2)} · Treffer {de(st['quote'], 0)} % · ± Zufall {de(st['spanne'], 2)} R"
+                        if st["n"] > 1 else kennzahl_text(kennzahlen([e['R'] for e in eintraege[-1:]]))),
+                     f"- Ganze Geschichte: {kennzahl_text(kennzahlen([e['R'] for e in eintraege]))}",
+                     f"- In Euro: 1 R ≈ {de(risiko, 0)} {waehrung} bei deinem Risiko je Trade"]
+            gruende = {}
+            for e in eintraege:
+                gruende.setdefault(e["grund"], []).append(e["R"])
+            if gruende:
+                text += ["", "### So endeten die Trades", ""]
+                for g, werte in sorted(gruende.items(), key=lambda x: -len(x[1])):
+                    text.append(f"- {g}: {len(werte)}× ({de(len(werte) / len(eintraege) * 100, 0)} %), "
+                                f"Ø {r_text(sum(werte) / len(werte), 2)}")
+            je_aktie = {}
+            for e in eintraege:
+                je_aktie.setdefault(e["ticker"], []).append(e["R"])
+            genug = sorted(((t, kennzahlen(w)) for t, w in je_aktie.items() if len(w) >= 5),
+                           key=lambda x: -x[1]["schnitt"])
+            if genug:
+                text += ["", "### Rangliste der Aktien (ab 5 Trades, nach Ø R)", ""] + rangliste(genug)
+                text.append("- Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine "
+                            "Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.")
+            wechsel = lern_wechsel(pausen, alle_tage, key, ein_jahr)
+            text += ["", "### Lernverlauf (letzte 12 Monate)", ""]
+            text += ([f"- {datum(t)} {t:%Y}: {'⏸ pausiert/aus' if p else '✅ wieder aktiv'}" for t, p in wechsel[-10:]]
+                     or ["- keine Änderung"])
         eigene = [i for i in trades if i["strategie"] == key]
         text += ["", "## Trades im Übungsdepot (Papier-Depot)", ""]
         text += ([f"- {trade_link[id(i)]} ({i['grund']}, {i['verkauf_tag']})" for i in reversed(eigene[-20:])]
@@ -2922,16 +2947,19 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         unter = sorted((x for x in genug if x[1]["quote"] <= 50), key=lambda x: x[1]["quote"])
         text += ["", "### Trefferquote je Aktie (Ziel: über 50 %)", "",
                  f"- {len(genug) - len(unter)} von {len(genug)} Aktien (ab 20 Trades) treffen öfter als jedes zweite Mal."]
-        liste = ", ".join(f"{link_aktie(a)} {de(k['quote'], 0)} %" for a, k in unter)
-        text.append(f"- Darunter: {liste} – bei 20–50 Trades kann das Zufall sein." if unter
-                    else "- Keine Aktie liegt bei 50 % oder darunter.")
+        liste = ", ".join(f"{link_aktie(a)} {de(k['quote'], 0)} % ({k['n']} Trades, Ø {r_text(k['schnitt'], 2)})"
+                          for a, k in unter)
+        text.append(f"- Bei 50 % oder darunter: {liste}. Ein paar Prozentpunkte unter 50 % können auch bei über 100 "
+                    "Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt "
+                    "Ø R, siehe Rangliste oben)." if unter else "- Keine Aktie liegt bei 50 % oder darunter.")
     text += ["", "## Aus dem Übungsdepot (echte Vorwärts-Trades)", ""]
     if papier_k:
-        abgegeben = [i for i in trades if i["mfe"] is not None and i["mfe"] >= 1 and i["R"] <= 0]
+        abgegeben = [i for i in trades if gewinn_abgegeben(i)]
         luecken = [i for i in trades if i["grund"] == "Stop (Kurslücke)"]
         zeit = [i for i in trades if i["grund"] == "Zeitstopp"]
         text += [f"- {kennzahl_text(papier_k)} · Summe {de(sum(i['gewinn'] for i in trades), 2, True)} {waehrung}",
-                 f"- Gewinn wieder abgegeben (erst mindestens +1 R, am Ende im Minus): {len(abgegeben)} von "
+                 f"- Gewinn wieder abgegeben (erst mehr als den halben Weg zum Ziel im Plus, am Ende im Minus): "
+                 f"{len(abgegeben)} von "
                  f"{len(trades)}" + (" – wird das häufig, wäre ein nachgezogener Stop eine Idee für später."
                                      if len(trades) >= 10 and len(abgegeben) / len(trades) >= 0.2 else ""),
                  f"- Stop mit Kurslücke (größerer Verlust als geplant): {len(luecken)} von {len(trades)}",
