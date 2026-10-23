@@ -527,7 +527,17 @@ def hole_zusatzdaten(termin_ticker, news_ticker, sammler, budget=YAHOO_ZEITBUDGE
             e["news_info"] = YAHOO_LIMIT
             return
         try:
-            e["news"], e["news_info"] = yf.Ticker(t).get_news(count=10), "ok"
+            news = yf.Ticker(t).get_news(count=10)
+            if not news and hasattr(yf, "Search"):
+                # get_news liefert bei GitHub nur leere Listen (Yahoo antwortet dort mit 404) – die Suche geht noch
+                try:
+                    news = yf.Search(t, max_results=1, news_count=10).news
+                except Exception as fehler:
+                    if type(fehler).__name__ == "YFRateLimitError":
+                        raise
+                    e["news_info"] = f"nicht abrufbar (Suche: {type(fehler).__name__})"
+                    return
+            e["news"], e["news_info"] = news, "ok"
         except Exception as fehler:
             if type(fehler).__name__ == "YFRateLimitError":
                 bremse.set()
@@ -664,7 +674,7 @@ def lies_schlagzeilen(liste, ab_zeit):
         quelle = (c.get("provider") or {}).get("displayName") or a.get("publisher") or ""
         if titel and not pd.isna(zeit) and zeit >= ab_zeit:
             aus.append({"titel": titel, "zeit": zeit.tz_convert(BERLIN), "quelle": quelle,
-                        "video": str(c.get("contentType", "")).upper() == "VIDEO"})
+                        "video": "VIDEO" in (str(c.get("contentType", "")).upper(), str(a.get("type", "")).upper())})
     return aus
 
 def ereignisse(titel, ticker):
@@ -1559,7 +1569,12 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
     if ohne_news:
         gruende = "; ".join(sorted({news[t].get("info", "") for t in ohne_news}))
         fuss.append(f"📰 News „?“ = Schlagzeilen für {', '.join(ohne_news)} nicht geladen ({gruende}) – selbst prüfen.")
-    if fehler or ohne_termine or ohne_news:
+    leer = [t for t, n in news.items() if n.get("spalte") != "?" and not n.get("zeilen")]
+    if news and len(leer) == len(news):
+        fuss.append(f"📰 Für keine Aktie mit Signal ({', '.join(leer)}) kamen Schlagzeilen der letzten {NEWS_TAGE} "
+                    f"Handelstage – die Nachrichten-Regel hatte diesmal nichts zu prüfen. Kommt das öfter vor, liefert "
+                    f"Yahoo gerade keine Schlagzeilen – dann vor dem Kauf selbst die Nachrichten lesen.")
+    if fehler or ohne_termine or ohne_news or (news and len(leer) == len(news)):
         fuss.append("")
     heute = sorted({z["_strategie"] for z in zeilen if z.get("_strategie")}, key=VORRANG.get)
     for key in heute:
