@@ -101,7 +101,7 @@ a { color: inherit; }
 .seite svg { flex: none; opacity: .8; }
 .seite-fuss { margin: 24px 8px 0; }
 .seite-fuss .label { line-height: 1.6; }
-main { padding: 16px 20px 40px; min-width: 0; }
+main { padding: 16px 20px 90px; min-width: 0; }
 .abschnitt { margin-bottom: 18px; }
 .abschnitt-kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 26px 2px 10px; }
 .abschnitt-kopf h2 { margin: 0; font: 600 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text-1); }
@@ -269,6 +269,82 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .fuss { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--text-3); font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; }
 .fehlerseite { max-width: 520px; margin: 18vh auto; padding: 24px; text-align: center; color: var(--text-2); }
 
+/* ---------- Chat-Fenster: Tipps an Claude (über Themen bei GitHub) ---------- */
+.chat-knopf {
+  position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 30; display: flex; align-items: center; gap: 8px;
+  padding: 11px 15px; border-radius: 999px; border: 1px solid #24476f; background: #10243b; color: var(--text-1); cursor: pointer;
+  font: 600 13px/1 var(--sans); box-shadow: 0 8px 28px rgba(0, 0, 0, .55);
+}
+.chat-knopf:hover { background: #17314f; }
+.chat-knopf:focus-visible, .chat button:focus-visible, .chat textarea:focus-visible, .chat a:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.chat-knopf .neu { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--s3); color: #04140e; font: 700 11px/18px var(--mono); text-align: center; }
+.chat {
+  position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 31; width: min(400px, calc(100vw - 36px));
+  height: min(640px, calc(100dvh - var(--kopf-h, 72px) - 36px)); display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid #2a3542; border-radius: 14px; box-shadow: 0 18px 60px rgba(0, 0, 0, .65); overflow: hidden;
+}
+.chat[hidden] { display: none; }
+.chat-kopf { display: flex; align-items: center; gap: 10px; padding: 12px 12px 10px 16px; border-bottom: 1px solid var(--line); }
+.chat-kopf .titel { font: 600 14px/1.2 var(--sans); }
+.chat-kopf .label { margin-top: 4px; text-transform: none; letter-spacing: .03em; font-weight: 400; font-size: 11px; }
+.chat-kopf .gross { flex: 1; min-width: 0; }
+.chat-zu { flex: none; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--text-2); font-size: 20px; line-height: 1; cursor: pointer; }
+.chat-zu:hover { color: var(--text-1); background: var(--panel-hi); }
+.chat-verlauf { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 4px; display: flex; flex-direction: column; gap: 8px; }
+.chat-trenner { align-self: center; margin: 8px 0 2px; font: 600 10px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); text-align: center; }
+.chat-trenner a { color: var(--text-3); }
+.blase { max-width: 88%; padding: 9px 12px 7px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.blase.du { align-self: flex-end; background: #17314f; border-bottom-right-radius: 4px; white-space: pre-wrap; }
+.blase.claude { align-self: flex-start; background: var(--panel-hi); border: 1px solid var(--line); border-left: 2px solid var(--s3); border-bottom-left-radius: 4px; }
+.blase.offen { border: 1px dashed #3a6ea5; background: transparent; }
+.blase.offen .wann { text-align: left; line-height: 1.4; }
+.blase .wer { font: 600 9.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--s3); margin-bottom: 5px; }
+.blase .wann { font: 10px/1 var(--mono); color: var(--text-3); margin-top: 6px; text-align: right; white-space: normal; }
+.blase.du .wann { color: #8fb1d6; }
+.blase p, .blase ul, .blase ol, .blase pre, .blase blockquote, .blase table { margin: 0 0 6px; }
+.blase > :last-child { margin-bottom: 0; }
+.blase ul, .blase ol { padding-left: 18px; }
+.blase li { margin: 2px 0; }
+.blase h1, .blase h2, .blase h3, .blase h4 { font-size: 13.5px; margin: 6px 0 4px; }
+.blase code { font: 12px var(--mono); background: rgba(255, 255, 255, .06); padding: 1px 4px; border-radius: 4px; }
+.blase pre { overflow-x: auto; background: #0a0e13; padding: 8px; border-radius: 6px; }
+.blase pre code { background: none; padding: 0; }
+.blase blockquote { border-left: 2px solid var(--line); padding-left: 8px; color: var(--text-2); }
+.blase hr { border: 0; border-top: 1px solid var(--line); margin: 8px 0; }
+.blase table { font-size: 12px; display: block; overflow-x: auto; }
+.blase a { color: #6fb0ff; }
+.chat-warten { align-self: flex-end; font: 10.5px/1.3 var(--mono); color: var(--text-3); margin-top: -3px; }
+.chat-info { font-size: 12px; color: var(--text-2); padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.chat-info b { color: var(--warnung); font-weight: 600; }
+.blase .knoepfe { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; white-space: normal; }
+.blase .knoepfe button, .chat-vorschlaege button {
+  font: 600 11px/1 var(--sans); padding: 7px 9px; border-radius: 7px; border: 1px solid var(--line); background: var(--panel); color: var(--text-2); cursor: pointer;
+}
+.blase .knoepfe button:hover, .chat-vorschlaege button:hover { color: var(--text-1); border-color: #2a3542; }
+.chat-eingabe { border-top: 1px solid var(--line); padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--panel); }
+.chat-vorschlaege { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; }
+.chat-vorschlaege::-webkit-scrollbar { display: none; }
+.chat-vorschlaege button { flex: none; }
+.chat-eingabe textarea {
+  width: 100%; min-height: 64px; max-height: 160px; resize: vertical; border-radius: 9px; border: 1px solid var(--line); background: #0a0e13;
+  color: var(--text-1); padding: 9px 10px; font: 14px/1.4 var(--sans);
+}
+.chat-eingabe textarea::placeholder { color: var(--text-3); }
+.chat-unten { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.chat-unten .label { flex: 1; text-transform: none; letter-spacing: .02em; font-weight: 400; font-size: 10.5px; line-height: 1.35; }
+.chat-senden {
+  flex: none; padding: 9px 14px; border-radius: 8px; border: 0; background: var(--s1); color: #fff; font: 600 13px/1 var(--sans); cursor: pointer;
+}
+.chat-senden:disabled { opacity: .45; cursor: default; }
+@media (max-width: 560px) {
+  .chat { inset: 0; width: auto; height: 100dvh; border-radius: 0; border: 0; }
+  html.chat-offen { overflow: hidden; }
+  .chat-knopf { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .chat-knopf .lang { display: none; }
+  .chat-eingabe textarea { font-size: 16px; } /* kleiner zoomt das iPhone beim Tippen hinein */
+}
+@media (min-width: 561px) { .chat-knopf .kurz { display: none; } }
+
 /* ---------- Handy ---------- */
 @media (max-width: 1180px) {
   .kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -285,7 +361,7 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
   #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } main > .fuss { order: 8; }
   .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
   .seite a[href="#depot"] { order: 4; } .seite a[href="#positionen"] { order: 5; } .seite a[href="#claude"] { order: 6; }
-  .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; }
+  .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; } .seite a[href="#chat"] { order: 9; }
   .seite {
     position: sticky; top: var(--kopf-h, 72px); z-index: 15; height: auto; display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px;
     border-right: 0; border-bottom: 1px solid var(--line); background: rgba(6, 8, 12, .94); backdrop-filter: blur(8px); scrollbar-width: none;
@@ -294,7 +370,7 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
   .seite .gruppe, .seite-fuss { display: none; }
   .seite a { flex: none; border: 1px solid var(--line); padding: 6px 10px; font-size: 12.5px; }
   .seite a svg { display: none; }
-  main { padding: 12px 12px 32px; }
+  main { padding: 12px 12px 84px; }
   .kern { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 0; gap: 10px; }
   .kern-kopf { grid-template-columns: 1fr 1fr; }
   .kern-kopf > :nth-child(2) { display: none; }
@@ -361,6 +437,8 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
     <div class="label gruppe">Gehirn</div>
     <a href="#strategien"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 13l3-5 3 2 3-6 3 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Strategien</a>
     <a href="#nachrichten"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Nachrichten</a>
+    <div class="label gruppe">Du</div>
+    <a href="#chat" id="nav-chat"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Tipps an Claude<span class="zaehler" id="nav-chat-neu" hidden></span></a>
     <div class="seite-fuss"><div class="label" id="seite-fuss">Bot lädt …</div></div>
   </nav>
 
@@ -368,6 +446,30 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
     <div class="fehlerseite" id="laden">Lade die Daten des Bots …</div>
   </main>
 </div>
+
+<button type="button" class="chat-knopf" id="chat-knopf" aria-controls="chat" aria-expanded="false">
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  <span class="lang">Tipps an Claude</span><span class="kurz">Chat</span><span class="neu" id="chat-neu" hidden></span>
+</button>
+<aside class="chat" id="chat" role="dialog" aria-labelledby="chat-titel" hidden>
+  <div class="chat-kopf">
+    <div class="gross">
+      <div class="titel" id="chat-titel">Tipps an den Bot</div>
+      <div class="label" id="chat-unterzeile">Claude antwortet hier · meist vormittags und abends</div>
+    </div>
+    <button type="button" class="chat-zu" id="chat-zu" aria-label="Fenster schließen">×</button>
+  </div>
+  <div class="chat-verlauf" id="chat-verlauf" aria-live="polite"></div>
+  <form class="chat-eingabe" id="chat-form">
+    <div class="chat-vorschlaege" id="chat-vorschlaege" aria-label="Vorschläge"></div>
+    <label class="label" for="chat-text" style="position:absolute;left:-9999px">Deine Nachricht an Claude</label>
+    <textarea id="chat-text" rows="3" maxlength="1200" placeholder="Tipp, Frage oder Idee für den Bot …"></textarea>
+    <div class="chat-unten">
+      <div class="label" id="chat-hinweis">Öffnet GitHub, dort auf „Create“ tippen. Für alle lesbar – nichts Persönliches.</div>
+      <button type="submit" class="chat-senden" id="chat-senden" disabled>Senden ↗</button>
+    </div>
+  </form>
+</aside>
 
 <script>
 "use strict";
@@ -983,7 +1085,7 @@ function aufbauen(D) {
   const neuLinien = () => kernLinien(kern);
   requestAnimationFrame(neuLinien);
   new ResizeObserver(neuLinien).observe(kern);
-  const links = [...document.querySelectorAll(".seite a")];
+  const links = [...document.querySelectorAll(".seite a:not(#nav-chat)")];
   const ziele = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
   const beobachter = new IntersectionObserver(eintraege => {
     for (const e of eintraege) if (e.isIntersecting) {
@@ -993,15 +1095,250 @@ function aufbauen(D) {
   ziele.forEach(z => beobachter.observe(z));
 }
 
+// ---------------------------------------------------------------------------
+// Chat-Fenster: Tipps an Claude. Jede Nachricht wird ein Thema (Issue) mit Label „tipp“ bei GitHub –
+// abschicken geht nur dort (angemeldet), die Seite selbst hat keinen Schlüssel. Lesen klappt ohne Anmeldung
+// (GitHub erlaubt 60 Abfragen je Stunde). Gezeigt wird nur, was der Besitzer des Repositorys geschrieben hat;
+// Claudes Antworten (ebenfalls über sein Konto) erkennt die Seite an der Fußzeile „Generated by Claude Code“.
+// ---------------------------------------------------------------------------
+const CHAT_LABEL = "tipp";
+// Wann Claude reinschaut (deutsche Zeit, wie die Planung): Di–Sa vormittags mit der Depot-Entscheidung, jeden Abend
+const CHAT_ZEITEN = [{ tage: [2, 3, 4, 5, 6], h: 10, m: 30 }, { tage: [0, 1, 2, 3, 4, 5, 6], h: 18, m: 45 }];
+const CHAT_VORSCHLAEGE = ["Warum hat der Bot … gekauft?", "Sperr bitte die Aktie …", "Teste mal die Idee: …", "Sei vorsichtiger bei …"];
+const chat = { repo: null, besitzer: null, themen: [], geladen: 0, fehler: null, laeuft: false, offen: false };
+const speicher = {
+  lies(k, std) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : std; } catch (e) { return std; } },
+  schreib(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ohne Speicher geht es auch */ } },
+};
+const vonClaude = text => /Generated by \[Claude Code\]/i.test(text || "");
+const vomBesitzer = u => Boolean(u && chat.besitzer && String(u.login).toLowerCase() === chat.besitzer);
+const gleicherText = (a, b) => a.replace(/\s+/g, " ").trim() === b.replace(/\s+/g, " ").trim();
+
+const BERLIN = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const WOCHENTAG = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+function naechsterBlick(ab = new Date()) {
+  const t = Object.fromEntries(BERLIN.formatToParts(ab).map(p => [p.type, p.value]));
+  const jetzt = WOCHENTAG[t.weekday] * 1440 + Number(t.hour) * 60 + Number(t.minute);
+  let best = null;
+  for (const z of CHAT_ZEITEN) for (const w of z.tage) {
+    const abstand = (w * 1440 + z.h * 60 + z.m - jetzt + 10080) % 10080 || 10080;
+    if (!best || abstand < best.abstand) best = { abstand, w, z };
+  }
+  const tage = Math.floor(((jetzt % 1440) + best.abstand) / 1440);
+  const wann = tage === 0 ? "heute" : tage === 1 ? "morgen" : TAGE[best.w];
+  return `${wann} ab ca. ${String(best.z.h).padStart(2, "0")}:${String(best.z.m).padStart(2, "0")} Uhr`;
+}
+
+// GitHub liefert die Antworten schon als HTML; davon bleiben nur einfache Textbausteine und Links übrig
+const CHAT_TAGS = new Set(["P", "BR", "STRONG", "B", "EM", "I", "CODE", "PRE", "UL", "OL", "LI", "A", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "HR", "DEL", "TABLE", "THEAD", "TBODY", "TR", "TH", "TD"]);
+function sauberesHtml(html) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  for (const p of doc.querySelectorAll("p")) {
+    if (/^\s*Generated by Claude Code\s*$/.test(p.textContent)) {
+      if (p.previousElementSibling && p.previousElementSibling.tagName === "HR") p.previousElementSibling.remove();
+      p.remove();
+    }
+  }
+  const kopie = k => {
+    if (k.nodeType === Node.TEXT_NODE) return document.createTextNode(k.textContent);
+    if (k.nodeType !== Node.ELEMENT_NODE || ["SCRIPT", "STYLE", "TEMPLATE", "IFRAME", "OBJECT", "SVG"].includes(k.tagName.toUpperCase())) return null;
+    if (k.tagName === "IMG") return k.alt ? document.createTextNode(k.alt) : null;
+    const kinder = [...k.childNodes].map(kopie).filter(Boolean);
+    if (!CHAT_TAGS.has(k.tagName)) { const f = document.createDocumentFragment(); f.append(...kinder); return f; }
+    const neu = document.createElement(k.tagName.toLowerCase());
+    const href = k.tagName === "A" ? k.getAttribute("href") || "" : "";
+    if (/^https?:\/\//i.test(href)) { neu.href = href; neu.target = "_blank"; neu.rel = "noopener"; }
+    neu.append(...kinder);
+    return neu;
+  };
+  const f = document.createDocumentFragment();
+  f.append(...[...doc.body.childNodes].map(kopie).filter(Boolean));
+  return f;
+}
+
+async function ghJson(pfad) {
+  // no-cache: GitHub erlaubt sonst 60 s alte Antworten – die eben abgeschickte Nachricht soll aber gleich erscheinen
+  const r = await fetch(`https://api.github.com/repos/${chat.repo}/${pfad}`, { cache: "no-cache", headers: { Accept: "application/vnd.github.full+json" } });
+  if (r.status === 403 || r.status === 429) throw new Error("limit");
+  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  return r.json();
+}
+const alsNachricht = x => ({ id: x.id, claude: vonClaude(x.body), text: x.body || "", html: x.body_html || "", zeit: x.created_at });
+
+async function chatLaden(erzwingen = false) {
+  if (!chat.repo || chat.laeuft || (!erzwingen && Date.now() - chat.geladen < 20000)) return;
+  chat.laeuft = true;
+  try {
+    const liste = (await ghJson(`issues?labels=${CHAT_LABEL}&state=all&sort=updated&direction=desc&per_page=12`))
+      .filter(i => !i.pull_request && vomBesitzer(i.user));
+    // Kommentare nur für Themen holen, die sich seit dem letzten Besuch geändert haben – spart Abfragen
+    const alt = speicher.lies("swingbot-chat-cache", {});
+    const cache = {}, themen = [];
+    for (const i of liste) {
+      let kommentare = [];
+      if (i.comments) {
+        kommentare = alt[i.number] && alt[i.number].stand === i.updated_at ? alt[i.number].kommentare
+          : (await ghJson(`issues/${i.number}/comments?per_page=100`)).filter(k => vomBesitzer(k.user)).map(alsNachricht);
+      }
+      cache[i.number] = { stand: i.updated_at, kommentare };
+      const erste = i.body ? alsNachricht(i) : { ...alsNachricht(i), text: i.title.replace(/^💬\s*/u, "") };
+      themen.push({ nr: i.number, link: i.html_url, nachrichten: [erste, ...kommentare] });
+    }
+    speicher.schreib("swingbot-chat-cache", cache);
+    chat.themen = themen.sort((a, b) => a.nachrichten[a.nachrichten.length - 1].zeit.localeCompare(b.nachrichten[b.nachrichten.length - 1].zeit));
+    chat.fehler = null;
+  } catch (e) {
+    console.warn("Chat:", e);
+    chat.fehler = e.message === "limit" ? "GitHub lässt von deinem Netz gerade keine weiteren Abfragen zu (Grenze pro Stunde). In ein paar Minuten klappt es wieder."
+      : "Der Verlauf ist gerade nicht abrufbar. Senden geht trotzdem.";
+  }
+  chat.geladen = Date.now();
+  chat.laeuft = false;
+  chatZeigen();
+}
+
+function offeneEntwuerfe() {
+  const alle = speicher.lies("swingbot-chat-entwurf", []);
+  const gesendet = chat.themen.flatMap(t => t.nachrichten).filter(n => !n.claude).map(n => n.text);
+  const bleiben = alle.filter(e => Date.now() - e.zeit < 2 * 864e5 && !gesendet.some(g => gleicherText(g, e.text)));
+  if (bleiben.length !== alle.length) speicher.schreib("swingbot-chat-entwurf", bleiben);
+  return bleiben;
+}
+
+function neuIssueLink(text) {
+  const zeile = text.replace(/\s+/g, " ").trim();
+  const titel = `💬 ${zeile.length > 70 ? zeile.slice(0, 69) + "…" : zeile}`;
+  return `https://github.com/${chat.repo}/issues/new?${new URLSearchParams({ title: titel, body: text.trim(), labels: CHAT_LABEL })}`;
+}
+function oeffneGithub(text) {
+  try { navigator.clipboard && navigator.clipboard.writeText(text.trim()).catch(() => {}); } catch (e) { /* Zwischenablage ist nur eine Hilfe */ }
+  const a = el("a", { href: neuIssueLink(text), target: "_blank", rel: "noopener" });
+  document.body.append(a); a.click(); a.remove();
+}
+
+function blase(n) {
+  const b = el("div", { class: `blase ${n.claude ? "claude" : "du"}` });
+  if (n.claude) {
+    b.append(el("div", { class: "wer" }, "Claude"));
+    if (n.html) b.append(sauberesHtml(n.html)); else b.append(n.text.replace(/\n*---\s*\n_Generated by[\s\S]*$/, ""));
+  } else b.append(n.text);
+  b.append(el("div", { class: "wann" }, zeitpunkt(new Date(n.zeit))));
+  return b;
+}
+
+function chatZeigen() {
+  const box = document.getElementById("chat-verlauf");
+  const unten = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  const teile = [];
+  if (!chat.themen.length) {
+    teile.push(blase({ claude: true, zeit: new Date().toISOString(), html: "", text:
+      "Hallo! Hier kannst du dem Bot Tipps geben oder Fragen stellen. Ich lese das vormittags und abends, antworte hier " +
+      "und setze um, was passt. Größere Änderungen am Bot mache ich nur nach deinem „Ja“." }));
+    teile[0].querySelector(".wann").remove();
+  } else if (chat.themen.length >= 12) {
+    teile.push(el("div", { class: "chat-trenner" }, el("a", { href: `https://github.com/${chat.repo}/issues?q=label%3A${CHAT_LABEL}`, target: "_blank", rel: "noopener" }, "Ältere Nachrichten bei GitHub ↗")));
+  }
+  for (const t of chat.themen) {
+    teile.push(el("div", { class: "chat-trenner" }, `${datum(t.nachrichten[0].zeit)} · `,
+      el("a", { href: t.link, target: "_blank", rel: "noopener", title: "Thema bei GitHub öffnen (dort kannst du auch antworten)" }, `#${t.nr} ↗`)));
+    teile.push(...t.nachrichten.map(blase));
+    if (!t.nachrichten[t.nachrichten.length - 1].claude) teile.push(el("div", { class: "chat-warten" }, `⏳ Claude schaut ${naechsterBlick()} rein`));
+  }
+  for (const e of offeneEntwuerfe()) {
+    teile.push(el("div", { class: "blase du offen" }, e.text,
+      el("div", { class: "wann" }, "Noch nicht angekommen – bei GitHub auf „Create“ tippen. Danach steht die Nachricht hier."),
+      el("div", { class: "knoepfe" },
+        el("button", { type: "button", onclick: () => oeffneGithub(e.text) }, "GitHub nochmal öffnen"),
+        el("button", { type: "button", onclick: () => { speicher.schreib("swingbot-chat-entwurf", speicher.lies("swingbot-chat-entwurf", []).filter(x => x.zeit !== e.zeit)); chatZeigen(); } }, "Verwerfen"))));
+  }
+  if (chat.fehler) teile.push(el("div", { class: "chat-info" }, el("b", {}, "Hinweis: "), chat.fehler));
+  box.replaceChildren(...teile);
+  if (unten || !box.dataset.gezeigt) { box.scrollTop = box.scrollHeight; box.dataset.gezeigt = "1"; }
+  zeigeNeue();
+}
+
+// Zähler am Knopf: Antworten von Claude, die du hier noch nicht gesehen hast
+function zeigeNeue() {
+  const claude = chat.themen.flatMap(t => t.nachrichten).filter(n => n.claude);
+  const zuletzt = claude.reduce((m, n) => (n.zeit > m ? n.zeit : m), "");
+  if (chat.offen && zuletzt) speicher.schreib("swingbot-chat-gesehen", zuletzt);
+  const gesehen = speicher.lies("swingbot-chat-gesehen", "");
+  const neu = claude.filter(n => n.zeit > gesehen).length;
+  for (const id of ["chat-neu", "nav-chat-neu"]) {
+    const z = document.getElementById(id);
+    z.hidden = !neu; z.textContent = neu;
+  }
+  document.getElementById("chat-knopf").setAttribute("aria-label", neu ? `Tipps an Claude – ${neu} neue Antwort${neu === 1 ? "" : "en"}` : "Tipps an Claude");
+}
+
+function chatOeffnen(auf) {
+  chat.offen = auf;
+  document.getElementById("chat").hidden = !auf;
+  document.getElementById("chat-knopf").hidden = auf;
+  document.getElementById("chat-knopf").setAttribute("aria-expanded", String(auf));
+  document.documentElement.classList.toggle("chat-offen", auf);
+  if (auf) {
+    chatZeigen();
+    chatLaden();
+    const box = document.getElementById("chat-verlauf");
+    box.scrollTop = box.scrollHeight;
+    if (matchMedia("(min-width: 561px)").matches) document.getElementById("chat-text").focus();
+  } else document.getElementById("chat-knopf").focus();
+}
+
+function chatStart(repo) {
+  const ausAdresse = location.hostname.endsWith(".github.io") && location.pathname.split("/")[1]
+    ? `${location.hostname.split(".")[0]}/${location.pathname.split("/")[1]}` : null;
+  chat.repo = repo || ausAdresse;
+  if (!chat.repo) { document.getElementById("chat-knopf").hidden = true; document.getElementById("nav-chat").hidden = true; return; }
+  chat.besitzer = chat.repo.split("/")[0].toLowerCase();
+  const text = document.getElementById("chat-text"), senden = document.getElementById("chat-senden");
+  const vorschlaege = document.getElementById("chat-vorschlaege");
+  vorschlaege.replaceChildren(...CHAT_VORSCHLAEGE.map(v => el("button", { type: "button", onclick: () => {
+    text.value = v.replace("…", "").trimEnd() + " "; text.dispatchEvent(new Event("input")); text.focus();
+    text.setSelectionRange(text.value.length, text.value.length);
+  } }, v)));
+  text.value = speicher.lies("swingbot-chat-text", "");
+  const pruefe = () => { senden.disabled = !text.value.trim(); speicher.schreib("swingbot-chat-text", text.value); };
+  text.addEventListener("input", pruefe); pruefe();
+  text.addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) document.getElementById("chat-form").requestSubmit(); });
+  document.getElementById("chat-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const t = text.value.trim();
+    if (!t) return;
+    oeffneGithub(t);
+    speicher.schreib("swingbot-chat-entwurf", [...speicher.lies("swingbot-chat-entwurf", []), { text: t, zeit: Date.now() }]);
+    text.value = ""; pruefe();
+    chatZeigen();
+    document.getElementById("chat-verlauf").scrollTop = 1e9;
+  });
+  document.getElementById("chat-knopf").addEventListener("click", () => chatOeffnen(true));
+  document.getElementById("nav-chat").addEventListener("click", e => { e.preventDefault(); chatOeffnen(true); });
+  document.getElementById("chat-zu").addEventListener("click", () => chatOeffnen(false));
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && chat.offen) chatOeffnen(false); });
+  // Zurück von GitHub: Verlauf neu holen (die eben abgeschickte Nachricht taucht dann auf)
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) chatLaden(); });
+  // Bei offenem Fenster ab und zu nachsehen; kurz nach dem Senden öfter (bleibt unter der Grenze von 60 Abfragen je Stunde)
+  setInterval(() => {
+    if (!chat.offen || document.hidden) return;
+    const frisch = offeneEntwuerfe().some(e => Date.now() - e.zeit < 5 * 6e4);
+    if (frisch || Date.now() - chat.geladen > 12e4) chatLaden();
+  }, 3e4);
+  if (location.hash === "#chat") chatOeffnen(true);
+  chatLaden(true);
+}
+
+let geladeneDaten = null;
 fetch(`daten.json?${Date.now()}`, { cache: "no-store" })
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(aufbauen)
+  .then(D => { geladeneDaten = D; aufbauen(D); })
   .catch(fehler => {
     console.error(fehler);
     document.getElementById("inhalt").replaceChildren(el("div", { class: "fehlerseite" },
       el("p", {}, "Noch keine Daten vom Bot."),
       el("p", { class: "label", style: "text-transform:none;letter-spacing:.02em" }, "Die Seite füllt sich nach dem nächsten Lauf des Bots (morgens an Börsentagen).")));
-  });
+  })
+  .finally(() => chatStart(geladeneDaten && geladeneDaten.repo));
 </script>
 </body>
 </html>
