@@ -277,6 +277,12 @@ def lies_einstellungen():
     p.add_argument("--nachricht", metavar="DATEI",
                    help="bei Kauf-Signalen eine kurze Nachricht (Handelsplan) in DATEI schreiben, z. B. für eine "
                         "Benachrichtigung aufs Handy; ohne Signal wird die Datei gelöscht")
+    p.add_argument("--claude-depot", metavar="DATEI",
+                   help="Claude-Depot (Versuch, nur mit --papier): startet als Kopie des Papier-Depots und rechnet mit "
+                        "denselben Regeln weiter – nur ohne die Signale, die Claude rechtzeitig ausgelassen hat")
+    p.add_argument("--claude-entscheidungen", metavar="DATEI",
+                   help="Claudes Entscheidungen für das Claude-Depot: Kommentare aus dem GitHub-Thema als JSON "
+                        "(holt der Workflow)")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--bericht", metavar="DATEI",
                    help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
@@ -1074,12 +1080,14 @@ def ausfuehrbare_auftraege(stand):
         verfallen.setdefault(grund, []).append(a["ticker"])
     return ok, verfallen
 
-def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None):
+def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None, veto=None):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
     Schluss, Einstieg zur nächsten Eröffnung bis zum Limit, Stop/Ziel/Zahlen/Zeitstopp), dazu Kapital- und
     Risikogrenzen, Gebühr und Spread je Order. Mit Lernen werden pausierte Strategien nicht gehandelt.
     Papier-Depot: Mit 'zustand' geht es vom gespeicherten Stand aus nur über die Tage nach zustand["bis"] weiter
-    (beim Anlegen nur der letzte fertige Tag); 'signal_ticker' begrenzt, für welche Ticker neue Aufträge entstehen."""
+    (beim Anlegen nur der letzte fertige Tag); 'signal_ticker' begrenzt, für welche Ticker neue Aufträge entstehen.
+    Claude-Depot: veto(Signaltag, Ticker) gibt einen Grund zurück, wenn Claude dieses Signal ausgelassen hat – der
+    Auftrag verfällt dann zur Eröffnung."""
     alle_tage = sorted(set().union(*(set(d["idx"][:d["n_fertig"]]) for d in daten.values())))
     if not alle_tage:
         return None
@@ -1111,7 +1119,8 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
         gebuehren, spread_kosten = zustand["gebuehren"], zustand["spread"]
         hoechstes_risiko = tuple(zustand["hoechstes_risiko"])
         positionen = {p["ticker"]: dict(p) for p in zustand["positionen"]}
-        auftraege = [dict(a) for a in zustand["auftraege"]]
+        # gespeicherte Aufträge stammen vom letzten gerechneten Tag (ihr Signaltag)
+        auftraege = [dict(a, signal_tag=a.get("signal_tag", zustand["bis"])) for a in zustand["auftraege"]]
         for t, p in positionen.items():
             d = daten[t]
             p["start"] = d["pos"][p["kauf_tag"]]
@@ -1139,6 +1148,8 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
                 continue
             if t in einst.sperre_ticker or auftrag["strategie"] in einst.sperre_strategien:
                 continue  # inzwischen in „Meine Regeln“ gesperrt: Auftrag wird gestrichen
+            if veto is not None and veto(auftrag.get("signal_tag"), t):
+                continue  # Claude-Depot: Claude hat dieses Signal ausgelassen
             r, stop = auftrag["richtung"], auftrag["stop"]
             if t in positionen or not einstieg_moeglich(d, i, r, stop, auftrag["limit"]):
                 continue  # Kurslücke hinter den Stop oder über das Limit: Auftrag verfällt
@@ -1205,7 +1216,7 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
             stop, ziel, kurs = stop_a[i], ziel_a[i], d["C"][i]
             neue.append({"ticker": t, "richtung": r, "strategie": wahl, "stop": stop, "ziel": ziel,
                          "limit": limit_kurs(r, kurs, d["ATR"][i], stop, ziel),
-                         "crv": r * (ziel - kurs) / (r * (kurs - stop))})
+                         "crv": r * (ziel - kurs) / (r * (kurs - stop)), "signal_tag": tag})
         ersetzt = {a["ticker"] for a in neue}
         auftraege = sorted([a for a in auftraege if a["ticker"] not in ersetzt] + neue,
                            key=lambda a: (-a["crv"], VORRANG[a["strategie"]], reihenfolge[a["ticker"]]))
@@ -2186,10 +2197,11 @@ def anpassungsfaktor(d, anker):
         return 1, None
     return r, letzter
 
-def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
+def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker, veto=None):
     """Rechnet das Papier-Depot bis zum letzten fertigen Kurstag weiter. Gibt (neuer Stand, Lauf, Bericht) zurück;
     Lauf ist None, wenn diesmal nicht weitergerechnet werden konnte (der Stand bleibt dann unverändert)."""
-    bericht = {"neu": stand is None, "anpassungen": [], "warnung": None, "nicht_ausgefuehrt": [], "gestrichen": []}
+    bericht = {"neu": stand is None, "anpassungen": [], "warnung": None, "nicht_ausgefuehrt": [], "gestrichen": [],
+               "ausgelassen": []}
     if stand is None:
         stand = neues_papier(einst)
     fehlen = [t for t in dict.fromkeys(x["ticker"] for x in stand["positionen"] + stand["auftraege"])
@@ -2242,7 +2254,7 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
         elif abs(ausgleich) >= 0.01:
             bericht["anpassungen"].append(f"{t}: Dividende bzw. Kursanpassung verrechnet ({de(ausgleich, 2, True)} €)")
 
-    erg = simuliere_depot(daten, pausen, einst, einst.lernen, zustand=lauf, signal_ticker=signal_ticker)
+    erg = simuliere_depot(daten, pausen, einst, einst.lernen, zustand=lauf, signal_ticker=signal_ticker, veto=veto)
     if erg is None:
         bericht["warnung"] = "Keine fertigen Kurstage – das Papier-Depot wurde diesmal nicht weitergerechnet."
         return stand, None, bericht
@@ -2255,6 +2267,8 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker):
         if neu and neu[0] in set(erg["tage"]) and (a["ticker"], neu[0]) not in gekauft:
             if a["ticker"] in einst.sperre_ticker or a["strategie"] in einst.sperre_strategien:
                 bericht["gestrichen"].append(a["ticker"])
+            elif veto is not None and veto(lauf["bis"], a["ticker"]):
+                bericht["ausgelassen"].append(a["ticker"])
             else:
                 bericht["nicht_ausgefuehrt"].append(a["ticker"])
 
@@ -2316,12 +2330,13 @@ def eroeffnung_vorbei(auftraege, termine):
             return True
     return False
 
-def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, name_von):
-    """Überschrift, Zusammenfassung und Hinweise des Papier-Depots als Textzeilen."""
+def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, name_von, titel=None, vorne=()):
+    """Überschrift, Zusammenfassung und Hinweise des Papier-Depots als Textzeilen (Claude-Depot: eigener Titel und
+    Zeilen 'vorne')."""
     start = pd.Timestamp(stand["angelegt"]) if stand["angelegt"] else None
-    kopf = (f"📒 PAPIER-DEPOT · Vorwärtstest seit {start:%d.%m.%Y} mit {de(stand['startkapital'], 0)} {waehrung}"
-            if start is not None else "📒 PAPIER-DEPOT")
-    zeilen = []
+    kopf = titel or (f"📒 PAPIER-DEPOT · Vorwärtstest seit {start:%d.%m.%Y} mit {de(stand['startkapital'], 0)} "
+                     f"{waehrung}" if start is not None else "📒 PAPIER-DEPOT")
+    zeilen = list(vorne)
     if bericht["warnung"]:
         zeilen.append(f"⚠️ {bericht['warnung']}")
     if bericht["neu"] and erg is not None and einst.papier_neu:
@@ -2365,6 +2380,8 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                 teile.append("ausgestiegen: " + ", ".join(
                     f"{p['ticker']} ({p['grund']}, {de(p['erloes'] - p['kosten'], 2, True)} {waehrung})"
                     for p in erg["trades"]))
+            if bericht.get("ausgelassen"):
+                teile.append("von Claude ausgelassen: " + ", ".join(bericht["ausgelassen"]))
             if bericht["nicht_ausgefuehrt"]:
                 teile.append("nicht ausgeführt (Limit nicht erreicht, Kurslücke, kein Platz/Geld oder schon "
                              f"{MAX_JE_BRANCHE} aus derselben Branche im Depot): "
@@ -2423,8 +2440,9 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                   f"{de(einst.gebuehr)} {waehrung} Gebühr + {prozent(SPREAD_PROZENT)} % Spread je Order.")
     return kopf, zeilen
 
-def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich, fx_heute):
-    kopf, zeilen = papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, strategie_name)
+def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich, fx_heute, titel=None, vorne=()):
+    kopf, zeilen = papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute, strategie_name,
+                                titel, vorne)
     tabelle = trade_tabelle(papier_ansicht(stand, erg))
     weggelassen = 0
     if tabelle is not None:
@@ -2466,11 +2484,12 @@ def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich
 
 
 def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusatz, pausen, einst, waehrung, notebook,
-                markt, trend):
-    """Papier-Depot fortschreiben, anzeigen und speichern. Gibt den neuen Stand zurück (oder None)."""
+                markt, trend, veto=None, titel=None, vorne=None):
+    """Papier-Depot fortschreiben, anzeigen und speichern. Gibt den neuen Stand zurück (oder None).
+    Claude-Depot: veto (siehe simuliere_depot), eigener Titel und vorne(neuer Stand) -> Zeilen über der Übersicht."""
     def nur_hinweis(text):
-        print(f"\n📒 PAPIER-DEPOT\n⚠️ {text}")
-        berichte("📒 PAPIER-DEPOT", [f"⚠️ {text}"])
+        print(f"\n{titel or '📒 PAPIER-DEPOT'}\n⚠️ {text}")
+        berichte(titel or "📒 PAPIER-DEPOT", [f"⚠️ {text}"])
         return None
     if fehler:
         return nur_hinweis(fehler)
@@ -2493,7 +2512,7 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
             if d["termine"] is None and gemerkt.get(t):
                 daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t),
                                          pd.DataFrame(index=pd.to_datetime(gemerkt[t], utc=True)), einst, trend)
-    neu, erg, bericht = papier_fortschreiben(stand, daten_p, pausen, einst, set(daten))
+    neu, erg, bericht = papier_fortschreiben(stand, daten_p, pausen, einst, set(daten), veto)
     if erg is not None:
         grenze = pd.Timestamp.now(tz=NY) - pd.Timedelta(days=120)
         for t, d in daten_p.items():
@@ -2508,8 +2527,162 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
     if neu is None or neu["bis"] is None:
         return nur_hinweis(bericht["warnung"] or "Das Papier-Depot konnte nicht angelegt werden.")
     vergleich = papier_vergleich(neu, markt, fx) if erg is not None else None
-    zeige_papier(neu, erg, bericht, datei, einst, waehrung, notebook, vergleich, float(fx.iloc[-1]))
+    zeige_papier(neu, erg, bericht, datei, einst, waehrung, notebook, vergleich, float(fx.iloc[-1]), titel,
+                 vorne(neu) if vorne else ())
     return neu
+
+# ----------------------------------------------------------------------------
+# Claude-Depot (Versuch): wie das Übungsdepot, nur lässt Claude einzelne Kauf-Signale aus
+# ----------------------------------------------------------------------------
+CLAUDE_TITEL = "🧠 CLAUDE-DEPOT (Versuch)"
+CLAUDE_THEMA = "🧠 Claude-Depot: Entscheidungen"
+
+def naechste_eroeffnung(signal_tag):
+    """Eröffnung des nächsten US-Handelstags nach dem Signaltag (bis dahin muss Claude entschieden haben)."""
+    tag = pd.Timestamp(pd.Timestamp(signal_tag).date()) + NYSE_TAG
+    return pd.Timestamp(f"{tag:%Y-%m-%d} 09:30", tz=NY)
+
+def lies_claude_entscheidungen(datei):
+    """Claudes Entscheidungen aus den Kommentaren im GitHub-Thema (der Workflow holt nur die des Repository-Besitzers):
+    je Kommentar ein ```json-Block {"signal_tag": "JJJJ-MM-TT", "auslassen": {Ticker: Grund}, "nehmen": {Ticker:
+    Grund}, "notiz": "..."}. Es zählt nur, was vor der Eröffnung des nächsten Handelstags geschrieben und danach nicht
+    mehr geändert wurde (Zeitstempel von GitHub); gibt es mehrere, die letzte. Gibt ({Signaltag: Entscheidung},
+    [Signaltage mit zu später Entscheidung]) zurück."""
+    if not datei or not os.path.exists(datei):
+        return {}, []
+    try:
+        with open(datei, encoding="utf-8") as f:
+            text = f.read().strip()
+    except OSError:
+        return {}, []
+    kommentare = []
+    try:
+        kommentare = json.loads(text) if text.startswith("[") else [json.loads(z) for z in text.splitlines() if z.strip()]
+    except ValueError:
+        return {}, []
+
+    def saeubern(liste):
+        if not isinstance(liste, dict):
+            return {}
+        return {str(t).strip().upper(): " ".join(str(g).split())[:300] for t, g in liste.items()
+                if re.fullmatch(r"[A-Za-z0-9.^=-]{1,15}", str(t).strip())}
+
+    gut, zu_spaet = {}, []
+    for k in kommentare if isinstance(kommentare, list) else []:
+        if not isinstance(k, dict):
+            continue
+        bloecke = re.findall(r"```json\s*(\{.*?\})\s*```", str(k.get("body", "")), re.S)
+        if not bloecke:
+            continue
+        try:
+            e = json.loads(bloecke[-1])
+            tag = pd.Timestamp(e["signal_tag"])
+            erstellt = pd.Timestamp(k["created_at"])
+            geaendert = pd.Timestamp(k.get("updated_at") or k["created_at"])
+            if erstellt.tz is None or geaendert.tz is None:
+                raise ValueError("Zeitstempel ohne Zeitzone")
+        except (ValueError, KeyError, TypeError, AttributeError):
+            continue
+        if max(erstellt, geaendert) >= naechste_eroeffnung(tag):
+            zu_spaet.append(iso(tag))
+            continue
+        neu = {"entschieden": erstellt.tz_convert("UTC").strftime("%Y-%m-%dT%H:%M:%SZ"),
+               "auslassen": saeubern(e.get("auslassen")), "nehmen": saeubern(e.get("nehmen")),
+               "notiz": " ".join(str(e.get("notiz") or "").split())[:500]}
+        alt = gut.get(iso(tag))
+        if alt is None or neu["entschieden"] >= alt["entschieden"]:
+            gut[iso(tag)] = neu
+    return gut, sorted(set(zu_spaet) - set(gut))
+
+def qqq_seit(markt, fx, von, bis):
+    """Nasdaq-100 (QQQ) in € vom Schluss am Tag 'von' bis zum Schluss am Tag 'bis', in %."""
+    if markt is None or fx is None:
+        return None
+    idx = markt["idx"][:markt["n_fertig"]]
+    kurse = pd.Series(markt["C"][:markt["n_fertig"]], index=idx) / kurs_umrechner(fx, idx)
+    a, b = kurse[kurse.index <= als_tag(von, idx)], kurse[kurse.index <= als_tag(bis, idx)]
+    if a.empty or b.empty or not a.iloc[-1] > 0:
+        return None
+    return (b.iloc[-1] / a.iloc[-1] - 1) * 100
+
+def claude_zeilen(stand, papier, markt, fx, zu_spaet):
+    """Erklärung, Vergleich seit Versuchsbeginn und Claudes Entscheidungen für den Bericht."""
+    ab, start = stand["versuch_ab"], stand["versuch_start"]
+    zeilen = [f"Gleiche Regeln wie das Übungsdepot und am {pd.Timestamp(ab):%d.%m.%Y} als genaue Kopie gestartet. "
+              f"Einziger Unterschied: Claude lässt einzelne Kauf-Signale aus – mit Begründung, festgehalten vor "
+              f"Börsenbeginn im GitHub-Thema „{CLAUDE_THEMA}“ (Tab Issues). Ohne Entscheidung nimmt das Claude-Depot "
+              f"alle Signale wie das Übungsdepot."]
+    teile = [f"Claude-Depot {de((stand['depotwert'] / start['claude'] - 1) * 100, 1, True)} %"]
+    if papier is not None and papier.get("bis") == stand["bis"]:
+        teile.append(f"Übungsdepot {de((papier['depotwert'] / start['bot'] - 1) * 100, 1, True)} %")
+    q = qqq_seit(markt, fx, ab, stand["bis"])
+    if q is not None:
+        teile.append(f"Nasdaq-100 {de(q, 1, True)} %")
+    zeilen.append(f"Seit Versuchsbeginn ({pd.Timestamp(ab):%d.%m.%Y}, Stand {pd.Timestamp(stand['bis']):%d.%m.%Y}): "
+                  + " · ".join(teile) + ". Der Unterschied zum Übungsdepot ist die Wirkung von Claudes Entscheidungen.")
+    entsch = stand.get("entscheidungen") or {}
+    frueher = [t for t in sorted(entsch) if t < stand["bis"]]
+    if frueher:
+        t = frueher[-1]
+        e = entsch[t]
+        teile = []
+        if e["auslassen"]:
+            teile.append("ausgelassen: " + "; ".join(f"{k} – {g}" for k, g in e["auslassen"].items()))
+        if e["nehmen"]:
+            teile.append("genommen: " + "; ".join(f"{k} – {g}" for k, g in e["nehmen"].items()))
+        if e["notiz"]:
+            teile.append(e["notiz"])
+        zeilen.append(f"Claudes letzte Entscheidung (Signale vom {datum(pd.Timestamp(t))}, festgehalten "
+                      f"{pd.Timestamp(e['entschieden']).tz_convert(BERLIN):%d.%m. %H:%M} Uhr): "
+                      + (" · ".join(teile) if teile else "alle Signale genommen") + ".")
+    if stand["auftraege"]:
+        zeilen.append(f"Zu den neuen Aufträgen (Signale vom {datum(pd.Timestamp(stand['bis']))}) entscheidet Claude bis "
+                      f"zur Eröffnung am {datum(naechste_eroeffnung(stand['bis']))} – sonst gelten sie wie beim "
+                      f"Übungsdepot.")
+    ausgelassen = sum(len(e["auslassen"]) for e in entsch.values())
+    if ausgelassen:
+        tage = sum(1 for e in entsch.values() if e["auslassen"])
+        zeilen.append(f"Bisher {ausgelassen} {'Signal' if ausgelassen == 1 else 'Signale'} an {tage} "
+                      f"{'Tag' if tage == 1 else 'Tagen'} ausgelassen.")
+    if zu_spaet:
+        zeilen.append("Nicht gezählt, weil erst nach Börsenbeginn festgehalten: Signale vom "
+                      + ", ".join(datum(pd.Timestamp(t)) for t in zu_spaet))
+    return zeilen
+
+def claude_lauf(datei, stand, fehler, papier, daten, extra, roh, fx, fx_je_ticker, zusatz, pausen, einst, waehrung,
+                notebook, markt, trend):
+    """Claude-Depot (Versuch): startet als genaue Kopie des Übungsdepots und rechnet danach mit denselben Regeln
+    weiter – nur verfallen Aufträge, deren Signal Claude rechtzeitig ausgelassen hat."""
+    def nur_hinweis(zeilen):
+        print("\n" + CLAUDE_TITEL + "".join(f"\n   {z}" for z in zeilen))
+        berichte(CLAUDE_TITEL, zeilen)
+        return None
+    if fehler:
+        return nur_hinweis([f"⚠️ {fehler.replace('Papier-Depot', 'Claude-Depot')}"])
+    neue, zu_spaet = lies_claude_entscheidungen(einst.claude_entscheidungen)
+    if stand is None:
+        if papier is None or papier.get("bis") is None:
+            return nur_hinweis(["Das Claude-Depot startet, sobald das Übungsdepot weitergerechnet wurde."])
+        stand = json.loads(json.dumps(papier))  # genaue Kopie (auch Positionen, Aufträge und Verlauf)
+        stand.update({"versuch_ab": papier["bis"], "entscheidungen": {},
+                      "versuch_start": {"claude": papier["depotwert"], "bot": papier["depotwert"]}})
+        try:
+            speichere_papier(datei, stand)
+        except OSError as problem:
+            return nur_hinweis([f"⚠️ Claude-Depot nicht gespeichert ({problem}) – der nächste Lauf versucht es erneut."])
+        return nur_hinweis(claude_zeilen(stand, papier, markt, fx, []) + [
+            f"Der Versuch beginnt heute mit {de(stand['depotwert'])} {waehrung}, denselben Positionen und Aufträgen wie das "
+            f"Übungsdepot. Gespeichert in: {os.path.relpath(datei)}"])
+    entsch = dict(stand.get("entscheidungen") or {})
+    entsch.update({t: e for t, e in neue.items() if t >= stand["versuch_ab"]})
+    stand = dict(stand, entscheidungen=entsch)
+
+    def veto(signal_tag, ticker):
+        return None if signal_tag is None else (entsch.get(iso(signal_tag)) or {}).get("auslassen", {}).get(ticker)
+
+    return papier_lauf(datei, stand, None, daten, extra, roh, fx, fx_je_ticker, zusatz, pausen, einst, waehrung,
+                       notebook, markt, trend, veto=veto, titel=CLAUDE_TITEL,
+                       vorne=lambda neu: claude_zeilen(neu, papier, markt, fx, zu_spaet))
 
 # ----------------------------------------------------------------------------
 # Gehirn für Obsidian: Notizen, die der Bot bei jedem Lauf schreibt – und „Meine Regeln“, die er liest
@@ -3277,6 +3450,10 @@ def auswerten(einst):
         papier_datei, papier_fehler = papier_pfad(einst.papier)
         if papier_datei:
             papier_stand, papier_fehler = lade_papier(papier_datei, einst.papier_neu)
+    claude_datei = claude_stand = claude_fehler = None
+    if einst.claude_depot and einst.papier:
+        claude_datei = os.path.abspath(os.path.expanduser(einst.claude_depot))
+        claude_stand, claude_fehler = lade_papier(claude_datei, False)
 
     if einst.sperre_ticker:
         bekannt = set(einst.ticker_liste) | {x["ticker"] for x in (papier_stand or {}).get("positionen", [])
@@ -3296,11 +3473,16 @@ def auswerten(einst):
     if papier_stand is not None:
         papier_extra = [t for t in dict.fromkeys(p["ticker"] for p in papier_stand["positionen"] + papier_stand["auftraege"])
                         if t not in unterstuetzt and waehrung_von(t)]
+    claude_extra = []
+    if claude_stand is not None:
+        claude_extra = [t for t in dict.fromkeys(p["ticker"] for p in claude_stand["positionen"] + claude_stand["auftraege"])
+                        if t not in unterstuetzt and waehrung_von(t)]
+    alle_extra = list(dict.fromkeys(papier_extra + claude_extra))  # alle laden, jedes Depot rechnet mit seinen
     frischer_yahoo_cache()
     with YahooRuhig(einst.debug) as sammler:
-        extra = [x for x in (FX_TICKER, MARKT_TICKER) if x not in unterstuetzt + papier_extra]
-        roh, gruende = lade_kurse(unterstuetzt + papier_extra + extra, sammler)
-        termin_ticker = ([t for t in unterstuetzt + papier_extra if t in roh and hat_zahlen(t)]
+        extra = [x for x in (FX_TICKER, MARKT_TICKER) if x not in unterstuetzt + alle_extra]
+        roh, gruende = lade_kurse(unterstuetzt + alle_extra + extra, sammler)
+        termin_ticker = ([t for t in unterstuetzt + alle_extra if t in roh and hat_zahlen(t)]
                          if not einst.ohne_zahlen else [])
         # Termine zuerst für Ticker mit Signal holen – greift Yahoos Limit, fehlen sie eher bei den übrigen
         trend_vorab = markt_trend(roh.get(MARKT_TICKER)) if einst.marktfilter else None
@@ -3308,10 +3490,10 @@ def auswerten(einst):
         zusatz = hole_zusatzdaten(termin_ticker, [], sammler)
     fx_daten = roh.pop(FX_TICKER, None)
     fx = fx_daten["Close"] if fx_daten is not None else None
-    markt_df = roh.get(MARKT_TICKER) if MARKT_TICKER in unterstuetzt + papier_extra else roh.pop(MARKT_TICKER, None)
+    markt_df = roh.get(MARKT_TICKER) if MARKT_TICKER in unterstuetzt + alle_extra else roh.pop(MARKT_TICKER, None)
     waehrung = "€" if fx is not None else "$"
     # US-Werte werden mit EUR/USD umgerechnet, Werte von Euro-Börsen nicht
-    fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt + papier_extra}
+    fx_je_ticker = {t: fx if waehrung_von(t) == "USD" else None for t in unterstuetzt + alle_extra}
 
     trend = markt_trend(markt_df)  # Marktfilter: Nasdaq-100 über/unter der 200-Tage-Linie
     daten = {t: bereite_vor(t, roh[t], fx_je_ticker[t], zusatz.get(t, {}).get("zahlen"), einst, trend)
@@ -3449,6 +3631,9 @@ def auswerten(einst):
     if einst.papier:
         papier = papier_lauf(papier_datei, papier_stand, papier_fehler, daten, papier_extra, roh, fx, fx_je_ticker,
                              zusatz, pausen, einst, waehrung, notebook, markt, trend)
+    if claude_datei:
+        claude_lauf(claude_datei, claude_stand, claude_fehler, papier, daten, claude_extra, roh, fx, fx_je_ticker,
+                    zusatz, pausen, einst, waehrung, notebook, markt, trend)
     depot = ohne = None
     if einst.rueckblick > 0:
         depot = simuliere_depot(daten, pausen, einst, einst.lernen)

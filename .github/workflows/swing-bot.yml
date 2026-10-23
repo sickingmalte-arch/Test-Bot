@@ -42,6 +42,29 @@ jobs:
       - name: Pakete installieren
         run: pip install -r requirements-bot.txt
 
+      - name: Claudes Entscheidungen holen
+        # Claude-Depot (Versuch): Claude hält vor Börsenbeginn im Thema „🧠 Claude-Depot: Entscheidungen“ (Label
+        # claude-depot) fest, welche Signale es auslässt. Es zählen nur Kommentare des Repository-Besitzers, mit dem
+        # Zeitstempel von GitHub. Klappt das nicht, rechnet das Claude-Depot ohne neue Entscheidungen weiter.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BESITZER: ${{ github.repository_owner }}
+        run: |
+          datei="$RUNNER_TEMP/claude_entscheidungen.json"
+          : > "$datei"
+          nummer=$(gh issue list --repo "$GITHUB_REPOSITORY" --label claude-depot --state all --limit 100 \
+            --json number --jq 'map(.number) | min // empty')
+          if [ -z "$nummer" ]; then
+            echo "Kein Thema mit dem Label claude-depot – keine Entscheidungen."
+            exit 0
+          fi
+          # $ENV gehört zu jq (Filter in gh), nicht zur Shell
+          # shellcheck disable=SC2016
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$nummer/comments" \
+            --jq '.[] | select(.user.login == $ENV.BESITZER) | {created_at, updated_at, body}' > "$datei"
+          echo "$(wc -l < "$datei") Kommentare von $BESITZER aus Thema #$nummer gelesen."
+
       - name: Bot laufen lassen
         id: bot
         env:
@@ -53,7 +76,8 @@ jobs:
         run: |
           set -- --konto "$KONTO" --risiko "$RISIKO" --rueckblick 12 \
                  --papier papier/papier_depot.json --bericht bericht/README.md --gehirn gehirn \
-                 --nachricht "$RUNNER_TEMP/nachricht.md"
+                 --nachricht "$RUNNER_TEMP/nachricht.md" \
+                 --claude-depot papier/claude_depot.json --claude-entscheidungen "$RUNNER_TEMP/claude_entscheidungen.json"
           if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
           # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
           # shellcheck disable=SC2086
