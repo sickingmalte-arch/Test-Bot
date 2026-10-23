@@ -39,7 +39,7 @@ Mit `%run` erscheinen farbige Tabellen und ein Diagramm; mit `!python swing_scan
 
 Das Skript kommt aus dem Hauptzweig `main` – das klappt erst, wenn der Pull Request übernommen ist (**Merge**, siehe GitHub Actions Schritt 1); bis dahin steht statt `main` noch `claude/new-session-hbq1tg` in der Adresse (sonst Fehler 404). In älteren Notebooks (auch `Trading_bot.ipynb`) danach die ganze `wget`-Zeile durch die `curl`-Zeile oben ersetzen, nicht nur den Zweig – `wget -q` verschweigt Fehler und hinterlässt eine leere Datei, dann zeigt `%run` gar nichts. Den Zweig `claude/new-session-hbq1tg` erst löschen, wenn alle Notebooks umgestellt sind.
 
-Mit Papier-Depot (Vorwärtstest mit virtuellem Geld, Stand in deinem Google Drive) – Colab fragt beim ersten Mal nach der Erlaubnis für Drive. Am besten jeden Börsentag einmal abends nach 22:15 Uhr starten (dann ist der US-Handelstag fertig; mit Krypto auf der Liste zählt ein Tag erst nach 2:00 Uhr). `--papier-neu` nur einmal zum Neuanfangen anhängen und danach wieder weglassen:
+Mit Papier-Depot (Vorwärtstest mit virtuellem Geld, Stand in deinem Google Drive) – Colab fragt beim ersten Mal nach der Erlaubnis für Drive. Am besten jeden Börsentag einmal morgens vor 15:30 Uhr starten (dann hat Yahoo den US-Handelstag vom Vortag sicher fertig – abends oder nachts fehlt er oft noch). `--papier-neu` nur einmal zum Neuanfangen anhängen und danach wieder weglassen:
 
 ```
 !pip install -q -U yfinance
@@ -54,9 +54,9 @@ python -m pip install -U yfinance pandas numpy
 python swing_scanner.py
 ```
 
-### Automatisch jeden Abend (GitHub Actions – ohne PC, ohne Colab)
+### Automatisch jeden Morgen (GitHub Actions – ohne PC, ohne Colab)
 
-Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot in der Nacht nach jedem US-Börsentag kostenlos in der Cloud bei GitHub: um 22:30 Uhr UTC, also 0:30 Uhr deutscher Sommerzeit (dann Di–Sa) bzw. 23:30 Uhr Winterzeit (Mo–Fr). Du musst keine Seite offen lassen und nichts neu laden. Einrichten und Einstellungen gehen nur im Browser (am Handy notfalls „Desktop-Website“), nicht in der GitHub-App; lesen kannst du den Bericht auch in der App.
+Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot am Morgen nach jedem US-Börsentag kostenlos in der Cloud bei GitHub (Di–Sa): um 6:47 Uhr UTC, also 8:47 Uhr deutscher Sommerzeit bzw. 7:47 Uhr Winterzeit. GitHub startet oft etwas später, aber vor dem US-Börsenstart um 15:30 Uhr. Nicht schon nachts, weil Yahoo die Kurse eines Tages oft erst Stunden nach Börsenschluss liefert. Fehlt der letzte Handelstag trotzdem noch, steht oben im Bericht eine Warnung, und es kommt keine Nachricht aufs Handy. Du musst keine Seite offen lassen und nichts neu laden. Einrichten und Einstellungen gehen nur im Browser (am Handy notfalls „Desktop-Website“), nicht in der GitHub-App; lesen kannst du den Bericht auch in der App.
 
 1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → **Merge**). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`. Willst du ein anderes Startkapital als 10.000 €, trag es vorher ein (Schritt 5).
 2. **Sofort testen:** **Actions → Swing-Bot → Run workflow**. Ein Lauf dauert einige Minuten. Danach gibt es die Ordner `bericht` und `papier`.
@@ -86,11 +86,11 @@ Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später u
 
 ### Gehirn in Obsidian: Tagebuch, Lehren und deine Regeln
 
-Der automatische Lauf schreibt jede Nacht Notizen für [Obsidian](https://obsidian.md) in den Ordner `gehirn/` (lokal mit der Option `--gehirn`):
+Der automatische Lauf schreibt jeden Morgen Notizen für [Obsidian](https://obsidian.md) in den Ordner `gehirn/` (lokal mit der Option `--gehirn`):
 
 - **`Start.md`** – Übersicht: heutige Signale, Übungsdepot, was der Bot gelernt hat, deine Regeln.
 - **`Tage/2026-10-21.md`** – Tagesnotiz: Marktlage, Entscheidungen, Übungsdepot, Änderungen beim Lernen.
-- **`Wochen/2026-W43.md`** – Wochenrückblick: Depotwert am Wochenanfang und jetzt, abgeschlossene und neue Trades der Woche, Trefferquote im Übungsdepot (gesamt und je Aktie), Änderungen beim Lernen und Links zu den Tagesnotizen. Während der Woche schreibt der Bot sie jede Nacht neu, danach bleibt sie stehen. Unten ist unter „Meine Gedanken zur Woche“ Platz für dich – am besten erst, wenn die Woche vorbei ist (dann ändert der Bot die Notiz nicht mehr).
+- **`Wochen/2026-W43.md`** – Wochenrückblick: Depotwert am Wochenanfang und jetzt, abgeschlossene und neue Trades der Woche, Trefferquote im Übungsdepot (gesamt und je Aktie), Änderungen beim Lernen und Links zu den Tagesnotizen. Während der Woche schreibt der Bot sie bei jedem Lauf neu, danach bleibt sie stehen. Unten ist unter „Meine Gedanken zur Woche“ Platz für dich – am besten erst, wenn die Woche vorbei ist (dann ändert der Bot die Notiz nicht mehr).
 - **`Trades/…`** – je abgeschlossenem Trade im Übungsdepot eine Notiz: warum gekauft, was passiert ist (z. B. Stop durch Kurslücke, Gewinn wieder abgegeben) und **was der Bot daraus lernt**. Darunter ist Platz für deine Gedanken; diese Notiz ändert der Bot danach nie mehr.
 - **`Strategien/…`** und **`Aktien/…`** – je eine Seite mit Bilanz, Lernstand (aktiv, pausiert, aus) und allen Trades, alles verlinkt.
 - **`Lehren.md`** – was der Bot aus allen Trades zieht: Lernregel, Ausstiegsgründe, Muster und ehrliche Hinweise zum Zufall.
@@ -100,7 +100,7 @@ Der automatische Lauf schreibt jede Nacht Notizen für [Obsidian](https://obsidi
 
 **So lernt der Bot.** Automatisch ändert er nur, welche Strategien er handelt (Lernregel: schlecht laufende Strategien pausieren), und er hält sich an deine Regeln. Muster wie „auf Aktie X läuft es schlecht“ zeigt er dir nur – bei wenigen Trades ist das oft Zufall. Ob du daraus eine Regel machst, entscheidest du.
 
-**Wo du selbst schreibst.** Am besten in den **Trade-Notizen unter „Meine Gedanken“**, in **abgeschlossenen Wochenrückblicken** (Woche vorbei) oder in eigenen Notizen im Ordner **`gehirn/Notizen`** – die ändert der Bot nicht mehr. Danach **Git: Commit-and-sync**, sonst bleibt der Text nur auf diesem Gerät (dafür braucht es den Zugangs-Token, siehe „Regeln abhaken“). Auf den übrigen Seiten (Start, Tage, Strategien, Aktien, Lehren) besser nichts schreiben: Die schreibt der Bot fast jede Nacht neu, und ein nicht hochgeladener Text dort hält Obsidian davon ab, neue Notizen zu holen. (Was dort zwischen `BOT-ANFANG` und `BOT-ENDE` steht, ersetzt der Bot; Eigenschaften, Tags und hochgeladener Text darüber oder darunter bleiben erhalten.)
+**Wo du selbst schreibst.** Am besten in den **Trade-Notizen unter „Meine Gedanken“**, in **abgeschlossenen Wochenrückblicken** (Woche vorbei) oder in eigenen Notizen im Ordner **`gehirn/Notizen`** – die ändert der Bot nicht mehr. Danach **Git: Commit-and-sync**, sonst bleibt der Text nur auf diesem Gerät (dafür braucht es den Zugangs-Token, siehe „Regeln abhaken“). Auf den übrigen Seiten (Start, Tage, Strategien, Aktien, Lehren) besser nichts schreiben: Die schreibt der Bot fast bei jedem Lauf neu, und ein nicht hochgeladener Text dort hält Obsidian davon ab, neue Notizen zu holen. (Was dort zwischen `BOT-ANFANG` und `BOT-ENDE` steht, ersetzt der Bot; Eigenschaften, Tags und hochgeladener Text darüber oder darunter bleiben erhalten.)
 
 > ⚠️ **Alles im Repository ist öffentlich.** Was du mit Commit-and-sync hochlädst – auch eingefügte Bilder –, kann jeder im Internet lesen. Keine persönlichen Daten, Kontonummern oder echten Depotdaten notieren.
 
@@ -119,7 +119,7 @@ Hängt oder stürzt das Klonen ab (die Handy-Version des Plugins gilt als experi
 
 1. Auf GitHub [diesen Link](https://github.com/settings/personal-access-tokens/new?name=Obsidian+Test-Bot&description=Obsidian+Git+Plugin&contents=write&expires_in=90) öffnen → **Only select repositories** → `Test-Bot` → **Generate token** → den Token (`github_pat_…`) kopieren. Er erscheint nur einmal und gehört **nie** in eine Notiz – alles im Repository ist öffentlich.
 2. Am Handy **Einstellungen → Git → Identity**: bei **Username on your Git server** `sickingmalte-arch` eintragen, bei **Git server password or access token** ein Geheimnis hinzufügen (Name nur mit kleinen Buchstaben, Zahlen und Bindestrichen, z. B. `github-token`) und den Token einfügen. Name und E-Mail hast du schon in Schritt 4 eingetragen.
-3. Nach dem Abhaken in `Meine Regeln`: Befehlspalette → **Git: Commit-and-sync**. Nicht kurz vor oder während des nächtlichen Laufs (um 0:30 bzw. 23:30 Uhr) – sonst wird dieser Lauf nicht gespeichert, der nächste rechnet weiter. Nach dem nächsten Lauf steht auf der Startseite unter „Deine Regeln“, ob die Regel angekommen ist.
+3. Nach dem Abhaken in `Meine Regeln`: Befehlspalette → **Git: Commit-and-sync**. Nicht kurz vor oder während des morgendlichen Laufs (um 8:47 bzw. 7:47 Uhr, oft etwas später) – sonst wird dieser Lauf nicht gespeichert, der nächste rechnet weiter. Nach dem nächsten Lauf steht auf der Startseite unter „Deine Regeln“, ob die Regel angekommen ist.
 4. Der Token gilt 90 Tage (GitHub schickt vorher eine E-Mail). Danach den Link oben erneut öffnen, einen neuen Token erzeugen und unter **Git → Identity** das Geheimnis durch den neuen Token ersetzen. Solange das nicht passiert, kommen Haken aus Obsidian nicht beim Bot an.
 
 **Am PC (Windows).** [Git für Windows](https://git-scm.com/download/win) installieren (Standardwerte lassen). In PowerShell (Name und E-Mail wie in Schritt 4 oben):

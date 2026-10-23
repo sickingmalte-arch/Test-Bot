@@ -1,4 +1,4 @@
-# Swing-Bot automatisch: in der Nacht nach jedem US-Börsentag in der Cloud bei GitHub.
+# Swing-Bot automatisch: am Morgen nach jedem US-Börsentag in der Cloud bei GitHub.
 # Ergebnis: bericht/README.md (Signale, Papier-Depot, Rückblick), papier/papier_depot.json und das Gehirn für
 # Obsidian in gehirn/ (Tagesnotiz, Trade-Tagebuch mit Lehren; der Bot liest gehirn/Meine Regeln.md).
 # Einstellungen ohne Code ändern: Repository -> Settings -> Secrets and variables -> Actions ->
@@ -8,9 +8,11 @@ name: Swing-Bot
 
 on:
   schedule:
-    # 22:30 UTC Mo–Fr = 0:30 Uhr (Sommerzeit, also Di–Sa) bzw. 23:30 Uhr (Winterzeit) deutscher Zeit –
-    # nach US-Schluss (16:00 Uhr New York). GitHub startet oft ein paar Minuten später.
-    - cron: "30 22 * * 1-5"
+    # 6:47 UTC Di–Sa = 8:47 Uhr (Sommerzeit) bzw. 7:47 Uhr (Winterzeit) deutscher Zeit, jeweils für den
+    # US-Handelstag davor. Nicht schon in der Nacht: Yahoo liefert die Tageskerze oft erst Stunden nach dem
+    # US-Schluss, dann wären alle Signale einen Tag alt. GitHub startet oft einige Minuten bis Stunden später –
+    # trotzdem vor dem US-Börsenstart um 15:30 Uhr.
+    - cron: "47 6 * * 2-6"
   workflow_dispatch: # Knopf "Run workflow" im Tab Actions
 
 permissions:
