@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MSFT)
 
-**Stand Mi 21.10. 2026:** BEOBACHTEN
+**Stand Do 22.10. 2026:** 🟢 KAUFEN – RSI-2-Rücksetzer ↑ · Limit 468,87 · Stop 438,51 · Ziel 484,05 €
 **Nächste Quartalszahlen:** Mi 28.10.
 
 ## Übungsdepot

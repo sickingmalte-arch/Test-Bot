@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=HIMS)
 
-**Stand Mi 21.10. 2026:** 🟢 KAUFEN – Rücksetzer ↑ · Limit 26,85 · Stop 21,01 · Ziel 31,02 €
+**Stand Do 22.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 09.11.
 
 ## Übungsdepot

@@ -4,22 +4,22 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Mi 21.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Do 22.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 > [!info] So funktioniert das Gehirn
 > - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, den **Wochenrückblick**, eine Notiz zu **jedem abgeschlossenen Trade** mit dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
-> - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er jede Nacht neu.
+> - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-10-21]] · Diese Woche: [[Wochen/2026-W43|Woche 43]]
+## Heute: [[Tage/2026-10-22]] · Diese Woche: [[Wochen/2026-W43|Woche 43]]
 
-- Signale: [[Aktien/HIMS|HIMS]] (🟢 KAUFEN)
-- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 20.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
+- Signale: [[Aktien/NOW|NOW]] (🟢 KAUFEN), [[Aktien/MSFT|MSFT]] (🟢 KAUFEN), [[Aktien/TSLA|TSLA]] (🟢 KAUFEN), [[Aktien/AMD|AMD]] (🟢 KAUFEN), [[Aktien/PLTR|PLTR]] (🟢 KAUFEN), [[Aktien/LLY|LLY]] (🟢 KAUFEN)
+- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 21.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
 
 ## Übungsdepot
 
-- 10.046,18 € (+0,5 % seit 2026-10-20) · 5 offen · noch keine Trades
-- Rückblick 12 Monate: +8,2 % (alle Aktien kaufen und halten: +4,5 %)
+- 10.197,23 € (+2,0 % seit 2026-10-20) · 5 offen · noch keine Trades
+- Rückblick 12 Monate: -0,5 % (alle Aktien kaufen und halten: +3,2 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 

@@ -18,11 +18,11 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 - [[Strategien/Rückfall Short|Rückfall ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,06 R)
 - [[Strategien/MACD-Wende Short|MACD-Wende ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: ✅ aktiv (Ø -0,01 R über die letzten 60 Trades)
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: ✅ aktiv (Ø -0,02 R über die letzten 60 Trades)
 - [[Strategien/Erholung Short|Erholung ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: ✅ aktiv (Ø +0,17 R über die letzten 60 Trades)
 - [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
-- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: ✅ aktiv (Ø +0,02 R über die letzten 60 Trades)
+- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: ✅ aktiv (Ø +0,00 R über die letzten 60 Trades)
 - [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: ✅ aktiv (Ø +0,01 R über die letzten 60 Trades)
 - [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
@@ -33,20 +33,20 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 
 ## Muster im Strategie-Tagebuch (alle Strategien, alle Aktien)
 
-- Insgesamt: 2839 Trades · Ø +0,10 R · Treffer 57 %
-- Ziel: 947× (33 %), Ø +0,89 R
+- Insgesamt: 2842 Trades · Ø +0,10 R · Treffer 57 %
+- Ziel: 948× (33 %), Ø +0,89 R
 - Zeitstopp: 668× (24 %), Ø -0,01 R
-- Stop: 541× (19 %), Ø -1,01 R
+- Stop: 543× (19 %), Ø -1,01 R
 - vor Quartalszahlen: 460× (16 %), Ø -0,04 R
 - Ziel (Kurslücke): 126× (4 %), Ø +1,05 R
 - Stop (Kurslücke): 97× (3 %), Ø -1,16 R
-- Long: 2839 Trades · Ø +0,10 R · Treffer 57 %
+- Long: 2842 Trades · Ø +0,10 R · Treffer 57 %
 
 ### Rangliste der Aktien (ab 20 Trades, nach Ø R)
 
 1. [[Aktien/NBIS|NBIS]]: 60 Trades · Ø +0,26 R · Treffer 65 %
-2. [[Aktien/NVDA|NVDA]]: 137 Trades · Ø +0,25 R · Treffer 68 %
-3. [[Aktien/GOOGL|GOOGL]]: 129 Trades · Ø +0,24 R · Treffer 61 %
+2. [[Aktien/NVDA|NVDA]]: 138 Trades · Ø +0,24 R · Treffer 67 %
+3. [[Aktien/AMD|AMD]]: 115 Trades · Ø +0,23 R · Treffer 62 %
 …
 22. [[Aktien/AMZN|AMZN]]: 146 Trades · Ø -0,02 R · Treffer 51 %
 23. [[Aktien/MELI|MELI]]: 115 Trades · Ø -0,04 R · Treffer 48 %

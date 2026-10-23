@@ -7,14 +7,14 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # EMA-Kreuz ↑
 
-**Status:** ✅ aktiv (Ø +0,02 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø +0,00 R über die letzten 60 Trades)
 
 **Regel:** EMA 9 kreuzt heute die EMA 21 nach oben (neuer Aufwärtstrend), über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø +0,02 R · Treffer 47 % · ± Zufall 0,20 R
-- Ganze Geschichte: 310 Trades · Ø +0,05 R · Treffer 54 %
+- Letzte 60 Trades: Ø +0,00 R · Treffer 47 % · ± Zufall 0,20 R
+- Ganze Geschichte: 311 Trades · Ø +0,05 R · Treffer 54 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
@@ -22,7 +22,7 @@ tags:
 - Zeitstopp: 95× (31 %), Ø -0,03 R
 - Ziel: 78× (25 %), Ø +0,95 R
 - vor Quartalszahlen: 60× (19 %), Ø +0,04 R
-- Stop: 57× (18 %), Ø -1,03 R
+- Stop: 58× (19 %), Ø -1,03 R
 - Ziel (Kurslücke): 11× (4 %), Ø +1,06 R
 - Stop (Kurslücke): 9× (3 %), Ø -1,19 R
 
