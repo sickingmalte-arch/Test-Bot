@@ -476,11 +476,11 @@ button.kal-tag:hover { border-color: #3a4654; }
   .geruest { grid-template-columns: minmax(0, 1fr); }
   main { display: flex; flex-direction: column; }
   main > .hinweis { order: 0; }
-  #fazit { order: 0; } #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
-  #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } main > .fuss { order: 8; }
-  .seite a[href="#fazit"] { order: 0; } .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
+  #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
+  #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } #fazit { order: 8; } main > .fuss { order: 9; }
+  .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
   .seite a[href="#depot"] { order: 4; } .seite a[href="#positionen"] { order: 5; } .seite a[href="#claude"] { order: 6; }
-  .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; } .seite a[href="#chat"] { order: 9; }
+  .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; } .seite a[href="#fazit"] { order: 9; } .seite a[href="#chat"] { order: 10; }
   .seite {
     position: sticky; top: var(--kopf-h, 72px); z-index: 15; height: auto; display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px;
     border-right: 0; border-bottom: 1px solid var(--line); background: rgba(6, 8, 12, .94); backdrop-filter: blur(8px); scrollbar-width: none;
@@ -552,7 +552,6 @@ button.kal-tag:hover { border-color: #3a4654; }
     <a href="#gehirn" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
     <a href="#kennzahlen"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Kennzahlen</a>
     <div class="label gruppe">Heute</div>
-    <a href="#fazit"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Fazit</a>
     <a href="#signale"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 12l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Signale<span class="zaehler hell" id="nav-signale" hidden></span></a>
     <div class="label gruppe">Geld</div>
     <a href="#depot"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 4V3h6v1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Depot &amp; Kurve</a>
@@ -561,6 +560,8 @@ button.kal-tag:hover { border-color: #3a4654; }
     <div class="label gruppe">Gehirn</div>
     <a href="#strategien"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 13l3-5 3 2 3-6 3 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Strategien</a>
     <a href="#nachrichten"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Nachrichten</a>
+    <div class="label gruppe">Rückblick</div>
+    <a href="#fazit"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Fazit</a>
     <div class="label gruppe">Du</div>
     <a href="#chat" id="nav-chat"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Tipps an Claude<span class="zaehler" id="nav-chat-neu" hidden></span></a>
     <div class="seite-fuss"><div class="label" id="seite-fuss">Bot lädt …</div></div>
@@ -1403,10 +1404,6 @@ function aufbauen(D) {
   kern.prepend(sv("svg", { class: "kern-linien", "aria-hidden": "true" }));
   main.append(abschnitt("gehirn", "Gehirn-Kern", `Daten bis ${datum(D.daten_bis)} · was heute reinkam und was rauskam`, kern));
 
-  // ---------- Fazit: Tag, Woche, Monat, alles ----------
-  const fazit = fazitBauen(D);
-  if (fazit) main.append(abschnitt("fazit", "Fazit", "Übungsdepot · was der Bot verdient, gekauft und verkauft hat", fazit));
-
   // ---------- Kennzahlen ----------
   const kacheln = el("div", { class: "panel kacheln" });
   if (P) {
@@ -1654,6 +1651,10 @@ function aufbauen(D) {
   main.append(abschnitt("nachrichten", "Nachrichten",
     `${D.schlagzeilen.length} Schlagzeilen der letzten Tage zu Aktien mit Signal${uebersetzt ? " · maschinell übersetzt, die Artikel sind meist englisch" : ""}`,
     nach, { zuAmHandy: true }));
+
+  // ---------- Fazit: Tag, Woche, Monat, alles (ganz unten) ----------
+  const fazit = fazitBauen(D);
+  if (fazit) main.append(abschnitt("fazit", "Fazit", "Übungsdepot · was der Bot verdient, gekauft und verkauft hat", fazit));
 
   // ---------- Fuß ----------
   const bericht = D.repo ? `https://github.com/${D.repo}/blob/main/bericht/README.md` : null;
