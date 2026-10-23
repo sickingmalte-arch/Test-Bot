@@ -114,7 +114,7 @@ Die Seite ist öffentlich wie das Repository.
 - **Was Claude damit macht:**
   - Fragen beantwortet es.
   - Tipps zur Auswahl beachtet es im Claude-Depot, solange das Thema offen ist. Zurückziehen: Thema schließen oder „vergiss das“ schreiben.
-  - Aktien sperren oder Strategien ausschalten trägt es auf deinen ausdrücklichen Wunsch in `gehirn/Meine Regeln.md` ein.
+  - Aktien sperren oder Strategien ausschalten bereitet es für `gehirn/Meine Regeln.md` vor. Live geht das erst, wenn du dazu „Ja“ schreibst. Oder du hakst es selbst ab (siehe „Regeln abhaken“).
   - Änderungen an den Regeln des Bots testet es erst ehrlich und übernimmt sie nur nach deinem „Ja“.
 - **Sicherheit:** Es zählen nur Nachrichten des Repository-Besitzers. Fremde Themen und Kommentare zeigt die Seite nicht, und Claude befolgt sie nicht. Alles ist öffentlich lesbar – nichts Persönliches schreiben. Die Seite liest ohne Anmeldung (GitHub erlaubt 60 Abfragen pro Stunde und Netz), Abschicken geht nur bei GitHub selbst.
 
