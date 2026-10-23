@@ -20,6 +20,7 @@ import threading
 import unicodedata
 import time
 import urllib.parse
+import urllib.request
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, wait
 from statistics import NormalDist
@@ -675,8 +676,10 @@ def lies_schlagzeilen(liste, ab_zeit):
         if pd.isna(zeit) and a.get("providerPublishTime"):
             zeit = pd.to_datetime(a["providerPublishTime"], unit="s", utc=True, errors="coerce")
         quelle = (c.get("provider") or {}).get("displayName") or a.get("publisher") or ""
+        link = str((c.get("clickThroughUrl") or {}).get("url") or (c.get("canonicalUrl") or {}).get("url") or a.get("link") or "")
         if titel and not pd.isna(zeit) and zeit >= ab_zeit:
             aus.append({"titel": titel, "zeit": zeit.tz_convert(BERLIN), "quelle": quelle,
+                        "link": link if link.startswith(("https://", "http://")) else "",
                         "video": "VIDEO" in (str(c.get("contentType", "")).upper(), str(a.get("type", "")).upper())})
     return aus
 
@@ -692,6 +695,31 @@ def ereignisse(titel, ticker):
         if treffer and not VERNEINUNG.search(titel[max(0, treffer.start() - 25):treffer.start()]):
             gefunden.append((richtung, etikett))
     return gefunden
+
+UEBERSETZER = "https://api.mymemory.translated.net/get"  # kostenlos, ohne Anmeldung bis 5000 Zeichen am Tag
+
+def auf_deutsch(texte, zeitlimit=40):
+    """Englische Schlagzeilen maschinell ins Deutsche übersetzen (für die Übersichtsseite).
+    Gibt {englisch: deutsch} zurück. Was nicht klappt (Dienst nicht erreichbar, Tageslimit erreicht), fehlt einfach –
+    die Seite zeigt dann das englische Original. Die Nachrichten-Regel wertet immer das Original."""
+    fertig, start = {}, time.monotonic()
+    for text in dict.fromkeys(t for t in texte if t):
+        if time.monotonic() - start > zeitlimit:
+            break
+        try:
+            anfrage = urllib.request.Request(UEBERSETZER + "?" + urllib.parse.urlencode({"q": text[:450], "langpair": "en|de"}),
+                                             headers={"User-Agent": "Swing-Bot (GitHub Actions)"})
+            with urllib.request.urlopen(anfrage, timeout=10) as antwort:
+                d = json.loads(antwort.read().decode("utf-8"))
+        except Exception:
+            break  # Dienst nicht erreichbar: nicht bei jeder Schlagzeile neu warten
+        if not isinstance(d, dict) or not isinstance(d.get("responseData"), dict):
+            break
+        deutsch = str(d["responseData"].get("translatedText") or "").strip()
+        if str(d.get("responseStatus")) != "200" or d.get("quotaFinished") or not deutsch or "MYMEMORY WARNING" in deutsch.upper():
+            break
+        fertig[text] = html.unescape(deutsch)
+    return fertig
 
 def werte_news(zusatz, kurstag, scanner_zeilen):
     """Für Ticker mit Signal: Schlagzeilen der letzten NEWS_TAGE Handelstage, erkannte Ereignisse, Warnungen."""
@@ -2794,9 +2822,16 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                            "quote": json_zahl(l.get("quote"), 1), "spanne": json_zahl(l.get("spanne"), 3),
                            "kurve": [json_zahl(x) for x in kurve]})
     schlagzeilen = []
+    alle = [z["titel"] for n in (news or {}).values() for z in n.get("zeilen", [])]
+    deutsch = auf_deutsch(alle)
+    if alle:
+        n_deutsch = sum(1 for t in alle if t in deutsch)
+        print(f"📰 Schlagzeilen für die Übersichtsseite übersetzt: {n_deutsch} von {len(alle)}"
+              + ("" if n_deutsch == len(alle) else " (der Rest bleibt englisch)"))
     for t, n in (news or {}).items():
         for z in n.get("zeilen", []):
-            schlagzeilen.append({"ticker": t, "titel": z["titel"], "zeit": z["zeit"].isoformat(),
+            schlagzeilen.append({"ticker": t, "titel": z["titel"], "titel_de": deutsch.get(z["titel"]), "link": z.get("link") or None,
+                                 "zeit": z["zeit"].isoformat(),
                                  "quelle": z.get("quelle") or "", "warnt": bool(z.get("warnt")),
                                  "ereignisse": list(z.get("ereignisse") or [])})
     schlagzeilen.sort(key=lambda x: x["zeit"], reverse=True)
