@@ -266,6 +266,10 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .nachricht { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
 .nachricht:last-child { border-bottom: 0; }
 .nachricht .meta { font: 10px var(--mono); color: var(--text-3); margin-top: 3px; }
+.nachricht .titel { color: var(--text-1); text-decoration: none; }
+.nachricht a.titel:hover { text-decoration: underline; }
+.nachricht .meta a { color: #6fb0ff; text-decoration: none; white-space: nowrap; }
+.nachricht .meta a:hover { text-decoration: underline; }
 .fuss { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--text-3); font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; }
 .fehlerseite { max-width: 520px; margin: 18vh auto; padding: 24px; text-align: center; color: var(--text-2); }
 
@@ -979,7 +983,7 @@ function aufbauen(D) {
   if (P) band.push(["Übungsdepot", [el("b", {}, euro(P.wert)), ` (${prozent((P.wert / P.startkapital - 1) * 100)} seit Start)`]]);
   if (C && C.seit_start) band.push(["Claude-Depot", [el("b", {}, prozent(C.seit_start.claude)), ` seit ${datum(C.versuch_ab, false)} · Übungsdepot ${prozent(C.seit_start.bot)} · Nasdaq-100 ${prozent(C.seit_start.qqq)}`]]);
   if (P) for (const t of P.trades.slice(0, 3)) band.push(["Verkauft", [el("b", {}, t.ticker), ` ${t.grund} · ${euro(t.ergebnis, 2)}`]]);
-  for (const n of D.schlagzeilen.slice(0, 4)) band.push([n.ticker, [n.titel]]);
+  for (const n of D.schlagzeilen.slice(0, 4)) band.push([n.ticker, [n.titel_de || n.titel]]);
   const lb = document.getElementById("laufband");
   const bauen = () => band.map(([z, inhalt]) => el("span", {}, el("span", { class: "zeitstempel" }, z), ...inhalt));
   lb.replaceChildren(...bauen(), ...(bewegungAus ? [] : bauen()));
@@ -1250,13 +1254,22 @@ function aufbauen(D) {
   const nach = el("div", { class: "panel" });
   for (const n of D.schlagzeilen) {
     const zeit = zeitpunkt(new Date(n.zeit));
+    // Überschrift auf Deutsch (maschinell übersetzt), der Link führt zum Original-Artikel
+    const link = /^https?:\/\//i.test(n.link || "") ? n.link : null;
+    const titel = n.titel_de || n.titel;
     nach.append(el("div", { class: "nachricht" },
       el("div", { class: "t", style: "font-weight:700" }, n.ticker),
-      el("div", {}, n.warnt ? el("span", { class: "schlecht", title: "spricht gegen das Signal" }, "⚠ ") : null, n.titel,
-        el("div", { class: "meta" }, `${zeit} · ${n.quelle}${n.ereignisse.length ? " · " + n.ereignisse.join(", ") : ""}`))));
+      el("div", {}, n.warnt ? el("span", { class: "schlecht", title: "spricht gegen das Signal" }, "⚠ ") : null,
+        link ? el("a", { class: "titel", href: link, target: "_blank", rel: "noopener", title: n.titel_de ? `Original: ${n.titel}` : null }, titel)
+          : el("span", { class: "titel", title: n.titel_de ? `Original: ${n.titel}` : null }, titel),
+        el("div", { class: "meta" }, `${zeit} · ${n.quelle}${n.ereignisse.length ? " · " + n.ereignisse.join(", ") : ""}`,
+          link ? [" · ", el("a", { href: link, target: "_blank", rel: "noopener" }, "Artikel lesen ↗")] : null))));
   }
   if (!D.schlagzeilen.length) nach.append(el("div", { class: "leer" }, "Keine Schlagzeilen zu Aktien mit Signal."));
-  main.append(abschnitt("nachrichten", "Nachrichten", `${D.schlagzeilen.length} Schlagzeilen der letzten Tage zu Aktien mit Signal`, nach, { zuAmHandy: true }));
+  const uebersetzt = D.schlagzeilen.some(n => n.titel_de);
+  main.append(abschnitt("nachrichten", "Nachrichten",
+    `${D.schlagzeilen.length} Schlagzeilen der letzten Tage zu Aktien mit Signal${uebersetzt ? " · maschinell übersetzt, die Artikel sind meist englisch" : ""}`,
+    nach, { zuAmHandy: true }));
 
   // ---------- Fuß ----------
   const bericht = D.repo ? `https://github.com/${D.repo}/blob/main/bericht/README.md` : null;
