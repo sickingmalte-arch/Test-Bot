@@ -1052,6 +1052,28 @@ def gleiche_branche(ticker, andere):
     b = BRANCHE.get(ticker)
     return sum(1 for x in andere if b is not None and BRANCHE.get(x) == b)
 
+def ausfuehrbare_auftraege(stand):
+    """Teilt die Aufträge des Papier-Depots auf: (ausführbar, {Grund: [Ticker]}). Verkauft wird erst nach der
+    Eröffnung (simuliere_depot, Schritt 1 vor 2) – ist das Depot jetzt schon voll oder die Branche schon belegt,
+    verfällt der Auftrag sicher. Nur für die Anzeige; gespeichert werden alle Aufträge."""
+    im_depot = [p["ticker"] for p in stand["positionen"]]
+    shorts = sum(1 for p in stand["positionen"] if p["richtung"] < 0)
+    ok, verfallen = [], {}
+    for a in stand["auftraege"]:
+        if len(im_depot) >= MAX_POSITIONEN:
+            grund = f"Depot voll, {len(im_depot)}/{MAX_POSITIONEN} Positionen"
+        elif a["ticker"] in im_depot:
+            grund = "schon im Depot"
+        elif (gleich := gleiche_branche(a["ticker"], im_depot)) >= MAX_JE_BRANCHE:
+            grund = f"schon {gleich} aus derselben Branche im Depot, erlaubt sind {MAX_JE_BRANCHE}"
+        elif a["richtung"] < 0 and shorts >= MAX_SHORTS:
+            grund = f"schon {MAX_SHORTS} Shorts im Depot"
+        else:
+            ok.append(a)
+            continue
+        verfallen.setdefault(grund, []).append(a["ticker"])
+    return ok, verfallen
+
 def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
     Schluss, Einstieg zur nächsten Eröffnung bis zum Limit, Stop/Ziel/Zahlen/Zeitstopp), dazu Kapital- und
@@ -1413,11 +1435,13 @@ def schreibe_nachricht(datei, einstiege, plan, papier):
         zeilen += [f"- {p}" for p in plan]
         if any(z["_offen"] for z in einstiege):
             zeilen += ["", "⚠️ Vorläufig: Die Börse war beim Lauf noch offen – das Signal kann bis zum Schluss wegfallen."]
-        auftraege = (papier or {}).get("auftraege") or []
+        auftraege, verfallen = ausfuehrbare_auftraege(papier) if papier else ([], {})
         if auftraege:
             zeilen += ["", "📒 Übungsdepot: " + ", ".join(
                 f"{'kauft' if a['richtung'] > 0 else 'shortet'} {a['ticker']}" for a in auftraege)
                 + " zur nächsten Eröffnung (nur bis zum Limit)."]
+        elif verfallen:
+            zeilen += ["", f"📒 Übungsdepot: kauft diesmal nichts ({'; '.join(verfallen)})."]
         zeilen += ["", "Simulation mit Spielgeld – keine Anlageberatung."]
         with open(datei, "w", encoding="utf-8", newline="\n") as f:
             f.write("\n".join(zeilen) + "\n")
@@ -2361,7 +2385,7 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
         zeilen.append(f"Abgeschlossene Trades: {len(trades)} · Gewinner: {gewinner} ({de(gewinner / len(trades) * 100, 0)} %)"
                       f" · Summe {de(summe, 2, True)} {waehrung} · größter Rückgang {de(rueckgang, 1)} % · Kosten: "
                       f"Gebühren {de(stand['gebuehren'])} {waehrung} + Spread ca. {de(stand['spread'])} {waehrung}")
-    auftraege = stand["auftraege"]
+    auftraege, verfallen = ausfuehrbare_auftraege(stand)
     if auftraege:
         def kurs(t, wert):
             return wert / (fx_heute if waehrung_von(t) == "USD" and fx_heute else 1)
@@ -2382,8 +2406,12 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
         zeilen.append("Die Aufträge stammen vom letzten fertigen Kurstag und berücksichtigen die offenen Positionen und "
                       "das Geld des Papier-Depots – sie können deshalb vom Handelsplan oben (für ein leeres Konto) "
                       "abweichen.")
-    elif erg is not None:
+    elif erg is not None and not verfallen:
         zeilen.append("Keine Aufträge für den nächsten Handelstag.")
+    if verfallen:
+        zeilen.append(("Keine Käufe zur nächsten Eröffnung möglich" if not auftraege else "Nicht möglich") + ": "
+                      + "; ".join(f"{', '.join(t)} – {grund}" for grund, t in verfallen.items())
+                      + ". Verkauft wird erst nach der Eröffnung, deshalb verfallen diese Signale.")
     if os.environ.get("GITHUB_ACTIONS"):  # automatischer Lauf: Datei im Repository, alte Stände in der Git-Historie
         ort = (f"{os.path.relpath(pfad)} im Repository (neu anfangen: die Datei im Repository löschen, "
                f"die Historie bei GitHub behält den alten Stand)")
@@ -3085,8 +3113,11 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         text += [f"- Abgeschlossen: {trade_link[id(i)]} ({i['grund']}, {i['verkauf_tag']})" for i in neu_zu]
         text += [f"- Offen: {link_aktie(p['ticker'])} {'Long' if p['richtung'] > 0 else 'Short'} mit "
                  f"{link_strategie(p['strategie'])} seit {str(p['kauf_tag'])[:10]}" for p in papier["positionen"]]
+        auftraege, verfallen = ausfuehrbare_auftraege(papier)
         text += [f"- Auftrag für den nächsten Handelstag: {link_aktie(a['ticker'])} mit {link_strategie(a['strategie'])}"
-                 for a in papier["auftraege"]]
+                 for a in auftraege]
+        text += [f"- Kein Kauf möglich ({grund}): " + ", ".join(link_aktie(t) for t in liste)
+                 for grund, liste in verfallen.items()]
     elif not einst.papier:
         text.append("- Kein Papier-Depot in diesem Lauf (Option --papier).")
     else:
