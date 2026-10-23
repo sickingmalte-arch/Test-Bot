@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#06080c">
+<title>Swing-Bot · Trade-Gehirn</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2306080c'/%3E%3Cpath d='M5 22l7-7 5 5 10-11' fill='none' stroke='%233987e5' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* Übersichtsseite des Swing-Bots. Liest daten.json (schreibt der Bot bei jedem Lauf) – keine fremden Bibliotheken. */
+:root {
+  color-scheme: dark;
+  --bg: #06080c;
+  --panel: #0d1218;
+  --panel-hi: #121922;
+  --line: #1c242e;
+  --line-soft: #141b23;
+  --text-1: #e6edf3;
+  --text-2: #9ba7b4;
+  --text-3: #7d8894;
+  --s1: #3987e5;      /* Übungsdepot / Bot */
+  --s2: #d95926;      /* Nasdaq-100 */
+  --s3: #199e70;      /* Claude-Depot */
+  --s-grau: #5b6672;  /* Vergleich im Hintergrund */
+  --gut: #0ca30c;
+  --gut-text: #3fb950;
+  --schlecht: #d03b3b;
+  --schlecht-text: #f47067;
+  --warnung: #fab219;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius: 10px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--kopf-h, 72px) + 24px); overflow-x: clip; }
+body {
+  margin: 0; background: var(--bg); color: var(--text-1); font: 14px/1.45 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+.mono { font-family: var(--mono); }
+.label {
+  font: 600 10px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text-3);
+}
+.muted { color: var(--text-2); }
+.gut { color: var(--gut-text); }
+.schlecht { color: var(--schlecht-text); }
+.zahl { font-variant-numeric: tabular-nums; }
+
+/* ---------- Kopfzeile ---------- */
+.kopf {
+  position: sticky; top: 0; z-index: 20; background: rgba(6, 8, 12, .92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.kopf-zeile { display: flex; align-items: center; gap: 10px; padding: 8px 16px; min-height: 44px; }
+.marke { display: flex; align-items: center; gap: 8px; font: 700 12px/1 var(--mono); letter-spacing: .14em; white-space: nowrap; }
+.marke-icon {
+  width: 22px; height: 22px; border: 1px solid var(--line); border-radius: 6px; display: grid; place-items: center;
+}
+.marke .trenner { color: var(--text-3); font-weight: 400; }
+.pillen { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; }
+.pillen::-webkit-scrollbar { display: none; }
+.pille {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--line);
+  border-radius: 6px; font: 600 10px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-2);
+  white-space: nowrap; background: var(--panel);
+}
+.punkt { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); flex: none; }
+.punkt.gut { background: var(--gut); box-shadow: 0 0 6px var(--gut); }
+.punkt.schlecht { background: var(--schlecht); box-shadow: 0 0 6px var(--schlecht); }
+.punkt.warnung { background: var(--warnung); }
+.uhr { text-align: right; white-space: nowrap; }
+.uhr .zeit { font: 600 16px/1 var(--mono); letter-spacing: .04em; }
+.uhr .label { margin-top: 3px; }
+.laufband {
+  display: flex; align-items: center; border-top: 1px solid var(--line-soft); height: 26px; overflow: hidden;
+  font: 11px/1 var(--mono); color: var(--text-2);
+}
+.live { flex: none; padding: 0 12px 0 16px; color: var(--gut-text); font-weight: 700; letter-spacing: .12em; display: flex; gap: 6px; align-items: center; }
+.laufband-fenster { overflow: hidden; flex: 1; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.laufband-inhalt { display: inline-flex; gap: 28px; white-space: nowrap; padding-right: 28px; animation: laufen 60s linear infinite; }
+.laufband:hover .laufband-inhalt { animation-play-state: paused; }
+.laufband-inhalt .zeitstempel { color: var(--text-3); margin-right: 8px; }
+.laufband-inhalt b { color: var(--text-1); font-weight: 600; }
+@keyframes laufen { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ---------- Gerüst ---------- */
+.geruest { display: grid; grid-template-columns: 210px minmax(0, 1fr); min-height: calc(100vh - var(--kopf-h, 72px)); }
+.seite { border-right: 1px solid var(--line); padding: 14px 10px; position: sticky; top: var(--kopf-h, 72px); height: calc(100vh - var(--kopf-h, 72px)); overflow-y: auto; }
+.seite .gruppe { margin: 16px 6px 6px; }
+.seite .gruppe:first-child { margin-top: 2px; }
+.seite a {
+  display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 7px; text-decoration: none;
+  color: var(--text-2); font-size: 13px; border: 1px solid transparent;
+}
+.seite a:hover { background: var(--panel); color: var(--text-1); }
+.seite a.aktiv { background: var(--panel); border-color: var(--line); color: var(--text-1); }
+.seite a .zaehler { margin-left: auto; font: 600 10px/1 var(--mono); padding: 3px 5px; border-radius: 4px; background: var(--panel-hi); color: var(--text-2); }
+.seite a .zaehler.hell { background: var(--warnung); color: #1a1300; }
+.seite svg { flex: none; opacity: .8; }
+.seite-fuss { margin: 24px 8px 0; }
+.seite-fuss .label { line-height: 1.6; }
+main { padding: 16px 20px 40px; min-width: 0; }
+.abschnitt { margin-bottom: 18px; }
+.abschnitt-kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 26px 2px 10px; }
+.abschnitt-kopf h2 { margin: 0; font: 600 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text-1); }
+.abschnitt-kopf h2::before { content: "•"; color: var(--s1); margin-right: 8px; }
+.abschnitt-kopf .label { font-weight: 400; letter-spacing: .06em; text-transform: none; font-size: 11px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.panel-innen { padding: 14px 16px; }
+.panel-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; padding: 14px 16px 4px; }
+.raster { display: grid; gap: 12px; }
+.hinweis { padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(250, 178, 25, .35); background: rgba(250, 178, 25, .07); color: var(--text-1); margin-bottom: 12px; font-size: 13px; }
+.hinweis b { color: var(--warnung); }
+
+/* ---------- Gehirn-Kern ---------- */
+.kern { position: relative; display: grid; grid-template-columns: 170px minmax(0, 1fr) 170px; gap: 12px; padding: 14px 16px 10px; min-height: 330px; }
+.kern-kopf { grid-column: 1 / -1; display: grid; grid-template-columns: 170px 1fr 170px; gap: 12px; align-items: center; }
+.kern-kopf > :nth-child(2) { text-align: center; }
+.kern-kopf > :nth-child(3) { text-align: right; }
+.kern-spalte { display: flex; flex-direction: column; gap: 10px; justify-content: center; position: relative; z-index: 2; }
+.kern-box { border: 1px solid var(--line); border-left: 2px solid var(--s1); border-radius: 6px; padding: 8px 10px; background: rgba(13, 18, 24, .85); }
+.kern-spalte.aus .kern-box { border-left: 1px solid var(--line); border-right: 2px solid var(--s3); }
+.kern-box .wert { font: 600 20px/1.1 var(--sans); margin-top: 4px; }
+.kern-box .klein { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+.kern-mitte { position: relative; display: grid; place-items: center; min-height: 260px; }
+.kern-mitte canvas { width: 100%; height: 100%; max-width: 320px; max-height: 300px; aspect-ratio: 1; }
+.kern-linien { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.kern-linien path { fill: none; stroke: var(--line); stroke-width: 1; }
+.kern-linien path.fluss { stroke: var(--s1); stroke-opacity: .55; stroke-dasharray: 4 14; animation: fliessen 2.4s linear infinite; }
+.kern-linien path.fluss.aus { stroke: var(--s3); }
+@keyframes fliessen { to { stroke-dashoffset: -36; } }
+.kern-fuss { grid-column: 1 / -1; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--line-soft); padding-top: 10px; }
+.kern-fuss .label b { color: var(--text-1); font-weight: 600; }
+
+/* ---------- Kennzahl-Kacheln ---------- */
+.kacheln { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; }
+.kachel { padding: 14px 16px; border-right: 1px solid var(--line-soft); min-width: 0; }
+.kachel:last-child { border-right: 0; }
+.kachel .wert { font: 600 26px/1.1 var(--sans); margin: 8px 0 4px; white-space: nowrap; }
+.kachel.held .wert { font-size: 34px; }
+.kachel .unter { font-size: 11.5px; color: var(--text-2); }
+.striche { display: flex; gap: 3px; margin-top: 10px; }
+.striche i { height: 3px; flex: 1; border-radius: 2px; background: var(--line); }
+.striche i.gut { background: var(--gut); }
+.striche i.schlecht { background: var(--schlecht); }
+.striche i.s1 { background: var(--s1); }
+.kachel svg.spark { display: block; margin-top: 8px; }
+.kachel-titel { display: flex; justify-content: space-between; gap: 8px; }
+
+/* ---------- Kurve ---------- */
+.kurven-raster { display: grid; grid-template-columns: minmax(360px, 1fr) minmax(0, 1.75fr); gap: 12px; }
+.reiter { display: flex; gap: 4px; flex-wrap: wrap; }
+.reiter button {
+  font: 600 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); background: transparent;
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; cursor: pointer;
+}
+.reiter button[aria-selected="true"] { color: var(--text-1); background: var(--panel-hi); border-color: #2a3542; }
+.reiter button:focus-visible, .seite a:focus-visible, .diagramm:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.legende { display: flex; gap: 14px; flex-wrap: wrap; margin: 10px 0 4px; font-size: 12px; color: var(--text-2); }
+.legende span { display: inline-flex; align-items: center; gap: 6px; }
+.legende i { width: 14px; height: 2px; border-radius: 2px; display: inline-block; }
+.diagramm { position: relative; width: 100%; outline: none; }
+.diagramm svg { display: block; width: 100%; overflow: visible; }
+.diagramm text { font: 10px var(--mono); fill: var(--text-3); }
+.diagramm .endwert { font: 600 11px var(--sans); fill: var(--text-1); }
+.tooltip {
+  position: absolute; pointer-events: none; background: #0a0e13; border: 1px solid #2a3542; border-radius: 8px; padding: 8px 10px;
+  font-size: 12px; min-width: 150px; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); opacity: 0; transition: opacity .1s; z-index: 5;
+}
+.tooltip .datum { font: 600 10px/1 var(--mono); color: var(--text-3); letter-spacing: .08em; margin-bottom: 6px; text-transform: uppercase; }
+.tooltip .zeile { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.tooltip .zeile i { width: 12px; height: 2px; border-radius: 2px; flex: none; }
+.tooltip .zeile b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.tooltip .zeile span { color: var(--text-2); }
+details.tabelle { margin-top: 8px; }
+details.tabelle summary { cursor: pointer; color: var(--text-2); font-size: 12px; }
+details.tabelle .scroll { max-height: 220px; overflow: auto; margin-top: 6px; border: 1px solid var(--line-soft); border-radius: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--line-soft); font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); position: sticky; top: 0; background: var(--panel); }
+
+/* ---------- Strategien ---------- */
+.strategie { display: grid; grid-template-columns: minmax(0, 1fr) 92px 58px; gap: 4px 12px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); }
+.strategie:last-child { border-bottom: 0; }
+.strategie .name { font-size: 13px; font-weight: 500; }
+.strategie .klein { font: 10px/1.3 var(--mono); color: var(--text-3); margin-top: 3px; text-transform: uppercase; letter-spacing: .06em; }
+.strategie .wert { font: 600 13px/1 var(--sans); text-align: right; }
+.strategie .wert small { display: block; font: 10px/1.4 var(--mono); color: var(--text-3); font-weight: 400; }
+.status { color: var(--text-2); }
+.status.pausiert { color: var(--warnung); }
+.status.aus { color: var(--text-3); text-decoration: line-through; }
+.strategie .striche { grid-column: 1 / 2; margin-top: 2px; }
+.strategie .striche i { height: 3px; max-width: 14px; }
+
+/* ---------- Signale ---------- */
+.karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.karte { padding: 14px; position: relative; overflow: hidden; }
+.karte.im-plan { border-color: #24476f; }
+.karte.im-plan::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 2px; background: var(--s1); }
+.karte-kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.ticker { font: 700 18px/1 var(--sans); letter-spacing: .02em; }
+.ticker a { text-decoration: none; }
+.ticker a:hover { text-decoration: underline; }
+.markierung { font: 600 9px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 4px 6px; border-radius: 4px; white-space: nowrap; }
+.markierung.kaufen { color: var(--gut-text); border: 1px solid rgba(12, 163, 12, .4); }
+.markierung.plan { color: var(--text-1); background: #17314f; }
+.markierung.warten { color: var(--warnung); border: 1px solid rgba(250, 178, 25, .35); }
+.karte .strat { color: var(--text-2); font-size: 12.5px; margin: 6px 0 12px; }
+.werte { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.werte .wert { font: 600 14px/1.2 var(--sans); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.bahn { position: relative; height: 22px; margin: 14px 2px 4px; }
+.bahn .spur { position: absolute; left: 0; right: 0; top: 10px; height: 2px; background: var(--line); border-radius: 2px; }
+.bahn .teil-r { position: absolute; top: 10px; height: 2px; background: var(--schlecht); opacity: .55; border-radius: 2px; }
+.bahn .teil-c { position: absolute; top: 10px; height: 2px; background: var(--gut); opacity: .65; border-radius: 2px; }
+.bahn .marke-k { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--text-1); border: 2px solid var(--panel); }
+.bahn .marke-e { position: absolute; top: 4px; width: 2px; height: 14px; margin-left: -1px; background: var(--text-2); border-radius: 1px; }
+.bahn-text { display: flex; justify-content: space-between; font: 10px var(--mono); color: var(--text-3); }
+.karte .fuss { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line-soft); font-size: 12px; color: var(--text-2); }
+.liste { list-style: none; margin: 0; padding: 0; }
+.liste li { display: flex; gap: 10px; align-items: baseline; padding: 9px 14px; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+.liste li:last-child { border-bottom: 0; }
+.liste .t { font: 700 13px/1 var(--sans); min-width: 54px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px; }
+.chip { font: 600 11px/1 var(--mono); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--text-2); text-decoration: none; }
+.chip:hover { color: var(--text-1); border-color: #2a3542; }
+.zwei { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.zwei.breit { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.plan-text { margin: 0; padding: 4px 14px 12px 30px; color: var(--text-2); font-size: 12.5px; }
+.plan-text li { margin: 6px 0; }
+
+/* ---------- Positionen & Trades ---------- */
+.position { display: grid; grid-template-columns: 96px minmax(0, 1fr) 120px; grid-template-areas: "kopf bahn ergebnis"; gap: 6px 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line-soft); }
+.position .p-kopf { grid-area: kopf; } .position .p-bahn { grid-area: bahn; } .position .ergebnis { grid-area: ergebnis; }
+.position:last-child { border-bottom: 0; }
+.position .t { font: 700 15px/1 var(--sans); }
+.position .klein { font: 10px/1.3 var(--mono); color: var(--text-3); margin-top: 4px; }
+.position .ergebnis { text-align: right; font: 600 14px/1.2 var(--sans); font-variant-numeric: tabular-nums; }
+.position .ergebnis small { display: block; font: 11px var(--sans); color: var(--text-2); font-weight: 400; margin-top: 2px; }
+.trade { display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line-soft); font-size: 12.5px; }
+.trade:last-child { border-bottom: 0; }
+.trade .t { font-weight: 700; }
+.trade .grund { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ergebnis-pille { font: 600 12px/1 var(--sans); padding: 5px 7px; border-radius: 5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ergebnis-pille.gut { background: rgba(12, 163, 12, .14); }
+.ergebnis-pille.schlecht { background: rgba(208, 59, 59, .14); }
+.leer { padding: 18px 14px; color: var(--text-2); font-size: 13px; }
+
+/* ---------- Claude ---------- */
+.vergleich { padding: 6px 16px 14px; }
+.balken-zeile { display: grid; grid-template-columns: 120px minmax(0, 1fr) 70px; gap: 10px; align-items: center; margin-top: 10px; font-size: 13px; }
+.balken-zeile .feld { position: relative; height: 16px; }
+.balken-zeile .null { position: absolute; top: -3px; bottom: -3px; width: 1px; background: #2a3542; }
+.balken-zeile .balken { position: absolute; top: 3px; height: 10px; border-radius: 2px; }
+.balken-zeile .wert { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.balken-zeile .name { display: flex; align-items: center; gap: 7px; color: var(--text-2); }
+.balken-zeile .name i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.entscheidung { padding: 12px 16px; border-top: 1px solid var(--line-soft); font-size: 13px; }
+.entscheidung .kopfz { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.entscheidung p { margin: 4px 0; color: var(--text-2); }
+.entscheidung p b { color: var(--text-1); }
+
+/* ---------- Nachrichten, Fuß ---------- */
+.nachricht { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+.nachricht:last-child { border-bottom: 0; }
+.nachricht .meta { font: 10px var(--mono); color: var(--text-3); margin-top: 3px; }
+.fuss { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--text-3); font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; }
+.fehlerseite { max-width: 520px; margin: 18vh auto; padding: 24px; text-align: center; color: var(--text-2); }
+
+/* ---------- Handy ---------- */
+@media (max-width: 1180px) {
+  .kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kachel:nth-child(3n) { border-right: 0; }
+  .kachel:nth-child(-n+3) { border-bottom: 1px solid var(--line-soft); }
+  .kurven-raster { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 860px) {
+  html { scroll-padding-top: calc(var(--kopf-h, 72px) + 64px); }
+  .geruest { grid-template-columns: minmax(0, 1fr); }
+  main { display: flex; flex-direction: column; }
+  main > .hinweis { order: 0; }
+  #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
+  #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } main > .fuss { order: 8; }
+  .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
+  .seite a[href="#depot"] { order: 4; } .seite a[href="#positionen"] { order: 5; } .seite a[href="#claude"] { order: 6; }
+  .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; }
+  .seite {
+    position: sticky; top: var(--kopf-h, 72px); z-index: 15; height: auto; display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px;
+    border-right: 0; border-bottom: 1px solid var(--line); background: rgba(6, 8, 12, .94); backdrop-filter: blur(8px); scrollbar-width: none;
+  }
+  .seite::-webkit-scrollbar { display: none; }
+  .seite .gruppe, .seite-fuss { display: none; }
+  .seite a { flex: none; border: 1px solid var(--line); padding: 6px 10px; font-size: 12.5px; }
+  .seite a svg { display: none; }
+  main { padding: 12px 12px 32px; }
+  .kern { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 0; gap: 10px; }
+  .kern-kopf { grid-template-columns: 1fr 1fr; }
+  .kern-kopf > :nth-child(2) { display: none; }
+  .kern-mitte { grid-column: 1 / -1; grid-row: 2; min-height: 170px; }
+  .kern-mitte canvas { max-width: 180px; max-height: 180px; }
+  .kern-box { padding: 7px 9px; }
+  .kern-box .wert { font-size: 17px; }
+  .kern-spalte.ein { grid-column: 1; grid-row: 3; }
+  .kern-spalte.aus { grid-column: 2; grid-row: 3; }
+  .kern-linien { display: none; }
+  .zwei, .zwei.breit { grid-template-columns: minmax(0, 1fr); }
+  .uhr .label { display: none; }
+}
+@media (max-width: 560px) {
+  .abschnitt-kopf .label { flex-basis: 100%; }
+  .kopf-zeile { padding: 8px 12px; gap: 8px; }
+  .marke .lang { display: none; }
+  .uhr .zeit { font-size: 13px; }
+  .kacheln { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kachel { border-right: 1px solid var(--line-soft) !important; border-bottom: 1px solid var(--line-soft); padding: 12px; }
+  .kachel:nth-child(2n) { border-right: 0 !important; }
+  .kachel.held { grid-column: 1 / -1; border-right: 0 !important; }
+  .kachel:nth-child(even):last-child { grid-column: 1 / -1; border-right: 0 !important; }
+  .kachel .wert { font-size: 22px; }
+  .kachel.held .wert { font-size: 32px; }
+  .position { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "kopf ergebnis" "bahn bahn"; padding: 12px 14px; }
+  .position .p-kopf { display: flex; align-items: baseline; gap: 8px; }
+  .balken-zeile { grid-template-columns: 96px minmax(0, 1fr) 60px; }
+  .karten { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .laufband-inhalt, .kern-linien path.fluss { animation: none; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+<header class="kopf">
+  <div class="kopf-zeile">
+    <div class="marke">
+      <span class="marke-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 11l4-4 3 3 5-6" fill="none" stroke="#3987e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      SWING-BOT <span class="trenner lang">//</span> <span class="lang">TRADE-GEHIRN</span>
+    </div>
+    <div class="pillen" id="pillen"></div>
+    <div class="uhr"><div class="zeit" id="uhr">--:--:--</div><div class="label" id="uhr-zone">jetzt</div></div>
+  </div>
+  <div class="laufband" aria-label="Neuigkeiten">
+    <div class="live"><span class="punkt gut"></span>LIVE</div>
+    <div class="laufband-fenster"><div class="laufband-inhalt" id="laufband"></div></div>
+  </div>
+</header>
+
+<div class="geruest">
+  <nav class="seite" id="navigation" aria-label="Bereiche">
+    <div class="label gruppe">Überblick</div>
+    <a href="#gehirn" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
+    <a href="#kennzahlen"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Kennzahlen</a>
+    <div class="label gruppe">Heute</div>
+    <a href="#signale"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 12l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Signale<span class="zaehler hell" id="nav-signale" hidden></span></a>
+    <div class="label gruppe">Geld</div>
+    <a href="#depot"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 4V3h6v1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Depot &amp; Kurve</a>
+    <a href="#positionen"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Positionen<span class="zaehler" id="nav-positionen" hidden></span></a>
+    <a href="#claude"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 2l1.6 4.4L14 8l-4.4 1.6L8 14l-1.6-4.4L2 8l4.4-1.6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Claude-Depot</a>
+    <div class="label gruppe">Gehirn</div>
+    <a href="#strategien"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 13l3-5 3 2 3-6 3 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Strategien</a>
+    <a href="#nachrichten"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Nachrichten</a>
+    <div class="seite-fuss"><div class="label" id="seite-fuss">Bot lädt …</div></div>
+  </nav>
+
+  <main id="inhalt" aria-live="polite">
+    <div class="fehlerseite" id="laden">Lade die Daten des Bots …</div>
+  </main>
+</div>
+
+<script>
+"use strict";
+// ---------------------------------------------------------------------------
+// Hilfen: Zahlen und Daten auf Deutsch, DOM sicher bauen (Texte nur als Textknoten)
+// ---------------------------------------------------------------------------
+const NF = {};
+function zahl(x, nk = 0) {
+  if (x === null || x === undefined || !isFinite(x)) return "–";
+  const key = nk;
+  NF[key] = NF[key] || new Intl.NumberFormat("de-DE", { minimumFractionDigits: nk, maximumFractionDigits: nk });
+  return NF[key].format(x).replace("-", "−");
+}
+const euro = (x, nk = 0) => x === null || x === undefined ? "–" : `${zahl(x, nk)} €`;
+const vz = x => (x > 0 ? "+" : "");
+const prozent = (x, nk = 1, mitVz = true) => x === null || x === undefined ? "–" : `${mitVz ? vz(x) : ""}${zahl(x, nk)} %`;
+const richtung = x => (x > 0 ? "gut" : x < 0 ? "schlecht" : "");
+const TAGE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+function tag(iso) { const [j, m, d] = iso.slice(0, 10).split("-").map(Number); return new Date(Date.UTC(j, m - 1, d)); }
+function datum(iso, mitTag = true) {
+  if (!iso) return "–";
+  const d = tag(iso);
+  const s = `${String(d.getUTCDate()).padStart(2, "0")}.${String(d.getUTCMonth() + 1).padStart(2, "0")}.`;
+  return mitTag ? `${TAGE[d.getUTCDay()]} ${s}` : s;
+}
+function el(name, attrs = {}, ...kinder) {
+  const e = document.createElement(name);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") e.className = v;
+    else if (k === "style") e.style.cssText = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kind of kinder.flat()) {
+    if (kind === null || kind === undefined || kind === false) continue;
+    e.append(kind instanceof Node ? kind : document.createTextNode(String(kind)));
+  }
+  return e;
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function sv(name, attrs = {}, ...kinder) {
+  const e = document.createElementNS(SVGNS, name);
+  for (const [k, v] of Object.entries(attrs)) if (v !== null && v !== undefined) e.setAttribute(k, v);
+  for (const kind of kinder.flat()) if (kind) e.append(kind instanceof Node ? kind : document.createTextNode(String(kind)));
+  return e;
+}
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const tvLink = t => `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(t)}`;
+const bewegungAus = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------------------------------------------------------------------------
+// Uhr
+// ---------------------------------------------------------------------------
+function uhr() {
+  const jetzt = new Date();
+  const f = new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short" });
+  const teile = f.formatToParts(jetzt);
+  const get = t => (teile.find(p => p.type === t) || {}).value || "";
+  document.getElementById("uhr").textContent = `${get("hour")}:${get("minute")}:${get("second")}`;
+  document.getElementById("uhr-zone").textContent = `jetzt · ${get("timeZoneName")}`;
+}
+uhr(); setInterval(uhr, 1000);
+// Höhe der Kopfzeile für das klebende Menü (am Handy wächst sie mit der Schrift)
+const kopfzeile = document.querySelector(".kopf");
+const kopfHoehe = () => document.documentElement.style.setProperty("--kopf-h", `${kopfzeile.offsetHeight}px`);
+kopfHoehe(); new ResizeObserver(kopfHoehe).observe(kopfzeile);
+const ZP = new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+function zeitpunkt(d) {
+  const t = Object.fromEntries(ZP.formatToParts(d).map(p => [p.type, p.value]));
+  return `${t.day}.${t.month}. ${t.hour}:${t.minute}`;
+}
+
+// ---------------------------------------------------------------------------
+// Linien-Diagramm mit Fadenkreuz, Tooltip, Endwert und optionalem Rückgang darunter
+// ---------------------------------------------------------------------------
+function schoeneSchritte(min, max, anzahl = 4) {
+  const spanne = max - min || Math.abs(max) || 1;
+  const roh = spanne / anzahl;
+  const p = Math.pow(10, Math.floor(Math.log10(roh)));
+  const schritt = [1, 2, 2.5, 5, 10].map(f => f * p).find(s => s >= roh) || roh;
+  const ticks = [];
+  for (let v = Math.ceil(min / schritt) * schritt; v <= max + 1e-9; v += schritt) ticks.push(+v.toFixed(10));
+  return ticks;
+}
+function linienDiagramm(box, { reihen, hoehe = 260, rueckgang = null, yText = v => euro(v), titel = "" }) {
+  const tooltip = el("div", { class: "tooltip", role: "presentation" });
+  box.replaceChildren();
+  box.append(tooltip);
+  box.setAttribute("tabindex", "0");
+  box.setAttribute("role", "img");
+  const alle = reihen.filter(r => r.punkte && r.punkte.length > 1);
+  if (!alle.length) { box.append(el("div", { class: "leer" }, "Noch zu wenige Tage für eine Kurve.")); return; }
+  const haupt = alle[0];
+  const daten = haupt.punkte.map(p => p[0]);
+  const index = new Map(daten.map((d, i) => [d, i]));
+  const werteBei = r => { const m = new Map(r.punkte); return daten.map(d => (m.has(d) ? m.get(d) : null)); };
+  const spalten = alle.map(r => ({ ...r, werte: werteBei(r) }));
+  const letzte = haupt.punkte[haupt.punkte.length - 1][1];
+  box.setAttribute("aria-label", `${titel}: ${alle.map(r => `${r.name} ${yText(r.punkte[r.punkte.length - 1][1])}`).join(", ")} (${datum(daten[0], false)} bis ${datum(daten[daten.length - 1], false)})`);
+
+  let x, y, breite, rd;
+  const R = { l: 8, r: 72, o: 10, u: 22 };
+  const hRueck = rueckgang ? 64 : 0;
+  const abstand = rueckgang ? 26 : 0;
+
+  function zeichnen() {
+    breite = Math.max(box.clientWidth, 280);
+    const hoeheGes = hoehe + abstand + hRueck;
+    const svg = sv("svg", { viewBox: `0 0 ${breite} ${hoeheGes}`, height: hoeheGes, "aria-hidden": "true" });
+    let min = Infinity, max = -Infinity;
+    for (const s of spalten) for (const v of s.werte) if (v !== null) { min = Math.min(min, v); max = Math.max(max, v); }
+    const pad = (max - min) * 0.08 || Math.abs(max) * 0.02 || 1;
+    const ticks = schoeneSchritte(min - pad, max + pad, 4);
+    const yMin = Math.min(ticks[0], min - pad), yMax = Math.max(ticks[ticks.length - 1], max + pad);
+    const links = R.l + Math.max(...ticks.map(t => yText(t).length)) * 6.2 + 6;
+    const innen = breite - links - R.r;
+    x = i => links + (daten.length === 1 ? innen / 2 : (i / (daten.length - 1)) * innen);
+    y = v => R.o + (1 - (v - yMin) / (yMax - yMin)) * (hoehe - R.o - R.u);
+    // Gitter und Achse
+    for (const t of ticks) {
+      svg.append(sv("line", { x1: links, x2: breite - R.r, y1: y(t), y2: y(t), stroke: css("--line-soft"), "stroke-width": 1 }));
+      svg.append(sv("text", { x: links - 8, y: y(t) + 3, "text-anchor": "end" }, yText(t)));
+    }
+    const nTicks = Math.min(5, daten.length);
+    for (let k = 0; k < nTicks; k++) {
+      const i = Math.round((k / Math.max(nTicks - 1, 1)) * (daten.length - 1));
+      svg.append(sv("text", { x: x(i), y: hoehe - 4, "text-anchor": k === 0 ? "start" : k === nTicks - 1 ? "end" : "middle" }, datum(daten[i], false)));
+    }
+    // Fläche unter der Hauptreihe (10 % Deckkraft)
+    const gid = "verlauf-" + Math.random().toString(36).slice(2);
+    const defs = sv("defs");
+    const grad = sv("linearGradient", { id: gid, x1: 0, x2: 0, y1: 0, y2: 1 },
+      sv("stop", { offset: "0%", "stop-color": haupt.farbe, "stop-opacity": 0.22 }),
+      sv("stop", { offset: "100%", "stop-color": haupt.farbe, "stop-opacity": 0 }));
+    defs.append(grad); svg.append(defs);
+    const pfad = s => { let d = "", an = false; s.werte.forEach((v, i) => { if (v === null) { an = false; return; } d += `${an ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`; an = true; }); return d; };
+    const hauptD = pfad(spalten[0]);
+    svg.append(sv("path", { d: `${hauptD}L${x(daten.length - 1).toFixed(1)},${(hoehe - R.u).toFixed(1)}L${x(0).toFixed(1)},${(hoehe - R.u).toFixed(1)}Z`, fill: `url(#${gid})` }));
+    // Linien: Hintergrund zuerst, Hauptreihe zuletzt
+    for (const s of [...spalten].reverse()) {
+      svg.append(sv("path", { d: pfad(s), fill: "none", stroke: s.farbe, "stroke-width": s === spalten[0] ? 2 : 1.6, "stroke-linejoin": "round", "stroke-linecap": "round", opacity: s === spalten[0] ? 1 : 0.9 }));
+    }
+    // Endpunkt und Endwert der Hauptreihe
+    const iEnde = daten.length - 1;
+    svg.append(sv("circle", { cx: x(iEnde), cy: y(letzte), r: 4, fill: haupt.farbe, stroke: css("--panel"), "stroke-width": 2 }));
+    svg.append(sv("text", { x: x(iEnde) + 9, y: y(letzte) + 4, class: "endwert" }, yText(letzte)));
+    // Rückgang vom Hoch
+    if (rueckgang) {
+      let hoch = -Infinity;
+      rd = spalten[0].werte.map(v => { if (v === null) return null; hoch = Math.max(hoch, v); return (v / hoch - 1) * 100; });
+      const minRd = Math.min(-0.5, ...rd.filter(v => v !== null));
+      const o = hoehe + abstand;
+      const yr = v => o + (v / minRd) * (hRueck - 8);
+      svg.append(sv("text", { x: links, y: o - 9 }, "RÜCKGANG VOM HOCH"));
+      svg.append(sv("line", { x1: links, x2: breite - R.r, y1: o, y2: o, stroke: css("--line"), "stroke-width": 1 }));
+      let d = "";
+      rd.forEach((v, i) => { if (v !== null) d += `${d ? "L" : "M"}${x(i).toFixed(1)},${yr(v).toFixed(1)}`; });
+      svg.append(sv("path", { d: `${d}L${x(iEnde).toFixed(1)},${o}L${x(0).toFixed(1)},${o}Z`, fill: css("--schlecht"), "fill-opacity": 0.18 }));
+      svg.append(sv("path", { d, fill: "none", stroke: css("--schlecht"), "stroke-width": 1.4, "stroke-linejoin": "round" }));
+      const iMin = rd.indexOf(Math.min(...rd.filter(v => v !== null)));
+      svg.append(sv("text", { x: breite - R.r, y: o - 9, "text-anchor": "end" }, `GRÖSSTER ${prozent(rd[iMin], 1, false)}`));
+      svg.append(sv("circle", { cx: x(iMin), cy: yr(rd[iMin]), r: 3, fill: css("--schlecht"), stroke: css("--panel"), "stroke-width": 2 }));
+    }
+    // Fadenkreuz
+    const kreuz = sv("line", { y1: R.o, y2: hoehe - R.u + (rueckgang ? abstand + hRueck : 0), stroke: "#3a4654", "stroke-width": 1, opacity: 0 });
+    const punkte = spalten.map(s => sv("circle", { r: 4, fill: s.farbe, stroke: css("--panel"), "stroke-width": 2, opacity: 0 }));
+    svg.append(kreuz, ...punkte);
+    box.querySelector("svg")?.remove();
+    box.prepend(svg);
+    box._zeige = i => {
+      kreuz.setAttribute("x1", x(i)); kreuz.setAttribute("x2", x(i)); kreuz.setAttribute("opacity", 1);
+      spalten.forEach((s, k) => { const v = s.werte[i]; punkte[k].setAttribute("opacity", v === null ? 0 : 1); if (v !== null) { punkte[k].setAttribute("cx", x(i)); punkte[k].setAttribute("cy", y(v)); } });
+      tooltip.replaceChildren(el("div", { class: "datum" }, datum(daten[i])));
+      for (const s of spalten) {
+        const v = s.werte[i];
+        if (v === null) continue;
+        tooltip.append(el("div", { class: "zeile" }, el("i", { style: `background:${s.farbe}` }), el("b", {}, yText(v)), el("span", {}, s.name)));
+      }
+      if (rd && rd[i] !== null) tooltip.append(el("div", { class: "zeile" }, el("i", { style: `background:${css("--schlecht")}` }), el("b", {}, prozent(rd[i], 1, false)), el("span", {}, "vom Hoch")));
+      tooltip.style.opacity = 1;
+      const tx = x(i) + 14, tw = tooltip.offsetWidth;
+      tooltip.style.left = `${tx + tw > breite ? x(i) - tw - 14 : tx}px`;
+      tooltip.style.top = "8px";
+    };
+    box._aus = () => { kreuz.setAttribute("opacity", 0); punkte.forEach(p => p.setAttribute("opacity", 0)); tooltip.style.opacity = 0; };
+  }
+  let aktuell = null;
+  const naechster = ev => {
+    const r = box.getBoundingClientRect();
+    const px = ev.clientX - r.left;
+    let best = 0, bestAbst = Infinity;
+    for (let i = 0; i < daten.length; i++) { const a = Math.abs(x(i) - px); if (a < bestAbst) { bestAbst = a; best = i; } }
+    return best;
+  };
+  box.onpointermove = ev => { aktuell = naechster(ev); box._zeige(aktuell); };
+  box.onpointerleave = () => box._aus();
+  box.onkeydown = ev => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(ev.key)) return;
+    ev.preventDefault();
+    if (aktuell === null) aktuell = daten.length - 1;
+    aktuell = ev.key === "Home" ? 0 : ev.key === "End" ? daten.length - 1 : Math.max(0, Math.min(daten.length - 1, aktuell + (ev.key === "ArrowLeft" ? -1 : 1)));
+    box._zeige(aktuell);
+  };
+  box.onblur = () => box._aus();
+  zeichnen();
+  new ResizeObserver(() => { if (Math.abs(box.clientWidth - breite) > 2) zeichnen(); }).observe(box);
+}
+
+function sparkline(werte, { breite = 92, hoehe = 28, farbe = css("--s1"), basis = 0 } = {}) {
+  // basis: Bezugslinie (0 R bei Strategien, Startkapital beim Depot)
+  const svg = sv("svg", { width: breite, height: hoehe, viewBox: `0 0 ${breite} ${hoehe}`, class: "spark", "aria-hidden": "true" });
+  const w = werte.filter(v => v !== null);
+  if (w.length < 2) return svg;
+  const min = Math.min(basis, ...w), max = Math.max(basis, ...w);
+  const x = i => 2 + (i / (w.length - 1)) * (breite - 8);
+  const y = v => 3 + (1 - (v - min) / (max - min || 1)) * (hoehe - 6);
+  svg.append(sv("line", { x1: 2, x2: breite - 6, y1: y(basis), y2: y(basis), stroke: css("--line"), "stroke-width": 1 }));
+  svg.append(sv("polyline", { points: w.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" "), fill: "none", stroke: farbe, "stroke-width": 1.5, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+  svg.append(sv("circle", { cx: x(w.length - 1), cy: y(w[w.length - 1]), r: 2.5, fill: farbe }));
+  return svg;
+}
+
+// ---------------------------------------------------------------------------
+// Gehirn-Kugel (Punkte auf einer drehenden Kugel)
+// ---------------------------------------------------------------------------
+function kugel(canvas) {
+  const ctx = canvas.getContext("2d");
+  const N = 760, punkte = [];
+  const gold = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) {
+    const yy = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - yy * yy), th = gold * i;
+    punkte.push([Math.cos(th) * r, yy, Math.sin(th) * r]);
+  }
+  let winkel = 0.6, sichtbar = true, groesse = 0;
+  const neigung = 0.38;
+  function malen() {
+    const dpr = window.devicePixelRatio || 1;
+    const b = canvas.clientWidth, h = canvas.clientHeight;
+    if (Math.round(b * dpr) !== canvas.width || Math.round(h * dpr) !== canvas.height) { canvas.width = Math.round(b * dpr); canvas.height = Math.round(h * dpr); }
+    groesse = Math.min(b, h) * 0.42;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, b, h);
+    const cx = b / 2, cy = h / 2;
+    const glanz = ctx.createRadialGradient(cx, cy, groesse * 0.1, cx, cy, groesse * 1.25);
+    glanz.addColorStop(0, "rgba(57,135,229,0.10)"); glanz.addColorStop(1, "rgba(57,135,229,0)");
+    ctx.fillStyle = glanz; ctx.fillRect(0, 0, b, h);
+    const cw = Math.cos(winkel), sw = Math.sin(winkel), cn = Math.cos(neigung), sn = Math.sin(neigung);
+    for (const [px, py, pz] of punkte) {
+      const x1 = px * cw + pz * sw, z1 = -px * sw + pz * cw;
+      const y1 = py * cn - z1 * sn, z2 = py * sn + z1 * cn;
+      const tiefe = (z2 + 1) / 2;
+      ctx.globalAlpha = 0.12 + tiefe * 0.78;
+      ctx.fillStyle = tiefe > 0.82 ? "#9ec5f4" : "#c8d1db";
+      const r = 0.55 + tiefe * 0.9;
+      ctx.beginPath(); ctx.arc(cx + x1 * groesse, cy + y1 * groesse, r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function schleife() { if (sichtbar && !document.hidden) { winkel += 0.0035; malen(); } requestAnimationFrame(schleife); }
+  malen();
+  if (!bewegungAus) {
+    new IntersectionObserver(e => { sichtbar = e[0].isIntersecting; }).observe(canvas);
+    requestAnimationFrame(schleife);
+  }
+  new ResizeObserver(malen).observe(canvas);
+}
+
+function kernLinien(kern) {
+  const svg = kern.querySelector(".kern-linien");
+  const mitte = kern.querySelector(".kern-mitte canvas");
+  if (!svg || !mitte || getComputedStyle(svg).display === "none") return;
+  const r0 = kern.getBoundingClientRect(), m = mitte.getBoundingClientRect();
+  const cx = m.left + m.width / 2 - r0.left, cy = m.top + m.height / 2 - r0.top, rad = Math.min(m.width, m.height) * 0.42;
+  svg.setAttribute("viewBox", `0 0 ${r0.width} ${r0.height}`);
+  svg.replaceChildren();
+  kern.querySelectorAll(".kern-spalte.ein .kern-box").forEach((b, i, alle) => {
+    const r = b.getBoundingClientRect(), x1 = r.right - r0.left, y1 = r.top + r.height / 2 - r0.top;
+    const zy = cy + (i - (alle.length - 1) / 2) * rad * 0.32, zx = cx - Math.sqrt(Math.max(rad * rad - (zy - cy) ** 2, 0)) * 0.92;
+    const d = `M${x1},${y1} C${(x1 + zx) / 2},${y1} ${(x1 + zx) / 2},${zy} ${zx},${zy}`;
+    svg.append(sv("path", { d }), sv("path", { d, class: "fluss" }));
+  });
+  kern.querySelectorAll(".kern-spalte.aus .kern-box").forEach((b, i, alle) => {
+    const r = b.getBoundingClientRect(), x2 = r.left - r0.left, y2 = r.top + r.height / 2 - r0.top;
+    const zy = cy + (i - (alle.length - 1) / 2) * rad * 0.32, zx = cx + Math.sqrt(Math.max(rad * rad - (zy - cy) ** 2, 0)) * 0.92;
+    const d = `M${zx},${zy} C${(x2 + zx) / 2},${zy} ${(x2 + zx) / 2},${y2} ${x2},${y2}`;
+    svg.append(sv("path", { d }), sv("path", { d, class: "fluss aus" }));
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Bausteine
+// ---------------------------------------------------------------------------
+function abschnitt(id, titel, unter, ...inhalt) {
+  return el("section", { class: "abschnitt", id, "aria-labelledby": `${id}-t` },
+    el("div", { class: "abschnitt-kopf" }, el("h2", { id: `${id}-t` }, titel), unter ? el("span", { class: "label" }, unter) : null),
+    ...inhalt);
+}
+function kachel(label, wert, unter, { held = false, extra = null, klasse = "" } = {}) {
+  return el("div", { class: `kachel${held ? " held" : ""}` },
+    el("div", { class: "kachel-titel" }, el("div", { class: "label" }, label)),
+    el("div", { class: `wert ${klasse}` }, wert),
+    unter ? el("div", { class: "unter" }, unter) : null, extra);
+}
+function striche(werte, { max = 10 } = {}) {
+  const box = el("div", { class: "striche", role: "img", "aria-label": `${werte.filter(v => v > 0).length} von ${werte.length} im Plus` });
+  werte.slice(-max).forEach(v => box.append(el("i", { class: v > 0 ? "gut" : v < 0 ? "schlecht" : "" })));
+  return box;
+}
+function bahn({ stop, ziel, kurs, einstieg, limit }) {
+  // Lage zwischen Stop (links) und Ziel (rechts). Mit Einstieg: Strecke Einstieg -> Kurs grün (Gewinn) oder rot (Verlust);
+  // ohne Einstieg (Signal): Risiko bis zum Stop rot, Chance bis zum Ziel grün, beides zurückhaltend.
+  const lage = v => Math.max(0, Math.min(1, (v - stop) / (ziel - stop))) * 100;
+  const b = el("div", { class: "bahn", role: "img", "aria-label": `Stop ${euro(stop, 2)}, Kurs ${euro(kurs, 2)}, Ziel ${euro(ziel, 2)}` },
+    el("div", { class: "spur" }));
+  const k = lage(kurs);
+  if (einstieg !== undefined && einstieg !== null) {
+    const e = lage(einstieg);
+    b.append(el("div", { class: kurs >= einstieg ? "teil-c" : "teil-r", style: `left:${Math.min(k, e)}%;width:${Math.abs(k - e)}%;opacity:.95;height:4px;top:9px` }));
+    b.append(el("div", { class: "marke-e", style: `left:${e}%`, title: "Einstieg" }));
+  } else {
+    b.append(el("div", { class: "teil-r", style: `left:0;width:${k}%` }));
+    b.append(el("div", { class: "teil-c", style: `left:${k}%;right:0` }));
+    if (limit !== undefined && limit !== null) b.append(el("div", { class: "marke-e", style: `left:${lage(limit)}%`, title: "Limit" }));
+  }
+  b.append(el("div", { class: "marke-k", style: `left:${k}%` }));
+  return b;
+}
+
+// ---------------------------------------------------------------------------
+// Seite aufbauen
+// ---------------------------------------------------------------------------
+function aufbauen(D) {
+  const main = document.getElementById("inhalt");
+  main.replaceChildren();
+  const P = D.papier, C = D.claude, RB = D.rueckblick, G = D.gehirn;
+  const kaufen = D.signale.filter(s => s.art === "kaufen" || s.art === "short");
+  const s1 = css("--s1"), s2 = css("--s2"), s3 = css("--s3"), grau = css("--s-grau");
+
+  // Kopfzeile: Pillen und Laufband
+  const erstellt = new Date(D.erstellt);
+  const lief = zeitpunkt(erstellt);
+  const pillen = document.getElementById("pillen");
+  pillen.replaceChildren(
+    el("span", { class: "pille" }, el("span", { class: `punkt ${D.fehlt ? "warnung" : "gut"}` }), `Bot lief ${lief}`),
+    el("span", { class: "pille" }, "Daten bis ", el("b", {}, datum(D.daten_bis))),
+    D.markt.ueber_200 === null ? null : el("span", { class: "pille", title: "Nasdaq-100 (QQQ) zur 200-Tage-Linie" },
+      el("span", { class: `punkt ${D.markt.ueber_200 ? "gut" : "schlecht"}` }), D.markt.ueber_200 ? "Markt: kaufen erlaubt" : "Markt: keine Käufe"),
+    C ? el("span", { class: "pille" }, el("span", { class: "punkt", style: `background:${s3}` }), "Claude-Depot läuft") : null,
+    el("span", { class: "pille" }, `Konto ${euro(D.konto)} · Risiko ${zahl(D.risiko, 1)} %`));
+  const band = [];
+  band.push([datum(D.daten_bis), [`${kaufen.length} Kauf-Signal${kaufen.length === 1 ? "" : "e"}`, `, ${G.im_plan} im Handelsplan`]]);
+  for (const s of kaufen.slice(0, 6)) band.push(["Signal", [el("b", {}, s.ticker), ` ${s.strategie} · Limit ${euro(s.limit, 2)} · Stop ${euro(s.stop, 2)} · Ziel ${euro(s.ziel, 2)}`]]);
+  if (P) band.push(["Übungsdepot", [el("b", {}, euro(P.wert)), ` (${prozent((P.wert / P.startkapital - 1) * 100)} seit Start)`]]);
+  if (C && C.seit_start) band.push(["Claude-Depot", [el("b", {}, prozent(C.seit_start.claude)), ` seit ${datum(C.versuch_ab, false)} · Übungsdepot ${prozent(C.seit_start.bot)} · Nasdaq-100 ${prozent(C.seit_start.qqq)}`]]);
+  if (P) for (const t of P.trades.slice(0, 3)) band.push(["Verkauft", [el("b", {}, t.ticker), ` ${t.grund} · ${euro(t.ergebnis, 2)}`]]);
+  for (const n of D.schlagzeilen.slice(0, 4)) band.push([n.ticker, [n.titel]]);
+  const lb = document.getElementById("laufband");
+  const bauen = () => band.map(([z, inhalt]) => el("span", {}, el("span", { class: "zeitstempel" }, z), ...inhalt));
+  lb.replaceChildren(...bauen(), ...(bewegungAus ? [] : bauen()));
+  lb.style.animationDuration = `${Math.max(30, band.length * 7)}s`;
+
+  if (D.fehlt) {
+    main.append(el("div", { class: "hinweis" }, el("b", {}, "Achtung: "), `Die Kurse vom ${datum(D.fehlt)} fehlen noch – die Signale sind einen Tag alt. Nicht danach handeln, der nächste Lauf holt den Tag nach.`));
+  }
+  if (D.vorlaeufig) main.append(el("div", { class: "hinweis" }, el("b", {}, "Vorläufig: "), "Die Börse war beim Lauf noch offen – Signale können bis zum Schluss wegfallen."));
+
+  // ---------- Gehirn-Kern ----------
+  const ein = [
+    ["Aktien", zahl(G.aktien), "beobachtet"],
+    ["Strategien", `${G.aktiv}/${G.strategien}`, "aktiv"],
+    ["Tagebuch", zahl(G.tagebuch), "gedachte Trades"],
+    ["Termine", zahl(G.termine), "Quartalszahlen"],
+  ];
+  const aus = [
+    ["Kauf-Signale", zahl(G.kaufen), `${G.im_plan} im Handelsplan`],
+    ["Warten", zahl(G.warten), "Regel hält zurück"],
+    ["Gewinne sichern", zahl(G.sichern), "überhitzt"],
+    C ? ["Claude ließ aus", zahl(C.ausgelassen), "Signale seit Start"] : ["Schlagzeilen", zahl(G.schlagzeilen), "gelesen"],
+  ];
+  const box = ([l, w, k]) => el("div", { class: "kern-box" }, el("div", { class: "label" }, l), el("div", { class: "wert" }, w), el("div", { class: "klein" }, k));
+  const canvas = el("canvas", { "aria-hidden": "true" });
+  const kern = el("div", { class: "panel kern" },
+    el("div", { class: "kern-kopf" }, el("div", { class: "label" }, "Eingang"),
+      el("div", { class: "label" }, el("span", { class: "punkt gut", style: "display:inline-block;margin-right:6px;vertical-align:1px" }), "Gehirn läuft"),
+      el("div", { class: "label" }, "Ausgang")),
+    el("div", { class: "kern-spalte ein" }, ein.map(box)),
+    el("div", { class: "kern-mitte" }, canvas),
+    el("div", { class: "kern-spalte aus" }, aus.map(box)),
+    el("div", { class: "kern-fuss" },
+      el("div", { class: "label" }, "Prüft ", el("b", {}, `${G.strategien} Strategien`), " bei ", el("b", {}, `${G.aktien} Aktien`)),
+      el("div", { class: "label" }, "Lernt aus ", el("b", {}, `${zahl(G.tagebuch)} gedachten Trades`)),
+      el("div", { class: "label" }, "Regeln: ", el("b", {}, `${D.regeln.max_positionen} Positionen · ${D.regeln.max_je_branche} je Branche · ${D.regeln.max_risiko} % Risiko`))));
+  kern.prepend(sv("svg", { class: "kern-linien", "aria-hidden": "true" }));
+  main.append(abschnitt("gehirn", "Gehirn-Kern", `Daten bis ${datum(D.daten_bis)} · was heute reinkam und was rauskam`, kern));
+
+  // ---------- Kennzahlen ----------
+  const kacheln = el("div", { class: "panel kacheln" });
+  if (P) {
+    const seit = (P.wert / P.startkapital - 1) * 100;
+    const q = P.qqq && P.qqq.length ? (P.qqq[P.qqq.length - 1][1] / P.startkapital - 1) * 100 : null;
+    kacheln.append(kachel("Übungsdepot", euro(P.wert), [el("span", { class: richtung(seit) }, `${seit >= 0 ? "▲" : "▼"} ${prozent(seit)}`), ` seit ${datum(P.angelegt, false)}`],
+      { held: true, extra: sparkline(P.verlauf.map(v => v[1]), { breite: 150, hoehe: 30, basis: P.startkapital }) }));
+    if (q !== null) {
+      const diff = seit - q;
+      kacheln.append(kachel("gegen Nasdaq-100", `${vz(diff)}${zahl(diff, 1)} Pkt`, `Nasdaq-100 im selben Zeitraum ${prozent(q)}`, { klasse: richtung(diff) }));
+    }
+  }
+  if (RB) {
+    const quote = RB.trades_anzahl ? (RB.gewinner / RB.trades_anzahl) * 100 : null;
+    const rendite = (RB.end_wert / RB.start_wert - 1) * 100;
+    const q = RB.qqq ? (RB.qqq[RB.qqq.length - 1][1] / RB.start_wert - 1) * 100 : null;
+    kacheln.append(kachel("Trefferquote · 12 Mon.", prozent(quote, 0, false), `${RB.gewinner} von ${RB.trades_anzahl} Trades mit Gewinn`,
+      { extra: el("div", { class: "striche" }, ...Array.from({ length: 10 }, (_, i) => el("i", { class: i < Math.round((quote || 0) / 10) ? "gut" : "" }))) }));
+    kacheln.append(kachel("Rendite · 12 Mon.", prozent(rendite), q !== null ? `Nasdaq-100 ${prozent(q)}` : "Rückblick", { klasse: richtung(rendite) }));
+    kacheln.append(kachel("Trades · 12 Mon.", zahl(RB.trades_anzahl), `Rückblick seit ${datum(RB.start, false)}`));
+    kacheln.append(kachel("Größter Rückgang", prozent(-RB.max_rueckgang, 1), "im Rückblick, vom Hoch", { klasse: "schlecht" }));
+  }
+  main.append(abschnitt("kennzahlen", "Kennzahlen", "Übungsdepot (echt, vorwärts) und Rückblick der letzten 12 Monate", kacheln));
+
+  // ---------- Signale ----------
+  const warten = D.signale.filter(s => s.art === "warten");
+  const sichern = D.signale.filter(s => s.art === "sichern");
+  const beob = D.signale.filter(s => s.art === "beobachten");
+  const fehler = D.signale.filter(s => s.art === "fehler");
+  const karten = el("div", { class: "karten" });
+  for (const s of kaufen) {
+    karten.append(el("article", { class: `panel karte${s.im_plan ? " im-plan" : ""}` },
+      el("div", { class: "karte-kopf" },
+        el("div", { class: "ticker" }, el("a", { href: tvLink(s.ticker), target: "_blank", rel: "noopener" }, s.ticker)),
+        el("span", { class: `markierung ${s.im_plan ? "plan" : "kaufen"}` }, s.im_plan ? "Im Handelsplan" : s.art === "short" ? "Short" : "Kaufen")),
+      el("div", { class: "strat" }, s.strategie, s.branche ? ` · ${s.branche}` : ""),
+      el("div", { class: "werte" },
+        el("div", {}, el("div", { class: "label" }, "Limit"), el("div", { class: "wert" }, euro(s.limit, 2))),
+        el("div", {}, el("div", { class: "label" }, "Stop"), el("div", { class: "wert" }, euro(s.stop, 2))),
+        el("div", {}, el("div", { class: "label" }, "Ziel"), el("div", { class: "wert" }, euro(s.ziel, 2)))),
+      bahn({ stop: s.stop, ziel: s.ziel, kurs: s.kurs, limit: s.limit }),
+      el("div", { class: "bahn-text" }, el("span", {}, "Stop"), el("span", {}, `Kurs ${euro(s.kurs, 2)}`), el("span", {}, "Ziel")),
+      el("div", { class: "fuss" },
+        el("span", {}, s.stueck ? `${zahl(s.stueck, s.stueck % 1 ? 2 : 0)} Stück · Risiko ${euro(s.risiko)}` : "Konto zu klein"),
+        el("span", {}, s.zahlen && s.zahlen !== "–" ? `Zahlen ${s.zahlen}` : `CRV ${zahl(s.crv, 1)}`))));
+  }
+  if (!kaufen.length) karten.append(el("div", { class: "panel leer" }, "Heute kein Kauf-Signal. Der Bot wartet auf bessere Gelegenheiten."));
+  const signalTeile = [karten];
+  if (D.plan && D.plan.length) {
+    signalTeile.push(el("details", { class: "panel tabelle", style: "margin-top:12px;padding:10px 14px" },
+      el("summary", {}, "Handelsplan als Text (wie im Bericht)"), el("ol", { class: "plan-text" }, D.plan.map(z => el("li", {}, z)))));
+  }
+  const nebenher = el("div", { class: "zwei", style: "margin-top:12px" });
+  nebenher.append(el("div", { class: "panel" },
+    el("div", { class: "panel-kopf" }, el("div", { class: "label" }, `Warten · ${warten.length}`)),
+    warten.length ? el("ul", { class: "liste" }, warten.map(s => el("li", {}, el("span", { class: "t" }, s.ticker), el("span", { class: "muted" }, s.strategie))))
+      : el("div", { class: "leer" }, "Keine Regel hält heute ein Signal zurück.")));
+  nebenher.append(el("div", { class: "panel" },
+    el("div", { class: "panel-kopf" }, el("div", { class: "label" }, `Gewinne sichern · ${sichern.length}`)),
+    sichern.length ? el("ul", { class: "liste" }, sichern.map(s => el("li", {}, el("span", { class: "t" }, s.ticker), el("span", { class: "muted" }, `${s.strategie} · Kurs ${euro(s.kurs, 2)}`))))
+      : el("div", { class: "leer" }, "Keine Aktie ist gerade überhitzt."),
+    el("div", { class: "panel-innen", style: "padding:6px 14px 0" }, el("div", { class: "label" }, `Beobachten · ${beob.length}`)),
+    el("div", { class: "chips" }, beob.map(s => el("a", { class: "chip", href: tvLink(s.ticker), target: "_blank", rel: "noopener" }, s.ticker)),
+      fehler.map(s => el("span", { class: "chip", title: s.fehler || "Fehler", style: "color:var(--schlecht-text)" }, `${s.ticker} ✕`)))));
+  signalTeile.push(nebenher);
+  main.append(abschnitt("signale", "Signale heute", "Kauf am nächsten Handelstag ab 15:30 Uhr, nur bis zum Limit", ...signalTeile));
+  const navS = document.getElementById("nav-signale");
+  if (kaufen.length) { navS.hidden = false; navS.textContent = kaufen.length; }
+
+  // ---------- Depot & Kurve ----------
+  const ansichten = [];
+  if (P) ansichten.push({ id: "papier", name: "Übungsdepot", reihen: [
+    { name: "Übungsdepot", farbe: s1, punkte: P.verlauf },
+    C ? { name: "Claude-Depot", farbe: s3, punkte: C.verlauf.filter(v => v[0] >= C.versuch_ab) } : null,
+    P.qqq ? { name: "Nasdaq-100", farbe: s2, punkte: P.qqq } : null].filter(Boolean),
+    unter: `seit ${datum(P.angelegt, false)} · echt vorwärts gerechnet` });
+  if (RB) ansichten.push({ id: "rueckblick", name: `Rückblick ${RB.monate} Monate`, reihen: [
+    { name: "Bot", farbe: s1, punkte: RB.verlauf },
+    RB.qqq ? { name: "Nasdaq-100", farbe: s2, punkte: RB.qqq } : null,
+    RB.halten ? { name: "Alle Aktien halten", farbe: grau, punkte: RB.halten } : null].filter(Boolean),
+    unter: `${datum(RB.start, false)} bis ${datum(RB.ende, false)} · Rückblick mit heutiger Watchlist (sieht meist zu gut aus)` });
+  const kurvenPanel = el("div", { class: "panel panel-innen" });
+  const reiter = el("div", { class: "reiter", role: "tablist", "aria-label": "Kurve wählen" });
+  const legende = el("div", { class: "legende" });
+  const diag = el("div", { class: "diagramm" });
+  const unterzeile = el("div", { class: "label", style: "text-transform:none;letter-spacing:.04em;margin-top:8px" });
+  const tabelle = el("details", { class: "tabelle" });
+  function zeigeAnsicht(a) {
+    reiter.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.id === a.id ? "true" : "false"));
+    legende.replaceChildren(...a.reihen.map(r => el("span", {}, el("i", { style: `background:${r.farbe}` }), r.name)));
+    linienDiagramm(diag, { reihen: a.reihen, hoehe: innerWidth < 560 ? 220 : 300, rueckgang: true, titel: a.name });
+    unterzeile.textContent = a.unter;
+    const zeilen = a.reihen[0].punkte.slice().reverse();
+    const maps = a.reihen.map(r => new Map(r.punkte));
+    tabelle.replaceChildren(el("summary", {}, "Werte als Tabelle"),
+      el("div", { class: "scroll" }, el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Tag"), a.reihen.map(r => el("th", {}, r.name)))),
+        el("tbody", {}, zeilen.map(([d]) => el("tr", {}, el("td", {}, datum(d)), maps.map(m => el("td", {}, m.has(d) ? euro(m.get(d)) : "–"))))))));
+    try { localStorage.setItem("swingbot-ansicht", a.id); } catch (e) { /* ohne Speicher geht es auch */ }
+  }
+  ansichten.forEach(a => reiter.append(el("button", { type: "button", role: "tab", "data-id": a.id, onclick: () => zeigeAnsicht(a) }, a.name)));
+  kurvenPanel.append(el("div", { style: "display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center" },
+    el("div", { class: "label" }, "Depotkurve · in €"), reiter), legende, diag, unterzeile, tabelle);
+
+  const strat = el("div", { class: "panel", id: "strategien" }, el("div", { class: "panel-kopf" },
+    el("div", { class: "label" }, "Strategien · letzte 60 gedachte Trades"), el("div", { class: "label" }, "Ø R")));
+  for (const s of D.strategien) {
+    const rs = s.kurve.map((v, i, a) => (i ? v - a[i - 1] : v));
+    strat.append(el("div", { class: "strategie" },
+      el("div", {}, el("div", { class: "name" }, s.name),
+        el("div", { class: "klein" }, el("span", { class: `status ${s.status}` }, s.status), ` · ${s.trades} Trades · ${s.quote === null ? "–" : zahl(s.quote, 0) + " %"} Treffer`)),
+      sparkline(s.kurve, { farbe: s.status === "aktiv" ? s1 : grau }),
+      el("div", { class: `wert ${richtung(s.schnitt)}` }, s.schnitt === null ? "–" : `${vz(s.schnitt)}${zahl(s.schnitt, 2)}`, el("small", {}, "R/Trade")),
+      striche(rs)));
+  }
+  if (!D.strategien.length) strat.append(el("div", { class: "leer" }, "Noch keine Strategie-Daten."));
+  main.append(abschnitt("depot", "Depot & Kurve", "mit Fadenkreuz: Finger oder Maus über die Kurve", el("div", { class: "kurven-raster" }, strat, kurvenPanel)));
+  let start = ansichten[0];
+  try { start = ansichten.find(a => a.id === localStorage.getItem("swingbot-ansicht")) || start; } catch (e) { /* egal */ }
+  if (start) zeigeAnsicht(start); else kurvenPanel.append(el("div", { class: "leer" }, "Noch kein Depot."));
+
+  // ---------- Positionen & Trades ----------
+  if (P) {
+    const pos = el("div", { class: "panel" }, el("div", { class: "panel-kopf" },
+      el("div", { class: "label" }, `Offene Positionen · ${P.positionen.length}/${D.regeln.max_positionen}`),
+      el("div", { class: "label" }, `frei ${euro(P.bargeld)}`)));
+    for (const p of P.positionen) {
+      const proz = p.wert && p.ergebnis !== null ? (p.ergebnis / (p.wert - p.ergebnis)) * 100 : null;
+      pos.append(el("div", { class: "position" },
+        el("div", { class: "p-kopf" }, el("div", { class: "t" }, el("a", { href: tvLink(p.ticker), target: "_blank", rel: "noopener", style: "text-decoration:none" }, p.ticker)), el("div", { class: "klein" }, `seit ${datum(p.kauf_tag, false)}`)),
+        el("div", { class: "p-bahn" }, el("div", { class: "klein", style: "margin:0 0 2px" }, p.strategie),
+          p.stop !== null && p.kurs !== null ? bahn({ stop: p.stop, ziel: p.ziel, kurs: p.kurs, einstieg: p.stop + (p.einstieg_lage ?? 0) * (p.ziel - p.stop) }) : null,
+          el("div", { class: "bahn-text" }, el("span", {}, `Stop ${euro(p.stop, 2)}`), el("span", {}, `Ziel ${euro(p.ziel, 2)}`))),
+        el("div", { class: `ergebnis ${richtung(p.ergebnis)}` }, p.ergebnis === null ? "–" : `${vz(p.ergebnis)}${euro(p.ergebnis, 2)}`,
+          el("small", {}, `${proz === null ? "" : prozent(proz)} · Wert ${euro(p.wert)}`))));
+    }
+    if (!P.positionen.length) pos.append(el("div", { class: "leer" }, "Gerade keine offene Position."));
+    const auftr = el("div", { class: "panel-innen", style: "border-top:1px solid var(--line-soft)" },
+      el("div", { class: "label" }, "Nächste Eröffnung"),
+      el("div", { style: "margin-top:6px;font-size:13px;color:var(--text-2)" },
+        P.auftraege.length ? `Kauft zur Eröffnung (nur bis zum Limit): ${P.auftraege.map(a => a.ticker).join(", ")}` :
+          P.verfallen.length ? `Kauft nichts: ${P.verfallen.map(v => `${v.ticker.join(", ")} – ${v.grund}`).join("; ")}` : "Keine Aufträge."));
+    pos.append(auftr);
+    const tr = el("div", { class: "panel" }, el("div", { class: "panel-kopf" },
+      el("div", { class: "label" }, `Letzte Trades · ${P.trades_anzahl}`),
+      el("div", { class: "label" }, P.trades_anzahl ? `${P.gewinner} mit Gewinn · Summe ${euro(P.summe, 2)}` : "")));
+    for (const t of P.trades.slice(0, 8)) {
+      tr.append(el("div", { class: "trade" },
+        el("div", {}, el("div", { class: "t" }, t.ticker), el("div", { class: "mono", style: "font-size:10px;color:var(--text-3)" }, datum(t.verkauf_tag, false))),
+        el("div", { class: "grund" }, `${t.grund} · ${t.strategie}`),
+        el("span", { class: `ergebnis-pille ${richtung(t.ergebnis)}` }, el("span", { class: richtung(t.ergebnis) }, `${vz(t.ergebnis)}${euro(t.ergebnis, 2)}`))));
+    }
+    if (!P.trades.length) tr.append(el("div", { class: "leer" }, "Noch kein abgeschlossener Trade."));
+    main.append(abschnitt("positionen", "Positionen & Trades", "Übungsdepot", el("div", { class: "zwei breit" }, pos, tr)));
+    const navP = document.getElementById("nav-positionen");
+    navP.hidden = false; navP.textContent = P.positionen.length;
+  }
+
+  // ---------- Claude-Depot ----------
+  if (C && C.seit_start) {
+    const werte = [["Claude-Depot", C.seit_start.claude, s3], ["Übungsdepot", C.seit_start.bot, s1], ["Nasdaq-100", C.seit_start.qqq, s2]].filter(w => w[1] !== null);
+    const groesst = Math.max(1, ...werte.map(w => Math.abs(w[1])));
+    const verg = el("div", { class: "vergleich", role: "img", "aria-label": werte.map(w => `${w[0]} ${prozent(w[1])}`).join(", ") });
+    for (const [name, wert, farbe] of werte) {
+      const breite = (Math.abs(wert) / groesst) * 50;
+      verg.append(el("div", { class: "balken-zeile" },
+        el("div", { class: "name" }, el("i", { style: `background:${farbe}` }), name),
+        el("div", { class: "feld" }, el("div", { class: "null", style: "left:50%" }),
+          el("div", { class: "balken", style: `background:${farbe};${wert >= 0 ? `left:50%` : `left:${50 - breite}%`};width:${Math.max(breite, 0.6)}%` })),
+        el("div", { class: `wert ${richtung(wert)}` }, prozent(wert))));
+    }
+    const diff = C.seit_start.bot !== null ? C.seit_start.claude - C.seit_start.bot : null;
+    const kopf = el("div", { class: "panel-innen", style: "padding-bottom:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap" },
+      el("div", { class: "label" }, `Seit Versuchsbeginn ${datum(C.versuch_ab, false)} · Stand ${datum(C.bis, false)}`),
+      diff === null ? null : el("div", { class: "label" }, "Wirkung von Claudes Entscheidungen: ", el("b", { class: richtung(diff), style: "font-size:12px" }, `${vz(diff)}${zahl(diff, 2)} Pkt`)));
+    const entsch = el("div", {});
+    for (const e of C.entscheidungen.slice(0, 4)) {
+      const ausl = Object.entries(e.auslassen || {}), nehm = Object.entries(e.nehmen || {});
+      entsch.append(el("div", { class: "entscheidung" },
+        el("div", { class: "kopfz" }, el("span", { class: "label" }, `Signale vom ${datum(e.signal_tag)}`),
+          el("span", { class: "label" }, `festgehalten ${zeitpunkt(new Date(e.entschieden))} Uhr`)),
+        ausl.map(([t, g]) => el("p", {}, "❌ ", el("b", {}, t), ` ausgelassen – ${g}`)),
+        nehm.map(([t, g]) => el("p", {}, "✅ ", el("b", {}, t), ` genommen – ${g}`)),
+        e.notiz ? el("p", {}, e.notiz) : null));
+    }
+    if (!C.entscheidungen.length) entsch.append(el("div", { class: "leer" }, "Noch keine Entscheidung – ohne Entscheidung kauft das Claude-Depot wie der Bot."));
+    const link = D.repo ? el("a", { href: `https://github.com/${D.repo}/issues?q=label%3Aclaude-depot`, target: "_blank", rel: "noopener" }, "Entscheidungen bei GitHub") : null;
+    main.append(abschnitt("claude", "Claude-Depot (Versuch)", "gleiche Regeln – nur lässt Claude einzelne Kauf-Signale aus",
+      el("div", { class: "panel" }, kopf, verg, entsch,
+        el("div", { class: "panel-innen", style: "border-top:1px solid var(--line-soft);font-size:12px;color:var(--text-2)" },
+          `Depotwert ${euro(C.wert)} · ${C.positionen.length} ${C.positionen.length === 1 ? "Position" : "Positionen"} · ${C.ausgelassen} ${C.ausgelassen === 1 ? "Signal" : "Signale"} ausgelassen. `, link))));
+  }
+
+  // ---------- Nachrichten ----------
+  const nach = el("div", { class: "panel" });
+  for (const n of D.schlagzeilen) {
+    const zeit = zeitpunkt(new Date(n.zeit));
+    nach.append(el("div", { class: "nachricht" },
+      el("div", { class: "t", style: "font-weight:700" }, n.ticker),
+      el("div", {}, n.warnt ? el("span", { class: "schlecht", title: "spricht gegen das Signal" }, "⚠ ") : null, n.titel,
+        el("div", { class: "meta" }, `${zeit} · ${n.quelle}${n.ereignisse.length ? " · " + n.ereignisse.join(", ") : ""}`))));
+  }
+  if (!D.schlagzeilen.length) nach.append(el("div", { class: "leer" }, "Keine Schlagzeilen zu Aktien mit Signal."));
+  main.append(abschnitt("nachrichten", "Nachrichten", "Schlagzeilen der letzten Tage zu Aktien mit Signal", nach));
+
+  // ---------- Fuß ----------
+  const bericht = D.repo ? `https://github.com/${D.repo}/blob/main/bericht/README.md` : null;
+  main.append(el("footer", { class: "fuss" },
+    el("span", {}, "Simulation mit echten Kursen, ohne echtes Geld – keine Anlageberatung."),
+    el("span", {}, bericht ? el("a", { href: bericht, target: "_blank", rel: "noopener" }, "Ganzer Bericht") : null, bericht ? " · " : "",
+      `aktualisiert ${lief} Uhr`)));
+  document.getElementById("seite-fuss").replaceChildren(document.createTextNode(`Bot lief ${lief}`), el("br"), document.createTextNode(`Daten bis ${datum(D.daten_bis, false)}`));
+
+  // Kugel, Linien, Navigation
+  kugel(canvas);
+  const neuLinien = () => kernLinien(kern);
+  requestAnimationFrame(neuLinien);
+  new ResizeObserver(neuLinien).observe(kern);
+  const links = [...document.querySelectorAll(".seite a")];
+  const ziele = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  const beobachter = new IntersectionObserver(eintraege => {
+    for (const e of eintraege) if (e.isIntersecting) {
+      links.forEach(a => a.classList.toggle("aktiv", a.getAttribute("href") === `#${e.target.id}`));
+    }
+  }, { rootMargin: "-30% 0px -60% 0px" });
+  ziele.forEach(z => beobachter.observe(z));
+}
+
+fetch(`daten.json?${Date.now()}`, { cache: "no-store" })
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(aufbauen)
+  .catch(fehler => {
+    console.error(fehler);
+    document.getElementById("inhalt").replaceChildren(el("div", { class: "fehlerseite" },
+      el("p", {}, "Noch keine Daten vom Bot."),
+      el("p", { class: "label", style: "text-transform:none;letter-spacing:.02em" }, "Die Seite füllt sich nach dem nächsten Lauf des Bots (morgens an Börsentagen).")));
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+# Übersichtsseite (docs/index.html + docs/daten.json) bei GitHub Pages veröffentlichen.
+# Einmalig einschalten: Repository -> Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+# Die Seite liegt dann unter https://<Benutzername>.github.io/<Repository>/ und ist öffentlich (wie das Repository).
+name: Übersichtsseite
+
+on:
+  workflow_run: # nach jedem Lauf des Bots (er speichert neue Daten in docs/daten.json)
+    workflows: ["Swing-Bot"]
+    types: [completed]
+  push: # wenn die Seite selbst geändert wird
+    branches: [main]
+    paths: ["docs/**"]
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  veroeffentlichen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.seite.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main # neuester Stand – auch nach einem Bot-Lauf, der seine Daten gerade gespeichert hat
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Seite veröffentlichen
+        id: seite
+        uses: actions/deploy-pages@v4

@@ -71,7 +71,7 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot am Morgen nach jede
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
 | `OPTIONEN` | `--bruchstuecke --gebuehr 0` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
 
-Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--claude-depot`, `--claude-entscheidungen`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
+Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--claude-depot`, `--claude-entscheidungen`, `--uebersicht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 
 **Nachricht aufs Handy bei Kauf-Signalen.** Hat der Bot ein Signal, schreibt er nach dem Lauf einen Kommentar ins Thema **„📲 Swing-Bot: Signale“** (Tab **Issues**; das Thema legt er beim ersten Signal selbst an): Aktie, Strategie, Stückzahl, Limit, Stop, Ziel und bis wann verkaufen – dazu ein Link zum Bericht. GitHub schickt dir dazu eine E-Mail, und mit der **GitHub-App** kommt eine Push-Nachricht. Einmalig einrichten:
 
@@ -90,6 +90,21 @@ Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jed
 - **Fälschungssicher:** Claude schreibt seine Entscheidung als Kommentar ins Thema **„🧠 Claude-Depot: Entscheidungen“** (Tab Issues, Label `claude-depot`). Es zählen nur Kommentare des Repository-Besitzers, die vor der Eröffnung des nächsten US-Handelstags geschrieben und danach nicht mehr geändert wurden – mit dem Zeitstempel von GitHub. Was später kommt, steht im Bericht als „nicht gezählt“. Fremde Kommentare im öffentlichen Repository zählen nie.
 - **Auswertung:** Im Bericht stehen unter „🧠 CLAUDE-DEPOT (Versuch)“ der Vergleich seit Versuchsbeginn (Claude-Depot, Übungsdepot, Nasdaq-100) und Claudes letzte Entscheidung. Der Unterschied zum Übungsdepot ist allein die Wirkung von Claudes Entscheidungen. Ehrlich: Erst nach vielen Monaten und Hunderten Trades lässt sich ein kleiner Vorteil von Glück unterscheiden.
 - **Beenden:** im Ablauf `.github/workflows/swing-bot.yml` die Optionen `--claude-depot` und `--claude-entscheidungen` entfernen. Neu anfangen: `papier/claude_depot.json` löschen (dann wieder eine Kopie des Übungsdepots).
+
+**Übersichtsseite: alles auf einen Blick, auch am Handy.** Der Bot schreibt bei jedem Lauf die Daten für eine dunkle Übersichtsseite (`docs/index.html`, Daten in `docs/daten.json`). Darauf stehen:
+
+- **Gehirn-Kern:** was heute reinkam (Aktien, Strategien, Tagebuch, Termine) und was rauskam (Signale, Warten, Gewinne sichern)
+- **Kennzahlen:** Übungsdepot, Vergleich mit dem Nasdaq-100, Trefferquote, Rendite und größter Rückgang im Rückblick
+- **Signale als Karten:** Limit, Stop und Ziel mit Balken
+- **Depotkurve:** gegen den Nasdaq-100, mit Fadenkreuz und Rückgang vom Hoch
+- **Strategien:** mit Mini-Kurven und den letzten 10 Trades
+- offene Positionen zwischen Stop und Ziel, Claude-Depot und Nachrichten
+
+1. **Einmalig einschalten:** **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. **Einmal starten:** **Actions → Übersichtsseite → Run workflow**. Danach wird die Seite nach jedem Lauf des Bots von selbst neu veröffentlicht.
+3. **Öffnen:** `https://<Benutzername>.github.io/<Repository>/`, hier also https://sickingmalte-arch.github.io/Test-Bot/. Am Handy im Browser **„Zum Home-Bildschirm“** wählen, dann öffnet sie sich wie eine App.
+
+Die Seite ist öffentlich wie das Repository.
 
 Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Mit Krypto in `TICKER` rechnet das Papier-Depot einen Tag später weiter (der Krypto-Tag endet erst um 2:00 Uhr deutscher Sommerzeit). Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
 
@@ -233,6 +248,7 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 | `--gehirn` | Notizen für Obsidian in `gehirn/` schreiben (Tagesnotiz, Trade-Tagebuch mit Lehren, Strategie- und Aktien-Seiten) und dort `Meine Regeln.md` lesen (gesperrte Aktien, ausgeschaltete Strategien); eigener Ordner mit `--gehirn ORDNER` |
 | `--claude-depot DATEI` | Claude-Depot (Versuch, nur mit `--papier`): startet als Kopie des Papier-Depots und rechnet mit denselben Regeln weiter – ohne die Signale, die Claude rechtzeitig ausgelassen hat |
 | `--claude-entscheidungen DATEI` | Claudes Entscheidungen fürs Claude-Depot (Kommentare aus dem GitHub-Thema als JSON; holt der automatische Lauf) |
+| `--uebersicht DATEI` | Daten für die Übersichtsseite (`docs/index.html`) als JSON in DATEI schreiben (nutzt der automatische Lauf: `docs/daten.json`) |
 | `--nachricht DATEI` | bei Kauf-Signalen den Handelsplan als kurze Nachricht in DATEI schreiben (nutzt der automatische Lauf für die Nachricht aufs Handy; ohne Signal wird die Datei gelöscht) |
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |

@@ -283,6 +283,8 @@ def lies_einstellungen():
     p.add_argument("--claude-entscheidungen", metavar="DATEI",
                    help="Claudes Entscheidungen für das Claude-Depot: Kommentare aus dem GitHub-Thema als JSON "
                         "(holt der Workflow)")
+    p.add_argument("--uebersicht", metavar="DATEI",
+                   help="Daten für die Übersichtsseite (docs/index.html) als JSON in DATEI schreiben")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--bericht", metavar="DATEI",
                    help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
@@ -2670,9 +2672,10 @@ def claude_lauf(datei, stand, fehler, papier, daten, extra, roh, fx, fx_je_ticke
             speichere_papier(datei, stand)
         except OSError as problem:
             return nur_hinweis([f"⚠️ Claude-Depot nicht gespeichert ({problem}) – der nächste Lauf versucht es erneut."])
-        return nur_hinweis(claude_zeilen(stand, papier, markt, fx, []) + [
+        nur_hinweis(claude_zeilen(stand, papier, markt, fx, []) + [
             f"Der Versuch beginnt heute mit {de(stand['depotwert'])} {waehrung}, denselben Positionen und Aufträgen wie das "
             f"Übungsdepot. Gespeichert in: {os.path.relpath(datei)}"])
+        return stand
     entsch = dict(stand.get("entscheidungen") or {})
     entsch.update({t: e for t, e in neue.items() if t >= stand["versuch_ab"]})
     stand = dict(stand, entscheidungen=entsch)
@@ -2683,6 +2686,155 @@ def claude_lauf(datei, stand, fehler, papier, daten, extra, roh, fx, fx_je_ticke
     return papier_lauf(datei, stand, None, daten, extra, roh, fx, fx_je_ticker, zusatz, pausen, einst, waehrung,
                        notebook, markt, trend, veto=veto, titel=CLAUDE_TITEL,
                        vorne=lambda neu: claude_zeilen(neu, papier, markt, fx, zu_spaet))
+
+# ----------------------------------------------------------------------------
+# Übersichtsseite (docs/index.html): der Bot schreibt nur die Daten als JSON, die Seite stellt sie dar
+# ----------------------------------------------------------------------------
+SIGNAL_ART = {KAUFEN: "kaufen", SHORT: "short", WARTEN: "warten", SICHERN: "sichern", BEOBACHTEN: "beobachten",
+              FEHLER: "fehler"}
+
+def zahl(x, nachkomma=2):
+    """Zahl für JSON (None statt NaN/inf)."""
+    try:
+        x = float(x)
+    except (TypeError, ValueError):
+        return None
+    return round(x, nachkomma) if math.isfinite(x) else None
+
+def depot_export(stand, daten, markt, fx):
+    """Ein Papier-Depot (Übungs- oder Claude-Depot) für die Übersichtsseite."""
+    if not stand or not stand.get("bis"):
+        return None
+    werte = pd.Series([w for _, w in stand["verlauf"]], dtype=float)
+    vergleich = papier_vergleich(stand, markt, fx)
+    positionen = []
+    for p in stand["positionen"]:
+        d = daten.get(p["ticker"])
+        kurs = rate = None
+        if d is not None and d["n_fertig"]:
+            i = d["n_fertig"] - 1
+            kurs, rate = d["C"][i], d["FX"][i]
+        wert = positionswert(p, kurs, rate) if kurs is not None else None
+        positionen.append({
+            "ticker": p["ticker"], "strategie": strategie_name(p["strategie"]), "kauf_tag": str(p["kauf_tag"])[:10],
+            "stueck": zahl(p["stueck"], 4), "einstieg": zahl(p["einsatz_je_stueck"]),
+            "stop": zahl(p["stop"] / rate) if rate else None, "ziel": zahl(p["ziel"] / rate) if rate else None,
+            "kurs": zahl(kurs / rate) if rate else None, "wert": zahl(wert),
+            "ergebnis": zahl(wert - p["kosten"]) if wert is not None else None,
+            # Lage zwischen Stop (0) und Ziel (1) in Kurswährung, für den Balken
+            "lage": zahl((kurs - p["stop"]) / (p["ziel"] - p["stop"]), 3) if kurs is not None and p["ziel"] != p["stop"]
+            else None,
+            "einstieg_lage": zahl((p["einstieg_usd"] - p["stop"]) / (p["ziel"] - p["stop"]), 3)
+            if p["ziel"] != p["stop"] else None})
+    trades = [{"ticker": t["ticker"], "strategie": strategie_name(t["strategie"]), "kauf_tag": t["kauf_tag"],
+               "verkauf_tag": t["verkauf_tag"], "grund": t["grund"], "ergebnis": zahl(t["erloes"] - t["kosten"]),
+               "prozent": zahl((t["erloes"] / t["kosten"] - 1) * 100, 1) if t["kosten"] else None}
+              for t in stand["trades"][-30:]][::-1]
+    alle = stand["trades"]
+    ok, verfallen = ausfuehrbare_auftraege(stand)
+    return {
+        "angelegt": stand.get("angelegt"), "bis": stand["bis"], "startkapital": zahl(stand["startkapital"]),
+        "wert": zahl(stand["depotwert"]), "bargeld": zahl(stand["bargeld"]),
+        "verlauf": [[t, zahl(w)] for t, w in stand["verlauf"]],
+        "qqq": [[iso(t), zahl(w)] for t, w in vergleich.items()] if vergleich is not None else None,
+        "max_rueckgang": zahl(((werte.cummax() - werte) / werte.cummax()).max() * 100, 1) if len(werte) else None,
+        "trades_anzahl": len(alle), "gewinner": sum(1 for t in alle if t["erloes"] > t["kosten"]),
+        "summe": zahl(sum(t["erloes"] - t["kosten"] for t in alle)),
+        "positionen": positionen, "trades": trades,
+        "auftraege": [{"ticker": a["ticker"], "strategie": strategie_name(a["strategie"])} for a in ok],
+        "verfallen": [{"grund": g, "ticker": t} for g, t in verfallen.items()],
+    }
+
+def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier, claude, depot, daten, markt, fx,
+                     trend, lern, tagebuch, news, fehlt):
+    """Alles, was die Übersichtsseite zeigt, als JSON-fähiges dict."""
+    ok = [z for z in zeilen if "_stand" in z]
+    stand_tag = max(z["_stand"] for z in ok)
+    nach = {z["Ticker"]: z for z in zeilen}
+    signale = []
+    for t in reihenfolge:
+        z = nach[t]
+        signale.append({"ticker": t, "art": SIGNAL_ART.get(z.get("Signal"), "fehler"),
+                        "strategie": z.get("Strategie") or "", "kurs": zahl(z.get("Kurs")),
+                        "limit": zahl(z.get("Limit")), "stop": zahl(z.get("Stop")), "ziel": zahl(z.get("Ziel")),
+                        "crv": zahl(z.get("CRV")), "stueck": zahl(z.get("Stück"), 4), "einsatz": zahl(z.get("Einsatz")),
+                        "risiko": zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
+                        "branche": BRANCHE.get(t), "im_plan": t in im_plan, "fehler": z.get("_fehler")})
+    strategien = []
+    for k, s in STRATEGIEN.items():
+        if s["richtung"] < 0 and not einst.mit_short:
+            continue
+        l = lern.get(k, {})
+        rs = [e["R"] for e in tagebuch if e["strategie"] == k][-LERNEN_FENSTER:]
+        kurve = list(np.round(np.cumsum(rs), 2)) if rs else []
+        status = ("aus" if k in einst.sperre_strategien else "pausiert" if l.get("pausiert") else "aktiv")
+        strategien.append({"name": strategie_name(k), "regel": s["regel"], "status": status,
+                           "trades": l.get("n", 0), "gesamt": l.get("gesamt", 0), "schnitt": zahl(l.get("schnitt"), 3),
+                           "quote": zahl(l.get("quote"), 1), "spanne": zahl(l.get("spanne"), 3),
+                           "kurve": [zahl(x) for x in kurve]})
+    schlagzeilen = []
+    for t, n in (news or {}).items():
+        for z in n.get("zeilen", []):
+            schlagzeilen.append({"ticker": t, "titel": z["titel"], "zeit": z["zeit"].isoformat(),
+                                 "quelle": z.get("quelle") or "", "warnt": bool(z.get("warnt")),
+                                 "ereignisse": list(z.get("ereignisse") or [])})
+    schlagzeilen.sort(key=lambda x: x["zeit"], reverse=True)
+    rueckblick = None
+    if depot is not None:
+        tr = depot["trades"]
+        q = None
+        if markt is not None and fx is not None:
+            idx = markt["idx"][:markt["n_fertig"]]
+            kurse = pd.Series(markt["C"][:markt["n_fertig"]], index=idx) / kurs_umrechner(fx, idx)
+            kurse = kurse.reindex(kurse.index.union(depot["verlauf"].index)).ffill().reindex(depot["verlauf"].index)
+            if kurse.notna().all() and kurse.iloc[0] > 0:
+                q = [[iso(t), zahl(depot["start_wert"] * w / kurse.iloc[0])] for t, w in kurse.items()]
+        rueckblick = {"monate": einst.rueckblick, "start": iso(depot["start"]), "ende": iso(depot["ende"]),
+                      "start_wert": zahl(depot["start_wert"]), "end_wert": zahl(depot["end_wert"]),
+                      "max_rueckgang": zahl(depot["max_rueckgang"], 1), "trades_anzahl": len(tr),
+                      "gewinner": sum(1 for x in tr if x["erloes"] > x["kosten"]),
+                      "verlauf": [[iso(t), zahl(w)] for t, w in depot["verlauf"].items()], "qqq": q,
+                      "halten": [[iso(t), zahl(w)] for t, w in depot["vergleich"].items()]
+                      if depot["vergleich"] is not None else None}
+    claude_teil = depot_export(claude, daten, markt, fx)
+    if claude_teil is not None and claude.get("versuch_ab"):
+        start = claude["versuch_start"]
+        entsch = claude.get("entscheidungen") or {}
+        claude_teil.update({
+            "versuch_ab": claude["versuch_ab"],
+            "seit_start": {"claude": zahl((claude["depotwert"] / start["claude"] - 1) * 100, 2),
+                           "bot": zahl((papier["depotwert"] / start["bot"] - 1) * 100, 2)
+                           if papier is not None and papier.get("bis") == claude["bis"] else None,
+                           "qqq": zahl(qqq_seit(markt, fx, claude["versuch_ab"], claude["bis"]), 2)},
+            "entscheidungen": [dict(e, signal_tag=t) for t, e in sorted(entsch.items())[-10:]][::-1],
+            "ausgelassen": sum(len(e["auslassen"]) for e in entsch.values())})
+    lage = trend.dropna().iloc[-1] if trend is not None and trend.notna().any() else None
+    return {
+        "version": 1, "erstellt": pd.Timestamp.now(tz=BERLIN).isoformat(timespec="seconds"),
+        "daten_bis": iso(stand_tag), "fehlt": iso(fehlt) if fehlt is not None else None,
+        "vorlaeufig": any(z["_offen"] for z in ok), "waehrung": waehrung, "konto": zahl(einst.konto),
+        "risiko": zahl(einst.risiko), "repo": os.environ.get("GITHUB_REPOSITORY"),
+        "markt": {"ueber_200": None if lage is None else bool(lage == 1)},
+        "regeln": {"max_positionen": MAX_POSITIONEN, "max_je_branche": MAX_JE_BRANCHE,
+                   "max_risiko": MAX_GESAMTRISIKO_PROZENT, "zeitstopp": ZEITSTOPP_TAGE},
+        "gehirn": {"aktien": len(daten), "strategien": len(strategien),
+                   "aktiv": sum(1 for s in strategien if s["status"] == "aktiv"),
+                   "termine": sum(1 for d in daten.values() if d["termine"] is not None),
+                   "schlagzeilen": len(schlagzeilen), "tagebuch": len(tagebuch),
+                   "kaufen": sum(1 for x in signale if x["art"] in ("kaufen", "short")),
+                   "warten": sum(1 for x in signale if x["art"] == "warten"),
+                   "sichern": sum(1 for x in signale if x["art"] == "sichern"), "im_plan": len(im_plan)},
+        "signale": signale, "plan": plan, "strategien": strategien, "schlagzeilen": schlagzeilen[:12],
+        "papier": depot_export(papier, daten, markt, fx), "claude": claude_teil, "rueckblick": rueckblick,
+    }
+
+def schreibe_uebersicht(datei, inhalt):
+    """Schreibt die Daten der Übersichtsseite (erst in eine Hilfsdatei, dann ersetzen)."""
+    ordner = os.path.dirname(os.path.abspath(datei))
+    os.makedirs(ordner, exist_ok=True)
+    with open(datei + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(inhalt, f, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+    os.replace(datei + ".tmp", datei)
 
 # ----------------------------------------------------------------------------
 # Gehirn für Obsidian: Notizen, die der Bot bei jedem Lauf schreibt – und „Meine Regeln“, die er liest
@@ -3631,9 +3783,10 @@ def auswerten(einst):
     if einst.papier:
         papier = papier_lauf(papier_datei, papier_stand, papier_fehler, daten, papier_extra, roh, fx, fx_je_ticker,
                              zusatz, pausen, einst, waehrung, notebook, markt, trend)
+    claude = None
     if claude_datei:
-        claude_lauf(claude_datei, claude_stand, claude_fehler, papier, daten, claude_extra, roh, fx, fx_je_ticker,
-                    zusatz, pausen, einst, waehrung, notebook, markt, trend)
+        claude = claude_lauf(claude_datei, claude_stand, claude_fehler, papier, daten, claude_extra, roh, fx,
+                             fx_je_ticker, zusatz, pausen, einst, waehrung, notebook, markt, trend)
     depot = ohne = None
     if einst.rueckblick > 0:
         depot = simuliere_depot(daten, pausen, einst, einst.lernen)
@@ -3682,6 +3835,16 @@ def auswerten(einst):
                 BERICHT_HINWEISE.append(h)
         except Exception as fehler:  # das Gehirn darf den Lauf (Bericht, Papier-Depot) nie verhindern
             text = f"Gehirn konnte nicht geschrieben werden ({type(fehler).__name__}: {fehler})."
+            print(f"⚠️ {text}")
+            BERICHT_HINWEISE.append(text)
+
+    if einst.uebersicht:
+        try:
+            schreibe_uebersicht(einst.uebersicht, uebersicht_daten(
+                einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier, claude, depot, daten, markt, fx, trend,
+                stand, tagebuch, news, fehlt))
+        except Exception as fehler:  # die Übersichtsseite darf den Lauf nie verhindern
+            text = f"Übersichtsseite nicht geschrieben ({type(fehler).__name__}: {fehler})."
             print(f"⚠️ {text}")
             BERICHT_HINWEISE.append(text)
 
