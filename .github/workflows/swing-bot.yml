@@ -1,6 +1,7 @@
 # Swing-Bot automatisch: am Morgen nach jedem US-Börsentag in der Cloud bei GitHub.
-# Ergebnis: bericht/README.md (Signale, Papier-Depot, Rückblick), papier/papier_depot.json und das Gehirn für
-# Obsidian in gehirn/ (Tagesnotiz, Trade-Tagebuch mit Lehren; der Bot liest gehirn/Meine Regeln.md).
+# Ergebnis: bericht/README.md (Signale, Papier-Depot, Rückblick), papier/papier_depot.json, das Gehirn für
+# Obsidian in gehirn/ (Tagesnotiz, Trade-Tagebuch mit Lehren; der Bot liest gehirn/Meine Regeln.md) und die Daten der
+# Übersichtsseite in docs/daten.json (veröffentlicht vom Ablauf uebersicht.yml).
 # Einstellungen ohne Code ändern: Repository -> Settings -> Secrets and variables -> Actions ->
 # Tab "Variables": KONTO (z. B. 10000), RISIKO (z. B. 1), TICKER (z. B. "AAPL, NFLX, SOFI"),
 # OPTIONEN (nur Schalter wie "--ohne-short --ohne-news", siehe README).
@@ -77,7 +78,8 @@ jobs:
           set -- --konto "$KONTO" --risiko "$RISIKO" --rueckblick 12 \
                  --papier papier/papier_depot.json --bericht bericht/README.md --gehirn gehirn \
                  --nachricht "$RUNNER_TEMP/nachricht.md" \
-                 --claude-depot papier/claude_depot.json --claude-entscheidungen "$RUNNER_TEMP/claude_entscheidungen.json"
+                 --claude-depot papier/claude_depot.json --claude-entscheidungen "$RUNNER_TEMP/claude_entscheidungen.json" \
+                 --uebersicht docs/daten.json
           if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
           # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
           # shellcheck disable=SC2086
@@ -105,7 +107,7 @@ jobs:
         run: |
           git config user.name "swing-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for ordner in papier bericht gehirn; do
+          for ordner in papier bericht gehirn docs; do
             if [ -e "$ordner" ]; then git add -A "$ordner"; fi
           done
           if git diff --cached --quiet; then
@@ -121,7 +123,7 @@ jobs:
             fi
             sleep $((versuch * 5))
           done
-          echo "::error::Nicht gespeichert – meist, weil papier/, bericht/ oder gehirn/ während des Laufs geändert wurde (z. B. Datei hochgeladen). Sonst steht der Grund im Protokoll darüber (z. B. Zweigschutz oder GitHub-Störung). Der nächste Lauf rechnet vom gespeicherten Stand weiter."
+          echo "::error::Nicht gespeichert – meist, weil papier/, bericht/, gehirn/ oder docs/ während des Laufs geändert wurde (z. B. Datei hochgeladen). Sonst steht der Grund im Protokoll darüber (z. B. Zweigschutz oder GitHub-Störung). Der nächste Lauf rechnet vom gespeicherten Stand weiter."
           exit 1
 
       - name: Nachricht aufs Handy
