@@ -93,6 +93,7 @@ Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jed
 
 **Übersichtsseite: alles auf einen Blick, auch am Handy.** Der Bot schreibt bei jedem Lauf die Daten für eine dunkle Übersichtsseite (`docs/index.html`, Daten in `docs/daten.json`). Darauf stehen:
 
+- **Fazit:** Was hat das Übungsdepot am letzten Börsentag verdient oder verloren, was hat der Bot gekauft und verkauft, und welche Aktie hat wie viel beigetragen? Umschaltbar auf Woche, Monat und alles, mit Pfeilen zum Zurückblättern, Vergleich mit dem Nasdaq-100 und dem Claude-Depot, Balken für jeden Tag und einem Kalender mit dem Ergebnis jedes Börsentags (antippen zeigt den Tag oder die Woche).
 - **Gehirn-Kern:** was heute reinkam (Aktien, Strategien, Tagebuch, Termine) und was rauskam (Signale, Warten, Gewinne sichern)
 - **Kennzahlen:** Übungsdepot, Vergleich mit dem Nasdaq-100, Trefferquote, Rendite und größter Rückgang im Rückblick
 - **Signale als Karten:** Limit, Stop und Ziel mit Balken. Auf jeder Karte steht, was das Übungsdepot damit macht (wird gekauft, schon im Depot, Depot voll). Quartalszahlen in weniger als 7 Tagen sind rot markiert, auch bei den offenen Positionen.

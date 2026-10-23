@@ -273,6 +273,84 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .fuss { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--text-3); font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; }
 .fehlerseite { max-width: 520px; margin: 18vh auto; padding: 24px; text-align: center; color: var(--text-2); }
 
+/* ---------- Fazit: Tag, Woche, Monat, alles ---------- */
+.fazit-kopf { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 16px 0; }
+.blaettern { display: flex; align-items: center; gap: 6px; }
+.blaettern button {
+  width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--line); background: transparent; color: var(--text-2);
+  font: 600 15px/1 var(--sans); cursor: pointer;
+}
+.blaettern button:hover:not(:disabled) { color: var(--text-1); background: var(--panel-hi); }
+.blaettern button:disabled { opacity: .35; cursor: default; }
+.blaettern .wann { font: 600 11px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--text-1); min-width: 150px; text-align: center; }
+.blaettern button:focus-visible, .kalender button:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.fazit-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 20px; align-items: end; padding: 14px 16px 4px; }
+.fazit-hero .gross { font: 600 40px/1.05 var(--sans); font-variant-numeric: tabular-nums; margin-top: 6px; white-space: nowrap; }
+.fazit-hero .unter { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+.vergleiche { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.vergleich-kachel { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 120px; background: var(--bg); }
+.vergleich-kachel .wert { font: 600 15px/1.2 var(--sans); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.fazit-satz { margin: 8px 16px 0; padding: 10px 12px; border-radius: 8px; background: var(--panel-hi); border: 1px solid var(--line-soft); font-size: 13.5px; color: var(--text-1); }
+.fazit-zahlen { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 12px 16px 2px; font-size: 12.5px; color: var(--text-2); }
+.fazit-zahlen b { color: var(--text-1); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fazit-balken { position: relative; padding: 6px 16px 0; }
+.fazit-balken svg { display: block; width: 100%; overflow: visible; }
+.fazit-balken text { font: 10px var(--mono); fill: var(--text-3); }
+.fazit-balken rect.tag { cursor: pointer; }
+.fazit-raster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line-soft); margin-top: 14px; }
+.fazit-raster > div { padding: 12px 16px 14px; border-right: 1px solid var(--line-soft); min-width: 0; }
+.fazit-raster > div:last-child { border-right: 0; }
+.fazit-raster .label { margin-bottom: 8px; }
+.fazit-zeile { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line-soft); font-size: 12.5px; }
+.fazit-zeile:last-child { border-bottom: 0; }
+.fazit-zeile .t { font-weight: 700; }
+.fazit-zeile .klein { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; }
+.fazit-zeile .rechts { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.beitrag { display: grid; grid-template-columns: 52px minmax(0, 1fr) 76px; gap: 8px; align-items: center; margin: 7px 0; font-size: 12.5px; }
+.beitrag .t { font-weight: 700; }
+.beitrag .feld { position: relative; height: 14px; }
+.beitrag .null { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: #2a3542; }
+.beitrag .balken { position: absolute; top: 2px; height: 10px; }
+.beitrag .balken.gut { background: var(--gut); border-radius: 0 3px 3px 0; }
+.beitrag .balken.schlecht { background: var(--schlecht); border-radius: 3px 0 0 3px; }
+.beitrag .wert { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kalender { padding: 4px 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px 24px; }
+.monat-kopf { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin: 10px 0 8px; }
+.monat-kopf .name { font: 600 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-1); }
+.monat-kopf .summe { font-size: 12px; font-variant-numeric: tabular-nums; }
+.monat-gitter { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.15fr); gap: 4px; }
+.monat-gitter .wt { font: 600 9.5px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); text-align: center; padding-bottom: 2px; }
+.kal-tag {
+  position: relative; height: 44px; border-radius: 6px; border: 1px solid var(--line-soft); background: transparent; color: var(--text-1);
+  padding: 4px 5px; text-align: left; font: inherit; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;
+}
+button.kal-tag { cursor: pointer; }
+button.kal-tag:hover { border-color: #3a4654; }
+.kal-tag .nr { font: 10px/1 var(--mono); color: var(--text-3); }
+.kal-tag .pz { font: 600 10.5px/1 var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; overflow: hidden; }
+.kal-tag.leer { border-style: dashed; opacity: .45; }
+.kal-tag.leer .nr { color: var(--text-3); }
+.kal-tag.woche { background: var(--panel-hi); border-color: var(--line); }
+.kal-tag.gewaehlt { outline: 2px solid var(--s1); outline-offset: 1px; }
+.kal-legende { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-2); }
+.kal-legende i { width: 16px; height: 10px; border-radius: 3px; display: inline-block; }
+@media (max-width: 860px) {
+  .fazit-raster { grid-template-columns: minmax(0, 1fr); }
+  .fazit-raster > div { border-right: 0; border-bottom: 1px solid var(--line-soft); }
+  .fazit-raster > div:last-child { border-bottom: 0; }
+  .fazit-hero { grid-template-columns: minmax(0, 1fr); }
+  .vergleiche { justify-content: flex-start; }
+}
+@media (max-width: 560px) {
+  .fazit-hero .gross { font-size: 34px; }
+  .blaettern .wann { min-width: 0; flex: 1; }
+  .blaettern { width: 100%; }
+  .vergleich-kachel { flex: 1; min-width: 0; }
+  .kalender { grid-template-columns: minmax(0, 1fr); padding: 4px 12px 14px; }
+  .kal-tag { height: 42px; padding: 3px 4px; }
+  .kal-tag .pz { font-size: 9.5px; }
+}
+
 /* ---------- Erklärungen (i), Status auf den Karten, Quartalszahlen, Klappen ---------- */
 .info {
   position: relative; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-left: 5px; padding: 0; border-radius: 50%;
@@ -398,9 +476,9 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
   .geruest { grid-template-columns: minmax(0, 1fr); }
   main { display: flex; flex-direction: column; }
   main > .hinweis { order: 0; }
-  #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
+  #fazit { order: 0; } #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
   #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } main > .fuss { order: 8; }
-  .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
+  .seite a[href="#fazit"] { order: 0; } .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
   .seite a[href="#depot"] { order: 4; } .seite a[href="#positionen"] { order: 5; } .seite a[href="#claude"] { order: 6; }
   .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; } .seite a[href="#chat"] { order: 9; }
   .seite {
@@ -474,6 +552,7 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
     <a href="#gehirn" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
     <a href="#kennzahlen"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Kennzahlen</a>
     <div class="label gruppe">Heute</div>
+    <a href="#fazit"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Fazit</a>
     <a href="#signale"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 12l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Signale<span class="zaehler hell" id="nav-signale" hidden></span></a>
     <div class="label gruppe">Geld</div>
     <a href="#depot"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 4V3h6v1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Depot &amp; Kurve</a>
@@ -824,6 +903,7 @@ const ERKLAERUNG = {
   quote: ["Trefferquote", "Anteil der Trades mit Gewinn. Allein sagt sie wenig: Ein paar große Gewinne können viele kleine Verluste ausgleichen – und umgekehrt."],
   rueckgang: ["Größter Rückgang", "Wie weit der Depotwert höchstens unter sein bisheriges Hoch gefallen ist. Diese Kachel zeigt den Rückblick: eine Simulation der letzten 12 Monate. Der Wert für das echte Übungsdepot steht darunter und unter der Kurve (Ansicht „Übungsdepot“)."],
   zahlen: ["Quartalszahlen", "An diesem Tag legt die Firma ihre Zahlen vor. Der Kurs kann dann stark springen – nach oben wie nach unten. Der Bot verkauft deshalb spätestens kurz vor den Zahlen. Rot heißt: weniger als 7 Tage. Dann bleibt einem neuen Trade nur wenig Zeit bis zum Ziel."],
+  fazit: ["Ergebnis", "So viel mehr (oder weniger) war das Übungsdepot zum Schluss wert als vorher – mit den noch offenen Positionen zum Schlusskurs (Buchgewinn oder -verlust) und nach Gebühren. „Woher kam das Ergebnis?“ zeigt den Anteil jeder Aktie, zusammen ergeben sie das Ergebnis. Umsatz: Wert aller Käufe und Verkäufe im Zeitraum."],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
 const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
@@ -943,6 +1023,306 @@ function bahn({ stop, ziel, kurs, einstieg, limit }) {
 }
 
 // ---------------------------------------------------------------------------
+// Fazit: Tag, Woche, Monat, alles – Ergebnis, Käufe, Verkäufe und Beitrag je Aktie im Übungsdepot
+// ---------------------------------------------------------------------------
+const MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+const isoVon = d => d.toISOString().slice(0, 10);
+const montagVon = iso => isoVon(new Date(tag(iso) - ((tag(iso).getUTCDay() + 6) % 7) * 864e5));
+function kalenderwoche(iso) {
+  const d = tag(iso), wt = (d.getUTCDay() + 6) % 7;
+  const donnerstag = new Date(d.getTime() + (3 - wt) * 864e5);
+  const jan4 = new Date(Date.UTC(donnerstag.getUTCFullYear(), 0, 4));
+  return 1 + Math.round(((donnerstag - jan4) / 864e5 - 3 + ((jan4.getUTCDay() + 6) % 7)) / 7);
+}
+const geld = (x, nk = 2) => x === null || x === undefined ? "–" : `${x > 0 ? "+" : ""}${euro(x, nk)}`;
+
+// Tagesbilanz vom Bot; ältere daten.json haben sie noch nicht – dann aus Verlauf, Positionen und Trades (ohne Beitrag je Aktie)
+function fazitTage(P) {
+  if (P.tage && P.tage.length) return P.tage;
+  return P.verlauf.map(([t, wert], k) => ({
+    tag: t, wert, aenderung: wert - (k ? P.verlauf[k - 1][1] : P.startkapital),
+    gekauft: [...P.positionen, ...P.trades].filter(p => p.kauf_tag === t).map(p => ({
+      ticker: p.ticker, strategie: p.strategie, stueck: p.stueck ?? null, preis: p.einstieg ?? null,
+      kosten: p.stueck && p.einstieg ? p.stueck * p.einstieg : null })),
+    verkauft: P.trades.filter(x => x.verkauf_tag === t).map(x => ({
+      ticker: x.ticker, strategie: x.strategie, grund: x.grund, ergebnis: x.ergebnis, prozent: x.prozent, seit: x.kauf_tag, erloes: null })),
+    beitraege: null,
+  }));
+}
+function fazitZeitraeume(tage, art) {
+  const schluessel = t => art === "tag" ? t.tag : art === "woche" ? montagVon(t.tag) : art === "monat" ? t.tag.slice(0, 7) : "alles";
+  const gruppen = [];
+  for (const t of tage) {
+    const k = schluessel(t);
+    if (!gruppen.length || gruppen[gruppen.length - 1].k !== k) gruppen.push({ k, tage: [] });
+    gruppen[gruppen.length - 1].tage.push(t);
+  }
+  return gruppen;
+}
+function zeitraumName(art, g) {
+  const a = g.tage[0].tag, b = g.tage[g.tage.length - 1].tag;
+  if (art === "tag") return datum(a);
+  if (art === "woche") return `KW ${kalenderwoche(a)} · ${datum(a, false)}${a === b ? "" : `–${datum(b, false)}`}`;
+  if (art === "monat") return `${MONATE[Number(a.slice(5, 7)) - 1]} ${a.slice(0, 4)}`;
+  return `seit ${datumJahr(a)}`;
+}
+function fasseZusammen(g, alle, P, C) {
+  const k0 = alle.indexOf(g.tage[0]);
+  const vortag = k0 > 0 ? alle[k0 - 1] : null;
+  const letzter = g.tage[g.tage.length - 1];
+  const start = vortag ? vortag.wert : P.startkapital, ende = letzter.wert, ergebnis = ende - start;
+  const q = new Map(P.qqq || []);
+  const qs = vortag ? q.get(vortag.tag) : P.startkapital, qe = q.get(letzter.tag);
+  let claude = null;
+  if (C) {
+    const c = new Map(C.verlauf), ce = c.get(letzter.tag), cs = vortag && c.has(vortag.tag) ? c.get(vortag.tag) : C.startkapital;
+    if (ce !== undefined && letzter.tag >= C.versuch_ab) claude = ce - cs;
+  }
+  const gekauft = g.tage.flatMap(t => t.gekauft.map(x => ({ ...x, tag: t.tag })));
+  const verkauft = g.tage.flatMap(t => t.verkauft.map(x => ({ ...x, tag: t.tag })));
+  let beitraege = null;
+  if (g.tage.every(t => Array.isArray(t.beitraege))) {
+    const m = new Map();
+    for (const t of g.tage) for (const b of t.beitraege) {
+      const alt = m.has(b.ticker) ? m.get(b.ticker) : 0;
+      m.set(b.ticker, alt === null || b.betrag === null ? null : alt + b.betrag);
+    }
+    beitraege = [...m].map(([ticker, betrag]) => ({ ticker, betrag })).sort((a, b) => Math.abs(b.betrag ?? 0) - Math.abs(a.betrag ?? 0));
+  }
+  const reihe = [...g.tage].sort((a, b) => a.aenderung - b.aenderung);
+  return {
+    start, ende, ergebnis, prozent: (ergebnis / start) * 100, vortag,
+    qqq: qs && qe !== undefined ? (qe / qs - 1) * 100 : null, claude, gekauft, verkauft, beitraege,
+    plus: g.tage.filter(t => t.aenderung > 0.005).length, minus: g.tage.filter(t => t.aenderung < -0.005).length,
+    bester: reihe[reihe.length - 1], schwaechster: reihe[0],
+    umsatz: gekauft.reduce((s, x) => s + (x.kosten || 0), 0) + verkauft.reduce((s, x) => s + (x.erloes || 0), 0),
+  };
+}
+const FAZIT_WORT = { tag: ["Guter Tag", "Schwacher Tag", "Ruhiger Tag"], woche: ["Gute Woche", "Schwache Woche", "Ruhige Woche"],
+  monat: ["Guter Monat", "Schwacher Monat", "Ruhiger Monat"], alles: ["Bisher im Plus", "Bisher im Minus", "Bisher ausgeglichen"] };
+function fazitSatz(art, z, angelegt, startkapital) {
+  if (angelegt) return `An diesem Tag wurde das Übungsdepot mit ${euro(startkapital)} angelegt – gekauft wird frühestens zur nächsten Eröffnung.`;
+  const [gutW, schlechtW, ruhigW] = FAZIT_WORT[art];
+  let s = `${Math.abs(z.prozent) < 0.05 ? ruhigW : z.ergebnis > 0 ? gutW : schlechtW}: Das Übungsdepot hat ${euro(Math.abs(z.ergebnis), 0)} `
+    + `${z.ergebnis >= 0 ? "gewonnen" : "verloren"} (${prozent(z.prozent, 1)}).`;
+  if (z.qqq !== null) {
+    const diff = z.prozent - z.qqq;
+    s += ` Der Nasdaq-100 ${z.qqq >= 0 ? "stieg" : "fiel"} um ${zahl(Math.abs(z.qqq), 1)} % – das Depot war ${zahl(Math.abs(diff), 1)} Punkte ${diff >= 0 ? "besser" : "schlechter"}.`;
+  }
+  const k = [...new Set(z.gekauft.map(x => x.ticker))];
+  s += k.length ? ` Gekauft: ${k.join(", ")}.` : " Nichts gekauft.";
+  s += z.verkauft.length ? ` Verkauft: ${z.verkauft.map(x => `${x.ticker} (${geld(x.ergebnis, 0)})`).join(", ")}.` : " Nichts verkauft.";
+  return s;
+}
+
+// Balken je Tag (Gewinn nach oben, Verlust nach unten) – Antippen wählt den Tag
+function tagesBalken(box, tage, waehle) {
+  const tip = el("div", { class: "tooltip", role: "presentation" });
+  box.replaceChildren(tip);
+  let breite = 0;
+  function zeichnen() {
+    breite = Math.max(box.clientWidth - 32, 260);
+    const hoehe = 128, links = 62, oben = 10, unten = 20;
+    const innen = breite - links - 4, n = tage.length, band = innen / n;
+    const w = Math.max(1, Math.min(26, band - 2));
+    const max = Math.max(...tage.map(t => Math.abs(t.aenderung)), 1);
+    const y0 = oben + (hoehe - oben - unten) / 2, skala = (hoehe - oben - unten) / 2 / max;
+    const svg = sv("svg", { viewBox: `0 0 ${breite} ${hoehe}`, height: hoehe, role: "img",
+      "aria-label": `Ergebnis je Tag: ${tage.map(t => `${datum(t.tag)} ${geld(t.aenderung)}`).join(", ")}` });
+    svg.append(sv("line", { x1: links, x2: breite, y1: y0, y2: y0, stroke: "#2a3542", "stroke-width": 1 }));
+    svg.append(sv("text", { x: links - 8, y: oben + 4, "text-anchor": "end" }, `+${euro(max, 0)}`));
+    svg.append(sv("text", { x: links - 8, y: y0 + 3, "text-anchor": "end" }, "0 €"));
+    svg.append(sv("text", { x: links - 8, y: hoehe - unten + 4, "text-anchor": "end" }, euro(-max, 0)));
+    tage.forEach((t, i) => {
+      const x = links + i * band + (band - w) / 2, h = Math.max(1, Math.abs(t.aenderung) * skala);
+      svg.append(sv("rect", { x, y: t.aenderung >= 0 ? y0 - h : y0, width: w, height: h, rx: Math.min(2, w / 2),
+        fill: t.aenderung >= 0 ? css("--gut") : css("--schlecht") }));
+      // Trefferfläche: ganze Spalte, größer als der Balken
+      const ziel = sv("rect", { class: "tag", x: links + i * band, y: oben, width: band, height: hoehe - oben - unten, fill: "transparent",
+        tabindex: 0, role: "button", "aria-label": `${datum(t.tag)}: ${geld(t.aenderung)} – Tag ansehen` });
+      const zeige = () => {
+        tip.replaceChildren(el("div", { class: "datum" }, datum(t.tag)),
+          el("div", { class: "zeile" }, el("b", { class: richtung(t.aenderung) }, geld(t.aenderung)), el("span", {}, "Ergebnis")),
+          el("div", { class: "zeile" }, el("b", {}, euro(t.wert)), el("span", {}, "Depotwert")));
+        tip.style.opacity = 1;
+        const tx = x + w + 10;
+        tip.style.left = `${tx + tip.offsetWidth > breite ? x - tip.offsetWidth - 6 : tx}px`;
+        tip.style.top = "0px";
+      };
+      ziel.addEventListener("pointerenter", zeige);
+      ziel.addEventListener("focus", zeige);
+      ziel.addEventListener("pointerleave", () => { tip.style.opacity = 0; });
+      ziel.addEventListener("blur", () => { tip.style.opacity = 0; });
+      ziel.addEventListener("click", () => waehle(t.tag));
+      ziel.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); waehle(t.tag); } });
+      svg.append(ziel);
+    });
+    const marken = n <= 1 ? [0] : n <= 6 ? tage.map((_, i) => i) : [0, Math.floor((n - 1) / 2), n - 1];
+    for (const i of marken) {
+      svg.append(sv("text", { x: links + i * band + band / 2, y: hoehe - 4, "text-anchor": n > 6 && i === 0 ? "start" : n > 6 && i === n - 1 ? "end" : "middle" },
+        datum(tage[i].tag, false)));
+    }
+    box.querySelector("svg")?.remove();
+    box.append(svg);
+  }
+  zeichnen();
+  new ResizeObserver(() => { if (Math.abs(box.clientWidth - 32 - breite) > 2) zeichnen(); }).observe(box);
+}
+
+// Kalender: jeder Börsentag mit seinem Ergebnis in %, rechts die Woche in €
+function fazitFarbe(pz) {
+  const a = Math.abs(pz);
+  if (!(a >= 0.1)) return null;
+  const stufe = a < 0.5 ? 0.16 : a < 1 ? 0.3 : a < 2 ? 0.46 : 0.62;
+  return pz > 0 ? `rgba(12, 163, 12, ${stufe})` : `rgba(208, 59, 59, ${stufe})`;
+}
+function kalenderBauen(box, alle, startkapital, gewaehlt, waehleTag, waehleWoche) {
+  const proTag = new Map(alle.map((t, k) => [t.tag, { t, pz: (t.aenderung / (k ? alle[k - 1].wert : startkapital)) * 100 }]));
+  const wochenSumme = new Map();
+  for (const t of alle) { const m = montagVon(t.tag); wochenSumme.set(m, (wochenSumme.get(m) || 0) + t.aenderung); }
+  const monate = [...new Set(alle.map(t => t.tag.slice(0, 7)))].reverse();
+  const monatBlock = mk => {
+    const [j, m] = mk.split("-").map(Number);
+    const imMonat = alle.filter(t => t.tag.startsWith(mk));
+    const k0 = alle.indexOf(imMonat[0]);
+    const anfang = k0 > 0 ? alle[k0 - 1].wert : startkapital, summe = imMonat[imMonat.length - 1].wert - anfang;
+    const gitter = el("div", { class: "monat-gitter" }, ["Mo", "Di", "Mi", "Do", "Fr", "Woche"].map(w => el("div", { class: "wt" }, w)));
+    const erster = new Date(Date.UTC(j, m - 1, 1)), letzter = new Date(Date.UTC(j, m, 0));
+    for (let mo = tag(montagVon(isoVon(erster))); mo <= letzter; mo = new Date(mo.getTime() + 7 * 864e5)) {
+      const moIso = isoVon(mo);
+      for (let w = 0; w < 5; w++) {
+        const d = new Date(mo.getTime() + w * 864e5), iso = isoVon(d);
+        if (d.getUTCMonth() !== m - 1) { gitter.append(el("div")); continue; }
+        const e = proTag.get(iso);
+        if (!e) { gitter.append(el("div", { class: "kal-tag leer", "aria-hidden": "true" }, el("span", { class: "nr" }, d.getUTCDate()))); continue; }
+        const farbe = fazitFarbe(e.pz);
+        gitter.append(el("button", { type: "button", class: `kal-tag${gewaehlt.has(iso) ? " gewaehlt" : ""}`,
+          style: farbe ? `background:${farbe};border-color:transparent` : null,
+          "aria-label": `${datum(iso)}: ${geld(e.t.aenderung)} (${prozent(e.pz, 1)})`, title: `${datum(iso)}: ${geld(e.t.aenderung)}`,
+          onclick: () => waehleTag(iso) },
+          el("span", { class: "nr" }, d.getUTCDate()), el("span", { class: "pz" }, `${e.pz > 0 ? "+" : ""}${zahl(e.pz, 1)} %`)));
+      }
+      const ws = wochenSumme.get(moIso);
+      gitter.append(ws === undefined ? el("div") : el("button", { type: "button", class: `kal-tag woche${gewaehlt.has(`w${moIso}`) ? " gewaehlt" : ""}`,
+        "aria-label": `KW ${kalenderwoche(moIso)}: ${geld(ws)} – Woche ansehen`, onclick: () => waehleWoche(moIso) },
+        el("span", { class: "nr" }, `KW ${kalenderwoche(moIso)}`), el("span", { class: `pz ${richtung(ws)}` }, geld(ws, 0))));
+    }
+    return el("div", {}, el("div", { class: "monat-kopf" }, el("span", { class: "name" }, `${MONATE[m - 1]} ${j}`),
+      el("span", { class: `summe ${richtung(summe)}` }, `${geld(summe, 0)} · ${prozent((summe / anfang) * 100, 1)}`)), gitter);
+  };
+  const legende = el("div", { class: "kal-legende" }, "Verlust",
+    ...[-2.5, -1.2, -0.6, 0, 0.6, 1.2, 2.5].map(p => el("i", { style: `background:${fazitFarbe(p) || "transparent"};border:1px solid ${fazitFarbe(p) ? "transparent" : "var(--line)"}` })), "Gewinn");
+  const sichtbar = amHandy() ? 2 : 6;  // am Handy nur die letzten zwei Monate, der Rest klappt auf
+  const neu = monate.slice(0, sichtbar).map(monatBlock);
+  const alt = monate.slice(sichtbar);
+  box.replaceChildren(...[
+    el("div", { class: "panel-kopf" }, el("div", { class: "label" }, "Kalender · Ergebnis je Börsentag, rechts je Woche"), legende),
+    el("div", { class: "kalender" }, neu),
+    alt.length ? el("details", { style: "padding:0 16px 14px" }, el("summary", { class: "muted", style: "cursor:pointer;font-size:12px" }, `Ältere Monate (${alt.length})`),
+      el("div", { class: "kalender", style: "padding:4px 0 0" }, alt.map(monatBlock))) : null].filter(Boolean));
+}
+
+function fazitBauen(D) {
+  const P = D.papier;
+  if (!P || !P.verlauf || !P.verlauf.length) return null;
+  const alle = fazitTage(P);
+  const C = D.claude && D.claude.verlauf ? D.claude : null;
+  const ARTEN = [["tag", "Tag"], ["woche", "Woche"], ["monat", "Monat"], ["alles", "Alles"]];
+  const zustand = { art: speicher.lies("swingbot-fazit-art", "tag"), index: null };
+  if (!ARTEN.some(([k]) => k === zustand.art)) zustand.art = "tag";
+  const reiter = el("div", { class: "reiter", role: "tablist", "aria-label": "Zeitraum" });
+  const zurueck = el("button", { type: "button", "aria-label": "früherer Zeitraum" }, "‹");
+  const vor = el("button", { type: "button", "aria-label": "späterer Zeitraum" }, "›");
+  const wann = el("span", { class: "wann", "aria-live": "polite" });
+  const inhalt = el("div");
+  const panel = el("div", { class: "panel" }, el("div", { class: "fazit-kopf" }, reiter, el("div", { class: "blaettern" }, zurueck, wann, vor)), inhalt);
+  const kalender = el("div", { class: "panel", style: "margin-top:12px" });
+  ARTEN.forEach(([k, name]) => reiter.append(el("button", { type: "button", role: "tab", "data-art": k,
+    onclick: () => { zustand.art = k; zustand.index = null; zeigen(); } }, name)));
+  zurueck.addEventListener("click", () => { zustand.index -= 1; zeigen(); });
+  vor.addEventListener("click", () => { zustand.index += 1; zeigen(); });
+  const springe = (art, k) => {
+    zustand.art = art;
+    zustand.index = fazitZeitraeume(alle, art).findIndex(g => g.k === k);
+    zeigen();
+    panel.scrollIntoView({ behavior: bewegungAus ? "auto" : "smooth", block: "start" });
+  };
+  const waehleTag = iso => springe("tag", iso), waehleWoche = mo => springe("woche", mo);
+
+  function liste(titel, eintraege, leer, zeile) {
+    return el("div", {}, el("div", { class: "label" }, `${titel} · ${eintraege.length}`),
+      eintraege.length ? eintraege.map(zeile) : el("div", { class: "muted", style: "font-size:12.5px" }, leer));
+  }
+  function zeigen() {
+    const gruppen = fazitZeitraeume(alle, zustand.art);
+    if (zustand.index === null || zustand.index < 0 || zustand.index >= gruppen.length) zustand.index = gruppen.length - 1;
+    const g = gruppen[zustand.index], art = zustand.art, tagesweise = art !== "tag";
+    reiter.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.art === art)));
+    zurueck.disabled = zustand.index === 0;
+    vor.disabled = zustand.index === gruppen.length - 1;
+    wann.textContent = zeitraumName(art, g);
+    speicher.schreib("swingbot-fazit-art", art);
+    const z = fasseZusammen(g, alle, P, C);
+    const angelegt = art === "tag" && alle.indexOf(g.tage[0]) === 0;
+    const vergleich = (label, wert, klasse, erkl) => el("div", { class: "vergleich-kachel" },
+      el("div", { class: "label" }, label, erkl ? info(erkl) : null), el("div", { class: `wert ${klasse}` }, wert));
+    const teile = [
+      el("div", { class: "fazit-hero" },
+        el("div", {}, el("div", { class: "label" }, art === "tag" ? `Ergebnis · ${datum(g.k)}` : "Ergebnis im Zeitraum", info("fazit")),
+          el("div", { class: `gross ${richtung(z.ergebnis)}` }, `${z.ergebnis > 0.005 ? "▲ " : z.ergebnis < -0.005 ? "▼ " : ""}${geld(z.ergebnis)}`),
+          el("div", { class: "unter" }, `${prozent(z.prozent, 2)} · Depotwert ${euro(z.ende)} (${art === "tag" ? "Vortag" : "Anfang"} ${euro(z.start)})`)),
+        el("div", { class: "vergleiche" },
+          z.qqq === null ? null : vergleich("Nasdaq-100", prozent(z.qqq, 2), richtung(z.qqq)),
+          z.qqq === null ? null : vergleich("Unterschied", `${vz(z.prozent - z.qqq)}${zahl(z.prozent - z.qqq, 1)} Pkt`, richtung(z.prozent - z.qqq), "pkt"),
+          z.claude === null ? null : vergleich("Claude-Depot", geld(z.claude), richtung(z.claude)))),
+      el("div", { class: "fazit-satz" }, fazitSatz(art, z, angelegt, P.startkapital)),
+    ];
+    const gewinner = z.verkauft.filter(x => x.ergebnis > 0).length, summe = z.verkauft.reduce((s, x) => s + (x.ergebnis || 0), 0);
+    teile.push(el("div", { class: "fazit-zahlen" },
+      tagesweise ? el("span", {}, el("b", {}, g.tage.length), ` Börsentag${g.tage.length === 1 ? "" : "e"}: `, el("b", {}, z.plus), " im Plus, ", el("b", {}, z.minus), " im Minus") : null,
+      tagesweise && g.tage.length > 1 ? el("span", {}, "bester Tag ", el("b", {}, `${datum(z.bester.tag, false)} ${geld(z.bester.aenderung, 0)}`),
+        " · schwächster ", el("b", {}, `${datum(z.schwaechster.tag, false)} ${geld(z.schwaechster.aenderung, 0)}`)) : null,
+      el("span", {}, "abgeschlossene Trades ", el("b", {}, z.verkauft.length), z.verkauft.length ? [" (", el("b", {}, gewinner), ` mit Gewinn, zusammen `, el("b", { class: richtung(summe) }, geld(summe)), ")"] : null),
+      el("span", {}, "Umsatz ", el("b", {}, euro(z.umsatz)), ` (${z.gekauft.length} ${z.gekauft.length === 1 ? "Kauf" : "Käufe"}, ${z.verkauft.length} ${z.verkauft.length === 1 ? "Verkauf" : "Verkäufe"})`)));
+    if (tagesweise && g.tage.length > 1) {
+      const balken = el("div", { class: "fazit-balken" });
+      teile.push(el("div", { class: "label", style: "padding:14px 16px 0" }, "Tag für Tag – antippen für Details"), balken);
+      requestAnimationFrame(() => tagesBalken(balken, g.tage, waehleTag));
+    }
+    // Woher kam das Ergebnis? Beitrag je Aktie als Balken nach links (Verlust) und rechts (Gewinn)
+    let woher;
+    if (z.beitraege === null) woher = el("div", { class: "muted", style: "font-size:12.5px" }, P.tage && P.tage.length
+      ? "Für diesen Zeitraum fehlt die Aufteilung je Aktie (an mindestens einem Tag fehlten Kurse)."
+      : "Die Aufteilung je Aktie gibt es ab dem nächsten Lauf des Bots.");
+    else if (!z.beitraege.length) woher = el("div", { class: "muted", style: "font-size:12.5px" }, "Keine Aktien im Depot – nur Bargeld.");
+    else {
+      const zeigbar = z.beitraege.slice(0, 8), rest = z.beitraege.slice(8);
+      const groesst = Math.max(...zeigbar.map(b => Math.abs(b.betrag ?? 0)), 0.01);
+      woher = [...zeigbar.map(b => el("div", { class: "beitrag" }, el("span", { class: "t" }, b.ticker),
+        el("div", { class: "feld", "aria-hidden": "true" }, el("div", { class: "null" }), b.betrag === null ? null :
+          el("div", { class: `balken ${b.betrag >= 0 ? "gut" : "schlecht"}`, style: `${b.betrag >= 0 ? "left:50%" : `right:50%`};width:${Math.max(0.5, (Math.abs(b.betrag) / groesst) * 50)}%` })),
+        el("span", { class: `wert ${richtung(b.betrag)}` }, b.betrag === null ? "?" : geld(b.betrag)))),
+        rest.length ? el("div", { class: "muted", style: "font-size:12px;margin-top:6px" },
+          `+ ${rest.length} weitere: ${geld(rest.reduce((s, b) => s + (b.betrag || 0), 0))}`) : null];
+    }
+    teile.push(el("div", { class: "fazit-raster" },
+      liste("Gekauft", z.gekauft, "Nichts gekauft.", x => el("div", { class: "fazit-zeile" }, el("span", { class: "t" }, x.ticker),
+        el("span", { class: "klein" }, x.stueck && x.preis ? `${zahl(x.stueck, x.stueck % 1 ? 2 : 0)} Stück zu ${euro(x.preis, 2)} · ${x.strategie}` : x.strategie),
+        el("span", { class: "rechts muted" }, tagesweise ? datum(x.tag, false) : x.kosten ? euro(x.kosten) : ""))),
+      liste("Verkauft", z.verkauft, "Nichts verkauft.", x => el("div", { class: "fazit-zeile" }, el("span", { class: "t" }, x.ticker),
+        el("span", { class: "klein" }, `${x.grund}${x.seit ? ` · seit ${datum(x.seit, false)}` : ""}${tagesweise ? ` · ${datum(x.tag, false)}` : ""}`),
+        el("span", { class: `ergebnis-pille ${richtung(x.ergebnis)}` }, el("span", { class: richtung(x.ergebnis) }, geld(x.ergebnis))))),
+      el("div", {}, el("div", { class: "label" }, "Woher kam das Ergebnis?"), woher)));
+    inhalt.replaceChildren(...teile);
+    const gewaehlt = new Set(art === "alles" ? [] : g.tage.map(t => t.tag));
+    if (art === "woche") gewaehlt.add(`w${g.k}`);
+    kalenderBauen(kalender, alle, P.startkapital, gewaehlt, waehleTag, waehleWoche);
+  }
+  zeigen();
+  return [panel, kalender];
+}
+
+// ---------------------------------------------------------------------------
 // Seite aufbauen
 // ---------------------------------------------------------------------------
 function aufbauen(D) {
@@ -1022,6 +1402,10 @@ function aufbauen(D) {
       el("div", { class: "label" }, "Regeln: ", el("b", {}, `${D.regeln.max_positionen} Positionen · ${D.regeln.max_je_branche} je Branche · ${D.regeln.max_risiko} % Risiko`))));
   kern.prepend(sv("svg", { class: "kern-linien", "aria-hidden": "true" }));
   main.append(abschnitt("gehirn", "Gehirn-Kern", `Daten bis ${datum(D.daten_bis)} · was heute reinkam und was rauskam`, kern));
+
+  // ---------- Fazit: Tag, Woche, Monat, alles ----------
+  const fazit = fazitBauen(D);
+  if (fazit) main.append(abschnitt("fazit", "Fazit", "Übungsdepot · was der Bot verdient, gekauft und verkauft hat", fazit));
 
   // ---------- Kennzahlen ----------
   const kacheln = el("div", { class: "panel kacheln" });
