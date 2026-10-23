@@ -77,6 +77,7 @@ BRANCHE = {t: b for b, liste in BRANCHEN.items() for t in liste.split()}
 MIN_EINSATZ = 25                 # kleinere Trades lohnen wegen der Gebühr nicht (in €)
 ZEITSTOPP_TAGE = 20              # spätestens nach so vielen Handelstagen (inkl. Einstiegstag) aussteigen
 ZAHLEN_SPERRE_TAGE = 3           # kein Einstieg, wenn Quartalszahlen in den nächsten 3 Handelstagen wirken
+VOLA_TAGE = 20                   # Ziel-Chance (nur Info): Schwankung der täglichen Log-Renditen über 20 Tage
 LIMIT_ATR = 0.5                  # Einstieg nur bis Schlusskurs ± 0,5 ATR (Limit-Order), höchstens halber Weg zum Ziel
 # Stop und Ziel: weiter Stop, Ziel nicht weiter als der Stop – im Test 2010–2026 (84 Aktien) gut 55 % Treffer statt
 # gut 45 %, dafür kleinere Gewinne je Treffer
@@ -862,6 +863,70 @@ def limit_kurs(r, kurs, atr, stop, ziel):
     halb = kurs + (ziel - kurs) / 2
     return min(kurs + LIMIT_ATR * atr, halb) if r > 0 else max(kurs - LIMIT_ATR * atr, halb)
 
+def ziel_chance(kurs, ziel, vola, tage=ZEITSTOPP_TAGE):
+    """Ziel-Chance nach dem Black-Scholes-Modell (Optionsskript, nur zur Info – der Bot kauft nicht danach): Der Kurs
+    schwankt zufällig (geometrische Brownsche Bewegung, ohne Zins, also ohne Vorteil für eine Richtung) mit der
+    Tagesvolatilität 'vola'. Ergebnis: Wahrscheinlichkeit, dass er das Ziel innerhalb von 'tage' Handelstagen
+    mindestens einmal berührt (Spiegelungsprinzip) – der Stop zählt dabei nicht. NaN, wenn unbekannt."""
+    try:
+        kurs, ziel, vola = float(kurs), float(ziel), float(vola)
+        if not (kurs > 0 and ziel > 0 and vola > 0 and tage > 0) or ziel == kurs:
+            return math.nan
+    except (TypeError, ValueError):
+        return math.nan
+    r = 1 if ziel > kurs else -1  # Short: Ziel unter dem Kurs
+    abstand = abs(math.log(ziel / kurs))
+    drift = -r * vola ** 2 / 2  # Drift von r·ln(Kurs) je Tag
+    s = vola * math.sqrt(tage)
+    n = lambda x: 0.5 * (1 + math.erf(x / math.sqrt(2)))  # Standardnormalverteilung N(x)
+    p = n((drift * tage - abstand) / s) + math.exp(2 * drift * abstand / vola ** 2) * n((-abstand - drift * tage) / s)
+    return min(max(p, 0.0), 1.0)
+
+CHANCE_STUFEN = (0.3, 0.4, 0.5)  # Gruppen der Selbstkontrolle: unter 30 %, 30–40 %, 40–50 %, ab 50 %
+
+def chance_pruefung(tagebuch, daten):
+    """Selbstkontrolle der Ziel-Chance an den gedachten Trades: je Gruppe (Ziel-Chance am Signaltag) die Zahl der
+    Signale, die Ø vorhergesagte Chance, wie oft der Kurs das Ziel in den nächsten 20 Handelstagen wirklich berührt
+    hat (der Stop zählt dabei nicht – genau das sagt die Formel voraus), dazu Trefferquote und Ø R der Trades. Es
+    zählen nur Signale, nach denen die 20 Handelstage schon vorbei sind."""
+    grenzen = (0.0,) + CHANCE_STUFEN + (1.01,)
+    gruppen = [{"von": a, "bis": b, "p": [], "beruehrt": [], "R": []} for a, b in zip(grenzen, grenzen[1:])]
+    for e in tagebuch:
+        d = daten.get(e["ticker"])
+        i = d["pos"].get(e["signal_tag"]) if d is not None and "VOLA" in d else None
+        if i is None or e["strategie"] not in d["signale"] or i + ZEITSTOPP_TAGE >= d["n_fertig"]:
+            continue
+        ziel = d["signale"][e["strategie"]][2][i]
+        chance = ziel_chance(d["C"][i], ziel, d["VOLA"][i])
+        r = STRATEGIEN[e["strategie"]]["richtung"]
+        fenster = r * (d["H"] if r > 0 else d["L"])[i + 1:i + 1 + ZEITSTOPP_TAGE]
+        if not math.isfinite(chance) or not np.isfinite(fenster).any():
+            continue
+        g = next(g for g in gruppen if g["von"] <= chance < g["bis"])
+        g["p"].append(chance)
+        g["beruehrt"].append(np.nanmax(fenster) >= r * ziel)
+        g["R"].append(e["R"])
+    return [{"von": g["von"], "bis": g["bis"], "n": len(g["p"]), "chance": 100 * float(np.mean(g["p"])),
+             "beruehrt": 100 * float(np.mean(g["beruehrt"])), "quote": 100 * float(np.mean(np.array(g["R"]) > 0)),
+             "schnitt": float(np.mean(g["R"]))} for g in gruppen if g["p"]]
+
+def chance_praxis(chance, gruppen, mindestens=30):
+    """Wie oft der Kurs das Ziel bei Signalen mit ähnlicher Ziel-Chance (gleiche Gruppe der Selbstkontrolle) bisher
+    wirklich berührt hat, in % – NaN, wenn die Gruppe weniger als 'mindestens' Signale hat."""
+    for g in gruppen:
+        if g["von"] <= chance < g["bis"] and g["n"] >= mindestens:
+            return g["beruehrt"]
+    return math.nan
+
+def chance_gesamt(gruppen):
+    """Alle Gruppen der Selbstkontrolle zusammen: Signale, Ø vorhergesagt, Ø berührt, Ø Abstand (in Prozentpunkten)."""
+    n = sum(g["n"] for g in gruppen)
+    if not n:
+        return None
+    mittel = lambda feld: sum(g[feld] * g["n"] for g in gruppen) / n
+    return {"n": n, "chance": mittel("chance"), "beruehrt": mittel("beruehrt"),
+            "abstand": sum(abs(g["beruehrt"] - g["chance"]) * g["n"] for g in gruppen) / n}
+
 def markt_trend(markt_df):
     """Nasdaq-100 (QQQ) je Tag: 1 = Schluss über der 200-Tage-Linie, 0 = darunter, NaN = noch zu wenig Daten."""
     if markt_df is None or "Close" not in markt_df:
@@ -901,6 +966,7 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst, markt=None):
         "L": df['Low'].to_numpy(dtype=float), "C": df['Close'].to_numpy(dtype=float),
         "ATR": df['ATR'].to_numpy(dtype=float), "FX": kurs_umrechner(fx, df.index).to_numpy(dtype=float),
         "signale": signale, "signale_roh": roh, "ueberhitzt": ueberhitzt, "ueberverkauft": ueberverkauft,
+        "VOLA": np.log(df['Close'].where(df['Close'] > 0)).diff().rolling(VOLA_TAGE).std().to_numpy(dtype=float),
         "pos": {tag: i for i, tag in enumerate(df.index)},
         "termine": None,
     }
@@ -1392,7 +1458,8 @@ def scanner_zeile(t, d, pausiert, einst):
         zeile.update({"Signal": KAUFEN if r > 0 else SHORT,
                       "Strategie": strategie_name(wahl) + ("" if stueck else " (Konto zu klein)"), "Limit": limit,
                       "Stop": stop, "Ziel": ziel, "CRV": r * (ziel - kurs) / (r * (kurs - stop)), "Stück": stueck,
-                      "Einsatz": stueck * kurs, "Risiko": stueck * abs(kurs - stop)})
+                      "Einsatz": stueck * kurs, "Risiko": stueck * abs(kurs - stop),
+                      "_chance": ziel_chance(d["C"][i], ziel_a[i], d["VOLA"][i])})
         if zeile["_offen"]:
             zeile["Strategie"] += " (vorläufig)"
     elif grund is not None:
@@ -1469,6 +1536,11 @@ def handelsplan(zeile, nr, einst, waehrung):
             f"{de(zeile['Ziel'])} {waehrung}. Greift der Stop, verlierst du ca. {de(zeile['Risiko'], 0)} {waehrung} "
             f"(bei Einstieg zum Limit bis {de(risiko_limit, 0)} {waehrung}, bei Kurslücken mehr). Spätestens "
             f"{datum(raus)}{bis} {'verkaufen' if kaufen else 'eindecken'} ({warum}).")
+    if math.isfinite(zeile.get("_chance", math.nan)):
+        praxis = zeile.get("_chance_praxis", math.nan)
+        satz += (f" Ziel-Chance nach Black-Scholes: {de(zeile['_chance'] * 100, 0)} % in {ZEITSTOPP_TAGE} Handelstagen"
+                 + (f", bei ähnlichen Signalen bisher wirklich erreicht: {de(praxis, 0)} %" if math.isfinite(praxis) else "")
+                 + " (nur Info – der Stop kann vorher kommen).")
     if str(zeile.get("Zahlen", "")).startswith("?"):
         satz += " Achtung: Quartalszahlen-Termin unbekannt – vor dem Kauf selbst prüfen."
     return satz
@@ -2851,6 +2923,8 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                         "strategie": z.get("Strategie") or "", "kurs": json_zahl(z.get("Kurs")),
                         "limit": json_zahl(z.get("Limit")), "stop": json_zahl(z.get("Stop")), "ziel": json_zahl(z.get("Ziel")),
                         "crv": json_zahl(z.get("CRV")), "stueck": json_zahl(z.get("Stück"), 4), "einsatz": json_zahl(z.get("Einsatz")),
+                        "chance": json_zahl(z.get("_chance", math.nan) * 100, 0),
+                        "chance_praxis": json_zahl(z.get("_chance_praxis"), 0),
                         "risiko": json_zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
                         "zahlen_tag": iso(z["_termin"].date()) if z.get("_termin") is not None else None,
                         "branche": BRANCHE.get(t), "im_plan": t in im_plan, "fehler": z.get("_fehler")})
@@ -2927,7 +3001,16 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                    "sichern": sum(1 for x in signale if x["art"] == "sichern"), "im_plan": len(im_plan)},
         "signale": signale, "plan": plan, "strategien": strategien, "schlagzeilen": schlagzeilen[:12],
         "papier": depot_export(papier, daten, markt, fx), "claude": claude_teil, "rueckblick": rueckblick,
+        "chance_pruefung": chance_export(chance_pruefung(tagebuch, daten)),
     }
+
+def chance_export(gruppen):
+    """Selbstkontrolle der Ziel-Chance für die Übersichtsseite (Prozentwerte gerundet)."""
+    gesamt = chance_gesamt(gruppen)
+    if gesamt is None:
+        return None
+    rund = lambda g: {k: json_zahl(v, 3 if k == "schnitt" else 1) for k, v in g.items()}
+    return {**rund(gesamt), "gruppen": [rund(g) for g in gruppen]}
 
 def schreibe_uebersicht(datei, inhalt):
     """Schreibt die Daten der Übersichtsseite (erst in eine Hilfsdatei, dann ersetzen)."""
@@ -3207,11 +3290,13 @@ def papier_trade_info(tr, daten):
             "einsatz": tr["kosten"], "stueck": tr["stueck"],
             "crv": r * (tr["ziel"] - tr["einstieg_usd"]) / (r * (tr["einstieg_usd"] - tr["stop"]))
             if r * (tr["einstieg_usd"] - tr["stop"]) > 0 else np.nan,
-            "tage": None, "tage_art": "Handelstage", "mfe": None, "mae": None}
+            "tage": None, "tage_art": "Handelstage", "mfe": None, "mae": None, "chance": math.nan}
     d = daten.get(tr["ticker"])
     if d is not None:
         a = d["pos"].get(als_tag(info["kauf_tag"], d["idx"]))
         b = d["pos"].get(als_tag(info["verkauf_tag"], d["idx"]))
+        if a is not None and a >= 1 and "VOLA" in d:
+            info["chance"] = ziel_chance(d["C"][a - 1], tr["ziel"], d["VOLA"][a - 1])
         if a is not None and b is not None and b >= a:
             info["tage"] = b - a + 1
             hoch, tief = np.nanmax(d["H"][a:b + 1]), np.nanmin(d["L"][a:b + 1])
@@ -3258,6 +3343,35 @@ def trade_lehren(info, stand, einst):
         lehren.append(f"🧠 {link_strategie(info['strategie'])} beim Schreiben dieser Notiz: "
                       f"{strategie_status(info['strategie'], stand, einst)}.")
     return lehren
+
+def chance_lehren(gruppen):
+    """Abschnitt der Lehren-Seite: Stimmt die Ziel-Chance nach Black-Scholes – und sagt sie etwas über Gewinner?"""
+    text = ["", "## 📐 Selbstkontrolle: Ziel-Chance nach Black-Scholes", "",
+            f"Bei jedem Signal rechnet der Bot nach dem Black-Scholes-Modell aus dem Optionsskript aus, wie wahrscheinlich "
+            f"der Kurs das Ziel innerhalb von {ZEITSTOPP_TAGE} Handelstagen mindestens einmal berührt (aus der Schwankung "
+            f"der letzten {VOLA_TAGE} Tage). Er kauft **nicht** danach – im Test über 16 Jahre hat das nichts gebracht "
+            "(siehe [[Notizen/Gelernt aus dem Optionsskript]]). Hier prüft er an allen gedachten Trades, ob die Formel "
+            "stimmt. Bei jedem Signal zeigt er neben der Formel auch, wie oft das Ziel in dessen Gruppe wirklich berührt "
+            "wurde (Spalte „Ziel wirklich berührt“).", ""]
+    gesamt = chance_gesamt(gruppen)
+    if gesamt is None:
+        return text + ["- Noch zu wenige gedachte Trades, nach denen schon 20 Handelstage vorbei sind."]
+    stufe = lambda g: (f"unter {de(g['bis'] * 100, 0)} %" if g["von"] == 0 else f"ab {de(g['von'] * 100, 0)} %"
+                       if g["bis"] > 1 else f"{de(g['von'] * 100, 0)}–{de(g['bis'] * 100, 0)} %")
+    text += ["| Ziel-Chance laut Formel | Signale | Ø vorhergesagt | Ziel wirklich berührt | Trades im Plus | Ø je Trade |",
+             "| --- | --- | --- | --- | --- | --- |"]
+    text += [f"| {stufe(g)} | {g['n']} | {de(g['chance'], 0)} % | {de(g['beruehrt'], 0)} % | {de(g['quote'], 0)} % "
+             f"| {r_text(g['schnitt'], 2)} |" for g in gruppen]
+    text += ["", f"- Zusammen: {gesamt['n']} Signale, vorhergesagt Ø {de(gesamt['chance'], 0)} %, berührt "
+             f"{de(gesamt['beruehrt'], 0)} % – " + ("die Formel liegt nah dran" if gesamt["abstand"] <= 5 else
+                                                 "die Formel liegt deutlich daneben: Die Aktien schwanken anders, als "
+                                                 "das Modell annimmt")
+             + f" (je Gruppe im Schnitt {de(gesamt['abstand'], 0)} Prozentpunkte Abstand)."]
+    quoten = [g["quote"] for g in gruppen]
+    text.append(f"- Trades im Plus je Gruppe: {de(min(quoten), 0)} bis {de(max(quoten), 0)} %. Die Formel sagt, wie weit "
+                "eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor "
+                "dem Stop kommt.")
+    return text
 
 def gewinn_abgegeben(info):
     """Erst mehr als den halben Weg zum Ziel im Plus, am Ende trotzdem nicht im Gewinn (Ziel-Ausstiege zählen nicht)."""
@@ -3322,7 +3436,9 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
                 f"{waehrung} · {de(info['stueck'], 2 if info['stueck'] % 1 else 0)} Stück · Einsatz "
                 f"{de(info['einsatz'], 0)} {waehrung}",
                 f"- Plan: Stop {de(info['stop'])} {waehrung} · Ziel {de(info['ziel'])} {waehrung}"
-                + (f" · Chance-Risiko {de(info['crv'], 1)}" if math.isfinite(info["crv"]) else ""),
+                + (f" · Chance-Risiko {de(info['crv'], 1)}" if math.isfinite(info["crv"]) else "")
+                + (f" · Ziel-Chance nach Black-Scholes {de(info['chance'] * 100, 0)} %" if math.isfinite(info["chance"])
+                   else ""),
                 f"- Ausstieg: {datum(pd.Timestamp(info['verkauf_tag']))} {info['verkauf_tag'][:4]} zu "
                 f"{de(info['ausstieg'])} {waehrung} – {info['grund']} · nach {info['tage']} {info['tage_art']}",
                 f"- Ergebnis: **{de(info['gewinn'], 2, True)} {waehrung} ({r_text(info['R'], 2)})** nach Gebühren "
@@ -3487,6 +3603,7 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         text.append(f"- Bei 50 % oder darunter: {liste}. Ein paar Prozentpunkte unter 50 % können auch bei über 100 "
                     "Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt "
                     "Ø R, siehe Rangliste oben)." if unter else "- Keine Aktie liegt bei 50 % oder darunter.")
+    text += chance_lehren(chance_pruefung(tagebuch, daten))
     text += ["", "## Aus dem Übungsdepot (echte Vorwärts-Trades)", ""]
     if papier_k:
         abgegeben = [i for i in trades if gewinn_abgegeben(i)]
@@ -3669,6 +3786,10 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
              f"- Gesperrte Aktien: {', '.join(sorted(einst.sperre_ticker)) or 'keine'}",
              f"- Ausgeschaltete Strategien: {', '.join(strategie_name(k) for k in STRATEGIEN if k in einst.sperre_strategien) or 'keine'}",
              "", "## Aktien", "", " · ".join(link_aktie(t) for t in einst.ticker_liste)]
+    notizen = sorted(f[:-3] for f in os.listdir(pfad("Notizen")) if f.endswith(".md")) \
+        if os.path.isdir(pfad("Notizen")) else []
+    if notizen:  # Wissen und eigene Gedanken (der Bot schreibt sie nie um, verlinkt sie nur)
+        text += ["", "## Notizen", "", " · ".join(f"[[Notizen/{n}|{n}]]" for n in notizen)]
     notiz(("Start.md",), "\n".join(text), {"typ": "start"})
     return sum(1 for i in neu_zu), hinweise
 
@@ -3783,6 +3904,10 @@ def auswerten(einst):
             zeilen.append(scanner_zeile(t, daten[t], pausiert_heute, einst))
         else:
             zeilen.append(fehler_zeile(t, gruende.get(t, "keine Kursdaten")))
+    chance_gruppen = chance_pruefung(tagebuch, daten)  # Selbstkontrolle der Ziel-Chance (nur Info)
+    for z in zeilen:
+        if "_chance" in z:
+            z["_chance_praxis"] = chance_praxis(z["_chance"], chance_gruppen)
     if not any("_stand" in z for z in zeilen):
         fehlerliste = [f"❌ {z['Ticker']}: {z.get('_fehler', '')}" for z in zeilen]
         for z in fehlerliste:
@@ -3809,7 +3934,7 @@ def auswerten(einst):
         for z in zeilen:
             n = news.get(z["Ticker"], {})
             if z.get("Signal") in (KAUFEN, SHORT) and n.get("warnung"):
-                for feld in ("Limit", "Stop", "Ziel", "CRV", "Stück", "Einsatz", "Risiko"):
+                for feld in ("Limit", "Stop", "Ziel", "CRV", "Stück", "Einsatz", "Risiko", "_chance", "_chance_praxis"):
                     z.pop(feld, None)
                 z.update({"Signal": WARTEN, "Strategie": f"{strategie_name(z['_strategie'])} – Nachricht: "
                                                          f"{', '.join(n.get('warnende') or ['siehe Schlagzeilen'])}"})
