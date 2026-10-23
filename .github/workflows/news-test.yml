@@ -1,0 +1,19 @@
+# Temporär: Schlagzeilen bei Yahoo prüfen (wird wieder gelöscht)
+name: News-Test
+on:
+  push:
+    branches: [claude/new-session-hbq1tg]
+    paths: [".github/workflows/news-test.yml", "forschung_tmp/news_test.py"]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-bot.txt
+      - run: python forschung_tmp/news_test.py 2>&1 | grep -v "Pandas4Warning\|inplace\|df.rename\|whatsnew"
