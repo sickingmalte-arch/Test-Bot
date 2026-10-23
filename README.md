@@ -71,7 +71,7 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot am Morgen nach jede
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
 | `OPTIONEN` | `--bruchstuecke --gebuehr 0` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
 
-Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
+Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--claude-depot`, `--claude-entscheidungen`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 
 **Nachricht aufs Handy bei Kauf-Signalen.** Hat der Bot ein Signal, schreibt er nach dem Lauf einen Kommentar ins Thema **„📲 Swing-Bot: Signale“** (Tab **Issues**; das Thema legt er beim ersten Signal selbst an): Aktie, Strategie, Stückzahl, Limit, Stop, Ziel und bis wann verkaufen – dazu ein Link zum Bericht. GitHub schickt dir dazu eine E-Mail, und mit der **GitHub-App** kommt eine Push-Nachricht. Einmalig einrichten:
 
@@ -81,6 +81,15 @@ Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--berich
 4. Fertig – der Bot erwähnt dich (@Benutzername) in jedem Kommentar, damit die Nachricht sicher ankommt.
 
 Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jeden Börsentag, weil 24 Aktien beobachtet werden; die Nachricht nennt die besten nach denselben Grenzen wie der Handelsplan im Bericht. Steht der Tab „Issues“ nicht im Repository, ist er ausgeschaltet: **Settings → General → Features → Issues** anhaken. Klappt das Senden einmal nicht, bleibt der Lauf trotzdem grün und Bericht, Papier-Depot und Gehirn werden normal gespeichert.
+
+**Claude-Depot (Versuch): Kann Claude besser auswählen als der Bot?** Ein zweites Übungsdepot in `papier/claude_depot.json`, das fair gegen das Übungsdepot antritt:
+
+- **Start:** beim ersten Lauf eine genaue Kopie des Übungsdepots (gleicher Depotwert, gleiche Positionen und Aufträge).
+- **Gleiche Regeln:** derselbe Einstieg zur Eröffnung bis zum Limit, dieselben Stops, Ziele, Grenzen und Kosten.
+- **Einziger Unterschied:** Claude liest jeden Börsentag den Bericht und die Nachrichten und darf einzelne Kauf-Signale **auslassen** – mit Begründung. Neue Signale, eigene Stops oder vorzeitige Verkäufe gibt es nicht. Ohne Entscheidung nimmt das Claude-Depot alle Signale wie der Bot. Jeder Signaltag braucht seine eigene Entscheidung.
+- **Fälschungssicher:** Claude schreibt seine Entscheidung als Kommentar ins Thema **„🧠 Claude-Depot: Entscheidungen“** (Tab Issues, Label `claude-depot`). Es zählen nur Kommentare des Repository-Besitzers, die vor der Eröffnung des nächsten US-Handelstags geschrieben und danach nicht mehr geändert wurden – mit dem Zeitstempel von GitHub. Was später kommt, steht im Bericht als „nicht gezählt“. Fremde Kommentare im öffentlichen Repository zählen nie.
+- **Auswertung:** Im Bericht stehen unter „🧠 CLAUDE-DEPOT (Versuch)“ der Vergleich seit Versuchsbeginn (Claude-Depot, Übungsdepot, Nasdaq-100) und Claudes letzte Entscheidung. Der Unterschied zum Übungsdepot ist allein die Wirkung von Claudes Entscheidungen. Ehrlich: Erst nach vielen Monaten und Hunderten Trades lässt sich ein kleiner Vorteil von Glück unterscheiden.
+- **Beenden:** im Ablauf `.github/workflows/swing-bot.yml` die Optionen `--claude-depot` und `--claude-entscheidungen` entfernen. Neu anfangen: `papier/claude_depot.json` löschen (dann wieder eine Kopie des Übungsdepots).
 
 Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Mit Krypto in `TICKER` rechnet das Papier-Depot einen Tag später weiter (der Krypto-Tag endet erst um 2:00 Uhr deutscher Sommerzeit). Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
 
@@ -222,6 +231,8 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 | `--papier-neu` | Papier-Depot neu anfangen (der bisherige Stand bleibt als Kopie mit Datum erhalten) |
 | `--bericht bericht/README.md` | alles zusätzlich als Markdown-Bericht speichern (Ticker als TradingView-Links; nutzt der automatische Lauf) |
 | `--gehirn` | Notizen für Obsidian in `gehirn/` schreiben (Tagesnotiz, Trade-Tagebuch mit Lehren, Strategie- und Aktien-Seiten) und dort `Meine Regeln.md` lesen (gesperrte Aktien, ausgeschaltete Strategien); eigener Ordner mit `--gehirn ORDNER` |
+| `--claude-depot DATEI` | Claude-Depot (Versuch, nur mit `--papier`): startet als Kopie des Papier-Depots und rechnet mit denselben Regeln weiter – ohne die Signale, die Claude rechtzeitig ausgelassen hat |
+| `--claude-entscheidungen DATEI` | Claudes Entscheidungen fürs Claude-Depot (Kommentare aus dem GitHub-Thema als JSON; holt der automatische Lauf) |
 | `--nachricht DATEI` | bei Kauf-Signalen den Handelsplan als kurze Nachricht in DATEI schreiben (nutzt der automatische Lauf für die Nachricht aufs Handy; ohne Signal wird die Datei gelöscht) |
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
