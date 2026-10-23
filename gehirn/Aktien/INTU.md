@@ -6,9 +6,11 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # INTU
 
+Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
+
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=INTU)
 
-**Stand Mi 21.10. 2026:** ⏸ WARTEN – RSI-2-Übertreibung ↓ – Marktfilter (kein Short im Aufwärtsmarkt)
+**Stand Mi 21.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 19.11.
 
 ## Übungsdepot
@@ -17,22 +19,15 @@ tags:
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 5 Trades · Ø +0,62 R · Treffer 60 %
-- [[Strategien/Abbruch Short|Abbruch ↓]]: 3 Trades · Ø -0,21 R · Treffer 33 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 10 Trades · Ø +0,24 R · Treffer 60 %
-- [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]]: 3 Trades · Ø +0,37 R · Treffer 67 %
-- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 6 Trades · Ø +0,82 R · Treffer 67 %
-- [[Strategien/Rückfall Short|Rückfall ↓]]: 2 Trades · Ø +1,45 R · Treffer 100 %
-- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 17 Trades · Ø -0,09 R · Treffer 35 %
-- [[Strategien/MACD-Wende Short|MACD-Wende ↓]]: 11 Trades · Ø -0,26 R · Treffer 27 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 29 Trades · Ø -0,25 R · Treffer 31 %
-- [[Strategien/Erholung Short|Erholung ↓]]: 13 Trades · Ø -0,19 R · Treffer 38 %
-- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 9 Trades · Ø +0,00 R · Treffer 44 %
-- [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]]: 1 Trade · Ø -0,29 R · Treffer 0 %
-- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 20 Trades · Ø -0,39 R · Treffer 35 %
-- [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]]: 6 Trades · Ø +0,14 R · Treffer 50 %
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 14 Trades · Ø +0,29 R · Treffer 64 %
-- [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]: 4 Trades · Ø +0,29 R · Treffer 50 %
+- **Alle Strategien zusammen:** 105 Trades · Ø +0,04 R · Treffer 57 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 5 Trades · Ø +0,47 R · Treffer 80 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 15 Trades · Ø +0,16 R · Treffer 60 %
+- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 7 Trades · Ø +0,59 R · Treffer 86 %
+- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 17 Trades · Ø -0,21 R · Treffer 41 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 22 Trades · Ø -0,10 R · Treffer 45 %
+- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 9 Trades · Ø +0,24 R · Treffer 67 %
+- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 16 Trades · Ø -0,18 R · Treffer 56 %
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 14 Trades · Ø +0,15 R · Treffer 64 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

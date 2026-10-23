@@ -1,45 +1,45 @@
 ---
 typ: "strategie"
-status: "pausiert"
+status: "aktiv"
 tags:
   - "strategie"
 ---
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Ausbruch ↑
 
-**Status:** ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,05 R)
+**Status:** ✅ aktiv (Ø -0,05 R über die letzten 60 Trades)
 
-**Regel:** Schluss über dem 20-Tage-Hoch mit 1,5-fachem Volumen, über der 50-Tage-Linie. Stop −2 ATR, Ziel +4 ATR
+**Regel:** Schluss über dem 20-Tage-Hoch mit 1,5-fachem Volumen, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,05 R · Treffer 33 % · ± Zufall 0,33 R
-- Ganze Geschichte: 304 Trades · Ø +0,24 R · Treffer 48 %
+- Letzte 60 Trades: Ø -0,05 R · Treffer 43 % · ± Zufall 0,21 R
+- Ganze Geschichte: 314 Trades · Ø +0,20 R · Treffer 59 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
-- Stop: 118× (39 %), Ø -0,96 R
-- Ziel: 66× (22 %), Ø +1,95 R
-- Zeitstopp: 66× (22 %), Ø +0,57 R
-- vor Quartalszahlen: 25× (8 %), Ø +0,33 R
-- Stop (Kurslücke): 15× (5 %), Ø -1,19 R
-- Ziel (Kurslücke): 14× (5 %), Ø +2,14 R
+- Ziel: 116× (37 %), Ø +0,97 R
+- Zeitstopp: 79× (25 %), Ø +0,03 R
+- Stop: 64× (20 %), Ø -0,97 R
+- vor Quartalszahlen: 31× (10 %), Ø +0,07 R
+- Ziel (Kurslücke): 16× (5 %), Ø +1,08 R
+- Stop (Kurslücke): 8× (3 %), Ø -1,13 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 
-1. [[Aktien/NVDA|NVDA]]: 10 Trades · Ø +0,72 R · Treffer 60 %
-2. [[Aktien/NFLX|NFLX]]: 11 Trades · Ø +0,69 R · Treffer 73 %
-3. [[Aktien/NBIS|NBIS]]: 8 Trades · Ø +0,68 R · Treffer 75 %
+1. [[Aktien/NFLX|NFLX]]: 11 Trades · Ø +0,55 R · Treffer 73 %
+2. [[Aktien/NBIS|NBIS]]: 8 Trades · Ø +0,53 R · Treffer 88 %
+3. [[Aktien/INTU|INTU]]: 5 Trades · Ø +0,47 R · Treffer 80 %
 …
-21. [[Aktien/XOM|XOM]]: 7 Trades · Ø -0,17 R · Treffer 29 %
-22. [[Aktien/COST|COST]]: 10 Trades · Ø -0,27 R · Treffer 30 %
-23. [[Aktien/MELI|MELI]]: 11 Trades · Ø -0,53 R · Treffer 18 %
+21. [[Aktien/COST|COST]]: 10 Trades · Ø -0,00 R · Treffer 50 %
+22. [[Aktien/AMZN|AMZN]]: 13 Trades · Ø -0,01 R · Treffer 46 %
+23. [[Aktien/MELI|MELI]]: 11 Trades · Ø -0,10 R · Treffer 36 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 
 ### Lernverlauf (letzte 12 Monate)
 
-- Mi 19.08. 2026: ⏸ pausiert/aus
+- keine Änderung
 
 ## Trades im Übungsdepot (Papier-Depot)
 

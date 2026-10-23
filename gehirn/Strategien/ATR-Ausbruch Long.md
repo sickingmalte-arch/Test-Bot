@@ -7,34 +7,34 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # ATR-Ausbruch ↑
 
-**Status:** ✅ aktiv (Ø +0,08 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø +0,01 R über die letzten 60 Trades)
 
-**Regel:** Schluss erstmals mehr als 2 ATR über der EMA 20 (Keltner-Kanal – Bewegung größer als das normale Schwanken), über der 50-Tage-Linie. Stop −2 ATR, Ziel +4 ATR
+**Regel:** Schluss erstmals mehr als 2 ATR über der EMA 20 (Keltner-Kanal – Bewegung größer als das normale Schwanken), über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø +0,08 R · Treffer 45 % · ± Zufall 0,32 R
-- Ganze Geschichte: 442 Trades · Ø +0,18 R · Treffer 49 %
+- Letzte 60 Trades: Ø +0,01 R · Treffer 52 % · ± Zufall 0,21 R
+- Ganze Geschichte: 452 Trades · Ø +0,10 R · Treffer 56 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
-- Stop: 155× (35 %), Ø -1,00 R
-- Zeitstopp: 100× (23 %), Ø +0,61 R
-- Ziel: 79× (18 %), Ø +1,94 R
-- vor Quartalszahlen: 63× (14 %), Ø +0,20 R
-- Stop (Kurslücke): 27× (6 %), Ø -1,16 R
-- Ziel (Kurslücke): 18× (4 %), Ø +2,08 R
+- Ziel: 138× (31 %), Ø +0,95 R
+- Zeitstopp: 113× (25 %), Ø +0,03 R
+- Stop: 86× (19 %), Ø -1,00 R
+- vor Quartalszahlen: 76× (17 %), Ø -0,04 R
+- Ziel (Kurslücke): 21× (5 %), Ø +1,09 R
+- Stop (Kurslücke): 18× (4 %), Ø -1,16 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 
-1. [[Aktien/IREN|IREN]]: 23 Trades · Ø +0,66 R · Treffer 57 %
-2. [[Aktien/COST|COST]]: 17 Trades · Ø +0,57 R · Treffer 71 %
-3. [[Aktien/NFLX|NFLX]]: 19 Trades · Ø +0,56 R · Treffer 68 %
+1. [[Aktien/COST|COST]]: 19 Trades · Ø +0,43 R · Treffer 74 %
+2. [[Aktien/ASTS|ASTS]]: 18 Trades · Ø +0,30 R · Treffer 61 %
+3. [[Aktien/GOOGL|GOOGL]]: 21 Trades · Ø +0,29 R · Treffer 52 %
 …
-21. [[Aktien/AMZN|AMZN]]: 23 Trades · Ø -0,19 R · Treffer 43 %
-22. [[Aktien/MELI|MELI]]: 14 Trades · Ø -0,25 R · Treffer 43 %
-23. [[Aktien/XOM|XOM]]: 19 Trades · Ø -0,49 R · Treffer 26 %
+22. [[Aktien/SE|SE]]: 21 Trades · Ø -0,10 R · Treffer 52 %
+23. [[Aktien/CRWV|CRWV]]: 5 Trades · Ø -0,20 R · Treffer 40 %
+24. [[Aktien/XOM|XOM]]: 19 Trades · Ø -0,20 R · Treffer 47 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 
 ### Lernverlauf (letzte 12 Monate)

@@ -6,9 +6,11 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # CRWV
 
+Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
+
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=CRWV)
 
-**Stand Mi 21.10. 2026:** ⚠️ GEWINNE SICHERN – überverkauft – falls Short im Depot
+**Stand Mi 21.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 11.11.
 
 ## Übungsdepot
@@ -17,16 +19,14 @@ tags:
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 3 Trades · Ø -0,05 R · Treffer 33 %
-- [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]]: 1 Trade · Ø -0,92 R · Treffer 0 %
-- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 5 Trades · Ø -0,74 R · Treffer 20 %
-- [[Strategien/MACD-Wende Short|MACD-Wende ↓]]: 1 Trade · Ø -0,69 R · Treffer 0 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 9 Trades · Ø -0,27 R · Treffer 33 %
-- [[Strategien/Erholung Short|Erholung ↓]]: 1 Trade · Ø -0,97 R · Treffer 0 %
-- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 1 Trade · Ø +1,86 R · Treffer 100 %
-- [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]]: 1 Trade · Ø -0,74 R · Treffer 0 %
-- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 6 Trades · Ø -1,03 R · Treffer 17 %
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 4 Trades · Ø -0,06 R · Treffer 25 %
+- **Alle Strategien zusammen:** 29 Trades · Ø -0,25 R · Treffer 45 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 3 Trades · Ø +0,29 R · Treffer 67 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 2 Trades · Ø -0,26 R · Treffer 50 %
+- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 5 Trades · Ø -0,59 R · Treffer 40 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 7 Trades · Ø -0,14 R · Treffer 43 %
+- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 1 Trade · Ø +0,90 R · Treffer 100 %
+- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 6 Trades · Ø -0,58 R · Treffer 33 %
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 5 Trades · Ø -0,20 R · Treffer 40 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

@@ -10,50 +10,53 @@ Hier sammelt der Bot, was er aus seinen Fehlern und Erfolgen zieht. **Automatisc
 
 Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 0,1 R je Trade verliert, und nimmt sie wieder, sobald der Schnitt im Plus ist. Ab 50 Trades muss sie über ihre ganze Geschichte im Plus sein.
 
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,05 R)
-- [[Strategien/Abbruch Short|Abbruch ↓]]: ⏸ aus – über ihre ganze Geschichte im Minus (Ø -0,02 R über 78 Trades)
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: ✅ aktiv (Ø +0,22 R über die letzten 60 Trades)
-- [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]]: ⏸ aus – über ihre ganze Geschichte im Minus (Ø -0,10 R über 79 Trades)
-- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: ✅ aktiv (Ø +0,14 R über die letzten 60 Trades)
-- [[Strategien/Rückfall Short|Rückfall ↓]]: ⏸ pausiert – die letzten 34 Trades liefen schlecht (Ø -0,28 R)
-- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,26 R)
-- [[Strategien/MACD-Wende Short|MACD-Wende ↓]]: ⏸ aus – über ihre ganze Geschichte im Minus (Ø -0,11 R über 114 Trades)
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: ✅ aktiv (Ø -0,05 R über die letzten 60 Trades)
+- [[Strategien/Abbruch Short|Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: ✅ aktiv (Ø +0,08 R über die letzten 60 Trades)
+- [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
+- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: ✅ aktiv (Ø +0,08 R über die letzten 60 Trades)
+- [[Strategien/Rückfall Short|Rückfall ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
+- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,06 R)
+- [[Strategien/MACD-Wende Short|MACD-Wende ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: ✅ aktiv (Ø -0,01 R über die letzten 60 Trades)
-- [[Strategien/Erholung Short|Erholung ↓]]: ⏸ aus – über ihre ganze Geschichte im Minus (Ø -0,05 R über 198 Trades)
-- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: ✅ aktiv (Ø +0,07 R über die letzten 60 Trades)
-- [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]]: ⏸ pausiert – die letzten 42 Trades liefen schlecht (Ø -0,26 R)
-- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: ⏸ aus – über ihre ganze Geschichte im Minus (Ø -0,02 R über 332 Trades)
-- [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]]: ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,09 R)
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: ✅ aktiv (Ø +0,08 R über die letzten 60 Trades)
-- [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]: ⏸ aus – über ihre ganze Geschichte im Minus (Ø -0,05 R über 115 Trades)
+- [[Strategien/Erholung Short|Erholung ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
+- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: ✅ aktiv (Ø +0,17 R über die letzten 60 Trades)
+- [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
+- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: ✅ aktiv (Ø +0,02 R über die letzten 60 Trades)
+- [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: ✅ aktiv (Ø +0,01 R über die letzten 60 Trades)
+- [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 
 ### Änderungen der letzten 30 Tage
 
-- Fr 02.10.: [[Strategien/Rücksetzer Long|Rücksetzer ↑]] ⏸ pausiert/aus
-- Mi 14.10.: [[Strategien/Rücksetzer Long|Rücksetzer ↑]] ✅ wieder aktiv
+- Fr 25.09.: [[Strategien/MACD-Wende Long|MACD-Wende ↑]] ⏸ pausiert/aus
 
 ## Muster im Strategie-Tagebuch (alle Strategien, alle Aktien)
 
-- Insgesamt: 3574 Trades · Ø +0,08 R · Treffer 45 %
-- Stop: 1443× (40 %), Ø -1,00 R
-- Ziel: 766× (21 %), Ø +1,73 R
-- Zeitstopp: 571× (16 %), Ø +0,52 R
-- vor Quartalszahlen: 425× (12 %), Ø +0,26 R
-- Stop (Kurslücke): 233× (7 %), Ø -1,21 R
-- Ziel (Kurslücke): 136× (4 %), Ø +1,92 R
-- Long: 2825 Trades · Ø +0,11 R · Treffer 46 %
-- Short: 749 Trades · Ø -0,07 R · Treffer 40 %
+- Insgesamt: 2839 Trades · Ø +0,10 R · Treffer 57 %
+- Ziel: 947× (33 %), Ø +0,89 R
+- Zeitstopp: 668× (24 %), Ø -0,01 R
+- Stop: 541× (19 %), Ø -1,01 R
+- vor Quartalszahlen: 460× (16 %), Ø -0,04 R
+- Ziel (Kurslücke): 126× (4 %), Ø +1,05 R
+- Stop (Kurslücke): 97× (3 %), Ø -1,16 R
+- Long: 2839 Trades · Ø +0,10 R · Treffer 57 %
 
 ### Rangliste der Aktien (ab 20 Trades, nach Ø R)
 
-1. [[Aktien/AMD|AMD]]: 143 Trades · Ø +0,33 R · Treffer 50 %
-2. [[Aktien/NVDA|NVDA]]: 167 Trades · Ø +0,29 R · Treffer 55 %
-3. [[Aktien/JPM|JPM]]: 170 Trades · Ø +0,22 R · Treffer 52 %
+1. [[Aktien/NBIS|NBIS]]: 60 Trades · Ø +0,26 R · Treffer 65 %
+2. [[Aktien/NVDA|NVDA]]: 137 Trades · Ø +0,25 R · Treffer 68 %
+3. [[Aktien/GOOGL|GOOGL]]: 129 Trades · Ø +0,24 R · Treffer 61 %
 …
-22. [[Aktien/XOM|XOM]]: 143 Trades · Ø -0,13 R · Treffer 38 %
-23. [[Aktien/MELI|MELI]]: 146 Trades · Ø -0,21 R · Treffer 34 %
-24. [[Aktien/CRWV|CRWV]]: 32 Trades · Ø -0,44 R · Treffer 25 %
+22. [[Aktien/AMZN|AMZN]]: 146 Trades · Ø -0,02 R · Treffer 51 %
+23. [[Aktien/MELI|MELI]]: 115 Trades · Ø -0,04 R · Treffer 48 %
+24. [[Aktien/CRWV|CRWV]]: 29 Trades · Ø -0,25 R · Treffer 45 %
 - Hinweis: Selbst 20–50 Trades je Aktie sind wenig. Sperren kannst du eine Aktie in [[Meine Regeln]].
+
+### Trefferquote je Aktie (Ziel: über 50 %)
+
+- 19 von 24 Aktien (ab 20 Trades) treffen öfter als jedes zweite Mal.
+- Bei 50 % oder darunter: [[Aktien/CRWV|CRWV]] 45 % (29 Trades, Ø -0,25 R), [[Aktien/TSLA|TSLA]] 45 % (121 Trades, Ø -0,01 R), [[Aktien/SOFI|SOFI]] 48 % (107 Trades, Ø -0,01 R), [[Aktien/MELI|MELI]] 48 % (115 Trades, Ø -0,04 R), [[Aktien/LLY|LLY]] 49 % (129 Trades, Ø +0,02 R). Ein paar Prozentpunkte unter 50 % können auch bei über 100 Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt Ø R, siehe Rangliste oben).
 
 ## Aus dem Übungsdepot (echte Vorwärts-Trades)
 

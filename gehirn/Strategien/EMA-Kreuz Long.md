@@ -1,45 +1,46 @@
 ---
 typ: "strategie"
-status: "aus"
+status: "aktiv"
 tags:
   - "strategie"
 ---
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # EMA-Kreuz ↑
 
-**Status:** ⏸ aus – über ihre ganze Geschichte im Minus (Ø -0,02 R über 332 Trades)
+**Status:** ✅ aktiv (Ø +0,02 R über die letzten 60 Trades)
 
-**Regel:** EMA 9 kreuzt heute die EMA 21 nach oben (neuer Aufwärtstrend), über der 50-Tage-Linie. Stop −2 ATR, Ziel +4 ATR
+**Regel:** EMA 9 kreuzt heute die EMA 21 nach oben (neuer Aufwärtstrend), über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,05 R · Treffer 37 % · ± Zufall 0,30 R
-- Ganze Geschichte: 332 Trades · Ø -0,02 R · Treffer 43 %
+- Letzte 60 Trades: Ø +0,02 R · Treffer 47 % · ± Zufall 0,20 R
+- Ganze Geschichte: 310 Trades · Ø +0,05 R · Treffer 54 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
-- Stop: 132× (40 %), Ø -1,04 R
-- Zeitstopp: 80× (24 %), Ø +0,45 R
-- vor Quartalszahlen: 53× (16 %), Ø +0,23 R
-- Ziel: 46× (14 %), Ø +1,97 R
-- Stop (Kurslücke): 16× (5 %), Ø -1,15 R
-- Ziel (Kurslücke): 5× (2 %), Ø +2,00 R
+- Zeitstopp: 95× (31 %), Ø -0,03 R
+- Ziel: 78× (25 %), Ø +0,95 R
+- vor Quartalszahlen: 60× (19 %), Ø +0,04 R
+- Stop: 57× (18 %), Ø -1,03 R
+- Ziel (Kurslücke): 11× (4 %), Ø +1,06 R
+- Stop (Kurslücke): 9× (3 %), Ø -1,19 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 
-1. [[Aktien/IREN|IREN]]: 12 Trades · Ø +0,50 R · Treffer 58 %
-2. [[Aktien/HIMS|HIMS]]: 11 Trades · Ø +0,45 R · Treffer 64 %
-3. [[Aktien/COST|COST]]: 14 Trades · Ø +0,44 R · Treffer 57 %
+1. [[Aktien/ASTS|ASTS]]: 9 Trades · Ø +0,48 R · Treffer 67 %
+2. [[Aktien/IREN|IREN]]: 11 Trades · Ø +0,37 R · Treffer 73 %
+3. [[Aktien/PLTR|PLTR]]: 14 Trades · Ø +0,35 R · Treffer 71 %
 …
-22. [[Aktien/INTU|INTU]]: 20 Trades · Ø -0,39 R · Treffer 35 %
-23. [[Aktien/NBIS|NBIS]]: 7 Trades · Ø -0,52 R · Treffer 14 %
-24. [[Aktien/CRWV|CRWV]]: 6 Trades · Ø -1,03 R · Treffer 17 %
+22. [[Aktien/NOW|NOW]]: 15 Trades · Ø -0,32 R · Treffer 27 %
+23. [[Aktien/NBIS|NBIS]]: 5 Trades · Ø -0,38 R · Treffer 20 %
+24. [[Aktien/CRWV|CRWV]]: 6 Trades · Ø -0,58 R · Treffer 33 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 
 ### Lernverlauf (letzte 12 Monate)
 
-- keine Änderung
+- Fr 07.11. 2025: ⏸ pausiert/aus
+- Mi 15.07. 2026: ✅ wieder aktiv
 
 ## Trades im Übungsdepot (Papier-Depot)
 

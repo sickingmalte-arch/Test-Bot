@@ -7,25 +7,25 @@ typ: "start"
 Stand: Kurse bis Mi 21.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 > [!info] So funktioniert das Gehirn
-> - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, eine Notiz zu **jedem abgeschlossenen Trade** mit dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.
+> - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, den **Wochenrückblick**, eine Notiz zu **jedem abgeschlossenen Trade** mit dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er jede Nacht neu.
 
-## Heute: [[Tage/2026-10-21]]
+## Heute: [[Tage/2026-10-21]] · Diese Woche: [[Wochen/2026-W43|Woche 43]]
 
 - Signale: [[Aktien/HIMS|HIMS]] (🟢 KAUFEN)
-- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 20.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long), Short-Signale wartet er ab.
+- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 20.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
 
 ## Übungsdepot
 
 - 10.046,18 € (+0,5 % seit 2026-10-20) · 5 offen · noch keine Trades
-- Rückblick 12 Monate: +17,3 % (alle Aktien kaufen und halten: +4,5 %)
+- Rückblick 12 Monate: +8,2 % (alle Aktien kaufen und halten: +4,5 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
-- ✅ aktiv: [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]], [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]], [[Strategien/Rücksetzer Long|Rücksetzer ↑]], [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]], [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]
-- ⏸ pausiert: [[Strategien/Ausbruch Long|Ausbruch ↑]], [[Strategien/Rückfall Short|Rückfall ↓]], [[Strategien/MACD-Wende Long|MACD-Wende ↑]], [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]], [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]]
-- ⏸ aus: [[Strategien/Abbruch Short|Abbruch ↓]], [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]], [[Strategien/MACD-Wende Short|MACD-Wende ↓]], [[Strategien/Erholung Short|Erholung ↓]], [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]], [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]
+- ✅ aktiv: [[Strategien/Ausbruch Long|Ausbruch ↑]], [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]], [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]], [[Strategien/Rücksetzer Long|Rücksetzer ↑]], [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]], [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]], [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]
+- ⏸ pausiert: [[Strategien/MACD-Wende Long|MACD-Wende ↑]]
+- – Short ausgeschaltet: [[Strategien/Abbruch Short|Abbruch ↓]], [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]], [[Strategien/Rückfall Short|Rückfall ↓]], [[Strategien/MACD-Wende Short|MACD-Wende ↓]], [[Strategien/Erholung Short|Erholung ↓]], [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]], [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]], [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]
 
 ## Deine Regeln → [[Meine Regeln]]
 

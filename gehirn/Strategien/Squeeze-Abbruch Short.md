@@ -1,34 +1,19 @@
 ---
 typ: "strategie"
-status: "pausiert"
+status: "aus"
 tags:
   - "strategie"
 ---
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Squeeze-Abbruch ↓
 
-**Status:** ⏸ pausiert – die letzten 42 Trades liefen schlecht (Ø -0,26 R)
+**Status:** – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 
-**Regel:** Bollinger-Bänder waren an einem der 5 Vortage so eng wie selten (unterste 15 % der letzten 120 Tage), heute erster Schluss unter dem unteren Band, unter der 50-Tage-Linie. Stop +2 ATR, Ziel −4 ATR
+**Regel:** Bollinger-Bänder waren an einem der 5 Vortage so eng wie selten (unterste 15 % der letzten 120 Tage), heute erster Schluss unter dem unteren Band, unter der 50-Tage-Linie. Stop +3 ATR, Ziel −3 ATR
 
-## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
+## Strategie-Tagebuch
 
-- Letzte 42 Trades: Ø -0,26 R · Treffer 36 % · ± Zufall 0,32 R
-- Ganze Geschichte: 42 Trades · Ø -0,26 R · Treffer 36 %
-- In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
-
-### So endeten die Trades
-
-- Stop: 17× (40 %), Ø -1,01 R
-- Zeitstopp: 14× (33 %), Ø +0,24 R
-- Stop (Kurslücke): 4× (10 %), Ø -1,45 R
-- Ziel: 3× (7 %), Ø +1,93 R
-- vor Quartalszahlen: 3× (7 %), Ø +0,35 R
-- Ziel (Kurslücke): 1× (2 %), Ø +1,83 R
-
-### Lernverlauf (letzte 12 Monate)
-
-- keine Änderung
+- Short-Signale sind aus – diese Strategie rechnet auch im Tagebuch nicht mit. Mit `--mit-short` berechnet der Bot ihr Tagebuch beim nächsten Lauf aus den Kursen der letzten 5 Jahre neu.
 
 ## Trades im Übungsdepot (Papier-Depot)
 
