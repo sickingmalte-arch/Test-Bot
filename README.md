@@ -99,12 +99,24 @@ Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jed
 - **Depotkurve:** gegen den Nasdaq-100, mit Fadenkreuz und Rückgang vom Hoch
 - **Strategien:** mit Mini-Kurven und den letzten 10 Trades
 - offene Positionen zwischen Stop und Ziel, Claude-Depot und Nachrichten
+- **Chat-Fenster:** Tipps und Fragen an Claude (siehe unten)
 
 1. **Einmalig einschalten:** **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. **Einmal starten:** **Actions → Übersichtsseite → Run workflow**. Danach wird die Seite nach jedem Lauf des Bots von selbst neu veröffentlicht.
 3. **Öffnen:** `https://<Benutzername>.github.io/<Repository>/`, hier also https://sickingmalte-arch.github.io/Test-Bot/. Am Handy im Browser **„Zum Home-Bildschirm“** wählen, dann öffnet sie sich wie eine App.
 
 Die Seite ist öffentlich wie das Repository.
+
+**Chat-Fenster: Tipps an Claude.** Auf der Übersichtsseite unten rechts (am Handy „Chat“) schreibst du Claude Tipps, Fragen oder Ideen für den Bot. Dafür musst du keine Sitzung bei Claude öffnen. Direkt-Link fürs Lesezeichen: https://sickingmalte-arch.github.io/Test-Bot/#chat
+
+- **So geht's:** Text eintippen → **Senden** → GitHub öffnet sich mit deinem Text als neues Thema (Label `tipp`) → dort **Create** tippen. Dafür musst du bei GitHub angemeldet sein. Fehlt der Text, weil sich die GitHub-App öffnet: Er ist schon in der Zwischenablage, einfach einfügen.
+- **Antworten:** Claude schaut Di–Sa vormittags (zusammen mit der Entscheidung fürs Claude-Depot) und jeden Abend ab ca. 18:45 Uhr rein. Es antwortet im selben Thema. Die Antwort steht dann im Fenster, und der Knopf zeigt neue Antworten mit einer Zahl. Antworten kannst du auch direkt im Thema bei GitHub.
+- **Was Claude damit macht:**
+  - Fragen beantwortet es.
+  - Tipps zur Auswahl beachtet es im Claude-Depot, solange das Thema offen ist. Zurückziehen: Thema schließen oder „vergiss das“ schreiben.
+  - Aktien sperren oder Strategien ausschalten trägt es auf deinen ausdrücklichen Wunsch in `gehirn/Meine Regeln.md` ein.
+  - Änderungen an den Regeln des Bots testet es erst ehrlich und übernimmt sie nur nach deinem „Ja“.
+- **Sicherheit:** Es zählen nur Nachrichten des Repository-Besitzers. Fremde Themen und Kommentare zeigt die Seite nicht, und Claude befolgt sie nicht. Alles ist öffentlich lesbar – nichts Persönliches schreiben. Die Seite liest ohne Anmeldung (GitHub erlaubt 60 Abfragen pro Stunde und Netz), Abschicken geht nur bei GitHub selbst.
 
 Gut zu wissen: GitHub startet zeitgesteuerte Läufe oft einige Minuten später und lässt bei hoher Last selten einen aus. Yahoo begrenzt manchmal Abfragen von Cloud-Servern – dann steht ❌ im Bericht, das Papier-Depot bleibt unverändert und der nächste Lauf holt alles nach. Mit Krypto in `TICKER` rechnet das Papier-Depot einen Tag später weiter (der Krypto-Tag endet erst um 2:00 Uhr deutscher Sommerzeit). Schaltet GitHub den Ablauf doch einmal ab (Hinweis im Tab Actions), dort „Enable workflow“ klicken. Neue Versionen des Skripts nutzt der automatische Lauf erst, wenn sie in `main` übernommen sind.
 
