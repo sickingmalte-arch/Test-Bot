@@ -19,7 +19,7 @@ Stand: Kurse bis Do 22.10.2026 · Simulation mit Spielgeld, keine Anlageberatung
 ## Übungsdepot
 
 - 10.197,23 € (+2,0 % seit 2026-10-20) · 5 offen · noch keine Trades
-- Rückblick 12 Monate: -0,5 % (alle Aktien kaufen und halten: +3,2 %)
+- Rückblick 12 Monate: +2,1 % (alle Aktien kaufen und halten: +3,2 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
