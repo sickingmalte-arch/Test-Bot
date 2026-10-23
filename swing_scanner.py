@@ -531,7 +531,10 @@ def hole_zusatzdaten(termin_ticker, news_ticker, sammler, budget=YAHOO_ZEITBUDGE
             if not news and hasattr(yf, "Search"):
                 # get_news liefert bei GitHub nur leere Listen (Yahoo antwortet dort mit 404) – die Suche geht noch
                 try:
-                    news = yf.Search(t, max_results=1, news_count=10).news
+                    treffer = yf.Search(t, max_results=1, news_count=10).news or []
+                    # nur Meldungen, zu denen Yahoo diese Aktie nennt (die Suche nach „NOW“ findet sonst jedes „now“)
+                    news = [n for n in treffer if not isinstance(n, dict) or "relatedTickers" not in n
+                            or t in (n.get("relatedTickers") or [])]
                 except Exception as fehler:
                     if type(fehler).__name__ == "YFRateLimitError":
                         raise
