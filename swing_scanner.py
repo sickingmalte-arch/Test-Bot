@@ -2747,6 +2747,50 @@ def json_zahl(x, nachkomma=2):
         return None
     return round(x, nachkomma) if math.isfinite(x) else None
 
+def tages_bilanz(stand, daten):
+    """Je Tag im Verlauf eines Papier-Depots: Wert, Änderung zum Vortag und woher sie kam – gekaufte und verkaufte
+    Aktien und der Beitrag jeder Position an diesem Tag in € (gekauft: Wert zum Schluss minus Kosten, verkauft: Erlös
+    minus Wert vom Vortag, sonst Wert heute minus Wert vom Vortag). Zusammen ergeben die Beiträge die Änderung des
+    Depotwerts. Für das Fazit (Tag, Woche, Monat) der Übersichtsseite."""
+    verlauf = [(pd.Timestamp(t), float(w)) for t, w in stand.get("verlauf") or []]
+    alle = [(p, False) for p in stand.get("trades") or []] + [(p, True) for p in stand.get("positionen") or []]
+
+    def wert_am(p, d, tag):
+        i = d["pos"][letzter_tag_bis(d, tag)]
+        return positionswert(p, d["C"][i], d["FX"][i])
+
+    tage, vorher, vortag = [], float(stand["startkapital"]), None
+    for tag, wert in verlauf:
+        gekauft, verkauft, beitraege = [], [], []
+        for p, offen in alle:
+            kauf = pd.Timestamp(p["kauf_tag"])
+            verkauf = None if offen else pd.Timestamp(p["verkauf_tag"])
+            if tag < kauf or (verkauf is not None and tag > verkauf):
+                continue
+            name = strategie_name(p["strategie"])
+            if kauf == tag:
+                gekauft.append({"ticker": p["ticker"], "strategie": name, "stueck": json_zahl(p["stueck"], 4),
+                                "preis": json_zahl(p["einsatz_je_stueck"]), "kosten": json_zahl(p["kosten"])})
+            if verkauf == tag:
+                verkauft.append({"ticker": p["ticker"], "strategie": name, "grund": p.get("grund") or "",
+                                 "ergebnis": json_zahl(p["erloes"] - p["kosten"]), "erloes": json_zahl(p["erloes"]),
+                                 "prozent": json_zahl((p["erloes"] / p["kosten"] - 1) * 100, 1) if p["kosten"] else None,
+                                 "seit": iso(kauf)})
+            d = daten.get(p["ticker"])
+            if d is None or not d["n_fertig"]:
+                beitraege.append({"ticker": p["ticker"], "betrag": None})  # keine Kurse: Beitrag unbekannt
+                continue
+            jetzt = p["erloes"] if verkauf == tag else wert_am(p, d, tag)
+            davor = p["kosten"] if kauf == tag or vortag is None else wert_am(p, d, vortag)
+            beitraege.append({"ticker": p["ticker"], "betrag": json_zahl(jetzt - davor)})
+        # Passen die Beiträge nicht zur Änderung (z. B. fehlten Kurse), lieber keine Aufteilung als eine falsche
+        if any(b["betrag"] is None for b in beitraege) or abs(sum(b["betrag"] for b in beitraege) - (wert - vorher)) > 1:
+            beitraege = None
+        tage.append({"tag": iso(tag), "wert": json_zahl(wert), "aenderung": json_zahl(wert - vorher),
+                     "gekauft": gekauft, "verkauft": verkauft, "beitraege": beitraege})
+        vorher, vortag = wert, tag
+    return tage
+
 def depot_export(stand, daten, markt, fx):
     """Ein Papier-Depot (Übungs- oder Claude-Depot) für die Übersichtsseite."""
     if not stand or not stand.get("bis"):
@@ -2791,6 +2835,7 @@ def depot_export(stand, daten, markt, fx):
         "positionen": positionen, "trades": trades,
         "auftraege": [{"ticker": a["ticker"], "strategie": strategie_name(a["strategie"])} for a in ok],
         "verfallen": [{"grund": g, "ticker": t} for g, t in verfallen.items()],
+        "tage": tages_bilanz(stand, daten),
     }
 
 def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier, claude, depot, daten, markt, fx,
