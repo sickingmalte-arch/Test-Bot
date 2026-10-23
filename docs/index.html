@@ -376,6 +376,9 @@ button.kal-tag:hover { border-color: #3a4654; }
 .zahlen-zeile.bald { color: var(--schlecht-text); font-weight: 600; }
 .zahlen-zeile.bald .info { color: var(--schlecht-text); border-color: rgba(244, 112, 103, .5); }
 .position .zahlen-zeile { margin-top: 5px; font-size: 11px; }
+.chance-zeile { flex-wrap: nowrap; align-items: flex-start; }
+.chance-zeile > span { min-width: 0; }
+.chance-zeile .info { flex: none; }
 .klapp {
   display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; margin: 0; color: inherit; font: inherit;
   letter-spacing: inherit; text-transform: inherit; cursor: pointer; text-align: left;
@@ -895,6 +898,7 @@ function kernLinien(kern) {
 // ---------------------------------------------------------------------------
 // Erklärungen zu Fachwörtern: kleines (i), Text erscheint beim Antippen
 // ---------------------------------------------------------------------------
+const CHANCE_TEXT = "Formel: Wie wahrscheinlich der Kurs das Ziel in 20 Handelstagen mindestens einmal berührt – berechnet mit dem Black-Scholes-Modell aus dem Optionsskript, aus der Schwankung der letzten 20 Tage. Bisher erreicht: wie oft das bei gedachten Trades mit ähnlicher Formel-Chance wirklich passiert ist. Nur zur Info: Der Stop kann vorher kommen, und die Formel weiß nicht, in welche Richtung eine Aktie geht. Der Bot kauft deshalb nicht danach – im Test über 16 Jahre brachte das nichts.";
 const ERKLAERUNG = {
   signal: ["Limit, Stop, Ziel", "Limit: höchster Kaufkurs – teurer wird nicht gekauft. Stop: Hier verkauft der Bot mit kleinem Verlust, wenn der Kurs fällt. Ziel: Hier verkauft er mit Gewinn. Der Balken zeigt, wo der Kurs gerade zwischen Stop (links) und Ziel (rechts) steht."],
   crv: ["CRV – Chance-Risiko-Verhältnis", "Möglicher Gewinn bis zum Ziel geteilt durch möglichen Verlust bis zum Stop. CRV 1,0 heißt: Chance und Risiko sind gleich groß, CRV 2,0: doppelt so viel Chance wie Risiko. Je kleiner das CRV, desto öfter muss ein Trade aufgehen, damit unterm Strich Gewinn bleibt."],
@@ -905,6 +909,7 @@ const ERKLAERUNG = {
   rueckgang: ["Größter Rückgang", "Wie weit der Depotwert höchstens unter sein bisheriges Hoch gefallen ist. Diese Kachel zeigt den Rückblick: eine Simulation der letzten 12 Monate. Der Wert für das echte Übungsdepot steht darunter und unter der Kurve (Ansicht „Übungsdepot“)."],
   zahlen: ["Quartalszahlen", "An diesem Tag legt die Firma ihre Zahlen vor. Der Kurs kann dann stark springen – nach oben wie nach unten. Der Bot verkauft deshalb spätestens kurz vor den Zahlen. Rot heißt: weniger als 7 Tage. Dann bleibt einem neuen Trade nur wenig Zeit bis zum Ziel."],
   fazit: ["Ergebnis", "So viel mehr (oder weniger) war das Übungsdepot zum Schluss wert als vorher – mit den noch offenen Positionen zum Schlusskurs (Buchgewinn oder -verlust) und nach Gebühren. „Woher kam das Ergebnis?“ zeigt den Anteil jeder Aktie, zusammen ergeben sie das Ergebnis. Umsatz: Wert aller Käufe und Verkäufe im Zeitraum."],
+  chance: ["Ziel-Chance nach Black-Scholes", CHANCE_TEXT],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
 const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
@@ -1329,6 +1334,8 @@ function fazitBauen(D) {
 function aufbauen(D) {
   const main = document.getElementById("inhalt");
   main.replaceChildren();
+  const CP = D.chance_pruefung;  // Selbstkontrolle der Ziel-Chance (ältere daten.json haben sie noch nicht)
+  ERKLAERUNG.chance[1] = CHANCE_TEXT + (CP && CP.n ? ` Selbstkontrolle an ${zahl(CP.n)} gedachten Trades: vorhergesagt im Schnitt ${zahl(CP.chance)} %, wirklich berührt ${zahl(CP.beruehrt)} %.` : "");
   const P = D.papier, C = D.claude, RB = D.rueckblick, G = D.gehirn;
   const kaufen = D.signale.filter(s => s.art === "kaufen" || s.art === "short");
   const s1 = css("--s1"), s2 = css("--s2"), s3 = css("--s3"), grau = css("--s-grau");
@@ -1456,6 +1463,8 @@ function aufbauen(D) {
       bahn({ stop: s.stop, ziel: s.ziel, kurs: s.kurs, limit: s.limit }),
       el("div", { class: "bahn-text" }, el("span", {}, "Stop"), el("span", {}, `Kurs ${euro(s.kurs, 2)}`), el("span", {}, "Ziel")),
       zahlenZeile(zahlenVon.get(s.ticker), s.zahlen),
+      s.chance !== null && s.chance !== undefined ? el("div", { class: "zahlen-zeile chance-zeile" },
+        el("span", {}, `Ziel-Chance: Formel ${zahl(s.chance)}\u00a0%` + (s.chance_praxis !== null && s.chance_praxis !== undefined ? ` · bisher erreicht ${zahl(s.chance_praxis)}\u00a0%` : "")), info("chance")) : null,
       el("div", { class: "fuss" },
         el("span", {}, s.stueck ? `${zahl(s.stueck, s.stueck % 1 ? 2 : 0)} Stück · Risiko ${euro(s.risiko)}` : "Konto zu klein"),
         el("span", {}, `CRV ${zahl(s.crv, 1)}`, info("crv")))));
