@@ -468,6 +468,21 @@ def kerze_noch_offen(df, ticker=""):
         return False
     return df.index[-1].date() == jetzt.date() and jetzt.time() < schluss
 
+def fehlender_us_tag(zeilen, jetzt=None):
+    """US-Handelstag, der bei Yahoo schon fertig sein müsste, aber bei keinem US-Wert dabei ist (sonst None).
+    Yahoo liefert die Kerze eines Tages manchmal erst Stunden nach Börsenschluss – dann wären alle Signale einen Tag
+    alt und der Kauftag im Handelsplan schon vorbei."""
+    us = [z["_stand"] for z in zeilen if "_stand" in z and waehrung_von(z["Ticker"]) == "USD"
+          and not ist_krypto(z["Ticker"])]
+    if not us:
+        return None
+    jetzt = jetzt if jetzt is not None else pd.Timestamp.now(tz=NY)
+    tag = pd.Timestamp(jetzt.date())
+    if jetzt.time() < dt.time(16, 15):
+        tag -= pd.Timedelta(days=1)
+    erwartet = NYSE_TAG.rollback(tag)
+    return erwartet if max(pd.Timestamp(s.date()) for s in us) < erwartet else None
+
 
 # ----------------------------------------------------------------------------
 # Yahoo: Quartalszahlen-Termine und Schlagzeilen (parallel, mit Zeitbudget und Bremse bei Yahoo-Limit)
@@ -1444,7 +1459,7 @@ def marktampel(trend, zeilen, einst):
                  f"Linie) – die Signale in der Tabelle beachten das schon.")
     return satz
 
-def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen):
+def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen, fehlt=None):
     ok = [z for z in zeilen if "_stand" in z]
     stand = max(z["_stand"] for z in ok)
     risiko_betrag = einst.konto * einst.risiko / 100
@@ -1456,6 +1471,12 @@ def kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, ohne_zahlen):
     zusammenfassung = " · ".join(f"{anzahl[s]}× {s}" for s in (KAUFEN, SHORT, WARTEN, SICHERN, BEOBACHTEN, FEHLER)
                                  if s in anzahl)
     hinweise = []
+    if fehlt is not None:
+        hinweise.append(f"⚠️ Die Kurse vom {datum(fehlt)} fehlen noch: Yahoo hat diesen US-Handelstag noch nicht "
+                        f"geliefert (oder die Börse war an dem Tag geschlossen). Die Signale unten beruhen deshalb auf "
+                        f"älteren Kursen, und der Kauftag im Handelsplan ist schon vorbei – nicht danach handeln. Der "
+                        f"nächste Lauf holt den Tag nach, auch im Übungsdepot."
+                        + (" Eine Nachricht aufs Handy gibt es diesmal nicht." if einst.nachricht else ""))
     ampel = marktampel(trend, ok, einst)
     if ampel:
         hinweise.append(ampel)
@@ -2294,7 +2315,7 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                       f"vorwärts nach seinen Regeln – jede Entscheidung nur mit Kursen, die es da schon gab. "
                       + ("GitHub startet ihn jeden Börsentag automatisch; verpasste Tage holt er nach."
                          if os.environ.get("GITHUB_ACTIONS") else
-                         "Starte ihn jeden Börsentag einmal (am besten abends nach 22:15 Uhr); verpasste Tage holt er "
+                         "Starte ihn jeden Börsentag einmal (am besten morgens vor 15:30 Uhr); verpasste Tage holt er "
                          "nach."))
     wert = stand["depotwert"]
     rendite = (wert / stand["startkapital"] - 1) * 100
@@ -2356,8 +2377,8 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                           for a in auftraege))
         if erg is not None and eroeffnung_vorbei(auftraege, termine):
             zeilen.append(f"Die Eröffnung am {datum(erster)} ist schon gelaufen: Das Papier-Depot bucht einen Tag erst, "
-                          f"wenn er für alle Werte fertig ist – also beim nächsten Lauf nach Börsenschluss (US-Werte "
-                          f"nach 22:15 Uhr, mit Krypto auf der Liste nach 2:00 Uhr).")
+                          f"wenn er für alle Werte fertig ist – also beim nächsten Lauf nach dem Handelstag (am besten "
+                          f"am Morgen danach).")
         zeilen.append("Die Aufträge stammen vom letzten fertigen Kurstag und berücksichtigen die offenen Positionen und "
                       "das Geld des Papier-Depots – sie können deshalb vom Handelsplan oben (für ein leeres Konto) "
                       "abweichen.")
@@ -3157,7 +3178,7 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
             "> - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen "
             "anhaken, dann hochladen – siehe Anleitung).",
             "> - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene "
-            "Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er jede Nacht neu.",
+            "Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.",
             "",
             f"## Heute: [[Tage/{tag_name}]] · Diese Woche: [[Wochen/{woche_name}|Woche {kw}]]", ""]
     kauf = [f"{link_aktie(z['Ticker'])} ({z['Signal']})" for z in ok if z.get("Signal") in (KAUFEN, SHORT)]
@@ -3342,7 +3363,8 @@ def auswerten(einst):
         tabelle[spalte] = tabelle[spalte].fillna("")
 
     fx_heute = float(fx.iloc[-1]) if fx is not None else None
-    titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, einst.ohne_zahlen)
+    fehlt = fehlender_us_tag(zeilen)
+    titel, zusammenfassung, hinweise = kopfzeilen(zeilen, einst, fx_heute, waehrung, trend, einst.ohne_zahlen, fehlt)
     if einst.sperre_ticker or einst.sperre_strategien:
         hinweise.append("📝 Deine Regeln (Gehirn › Meine Regeln): "
                         + " · ".join(x for x in (
@@ -3417,7 +3439,8 @@ def auswerten(einst):
                         ohne_filter, einst.marktfilter and trend is not None)
 
     if einst.nachricht:
-        h = schreibe_nachricht(einst.nachricht, einstiege, plan, papier)
+        # Fehlt der letzte US-Handelstag noch, wären Signal und Kauftag schon veraltet – dann keine Nachricht
+        h = schreibe_nachricht(einst.nachricht, [] if fehlt is not None else einstiege, plan, papier)
         if h:
             print(f"⚠️ {h}")
             BERICHT_HINWEISE.append(h)
