@@ -77,7 +77,7 @@ a { color: inherit; }
   display: flex; align-items: center; border-top: 1px solid var(--line-soft); height: 26px; overflow: hidden;
   font: 11px/1 var(--mono); color: var(--text-2);
 }
-.live { flex: none; padding: 0 12px 0 16px; color: var(--gut-text); font-weight: 700; letter-spacing: .12em; display: flex; gap: 6px; align-items: center; }
+.live { flex: none; padding: 0 12px 0 16px; color: var(--text-1); font-weight: 700; letter-spacing: .12em; display: flex; gap: 6px; align-items: center; }
 .laufband-fenster { overflow: hidden; flex: 1; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
 .laufband-inhalt { display: inline-flex; gap: 28px; white-space: nowrap; padding-right: 28px; animation: laufen 60s linear infinite; }
 .laufband:hover .laufband-inhalt { animation-play-state: paused; }
@@ -341,8 +341,8 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
     <div class="pillen" id="pillen"></div>
     <div class="uhr"><div class="zeit" id="uhr">--:--:--</div><div class="label" id="uhr-zone">jetzt</div></div>
   </div>
-  <div class="laufband" aria-label="Neuigkeiten">
-    <div class="live"><span class="punkt gut"></span>LIVE</div>
+  <div class="laufband" aria-label="Neuigkeiten vom letzten Lauf">
+    <div class="live" title="Zahlen vom letzten Lauf des Bots (keine Live-Kurse)"><span class="punkt gut"></span><span id="stand">STAND</span></div>
     <div class="laufband-fenster"><div class="laufband-inhalt" id="laufband"></div></div>
   </div>
 </header>
@@ -387,6 +387,7 @@ const prozent = (x, nk = 1, mitVz = true) => x === null || x === undefined ? "�
 const richtung = x => (x > 0 ? "gut" : x < 0 ? "schlecht" : "");
 const TAGE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 function tag(iso) { const [j, m, d] = iso.slice(0, 10).split("-").map(Number); return new Date(Date.UTC(j, m - 1, d)); }
+function datumJahr(iso) { return iso ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}` : "–"; }
 function datum(iso, mitTag = true) {
   if (!iso) return "–";
   const d = tag(iso);
@@ -710,6 +711,7 @@ function aufbauen(D) {
   // Kopfzeile: Pillen und Laufband
   const erstellt = new Date(D.erstellt);
   const lief = zeitpunkt(erstellt);
+  document.getElementById("stand").textContent = `STAND ${lief.slice(-5)}`;
   const pillen = document.getElementById("pillen");
   pillen.replaceChildren(
     el("span", { class: "pille" }, el("span", { class: `punkt ${D.fehlt ? "warnung" : "gut"}` }), `Bot lief ${lief}`),
@@ -783,7 +785,7 @@ function aufbauen(D) {
     kacheln.append(kachel("Trefferquote · 12 Mon.", prozent(quote, 0, false), `${RB.gewinner} von ${RB.trades_anzahl} Trades mit Gewinn`,
       { extra: el("div", { class: "striche" }, ...Array.from({ length: 10 }, (_, i) => el("i", { class: i < Math.round((quote || 0) / 10) ? "gut" : "" }))) }));
     kacheln.append(kachel("Rendite · 12 Mon.", prozent(rendite), q !== null ? `Nasdaq-100 ${prozent(q)}` : "Rückblick", { klasse: richtung(rendite) }));
-    kacheln.append(kachel("Trades · 12 Mon.", zahl(RB.trades_anzahl), `Rückblick seit ${datum(RB.start, false)}`));
+    kacheln.append(kachel("Trades · 12 Mon.", zahl(RB.trades_anzahl), `Rückblick seit ${datumJahr(RB.start)}`));
     kacheln.append(kachel("Größter Rückgang", prozent(-RB.max_rueckgang, 1), "im Rückblick, vom Hoch", { klasse: "schlecht" }));
   }
   main.append(abschnitt("kennzahlen", "Kennzahlen", "Übungsdepot (echt, vorwärts) und Rückblick der letzten 12 Monate", kacheln));
@@ -844,7 +846,7 @@ function aufbauen(D) {
     { name: "Bot", farbe: s1, punkte: RB.verlauf },
     RB.qqq ? { name: "Nasdaq-100", farbe: s2, punkte: RB.qqq } : null,
     RB.halten ? { name: "Alle Aktien halten", farbe: grau, punkte: RB.halten } : null].filter(Boolean),
-    unter: `${datum(RB.start, false)} bis ${datum(RB.ende, false)} · Rückblick mit heutiger Watchlist (sieht meist zu gut aus)` });
+    unter: `${datumJahr(RB.start)} bis ${datumJahr(RB.ende)} · Rückblick mit heutiger Watchlist (sieht meist zu gut aus)` });
   const kurvenPanel = el("div", { class: "panel panel-innen" });
   const reiter = el("div", { class: "reiter", role: "tablist", "aria-label": "Kurve wählen" });
   const legende = el("div", { class: "legende" });
