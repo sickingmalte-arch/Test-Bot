@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=TSLA)
 
-**Stand Do 22.10. 2026:** 🟢 KAUFEN – Rücksetzer ↑ · Limit 339,03 · Stop 299,72 · Ziel 367,11 €
+**Stand Do 22.10. 2026:** ⏸ WARTEN – Rücksetzer ↑ – Nachricht: Übernahme/Fusion
 **Nächste Quartalszahlen:** Mi 27.01.
 
 ## Übungsdepot

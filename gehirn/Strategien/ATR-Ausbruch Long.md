@@ -19,12 +19,12 @@ tags:
 
 ### So endeten die Trades
 
-- Ziel: 138× (31 %), Ø +0,95 R
-- Zeitstopp: 113× (25 %), Ø +0,03 R
+- Ziel: 140× (31 %), Ø +0,95 R
+- Zeitstopp: 113× (25 %), Ø +0,02 R
 - Stop: 86× (19 %), Ø -1,00 R
-- vor Quartalszahlen: 76× (17 %), Ø -0,04 R
+- vor Quartalszahlen: 72× (16 %), Ø -0,04 R
 - Ziel (Kurslücke): 21× (5 %), Ø +1,09 R
-- Stop (Kurslücke): 18× (4 %), Ø -1,16 R
+- Stop (Kurslücke): 20× (4 %), Ø -1,17 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 

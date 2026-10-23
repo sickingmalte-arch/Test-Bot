@@ -14,23 +14,23 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø +0,00 R · Treffer 47 % · ± Zufall 0,20 R
-- Ganze Geschichte: 311 Trades · Ø +0,05 R · Treffer 54 %
+- Ganze Geschichte: 311 Trades · Ø +0,06 R · Treffer 54 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Zeitstopp: 95× (31 %), Ø -0,03 R
 - Ziel: 78× (25 %), Ø +0,95 R
-- vor Quartalszahlen: 60× (19 %), Ø +0,04 R
 - Stop: 58× (19 %), Ø -1,03 R
-- Ziel (Kurslücke): 11× (4 %), Ø +1,06 R
+- vor Quartalszahlen: 58× (19 %), Ø +0,04 R
+- Ziel (Kurslücke): 13× (4 %), Ø +1,10 R
 - Stop (Kurslücke): 9× (3 %), Ø -1,19 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 
-1. [[Aktien/ASTS|ASTS]]: 9 Trades · Ø +0,48 R · Treffer 67 %
-2. [[Aktien/IREN|IREN]]: 11 Trades · Ø +0,37 R · Treffer 73 %
-3. [[Aktien/PLTR|PLTR]]: 14 Trades · Ø +0,35 R · Treffer 71 %
+1. [[Aktien/AMZN|AMZN]]: 11 Trades · Ø +0,54 R · Treffer 73 %
+2. [[Aktien/ASTS|ASTS]]: 9 Trades · Ø +0,48 R · Treffer 67 %
+3. [[Aktien/IREN|IREN]]: 11 Trades · Ø +0,37 R · Treffer 73 %
 …
 22. [[Aktien/NOW|NOW]]: 15 Trades · Ø -0,32 R · Treffer 27 %
 23. [[Aktien/NBIS|NBIS]]: 5 Trades · Ø -0,38 R · Treffer 20 %
@@ -39,8 +39,7 @@ tags:
 
 ### Lernverlauf (letzte 12 Monate)
 
-- Fr 07.11. 2025: ⏸ pausiert/aus
-- Mi 15.07. 2026: ✅ wieder aktiv
+- keine Änderung
 
 ## Trades im Übungsdepot (Papier-Depot)
 

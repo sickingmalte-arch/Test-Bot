@@ -13,13 +13,13 @@ Stand: Kurse bis Do 22.10.2026 · Simulation mit Spielgeld, keine Anlageberatung
 
 ## Heute: [[Tage/2026-10-22]] · Diese Woche: [[Wochen/2026-W43|Woche 43]]
 
-- Signale: [[Aktien/NOW|NOW]] (🟢 KAUFEN), [[Aktien/MSFT|MSFT]] (🟢 KAUFEN), [[Aktien/TSLA|TSLA]] (🟢 KAUFEN), [[Aktien/AMD|AMD]] (🟢 KAUFEN), [[Aktien/PLTR|PLTR]] (🟢 KAUFEN), [[Aktien/LLY|LLY]] (🟢 KAUFEN)
+- Signale: [[Aktien/NOW|NOW]] (🟢 KAUFEN), [[Aktien/MSFT|MSFT]] (🟢 KAUFEN), [[Aktien/AMD|AMD]] (🟢 KAUFEN), [[Aktien/PLTR|PLTR]] (🟢 KAUFEN), [[Aktien/LLY|LLY]] (🟢 KAUFEN)
 - 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 21.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
 
 ## Übungsdepot
 
 - 10.197,23 € (+2,0 % seit 2026-10-20) · 5 offen · noch keine Trades
-- Rückblick 12 Monate: +2,1 % (alle Aktien kaufen und halten: +3,2 %)
+- Rückblick 12 Monate: +9,3 % (alle Aktien kaufen und halten: +3,2 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
