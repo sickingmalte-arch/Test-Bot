@@ -101,7 +101,7 @@ a { color: inherit; }
 .seite svg { flex: none; opacity: .8; }
 .seite-fuss { margin: 24px 8px 0; }
 .seite-fuss .label { line-height: 1.6; }
-main { padding: 16px 20px 90px; min-width: 0; }
+main { padding: 16px 20px 40px; min-width: 0; }
 .abschnitt { margin-bottom: 18px; }
 .abschnitt-kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 26px 2px 10px; }
 .abschnitt-kopf h2 { margin: 0; font: 600 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text-1); }
@@ -269,18 +269,54 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .fuss { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--text-3); font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; }
 .fehlerseite { max-width: 520px; margin: 18vh auto; padding: 24px; text-align: center; color: var(--text-2); }
 
+/* ---------- Erklärungen (i), Status auf den Karten, Quartalszahlen, Klappen ---------- */
+.info {
+  position: relative; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-left: 5px; padding: 0; border-radius: 50%;
+  border: 1px solid #3a4654; background: transparent; color: var(--text-2); font: italic 700 10px/1 Georgia, "Times New Roman", serif;
+  cursor: pointer; vertical-align: 1px; text-transform: none; letter-spacing: 0; flex: none;
+}
+.info::before { content: ""; position: absolute; inset: -9px; }
+.info:hover, .info[aria-expanded="true"] { color: var(--text-1); border-color: var(--s1); }
+.info:focus-visible, .klapp:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.erklaerung {
+  position: fixed; z-index: 40; width: max-content; max-width: min(300px, calc(100vw - 24px)); background: #0a0e13; border: 1px solid #2a3542;
+  border-radius: 8px; padding: 10px 12px; font: 13px/1.45 var(--sans); color: var(--text-1); box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+}
+.erklaerung b { display: block; font: 600 10px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 5px; }
+.markierung.drin { color: var(--text-2); border: 1px solid var(--line); }
+.markierung.voll { color: var(--warnung); border: 1px solid rgba(250, 178, 25, .35); }
+.depot-status { font-size: 12.5px; margin: -4px 0 10px; display: flex; gap: 6px; align-items: baseline; }
+.depot-status.kauft { color: var(--text-1); }
+.depot-status.drin { color: var(--text-2); }
+.depot-status.nicht { color: var(--warnung); }
+.karte.gedimmt .werte, .karte.gedimmt .bahn, .karte.gedimmt .bahn-text { opacity: .55; }
+.zahlen-zeile { margin-top: 10px; font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.zahlen-zeile.bald { color: var(--schlecht-text); font-weight: 600; }
+.zahlen-zeile.bald .info { color: var(--schlecht-text); border-color: rgba(244, 112, 103, .5); }
+.position .zahlen-zeile { margin-top: 5px; font-size: 11px; }
+.klapp {
+  display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; margin: 0; color: inherit; font: inherit;
+  letter-spacing: inherit; text-transform: inherit; cursor: pointer; text-align: left;
+}
+.klapp.label { font: 600 10px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+.klapp .pfeil { width: 10px; height: 10px; flex: none; transition: transform .15s; color: var(--text-3); }
+.klappbar.zu .klapp .pfeil { transform: rotate(-90deg); }
+.abschnitt.zu > .abschnitt-inhalt { display: none; }
+.abschnitt-kopf { cursor: pointer; }
+.panel.zu > :not(.panel-kopf) { display: none; }
+.panel.zu > .panel-kopf { padding-bottom: 14px; }
+
 /* ---------- Chat-Fenster: Tipps an Claude (über Themen bei GitHub) ---------- */
 .chat-knopf {
-  position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 30; display: flex; align-items: center; gap: 8px;
-  padding: 11px 15px; border-radius: 999px; border: 1px solid #24476f; background: #10243b; color: var(--text-1); cursor: pointer;
-  font: 600 13px/1 var(--sans); box-shadow: 0 8px 28px rgba(0, 0, 0, .55);
+  flex: none; display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px; border-radius: 8px; border: 1px solid #24476f;
+  background: #10243b; color: var(--text-1); cursor: pointer; font: 600 12px/1 var(--sans); position: relative;
 }
-.chat-knopf:hover { background: #17314f; }
+.chat-knopf:hover, .chat-knopf[aria-expanded="true"] { background: #17314f; }
 .chat-knopf:focus-visible, .chat button:focus-visible, .chat textarea:focus-visible, .chat a:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
 .chat-knopf .neu { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--s3); color: #04140e; font: 700 11px/18px var(--mono); text-align: center; }
 .chat {
-  position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 31; width: min(400px, calc(100vw - 36px));
-  height: min(640px, calc(100dvh - var(--kopf-h, 72px) - 36px)); display: flex; flex-direction: column;
+  position: fixed; right: 18px; top: calc(var(--kopf-h, 72px) + 10px); z-index: 31; width: min(400px, calc(100vw - 36px));
+  height: min(640px, calc(100dvh - var(--kopf-h, 72px) - 28px)); display: flex; flex-direction: column;
   background: var(--panel); border: 1px solid #2a3542; border-radius: 14px; box-shadow: 0 18px 60px rgba(0, 0, 0, .65); overflow: hidden;
 }
 .chat[hidden] { display: none; }
@@ -337,10 +373,11 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 }
 .chat-senden:disabled { opacity: .45; cursor: default; }
 @media (max-width: 560px) {
-  .chat { inset: 0; width: auto; height: 100dvh; border-radius: 0; border: 0; }
+  .chat { inset: 0; top: 0; width: auto; height: 100dvh; border-radius: 0; border: 0; }
   html.chat-offen { overflow: hidden; }
-  .chat-knopf { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); }
-  .chat-knopf .lang { display: none; }
+  .chat-knopf { width: 34px; padding: 0; justify-content: center; }
+  .chat-knopf .lang, .chat-knopf .kurz { display: none; }
+  .chat-knopf .neu { position: absolute; top: -6px; right: -6px; }
   .chat-eingabe textarea { font-size: 16px; } /* kleiner zoomt das iPhone beim Tippen hinein */
 }
 @media (min-width: 561px) { .chat-knopf .kurz { display: none; } }
@@ -370,7 +407,7 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
   .seite .gruppe, .seite-fuss { display: none; }
   .seite a { flex: none; border: 1px solid var(--line); padding: 6px 10px; font-size: 12.5px; }
   .seite a svg { display: none; }
-  main { padding: 12px 12px 84px; }
+  main { padding: 12px 12px 32px; }
   .kern { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 0; gap: 10px; }
   .kern-kopf { grid-template-columns: 1fr 1fr; }
   .kern-kopf > :nth-child(2) { display: none; }
@@ -416,6 +453,10 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
     </div>
     <div class="pillen" id="pillen"></div>
     <div class="uhr"><div class="zeit" id="uhr">--:--:--</div><div class="label" id="uhr-zone">jetzt</div></div>
+    <button type="button" class="chat-knopf" id="chat-knopf" aria-controls="chat" aria-expanded="false">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <span class="lang">Tipps an Claude</span><span class="kurz">Chat</span><span class="neu" id="chat-neu" hidden></span>
+    </button>
   </div>
   <div class="laufband" aria-label="Neuigkeiten vom letzten Lauf">
     <div class="live" title="Zahlen vom letzten Lauf des Bots (keine Live-Kurse)"><span class="punkt gut"></span><span id="stand">STAND</span></div>
@@ -447,10 +488,6 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
   </main>
 </div>
 
-<button type="button" class="chat-knopf" id="chat-knopf" aria-controls="chat" aria-expanded="false">
-  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-  <span class="lang">Tipps an Claude</span><span class="kurz">Chat</span><span class="neu" id="chat-neu" hidden></span>
-</button>
 <aside class="chat" id="chat" role="dialog" aria-labelledby="chat-titel" hidden>
   <div class="chat-kopf">
     <div class="gross">
@@ -556,7 +593,7 @@ function schoeneSchritte(min, max, anzahl = 4) {
   for (let v = Math.ceil(min / schritt) * schritt; v <= max + 1e-9; v += schritt) ticks.push(+v.toFixed(10));
   return ticks;
 }
-function linienDiagramm(box, { reihen, hoehe = 260, rueckgang = null, yText = v => euro(v), titel = "" }) {
+function linienDiagramm(box, { reihen, hoehe = 260, rueckgang = null, mindestSpanne = 0, yText = v => euro(v), titel = "" }) {
   const tooltip = el("div", { class: "tooltip", role: "presentation" });
   box.replaceChildren();
   box.append(tooltip);
@@ -583,6 +620,9 @@ function linienDiagramm(box, { reihen, hoehe = 260, rueckgang = null, yText = v 
     const svg = sv("svg", { viewBox: `0 0 ${breite} ${hoeheGes}`, height: hoeheGes, "aria-hidden": "true" });
     let min = Infinity, max = -Infinity;
     for (const s of spalten) for (const v of s.werte) if (v !== null) { min = Math.min(min, v); max = Math.max(max, v); }
+    // Kurze Verläufe nicht aufblasen: mindestens diese Spanne (Anteil vom Wert) zeigen, sonst wirkt ein kleiner Schritt wie ein Absturz
+    const mitte = (min + max) / 2, halb = (Math.abs(mitte) * mindestSpanne) / 2;
+    if (max - min < 2 * halb) { min = mitte - halb; max = mitte + halb; }
     const pad = (max - min) * 0.08 || Math.abs(max) * 0.02 || 1;
     const ticks = schoeneSchritte(min - pad, max + pad, 4);
     const yMin = Math.min(ticks[0], min - pad), yMax = Math.max(ticks[ticks.length - 1], max + pad);
@@ -622,17 +662,21 @@ function linienDiagramm(box, { reihen, hoehe = 260, rueckgang = null, yText = v 
     if (rueckgang) {
       let hoch = -Infinity;
       rd = spalten[0].werte.map(v => { if (v === null) return null; hoch = Math.max(hoch, v); return (v / hoch - 1) * 100; });
-      const minRd = Math.min(-0.5, ...rd.filter(v => v !== null));
+      const minRd = Math.min(-3, ...rd.filter(v => v !== null)); // kleine Dellen bleiben klein
       const o = hoehe + abstand;
       const yr = v => o + (v / minRd) * (hRueck - 8);
-      svg.append(sv("text", { x: links, y: o - 9 }, "RÜCKGANG VOM HOCH"));
+      // Beschriftung links kürzen, wenn sie sonst in „GRÖSSTER …“ rechts hineinläuft (ca. 6,1 px je Zeichen)
+      const rechts = `GRÖSSTER ${prozent(Math.min(...rd.filter(v => v !== null)), 1, false)}`;
+      const lang = typeof rueckgang === "string" ? `RÜCKGANG · ${rueckgang.toUpperCase()}` : "RÜCKGANG VOM HOCH";
+      const passt = links + lang.length * 6.1 + 16 < breite - R.r - rechts.length * 6.1;
+      svg.append(sv("text", { x: links, y: o - 9 }, passt ? lang : "RÜCKGANG"));
       svg.append(sv("line", { x1: links, x2: breite - R.r, y1: o, y2: o, stroke: css("--line"), "stroke-width": 1 }));
       let d = "";
       rd.forEach((v, i) => { if (v !== null) d += `${d ? "L" : "M"}${x(i).toFixed(1)},${yr(v).toFixed(1)}`; });
       svg.append(sv("path", { d: `${d}L${x(iEnde).toFixed(1)},${o}L${x(0).toFixed(1)},${o}Z`, fill: css("--schlecht"), "fill-opacity": 0.18 }));
       svg.append(sv("path", { d, fill: "none", stroke: css("--schlecht"), "stroke-width": 1.4, "stroke-linejoin": "round" }));
       const iMin = rd.indexOf(Math.min(...rd.filter(v => v !== null)));
-      svg.append(sv("text", { x: breite - R.r, y: o - 9, "text-anchor": "end" }, `GRÖSSTER ${prozent(rd[iMin], 1, false)}`));
+      svg.append(sv("text", { x: breite - R.r, y: o - 9, "text-anchor": "end" }, rechts));
       svg.append(sv("circle", { cx: x(iMin), cy: yr(rd[iMin]), r: 3, fill: css("--schlecht"), stroke: css("--panel"), "stroke-width": 2 }));
     }
     // Fadenkreuz
@@ -764,14 +808,108 @@ function kernLinien(kern) {
 // ---------------------------------------------------------------------------
 // Bausteine
 // ---------------------------------------------------------------------------
-function abschnitt(id, titel, unter, ...inhalt) {
-  return el("section", { class: "abschnitt", id, "aria-labelledby": `${id}-t` },
-    el("div", { class: "abschnitt-kopf" }, el("h2", { id: `${id}-t` }, titel), unter ? el("span", { class: "label" }, unter) : null),
-    ...inhalt);
+// ---------------------------------------------------------------------------
+// Erklärungen zu Fachwörtern: kleines (i), Text erscheint beim Antippen
+// ---------------------------------------------------------------------------
+const ERKLAERUNG = {
+  signal: ["Limit, Stop, Ziel", "Limit: höchster Kaufkurs – teurer wird nicht gekauft. Stop: Hier verkauft der Bot mit kleinem Verlust, wenn der Kurs fällt. Ziel: Hier verkauft er mit Gewinn. Der Balken zeigt, wo der Kurs gerade zwischen Stop (links) und Ziel (rechts) steht."],
+  crv: ["CRV – Chance-Risiko-Verhältnis", "Möglicher Gewinn bis zum Ziel geteilt durch möglichen Verlust bis zum Stop. CRV 1,0 heißt: Chance und Risiko sind gleich groß, CRV 2,0: doppelt so viel Chance wie Risiko. Je kleiner das CRV, desto öfter muss ein Trade aufgehen, damit unterm Strich Gewinn bleibt."],
+  r: ["R pro Trade", "R ist das Risiko eines Trades: der Betrag, den du verlierst, wenn der Stop greift. +1 R heißt: so viel gewonnen, wie riskiert war. −1 R heißt: Stop getroffen. Ø R/Trade ist der Durchschnitt der letzten gedachten Trades – über 0 hat die Strategie zuletzt verdient, unter 0 verloren."],
+  status: ["aktiv · pausiert · aus", "Aktiv: Der Bot handelt die Strategie. Pausiert: Sie lief zuletzt schlecht, der Bot setzt sie aus, bis sie sich erholt (Lernregel). Aus: von dir in „Meine Regeln“ ausgeschaltet."],
+  pkt: ["Pkt – Prozentpunkte", "Der Abstand zwischen zwei Prozentzahlen. Beispiel: Übungsdepot +2,0 % und Nasdaq-100 −2,0 % ergibt +4,0 Pkt – so viel besser lief das Depot als der Markt."],
+  quote: ["Trefferquote", "Anteil der Trades mit Gewinn. Allein sagt sie wenig: Ein paar große Gewinne können viele kleine Verluste ausgleichen – und umgekehrt."],
+  rueckgang: ["Größter Rückgang", "Wie weit der Depotwert höchstens unter sein bisheriges Hoch gefallen ist. Diese Kachel zeigt den Rückblick: eine Simulation der letzten 12 Monate. Der Wert für das echte Übungsdepot steht darunter und unter der Kurve (Ansicht „Übungsdepot“)."],
+  zahlen: ["Quartalszahlen", "An diesem Tag legt die Firma ihre Zahlen vor. Der Kurs kann dann stark springen – nach oben wie nach unten. Der Bot verkauft deshalb spätestens kurz vor den Zahlen. Rot heißt: weniger als 7 Tage. Dann bleibt einem neuen Trade nur wenig Zeit bis zum Ziel."],
+  tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
+};
+const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
+document.body.append(erklaerung);
+let infoOffen = null;
+function info(schluessel) {
+  return el("button", { type: "button", class: "info", "data-info": schluessel, "aria-label": `Erklärung: ${ERKLAERUNG[schluessel][0]}`,
+    "aria-expanded": "false", "aria-controls": "erklaerung" }, "i");
 }
-function kachel(label, wert, unter, { held = false, extra = null, klasse = "" } = {}) {
+function zeigeErklaerung(knopf) {
+  if (infoOffen) infoOffen.setAttribute("aria-expanded", "false");
+  infoOffen = knopf;
+  if (!knopf) { erklaerung.hidden = true; return; }
+  const [titel, text] = ERKLAERUNG[knopf.dataset.info];
+  erklaerung.replaceChildren(el("b", {}, titel), text);
+  erklaerung.hidden = false;
+  knopf.setAttribute("aria-expanded", "true");
+  const r = knopf.getBoundingClientRect(), w = erklaerung.offsetWidth, h = erklaerung.offsetHeight;
+  erklaerung.style.left = `${Math.min(Math.max(12, r.left + r.width / 2 - w / 2), innerWidth - w - 12)}px`;
+  erklaerung.style.top = `${r.bottom + 8 + h > innerHeight - 8 ? Math.max(8, r.top - h - 8) : r.bottom + 8}px`;
+}
+document.addEventListener("click", e => {
+  const knopf = e.target.closest(".info");
+  if (knopf) { e.preventDefault(); e.stopPropagation(); zeigeErklaerung(knopf === infoOffen ? null : knopf); return; }
+  if (infoOffen && !e.target.closest(".erklaerung")) zeigeErklaerung(null);
+}, true);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && infoOffen) zeigeErklaerung(null); });
+addEventListener("scroll", () => { if (infoOffen) zeigeErklaerung(null); }, { passive: true });
+
+// ---------------------------------------------------------------------------
+// Klappbare Abschnitte: am Handy sind lange Teile anfangs zu; was du auf- oder zuklappst, merkt sich die Seite
+// ---------------------------------------------------------------------------
+const amHandy = () => matchMedia("(max-width: 860px)").matches;
+const PFEIL = () => sv("svg", { class: "pfeil", viewBox: "0 0 10 10", "aria-hidden": "true" }, sv("path", { d: "M2 3.5l3 3 3-3", fill: "none", stroke: "currentColor", "stroke-width": 1.6, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+function klappbar(huelle, knopf, schluessel, zuAmHandy) {
+  huelle.classList.add("klappbar");
+  const setze = zu => { huelle.classList.toggle("zu", zu); knopf.setAttribute("aria-expanded", String(!zu)); };
+  const gemerkt = speicher.lies("swingbot-zu", {});
+  setze(schluessel in gemerkt ? gemerkt[schluessel] : zuAmHandy && amHandy());
+  huelle._auf = () => setze(false);
+  return () => {
+    const zu = !huelle.classList.contains("zu");
+    setze(zu);
+    const g = speicher.lies("swingbot-zu", {}); g[schluessel] = zu; speicher.schreib("swingbot-zu", g);
+  };
+}
+function abschnitt(id, titel, unter, inhalt, { erkl = null, zuAmHandy = false } = {}) {
+  const knopf = el("button", { type: "button", class: "klapp", "aria-controls": `${id}-inhalt` }, titel, PFEIL());
+  const kopf = el("div", { class: "abschnitt-kopf" }, el("h2", { id: `${id}-t` }, knopf), erkl ? info(erkl) : null,
+    unter ? el("span", { class: "label" }, unter) : null);
+  const teil = el("section", { class: "abschnitt", id, "aria-labelledby": `${id}-t` }, kopf,
+    el("div", { class: "abschnitt-inhalt", id: `${id}-inhalt` }, inhalt));
+  const umschalten = klappbar(teil, knopf, id, zuAmHandy);
+  // die ganze Kopfzeile schaltet um, nur das (i) nicht
+  kopf.addEventListener("click", e => { if (!e.target.closest(".info")) umschalten(); });
+  return teil;
+}
+function klappPanel(panel, kopf, titel, schluessel, zuAmHandy) {
+  const knopf = el("button", { type: "button", class: "klapp label" }, titel, PFEIL());
+  kopf.prepend(el("div", { style: "display:flex;align-items:center" }, knopf));
+  const umschalten = klappbar(panel, knopf, schluessel, zuAmHandy);
+  kopf.style.cursor = "pointer";
+  kopf.addEventListener("click", e => { if (!e.target.closest(".info")) umschalten(); });
+  return knopf.parentElement;
+}
+
+// ---------------------------------------------------------------------------
+// Quartalszahlen: Tage bis zum Termin, rot bei weniger als 7 Tagen
+// ---------------------------------------------------------------------------
+const HEUTE = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin" }).format(new Date());
+function zahlenTermin(iso, text, bezug) {
+  if (iso) return iso;
+  // ältere daten.json: nur „Mi 28.10.“ – Jahr so wählen, dass der Termin nicht weit hinter dem Datenstand liegt
+  const m = /(\d{2})\.(\d{2})\./.exec(text || "");
+  if (!m || !bezug) return null;
+  let j = Number(bezug.slice(0, 4));
+  if (`${j}-${m[2]}-${m[1]}` < bezug && (tag(bezug) - tag(`${j}-${m[2]}-${m[1]}`)) / 864e5 > 60) j += 1;
+  return `${j}-${m[2]}-${m[1]}`;
+}
+function zahlenZeile(iso, text) {
+  if (!iso) return text && !["–", "aus"].includes(text) ? el("div", { class: "zahlen-zeile" }, `Quartalszahlen ${text}`, info("zahlen")) : null;
+  const tage = Math.round((tag(iso) - tag(HEUTE)) / 864e5);
+  if (tage < 0) return null;
+  const bald = tage < 7;
+  const wann = tage === 0 ? "heute" : tage === 1 ? "morgen" : `in ${tage} Tagen`;
+  return el("div", { class: `zahlen-zeile${bald ? " bald" : ""}` }, bald ? "⚠ " : "", `Quartalszahlen ${datum(iso)} · ${wann}`, info("zahlen"));
+}
+function kachel(label, wert, unter, { held = false, extra = null, klasse = "", erkl = null } = {}) {
   return el("div", { class: `kachel${held ? " held" : ""}` },
-    el("div", { class: "kachel-titel" }, el("div", { class: "label" }, label)),
+    el("div", { class: "kachel-titel" }, el("div", { class: "label" }, label, erkl ? info(erkl) : null)),
     el("div", { class: `wert ${klasse}` }, wert),
     unter ? el("div", { class: "unter" }, unter) : null, extra);
 }
@@ -809,6 +947,18 @@ function aufbauen(D) {
   const P = D.papier, C = D.claude, RB = D.rueckblick, G = D.gehirn;
   const kaufen = D.signale.filter(s => s.art === "kaufen" || s.art === "short");
   const s1 = css("--s1"), s2 = css("--s2"), s3 = css("--s3"), grau = css("--s-grau");
+  // Was das Übungsdepot mit jedem Kauf-Signal macht – sonst sieht eine Karte wie eine Kaufempfehlung aus, obwohl das Depot voll ist
+  const kauftDepot = new Set(P ? P.auftraege.map(a => a.ticker) : []);
+  const imDepot = new Set(P ? P.positionen.map(p => p.ticker) : []);
+  const nichtGrund = new Map();
+  if (P) for (const v of P.verfallen) for (const t of v.ticker) nichtGrund.set(t, v.grund);
+  const depotStatus = t => !P ? null
+    : kauftDepot.has(t) ? { art: "kauft", marke: "Wird gekauft", text: "Das Übungsdepot kauft zur nächsten Eröffnung (nur bis zum Limit)." }
+    : imDepot.has(t) ? { art: "drin", marke: "Schon im Depot", text: "Liegt schon im Übungsdepot – kein zweiter Kauf." }
+    : nichtGrund.has(t) ? { art: "nicht", marke: nichtGrund.get(t).startsWith("Depot voll") ? "Depot voll" : "Kein Kauf", text: `${nichtGrund.get(t)} – wird nicht gekauft.` }
+    : { art: "nicht", marke: "Kein Kauf", text: "Das Übungsdepot kauft dieses Signal nicht." };
+  const kaufAnzahl = kaufen.filter(s => kauftDepot.has(s.ticker)).length;
+  const zahlenVon = new Map(D.signale.map(s => [s.ticker, zahlenTermin(s.zahlen_tag, s.zahlen, D.daten_bis)]));
 
   // Kopfzeile: Pillen und Laufband
   const erstellt = new Date(D.erstellt);
@@ -823,7 +973,8 @@ function aufbauen(D) {
     C ? el("span", { class: "pille" }, el("span", { class: "punkt", style: `background:${s3}` }), "Claude-Depot läuft") : null,
     el("span", { class: "pille" }, `Konto ${euro(D.konto)} · Risiko ${zahl(D.risiko, 1)} %`));
   const band = [];
-  band.push([datum(D.daten_bis), [`${kaufen.length} Kauf-Signal${kaufen.length === 1 ? "" : "e"}`, `, ${G.im_plan} im Handelsplan`]]);
+  band.push([datum(D.daten_bis), [`${kaufen.length} Kauf-Signal${kaufen.length === 1 ? "" : "e"}`,
+    P ? `, Übungsdepot kauft ${kaufAnzahl}${!kaufAnzahl && P.verfallen.length ? ` (${P.verfallen[0].grund})` : ""}` : `, ${G.im_plan} im Handelsplan`]]);
   for (const s of kaufen.slice(0, 6)) band.push(["Signal", [el("b", {}, s.ticker), ` ${s.strategie} · Limit ${euro(s.limit, 2)} · Stop ${euro(s.stop, 2)} · Ziel ${euro(s.ziel, 2)}`]]);
   if (P) band.push(["Übungsdepot", [el("b", {}, euro(P.wert)), ` (${prozent((P.wert / P.startkapital - 1) * 100)} seit Start)`]]);
   if (C && C.seit_start) band.push(["Claude-Depot", [el("b", {}, prozent(C.seit_start.claude)), ` seit ${datum(C.versuch_ab, false)} · Übungsdepot ${prozent(C.seit_start.bot)} · Nasdaq-100 ${prozent(C.seit_start.qqq)}`]]);
@@ -843,16 +994,16 @@ function aufbauen(D) {
   const ein = [
     ["Aktien", zahl(G.aktien), "beobachtet"],
     ["Strategien", `${G.aktiv}/${G.strategien}`, "aktiv"],
-    ["Tagebuch", zahl(G.tagebuch), "gedachte Trades"],
+    ["Tagebuch", zahl(G.tagebuch), "gedachte Trades", "tagebuch"],
     ["Termine", zahl(G.termine), "Quartalszahlen"],
   ];
   const aus = [
-    ["Kauf-Signale", zahl(G.kaufen), `${G.im_plan} im Handelsplan`],
+    ["Kauf-Signale", zahl(G.kaufen), P ? `Übungsdepot kauft ${kaufAnzahl}` : `${G.im_plan} im Handelsplan`],
     ["Warten", zahl(G.warten), "Regel hält zurück"],
     ["Gewinne sichern", zahl(G.sichern), "überhitzt"],
     C ? ["Claude ließ aus", zahl(C.ausgelassen), "Signale seit Start"] : ["Schlagzeilen", zahl(G.schlagzeilen), "gelesen"],
   ];
-  const box = ([l, w, k]) => el("div", { class: "kern-box" }, el("div", { class: "label" }, l), el("div", { class: "wert" }, w), el("div", { class: "klein" }, k));
+  const box = ([l, w, k, e]) => el("div", { class: "kern-box" }, el("div", { class: "label" }, l, e ? info(e) : null), el("div", { class: "wert" }, w), el("div", { class: "klein" }, k));
   const canvas = el("canvas", { "aria-hidden": "true" });
   const kern = el("div", { class: "panel kern" },
     el("div", { class: "kern-kopf" }, el("div", { class: "label" }, "Eingang"),
@@ -877,7 +1028,7 @@ function aufbauen(D) {
       { held: true, extra: sparkline(P.verlauf.map(v => v[1]), { breite: 150, hoehe: 30, basis: P.startkapital }) }));
     if (q !== null) {
       const diff = seit - q;
-      kacheln.append(kachel("gegen Nasdaq-100", `${vz(diff)}${zahl(diff, 1)} Pkt`, `Nasdaq-100 im selben Zeitraum ${prozent(q)}`, { klasse: richtung(diff) }));
+      kacheln.append(kachel("gegen Nasdaq-100", `${vz(diff)}${zahl(diff, 1)} Pkt`, `Nasdaq-100 im selben Zeitraum ${prozent(q)}`, { klasse: richtung(diff), erkl: "pkt" }));
     }
   }
   if (RB) {
@@ -885,10 +1036,12 @@ function aufbauen(D) {
     const rendite = (RB.end_wert / RB.start_wert - 1) * 100;
     const q = RB.qqq ? (RB.qqq[RB.qqq.length - 1][1] / RB.start_wert - 1) * 100 : null;
     kacheln.append(kachel("Trefferquote · 12 Mon.", prozent(quote, 0, false), `${RB.gewinner} von ${RB.trades_anzahl} Trades mit Gewinn`,
-      { extra: el("div", { class: "striche" }, ...Array.from({ length: 10 }, (_, i) => el("i", { class: i < Math.round((quote || 0) / 10) ? "gut" : "" }))) }));
+      { erkl: "quote", extra: el("div", { class: "striche" }, ...Array.from({ length: 10 }, (_, i) => el("i", { class: i < Math.round((quote || 0) / 10) ? "gut" : "" }))) }));
     kacheln.append(kachel("Rendite · 12 Mon.", prozent(rendite), q !== null ? `Nasdaq-100 ${prozent(q)}` : "Rückblick", { klasse: richtung(rendite) }));
     kacheln.append(kachel("Trades · 12 Mon.", zahl(RB.trades_anzahl), `Rückblick seit ${datumJahr(RB.start)}`));
-    kacheln.append(kachel("Größter Rückgang", prozent(-RB.max_rueckgang, 1), "im Rückblick, vom Hoch", { klasse: "schlecht" }));
+    kacheln.append(kachel("Größter Rückgang · 12 Mon.", prozent(-RB.max_rueckgang, 1),
+      P && P.max_rueckgang !== null ? `Rückblick (Simulation). Echtes Übungsdepot bisher: ${prozent(P.max_rueckgang ? -P.max_rueckgang : 0, 1, false)}` : "im Rückblick, vom Hoch",
+      { klasse: "schlecht", erkl: "rueckgang" }));
   }
   main.append(abschnitt("kennzahlen", "Kennzahlen", "Übungsdepot (echt, vorwärts) und Rückblick der letzten 12 Monate", kacheln));
 
@@ -898,27 +1051,42 @@ function aufbauen(D) {
   const beob = D.signale.filter(s => s.art === "beobachten");
   const fehler = D.signale.filter(s => s.art === "fehler");
   const karten = el("div", { class: "karten" });
-  for (const s of kaufen) {
-    karten.append(el("article", { class: `panel karte${s.im_plan ? " im-plan" : ""}` },
+  const rang = { kauft: 0, drin: 1, nicht: 2 };
+  const sortiert = P ? [...kaufen].sort((a, b) => rang[depotStatus(a.ticker).art] - rang[depotStatus(b.ticker).art]) : kaufen;
+  for (const s of sortiert) {
+    const st = depotStatus(s.ticker);
+    const [mKlasse, mText] = st ? [{ kauft: "plan", drin: "drin", nicht: "voll" }[st.art], st.marke]
+      : [s.im_plan ? "plan" : "kaufen", s.im_plan ? "Im Handelsplan" : s.art === "short" ? "Short" : "Kaufen"];
+    const vorne = st ? st.art === "kauft" : s.im_plan;
+    karten.append(el("article", { class: `panel karte${vorne ? " im-plan" : ""}${st && st.art !== "kauft" ? " gedimmt" : ""}` },
       el("div", { class: "karte-kopf" },
         el("div", { class: "ticker" }, el("a", { href: tvLink(s.ticker), target: "_blank", rel: "noopener" }, s.ticker)),
-        el("span", { class: `markierung ${s.im_plan ? "plan" : "kaufen"}` }, s.im_plan ? "Im Handelsplan" : s.art === "short" ? "Short" : "Kaufen")),
+        el("span", { class: `markierung ${mKlasse}` }, mText)),
       el("div", { class: "strat" }, s.strategie, s.branche ? ` · ${s.branche}` : ""),
+      st ? el("div", { class: `depot-status ${st.art}` }, st.text) : null,
       el("div", { class: "werte" },
         el("div", {}, el("div", { class: "label" }, "Limit"), el("div", { class: "wert" }, euro(s.limit, 2))),
         el("div", {}, el("div", { class: "label" }, "Stop"), el("div", { class: "wert" }, euro(s.stop, 2))),
         el("div", {}, el("div", { class: "label" }, "Ziel"), el("div", { class: "wert" }, euro(s.ziel, 2)))),
       bahn({ stop: s.stop, ziel: s.ziel, kurs: s.kurs, limit: s.limit }),
       el("div", { class: "bahn-text" }, el("span", {}, "Stop"), el("span", {}, `Kurs ${euro(s.kurs, 2)}`), el("span", {}, "Ziel")),
+      zahlenZeile(zahlenVon.get(s.ticker), s.zahlen),
       el("div", { class: "fuss" },
         el("span", {}, s.stueck ? `${zahl(s.stueck, s.stueck % 1 ? 2 : 0)} Stück · Risiko ${euro(s.risiko)}` : "Konto zu klein"),
-        el("span", {}, s.zahlen && s.zahlen !== "–" ? `Zahlen ${s.zahlen}` : `CRV ${zahl(s.crv, 1)}`))));
+        el("span", {}, `CRV ${zahl(s.crv, 1)}`, info("crv")))));
   }
   if (!kaufen.length) karten.append(el("div", { class: "panel leer" }, "Heute kein Kauf-Signal. Der Bot wartet auf bessere Gelegenheiten."));
-  const signalTeile = [karten];
+  const signalTeile = [];
+  if (P && kaufen.length && !kaufAnzahl) {
+    signalTeile.push(el("div", { class: "hinweis" }, el("b", {}, "Heute kauft das Übungsdepot nichts. "),
+      P.verfallen.length ? `${P.verfallen.map(v => v.grund).join("; ")}. ` : "",
+      "Die Karten zeigen nur, was der Bot sonst kaufen würde."));
+  }
+  signalTeile.push(karten);
   if (D.plan && D.plan.length) {
     signalTeile.push(el("details", { class: "panel tabelle", style: "margin-top:12px;padding:10px 14px" },
-      el("summary", {}, "Handelsplan als Text (wie im Bericht)"), el("ol", { class: "plan-text" }, D.plan.map(z => el("li", {}, z)))));
+      el("summary", {}, "Handelsplan als Text (wie im Bericht)", P && !kaufAnzahl ? " – gilt nur für ein Depot mit freien Plätzen" : ""),
+      el("ol", { class: "plan-text" }, D.plan.map(z => el("li", {}, z)))));
   }
   const nebenher = el("div", { class: "zwei", style: "margin-top:12px" });
   nebenher.append(el("div", { class: "panel" },
@@ -933,9 +1101,15 @@ function aufbauen(D) {
     el("div", { class: "chips" }, beob.map(s => el("a", { class: "chip", href: tvLink(s.ticker), target: "_blank", rel: "noopener" }, s.ticker)),
       fehler.map(s => el("span", { class: "chip", title: s.fehler || "Fehler", style: "color:var(--schlecht-text)" }, `${s.ticker} ✕`)))));
   signalTeile.push(nebenher);
-  main.append(abschnitt("signale", "Signale heute", "Kauf am nächsten Handelstag ab 15:30 Uhr, nur bis zum Limit", ...signalTeile));
+  main.append(abschnitt("signale", "Signale heute", "Kauf am nächsten Handelstag ab 15:30 Uhr, nur bis zum Limit", signalTeile, { erkl: "signal" }));
   const navS = document.getElementById("nav-signale");
-  if (kaufen.length) { navS.hidden = false; navS.textContent = kaufen.length; }
+  if (kaufen.length) {
+    // gelb nur, wenn das Übungsdepot wirklich etwas kauft
+    navS.hidden = false;
+    navS.textContent = P && kaufAnzahl ? kaufAnzahl : kaufen.length;
+    navS.classList.toggle("hell", !P || kaufAnzahl > 0);
+    navS.title = P ? `${kaufen.length} Kauf-Signale, Übungsdepot kauft ${kaufAnzahl}` : `${kaufen.length} Kauf-Signale`;
+  }
 
   // ---------- Depot & Kurve ----------
   const ansichten = [];
@@ -943,11 +1117,13 @@ function aufbauen(D) {
     { name: "Übungsdepot", farbe: s1, punkte: P.verlauf },
     C ? { name: "Claude-Depot", farbe: s3, punkte: C.verlauf.filter(v => v[0] >= C.versuch_ab) } : null,
     P.qqq ? { name: "Nasdaq-100", farbe: s2, punkte: P.qqq } : null].filter(Boolean),
-    unter: `seit ${datum(P.angelegt, false)} · echt vorwärts gerechnet` });
+    rueckgang: "Übungsdepot", mindest: 0.1,
+    unter: `seit ${datum(P.angelegt, false)} · echt vorwärts gerechnet${P.verlauf.length < 15 ? ` · erst ${P.verlauf.length} Börsentage – die Kurve sagt noch wenig` : ""}` });
   if (RB) ansichten.push({ id: "rueckblick", name: `Rückblick ${RB.monate} Monate`, reihen: [
     { name: "Bot", farbe: s1, punkte: RB.verlauf },
     RB.qqq ? { name: "Nasdaq-100", farbe: s2, punkte: RB.qqq } : null,
     RB.halten ? { name: "Alle Aktien halten", farbe: grau, punkte: RB.halten } : null].filter(Boolean),
+    rueckgang: "Rückblick", mindest: 0.1,
     unter: `${datumJahr(RB.start)} bis ${datumJahr(RB.ende)} · Rückblick mit heutiger Watchlist (sieht meist zu gut aus)` });
   const kurvenPanel = el("div", { class: "panel panel-innen" });
   const reiter = el("div", { class: "reiter", role: "tablist", "aria-label": "Kurve wählen" });
@@ -958,7 +1134,7 @@ function aufbauen(D) {
   function zeigeAnsicht(a) {
     reiter.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.id === a.id ? "true" : "false"));
     legende.replaceChildren(...a.reihen.map(r => el("span", {}, el("i", { style: `background:${r.farbe}` }), r.name)));
-    linienDiagramm(diag, { reihen: a.reihen, hoehe: innerWidth < 560 ? 220 : 300, rueckgang: true, titel: a.name });
+    linienDiagramm(diag, { reihen: a.reihen, hoehe: innerWidth < 560 ? 220 : 300, rueckgang: a.rueckgang, mindestSpanne: a.mindest, titel: a.name });
     unterzeile.textContent = a.unter;
     const zeilen = a.reihen[0].punkte.slice().reverse();
     const maps = a.reihen.map(r => new Map(r.punkte));
@@ -971,8 +1147,9 @@ function aufbauen(D) {
   kurvenPanel.append(el("div", { style: "display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center" },
     el("div", { class: "label" }, "Depotkurve · in €"), reiter), legende, diag, unterzeile, tabelle);
 
-  const strat = el("div", { class: "panel", id: "strategien" }, el("div", { class: "panel-kopf" },
-    el("div", { class: "label" }, "Strategien · letzte 60 gedachte Trades"), el("div", { class: "label" }, "Ø R")));
+  const stratKopf = el("div", { class: "panel-kopf" }, el("div", { class: "label" }, "Ø R/Trade", info("r")));
+  const strat = el("div", { class: "panel", id: "strategien" }, stratKopf);
+  klappPanel(strat, stratKopf, "Strategien · letzte 60 gedachte Trades", "strategien", true).append(info("status"));
   for (const s of D.strategien) {
     const rs = s.kurve.map((v, i, a) => (i ? v - a[i - 1] : v));
     strat.append(el("div", { class: "strategie" },
@@ -999,7 +1176,8 @@ function aufbauen(D) {
         el("div", { class: "p-kopf" }, el("div", { class: "t" }, el("a", { href: tvLink(p.ticker), target: "_blank", rel: "noopener", style: "text-decoration:none" }, p.ticker)), el("div", { class: "klein" }, `seit ${datum(p.kauf_tag, false)}`)),
         el("div", { class: "p-bahn" }, el("div", { class: "klein", style: "margin:0 0 2px" }, p.strategie),
           p.stop !== null && p.kurs !== null ? bahn({ stop: p.stop, ziel: p.ziel, kurs: p.kurs, einstieg: p.stop + (p.einstieg_lage ?? 0) * (p.ziel - p.stop) }) : null,
-          el("div", { class: "bahn-text" }, el("span", {}, `Stop ${euro(p.stop, 2)}`), el("span", {}, `Ziel ${euro(p.ziel, 2)}`))),
+          el("div", { class: "bahn-text" }, el("span", {}, `Stop ${euro(p.stop, 2)}`), el("span", {}, `Ziel ${euro(p.ziel, 2)}`)),
+          zahlenZeile(p.zahlen_tag || zahlenVon.get(p.ticker), null)),
         el("div", { class: `ergebnis ${richtung(p.ergebnis)}` }, p.ergebnis === null ? "–" : `${vz(p.ergebnis)}${euro(p.ergebnis, 2)}`,
           el("small", {}, `${proz === null ? "" : prozent(proz)} · Wert ${euro(p.wert)}`))));
     }
@@ -1020,7 +1198,14 @@ function aufbauen(D) {
         el("span", { class: `ergebnis-pille ${richtung(t.ergebnis)}` }, el("span", { class: richtung(t.ergebnis) }, `${vz(t.ergebnis)}${euro(t.ergebnis, 2)}`))));
     }
     if (!P.trades.length) tr.append(el("div", { class: "leer" }, "Noch kein abgeschlossener Trade."));
-    main.append(abschnitt("positionen", "Positionen & Trades", "Übungsdepot", el("div", { class: "zwei breit" }, pos, tr)));
+    const baldZahlen = P.positionen.filter(p => {
+      const iso = p.zahlen_tag || zahlenVon.get(p.ticker);
+      const t = iso ? Math.round((tag(iso) - tag(HEUTE)) / 864e5) : -1;
+      return t >= 0 && t < 7;
+    }).map(p => p.ticker);
+    main.append(abschnitt("positionen", "Positionen & Trades", [`Übungsdepot · ${P.positionen.length} offen · ${P.trades_anzahl} abgeschlossen`,
+      baldZahlen.length ? el("span", { class: "schlecht" }, ` · ⚠ Quartalszahlen bald: ${baldZahlen.join(", ")}`) : null],
+      el("div", { class: "zwei breit" }, pos, tr), { zuAmHandy: true }));
     const navP = document.getElementById("nav-positionen");
     navP.hidden = false; navP.textContent = P.positionen.length;
   }
@@ -1057,7 +1242,8 @@ function aufbauen(D) {
     main.append(abschnitt("claude", "Claude-Depot (Versuch)", "gleiche Regeln – nur lässt Claude einzelne Kauf-Signale aus",
       el("div", { class: "panel" }, kopf, verg, entsch,
         el("div", { class: "panel-innen", style: "border-top:1px solid var(--line-soft);font-size:12px;color:var(--text-2)" },
-          `Depotwert ${euro(C.wert)} · ${C.positionen.length} ${C.positionen.length === 1 ? "Position" : "Positionen"} · ${C.ausgelassen} ${C.ausgelassen === 1 ? "Signal" : "Signale"} ausgelassen. `, link))));
+          `Depotwert ${euro(C.wert)} · ${C.positionen.length} ${C.positionen.length === 1 ? "Position" : "Positionen"} · ${C.ausgelassen} ${C.ausgelassen === 1 ? "Signal" : "Signale"} ausgelassen. `, link)),
+      { zuAmHandy: true }));
   }
 
   // ---------- Nachrichten ----------
@@ -1070,7 +1256,7 @@ function aufbauen(D) {
         el("div", { class: "meta" }, `${zeit} · ${n.quelle}${n.ereignisse.length ? " · " + n.ereignisse.join(", ") : ""}`))));
   }
   if (!D.schlagzeilen.length) nach.append(el("div", { class: "leer" }, "Keine Schlagzeilen zu Aktien mit Signal."));
-  main.append(abschnitt("nachrichten", "Nachrichten", "Schlagzeilen der letzten Tage zu Aktien mit Signal", nach));
+  main.append(abschnitt("nachrichten", "Nachrichten", `${D.schlagzeilen.length} Schlagzeilen der letzten Tage zu Aktien mit Signal`, nach, { zuAmHandy: true }));
 
   // ---------- Fuß ----------
   const bericht = D.repo ? `https://github.com/${D.repo}/blob/main/bericht/README.md` : null;
@@ -1086,6 +1272,12 @@ function aufbauen(D) {
   requestAnimationFrame(neuLinien);
   new ResizeObserver(neuLinien).observe(kern);
   const links = [...document.querySelectorAll(".seite a:not(#nav-chat)")];
+  // Sprung aus dem Menü: zugeklappte Abschnitte (auch den umgebenden) vorher aufklappen
+  links.forEach(a => a.addEventListener("click", () => {
+    for (let z = document.querySelector(a.getAttribute("href")); z; z = z.parentElement && z.parentElement.closest(".klappbar")) {
+      if (z.classList.contains("zu")) z._auf();
+    }
+  }));
   const ziele = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
   const beobachter = new IntersectionObserver(eintraege => {
     for (const e of eintraege) if (e.isIntersecting) {
@@ -1275,7 +1467,6 @@ function zeigeNeue() {
 function chatOeffnen(auf) {
   chat.offen = auf;
   document.getElementById("chat").hidden = !auf;
-  document.getElementById("chat-knopf").hidden = auf;
   document.getElementById("chat-knopf").setAttribute("aria-expanded", String(auf));
   document.documentElement.classList.toggle("chat-offen", auf);
   if (auf) {
@@ -1313,7 +1504,7 @@ function chatStart(repo) {
     chatZeigen();
     document.getElementById("chat-verlauf").scrollTop = 1e9;
   });
-  document.getElementById("chat-knopf").addEventListener("click", () => chatOeffnen(true));
+  document.getElementById("chat-knopf").addEventListener("click", () => chatOeffnen(!chat.offen));
   document.getElementById("nav-chat").addEventListener("click", e => { e.preventDefault(); chatOeffnen(true); });
   document.getElementById("chat-zu").addEventListener("click", () => chatOeffnen(false));
   document.addEventListener("keydown", e => { if (e.key === "Escape" && chat.offen) chatOeffnen(false); });

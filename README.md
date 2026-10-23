@@ -95,11 +95,12 @@ Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jed
 
 - **Gehirn-Kern:** was heute reinkam (Aktien, Strategien, Tagebuch, Termine) und was rauskam (Signale, Warten, Gewinne sichern)
 - **Kennzahlen:** Übungsdepot, Vergleich mit dem Nasdaq-100, Trefferquote, Rendite und größter Rückgang im Rückblick
-- **Signale als Karten:** Limit, Stop und Ziel mit Balken
+- **Signale als Karten:** Limit, Stop und Ziel mit Balken. Auf jeder Karte steht, was das Übungsdepot damit macht (wird gekauft, schon im Depot, Depot voll). Quartalszahlen in weniger als 7 Tagen sind rot markiert, auch bei den offenen Positionen.
 - **Depotkurve:** gegen den Nasdaq-100, mit Fadenkreuz und Rückgang vom Hoch
 - **Strategien:** mit Mini-Kurven und den letzten 10 Trades
 - offene Positionen zwischen Stop und Ziel, Claude-Depot und Nachrichten
 - **Chat-Fenster:** Tipps und Fragen an Claude (siehe unten)
+- **Erklärungen:** Ein kleines (i) erklärt Fachwörter wie CRV, R pro Trade oder Pkt, wenn du draufdrückst. Am Handy sind lange Abschnitte (Strategien, Positionen, Claude-Depot, Nachrichten) anfangs zugeklappt; ein Tipp auf die Überschrift klappt sie auf.
 
 1. **Einmalig einschalten:** **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. **Einmal starten:** **Actions → Übersichtsseite → Run workflow**. Danach wird die Seite nach jedem Lauf des Bots von selbst neu veröffentlicht.
@@ -107,7 +108,7 @@ Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jed
 
 Die Seite ist öffentlich wie das Repository.
 
-**Chat-Fenster: Tipps an Claude.** Auf der Übersichtsseite unten rechts (am Handy „Chat“) schreibst du Claude Tipps, Fragen oder Ideen für den Bot. Dafür musst du keine Sitzung bei Claude öffnen. Direkt-Link fürs Lesezeichen: https://sickingmalte-arch.github.io/Test-Bot/#chat
+**Chat-Fenster: Tipps an Claude.** Oben rechts auf der Übersichtsseite („Tipps an Claude“, am Handy die Sprechblase) schreibst du Claude Tipps, Fragen oder Ideen für den Bot. Dafür musst du keine Sitzung bei Claude öffnen. Direkt-Link fürs Lesezeichen: https://sickingmalte-arch.github.io/Test-Bot/#chat
 
 - **So geht's:** Text eintippen → **Senden** → GitHub öffnet sich mit deinem Text als neues Thema (Label `tipp`) → dort **Create** tippen. Dafür musst du bei GitHub angemeldet sein. Fehlt der Text, weil sich die GitHub-App öffnet: Er ist schon in der Zwischenablage, einfach einfügen.
 - **Antworten:** Claude schaut Di–Sa vormittags (zusammen mit der Entscheidung fürs Claude-Depot) und jeden Abend ab ca. 18:45 Uhr rein. Es antwortet im selben Thema. Die Antwort steht dann im Fenster, und der Knopf zeigt neue Antworten mit einer Zahl. Antworten kannst du auch direkt im Thema bei GitHub.

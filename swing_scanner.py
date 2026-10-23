@@ -2733,6 +2733,7 @@ def depot_export(stand, daten, markt, fx):
             i = d["n_fertig"] - 1
             kurs, rate = d["C"][i], d["FX"][i]
         wert = positionswert(p, kurs, rate) if kurs is not None else None
+        termin = naechster_termin(d, d["idx"][d["n_fertig"] - 1]) if d is not None and d["n_fertig"] else None
         positionen.append({
             "ticker": p["ticker"], "strategie": strategie_name(p["strategie"]), "kauf_tag": str(p["kauf_tag"])[:10],
             "stueck": json_zahl(p["stueck"], 4), "einstieg": json_zahl(p["einsatz_je_stueck"]),
@@ -2743,7 +2744,8 @@ def depot_export(stand, daten, markt, fx):
             "lage": json_zahl((kurs - p["stop"]) / (p["ziel"] - p["stop"]), 3) if kurs is not None and p["ziel"] != p["stop"]
             else None,
             "einstieg_lage": json_zahl((p["einstieg_usd"] - p["stop"]) / (p["ziel"] - p["stop"]), 3)
-            if p["ziel"] != p["stop"] else None})
+            if p["ziel"] != p["stop"] else None,
+            "zahlen_tag": iso(termin.date()) if termin is not None else None})
     trades = [{"ticker": t["ticker"], "strategie": strategie_name(t["strategie"]), "kauf_tag": t["kauf_tag"],
                "verkauf_tag": t["verkauf_tag"], "grund": t["grund"], "ergebnis": json_zahl(t["erloes"] - t["kosten"]),
                "prozent": json_zahl((t["erloes"] / t["kosten"] - 1) * 100, 1) if t["kosten"] else None}
@@ -2777,6 +2779,7 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                         "limit": json_zahl(z.get("Limit")), "stop": json_zahl(z.get("Stop")), "ziel": json_zahl(z.get("Ziel")),
                         "crv": json_zahl(z.get("CRV")), "stueck": json_zahl(z.get("Stück"), 4), "einsatz": json_zahl(z.get("Einsatz")),
                         "risiko": json_zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
+                        "zahlen_tag": iso(z["_termin"].date()) if z.get("_termin") is not None else None,
                         "branche": BRANCHE.get(t), "im_plan": t in im_plan, "fehler": z.get("_fehler")})
     strategien = []
     for k, s in STRATEGIEN.items():
