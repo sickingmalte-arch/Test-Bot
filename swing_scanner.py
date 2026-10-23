@@ -2693,7 +2693,7 @@ def claude_lauf(datei, stand, fehler, papier, daten, extra, roh, fx, fx_je_ticke
 SIGNAL_ART = {KAUFEN: "kaufen", SHORT: "short", WARTEN: "warten", SICHERN: "sichern", BEOBACHTEN: "beobachten",
               FEHLER: "fehler"}
 
-def zahl(x, nachkomma=2):
+def json_zahl(x, nachkomma=2):
     """Zahl für JSON (None statt NaN/inf)."""
     try:
         x = float(x)
@@ -2717,29 +2717,29 @@ def depot_export(stand, daten, markt, fx):
         wert = positionswert(p, kurs, rate) if kurs is not None else None
         positionen.append({
             "ticker": p["ticker"], "strategie": strategie_name(p["strategie"]), "kauf_tag": str(p["kauf_tag"])[:10],
-            "stueck": zahl(p["stueck"], 4), "einstieg": zahl(p["einsatz_je_stueck"]),
-            "stop": zahl(p["stop"] / rate) if rate else None, "ziel": zahl(p["ziel"] / rate) if rate else None,
-            "kurs": zahl(kurs / rate) if rate else None, "wert": zahl(wert),
-            "ergebnis": zahl(wert - p["kosten"]) if wert is not None else None,
+            "stueck": json_zahl(p["stueck"], 4), "einstieg": json_zahl(p["einsatz_je_stueck"]),
+            "stop": json_zahl(p["stop"] / rate) if rate else None, "ziel": json_zahl(p["ziel"] / rate) if rate else None,
+            "kurs": json_zahl(kurs / rate) if rate else None, "wert": json_zahl(wert),
+            "ergebnis": json_zahl(wert - p["kosten"]) if wert is not None else None,
             # Lage zwischen Stop (0) und Ziel (1) in Kurswährung, für den Balken
-            "lage": zahl((kurs - p["stop"]) / (p["ziel"] - p["stop"]), 3) if kurs is not None and p["ziel"] != p["stop"]
+            "lage": json_zahl((kurs - p["stop"]) / (p["ziel"] - p["stop"]), 3) if kurs is not None and p["ziel"] != p["stop"]
             else None,
-            "einstieg_lage": zahl((p["einstieg_usd"] - p["stop"]) / (p["ziel"] - p["stop"]), 3)
+            "einstieg_lage": json_zahl((p["einstieg_usd"] - p["stop"]) / (p["ziel"] - p["stop"]), 3)
             if p["ziel"] != p["stop"] else None})
     trades = [{"ticker": t["ticker"], "strategie": strategie_name(t["strategie"]), "kauf_tag": t["kauf_tag"],
-               "verkauf_tag": t["verkauf_tag"], "grund": t["grund"], "ergebnis": zahl(t["erloes"] - t["kosten"]),
-               "prozent": zahl((t["erloes"] / t["kosten"] - 1) * 100, 1) if t["kosten"] else None}
+               "verkauf_tag": t["verkauf_tag"], "grund": t["grund"], "ergebnis": json_zahl(t["erloes"] - t["kosten"]),
+               "prozent": json_zahl((t["erloes"] / t["kosten"] - 1) * 100, 1) if t["kosten"] else None}
               for t in stand["trades"][-30:]][::-1]
     alle = stand["trades"]
     ok, verfallen = ausfuehrbare_auftraege(stand)
     return {
-        "angelegt": stand.get("angelegt"), "bis": stand["bis"], "startkapital": zahl(stand["startkapital"]),
-        "wert": zahl(stand["depotwert"]), "bargeld": zahl(stand["bargeld"]),
-        "verlauf": [[t, zahl(w)] for t, w in stand["verlauf"]],
-        "qqq": [[iso(t), zahl(w)] for t, w in vergleich.items()] if vergleich is not None else None,
-        "max_rueckgang": zahl(((werte.cummax() - werte) / werte.cummax()).max() * 100, 1) if len(werte) else None,
+        "angelegt": stand.get("angelegt"), "bis": stand["bis"], "startkapital": json_zahl(stand["startkapital"]),
+        "wert": json_zahl(stand["depotwert"]), "bargeld": json_zahl(stand["bargeld"]),
+        "verlauf": [[t, json_zahl(w)] for t, w in stand["verlauf"]],
+        "qqq": [[iso(t), json_zahl(w)] for t, w in vergleich.items()] if vergleich is not None else None,
+        "max_rueckgang": json_zahl(((werte.cummax() - werte) / werte.cummax()).max() * 100, 1) if len(werte) else None,
         "trades_anzahl": len(alle), "gewinner": sum(1 for t in alle if t["erloes"] > t["kosten"]),
-        "summe": zahl(sum(t["erloes"] - t["kosten"] for t in alle)),
+        "summe": json_zahl(sum(t["erloes"] - t["kosten"] for t in alle)),
         "positionen": positionen, "trades": trades,
         "auftraege": [{"ticker": a["ticker"], "strategie": strategie_name(a["strategie"])} for a in ok],
         "verfallen": [{"grund": g, "ticker": t} for g, t in verfallen.items()],
@@ -2755,10 +2755,10 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
     for t in reihenfolge:
         z = nach[t]
         signale.append({"ticker": t, "art": SIGNAL_ART.get(z.get("Signal"), "fehler"),
-                        "strategie": z.get("Strategie") or "", "kurs": zahl(z.get("Kurs")),
-                        "limit": zahl(z.get("Limit")), "stop": zahl(z.get("Stop")), "ziel": zahl(z.get("Ziel")),
-                        "crv": zahl(z.get("CRV")), "stueck": zahl(z.get("Stück"), 4), "einsatz": zahl(z.get("Einsatz")),
-                        "risiko": zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
+                        "strategie": z.get("Strategie") or "", "kurs": json_zahl(z.get("Kurs")),
+                        "limit": json_zahl(z.get("Limit")), "stop": json_zahl(z.get("Stop")), "ziel": json_zahl(z.get("Ziel")),
+                        "crv": json_zahl(z.get("CRV")), "stueck": json_zahl(z.get("Stück"), 4), "einsatz": json_zahl(z.get("Einsatz")),
+                        "risiko": json_zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
                         "branche": BRANCHE.get(t), "im_plan": t in im_plan, "fehler": z.get("_fehler")})
     strategien = []
     for k, s in STRATEGIEN.items():
@@ -2769,9 +2769,9 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
         kurve = list(np.round(np.cumsum(rs), 2)) if rs else []
         status = ("aus" if k in einst.sperre_strategien else "pausiert" if l.get("pausiert") else "aktiv")
         strategien.append({"name": strategie_name(k), "regel": s["regel"], "status": status,
-                           "trades": l.get("n", 0), "gesamt": l.get("gesamt", 0), "schnitt": zahl(l.get("schnitt"), 3),
-                           "quote": zahl(l.get("quote"), 1), "spanne": zahl(l.get("spanne"), 3),
-                           "kurve": [zahl(x) for x in kurve]})
+                           "trades": l.get("n", 0), "gesamt": l.get("gesamt", 0), "schnitt": json_zahl(l.get("schnitt"), 3),
+                           "quote": json_zahl(l.get("quote"), 1), "spanne": json_zahl(l.get("spanne"), 3),
+                           "kurve": [json_zahl(x) for x in kurve]})
     schlagzeilen = []
     for t, n in (news or {}).items():
         for z in n.get("zeilen", []):
@@ -2788,13 +2788,13 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
             kurse = pd.Series(markt["C"][:markt["n_fertig"]], index=idx) / kurs_umrechner(fx, idx)
             kurse = kurse.reindex(kurse.index.union(depot["verlauf"].index)).ffill().reindex(depot["verlauf"].index)
             if kurse.notna().all() and kurse.iloc[0] > 0:
-                q = [[iso(t), zahl(depot["start_wert"] * w / kurse.iloc[0])] for t, w in kurse.items()]
+                q = [[iso(t), json_zahl(depot["start_wert"] * w / kurse.iloc[0])] for t, w in kurse.items()]
         rueckblick = {"monate": einst.rueckblick, "start": iso(depot["start"]), "ende": iso(depot["ende"]),
-                      "start_wert": zahl(depot["start_wert"]), "end_wert": zahl(depot["end_wert"]),
-                      "max_rueckgang": zahl(depot["max_rueckgang"], 1), "trades_anzahl": len(tr),
+                      "start_wert": json_zahl(depot["start_wert"]), "end_wert": json_zahl(depot["end_wert"]),
+                      "max_rueckgang": json_zahl(depot["max_rueckgang"], 1), "trades_anzahl": len(tr),
                       "gewinner": sum(1 for x in tr if x["erloes"] > x["kosten"]),
-                      "verlauf": [[iso(t), zahl(w)] for t, w in depot["verlauf"].items()], "qqq": q,
-                      "halten": [[iso(t), zahl(w)] for t, w in depot["vergleich"].items()]
+                      "verlauf": [[iso(t), json_zahl(w)] for t, w in depot["verlauf"].items()], "qqq": q,
+                      "halten": [[iso(t), json_zahl(w)] for t, w in depot["vergleich"].items()]
                       if depot["vergleich"] is not None else None}
     claude_teil = depot_export(claude, daten, markt, fx)
     if claude_teil is not None and claude.get("versuch_ab"):
@@ -2802,18 +2802,18 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
         entsch = claude.get("entscheidungen") or {}
         claude_teil.update({
             "versuch_ab": claude["versuch_ab"],
-            "seit_start": {"claude": zahl((claude["depotwert"] / start["claude"] - 1) * 100, 2),
-                           "bot": zahl((papier["depotwert"] / start["bot"] - 1) * 100, 2)
+            "seit_start": {"claude": json_zahl((claude["depotwert"] / start["claude"] - 1) * 100, 2),
+                           "bot": json_zahl((papier["depotwert"] / start["bot"] - 1) * 100, 2)
                            if papier is not None and papier.get("bis") == claude["bis"] else None,
-                           "qqq": zahl(qqq_seit(markt, fx, claude["versuch_ab"], claude["bis"]), 2)},
+                           "qqq": json_zahl(qqq_seit(markt, fx, claude["versuch_ab"], claude["bis"]), 2)},
             "entscheidungen": [dict(e, signal_tag=t) for t, e in sorted(entsch.items())[-10:]][::-1],
             "ausgelassen": sum(len(e["auslassen"]) for e in entsch.values())})
     lage = trend.dropna().iloc[-1] if trend is not None and trend.notna().any() else None
     return {
         "version": 1, "erstellt": pd.Timestamp.now(tz=BERLIN).isoformat(timespec="seconds"),
         "daten_bis": iso(stand_tag), "fehlt": iso(fehlt) if fehlt is not None else None,
-        "vorlaeufig": any(z["_offen"] for z in ok), "waehrung": waehrung, "konto": zahl(einst.konto),
-        "risiko": zahl(einst.risiko), "repo": os.environ.get("GITHUB_REPOSITORY"),
+        "vorlaeufig": any(z["_offen"] for z in ok), "waehrung": waehrung, "konto": json_zahl(einst.konto),
+        "risiko": json_zahl(einst.risiko), "repo": os.environ.get("GITHUB_REPOSITORY"),
         "markt": {"ueber_200": None if lage is None else bool(lage == 1)},
         "regeln": {"max_positionen": MAX_POSITIONEN, "max_je_branche": MAX_JE_BRANCHE,
                    "max_risiko": MAX_GESAMTRISIKO_PROZENT, "zeitstopp": ZEITSTOPP_TAGE},
