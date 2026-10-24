@@ -1,8 +1,9 @@
-# Live-Kurse für die Übersichtsseite: während der US-Börsenzeit etwa alle 15 Minuten die aktuellen Kurse (bei Yahoo
-# etwa 15 Minuten verzögert) und die Werte von Übungs- und Claude-Depot. Nur zum Anschauen – Signale, Käufe und
-# Verkäufe rechnet weiter der Morgen-Lauf (swing-bot.yml) mit den Schlusskursen. Dieser Ablauf speichert nichts im
-# Repository: Er legt docs/live.json nur in die veröffentlichte Seite (daher keine Commits und nichts Neues für
-# Obsidian).
+# Live für die Übersichtsseite: während der US-Börsenzeit etwa alle 15 Minuten die aktuellen Kurse (bei Yahoo etwa
+# 15 Minuten verzögert). Übungs- und Claude-Depot werden dabei nach denselben Regeln wie am Morgen bis jetzt
+# weitergerechnet (Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel) – als Vorschau. Endgültig bucht der
+# Morgen-Lauf (swing-bot.yml) mit den Schlusskursen; neue Signale gibt es weiter nur dort. Dieser Ablauf speichert
+# nichts im Repository: Er legt docs/live.json nur in die veröffentlichte Seite (daher keine Commits und nichts Neues
+# für Obsidian).
 name: Live-Kurse
 
 on:
@@ -15,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  issues: read # Claudes Entscheidungen für das Claude-Depot lesen
   pages: write
   id-token: write
 
@@ -43,17 +45,42 @@ jobs:
       - name: Pakete installieren
         run: pip install -r requirements-bot.txt
 
-      - name: Live-Kurse holen
-        # Klappt das nicht (z. B. Yahoo nicht erreichbar), wird die Seite ohne Live-Kurse veröffentlicht – sie zeigt
-        # dann wie gewohnt den Stand vom Morgen.
+      - name: Claudes Entscheidungen holen
+        # wie im Morgen-Lauf: nur Kommentare des Repository-Besitzers im Thema mit dem Label claude-depot
         continue-on-error: true
         env:
+          GH_TOKEN: ${{ github.token }}
+          BESITZER: ${{ github.repository_owner }}
+        run: |
+          datei="$RUNNER_TEMP/claude_entscheidungen.json"
+          : > "$datei"
+          nummer=$(gh issue list --repo "$GITHUB_REPOSITORY" --label claude-depot --state all --limit 100 \
+            --json number --jq 'map(.number) | min // empty')
+          if [ -n "$nummer" ]; then
+            # $ENV gehört zu jq (Filter in gh), nicht zur Shell
+            # shellcheck disable=SC2016
+            gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$nummer/comments" \
+              --jq '.[] | select(.user.login == $ENV.BESITZER) | {created_at, updated_at, body}' > "$datei"
+          fi
+
+      - name: Live-Kurse holen und Depots weiterrechnen
+        # Klappt das nicht (z. B. Yahoo nicht erreichbar), wird die Seite ohne Live-Teil veröffentlicht – sie zeigt
+        # dann wie gewohnt den Stand vom Morgen. Gleiche Einstellungen wie der Morgen-Lauf (Kontogröße, Risiko …).
+        continue-on-error: true
+        env:
+          KONTO: ${{ vars.KONTO || '10000' }}
+          RISIKO: ${{ vars.RISIKO || '1' }}
           TICKER: ${{ vars.TICKER }}
+          OPTIONEN: ${{ vars.OPTIONEN }}
           PYTHONUNBUFFERED: "1"
         run: |
-          set -- --live docs/live.json --papier papier/papier_depot.json --claude-depot papier/claude_depot.json
+          set -- --konto "$KONTO" --risiko "$RISIKO" --live docs/live.json --gehirn gehirn \
+                 --papier papier/papier_depot.json --claude-depot papier/claude_depot.json \
+                 --claude-entscheidungen "$RUNNER_TEMP/claude_entscheidungen.json"
           if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
-          python swing_scanner.py "$@"
+          # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
+          # shellcheck disable=SC2086
+          python swing_scanner.py "$@" $OPTIONEN
 
       - uses: actions/upload-pages-artifact@v3
         with:

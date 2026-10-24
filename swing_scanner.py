@@ -288,8 +288,9 @@ def lies_einstellungen():
     p.add_argument("--uebersicht", metavar="DATEI",
                    help="Daten für die Übersichtsseite (docs/index.html) als JSON in DATEI schreiben")
     p.add_argument("--live", metavar="DATEI",
-                   help="nur Live-Kurse: aktuelle Kurse (etwa 15 Minuten verzögert) und Depotwerte von --papier und "
-                        "--claude-depot als JSON in DATEI schreiben – ohne Signale, ohne Buchungen, ändert keine Datei sonst")
+                   help="nur Live-Vorschau: aktuelle Kurse (etwa 15 Minuten verzögert) und --papier und --claude-depot "
+                        "nach denselben Regeln bis jetzt weitergerechnet (Käufe, Stop, Ziel) als JSON in DATEI – "
+                        "speichert nichts sonst, endgültig bucht der normale Lauf mit den Schlusskursen")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--bericht", metavar="DATEI",
                    help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
@@ -3026,70 +3027,104 @@ def schreibe_uebersicht(datei, inhalt):
 # ----------------------------------------------------------------------------
 # Live-Kurse für die Übersichtsseite (während der Börsenzeit, ohne Signale und ohne Buchungen)
 # ----------------------------------------------------------------------------
-def live_kurse(ticker_liste):
-    """Je Ticker der letzte Kurs (bei laufender Börse etwa 15 Minuten verzögert) und der Schluss davor."""
+def live_tabellen(ticker_liste):
+    """Tageskerzen der letzten 3 Monate je Ticker; die heutige läuft bei offener Börse noch (Kurse bei Yahoo etwa
+    15 Minuten verzögert). 3 Monate reichen für Kaufdaten offener Positionen und die Split-Prüfung."""
     with YahooRuhig():
-        roh = yf.download(list(ticker_liste), period="5d", interval="1d", auto_adjust=True, group_by="ticker",
+        roh = yf.download(list(ticker_liste), period="3mo", interval="1d", auto_adjust=True, group_by="ticker",
                           progress=False, threads=True)
-    kurse = {}
-    for t in ticker_liste:
-        df = tabelle_fuer(roh, t)
-        if df is None or len(df) < 2:
-            continue
-        kurse[t] = {"kurs": float(df["Close"].iloc[-1]), "vortag": float(df["Close"].iloc[-2]),
-                    "tag": df.index[-1], "offen": kerze_noch_offen(df, t)}
-    return kurse
+    return {t: df for t in ticker_liste if (df := tabelle_fuer(roh, t)) is not None and len(df) >= 2}
 
-def live_depot(stand, kurse, fx):
-    """Ein Papier-Depot zu Live-Kursen: Wert, Änderung seit dem letzten gebuchten Schluss, Positionen. Fehlt ein
-    Kurs, gibt es keinen Gesamtwert (nur die Positionen mit Kurs)."""
+def live_vorschau(stand, tabellen, fx, einst, veto=None):
+    """Ein Papier-Depot nach denselben Regeln wie am Morgen weiterrechnen – nur zählt die heutige, noch laufende
+    Kerze schon: Käufe zur Eröffnung bis zum Limit, Stop und Ziel nach dem bisherigen Tageshoch und -tief, Zeitstopp
+    und Verkauf vor Quartalszahlen zum aktuellen Kurs (gelten erst zum Schluss). Nur zum Anschauen: nichts wird
+    gespeichert, endgültig bucht der Morgen-Lauf mit den Schlusskursen. Gibt das Depot für docs/live.json zurück."""
     if not stand or not stand.get("bis"):
         return None
-    positionen, summe, fehlt = [], 0.0, False
-    for p in stand["positionen"]:
-        k = kurse.get(p["ticker"])
-        rate = fx if waehrung_von(p["ticker"]) == "USD" else 1.0
-        if k is None or not rate:
-            fehlt = True
-            positionen.append({"ticker": p["ticker"], "kurs": None, "wert": None, "ergebnis": None, "heute": None,
-                               "lage": None})
-            continue
-        wert = positionswert(p, k["kurs"], rate)
-        summe += wert
+    gemerkt = stand.get("termine") if isinstance(stand.get("termine"), dict) else {}
+    daten = {}
+    for t in {x["ticker"] for x in stand["positionen"] + stand["auftraege"]}:
+        if t not in tabellen:
+            return {"bis": stand["bis"], "fehlt": t}
+        zahlen = pd.DataFrame(index=pd.to_datetime(gemerkt[t], utc=True)) if gemerkt.get(t) else None
+        d = bereite_vor(t, tabellen[t], fx if waehrung_von(t) == "USD" else None, zahlen, einst)
+        d["n_fertig"] = d["n"]  # die laufende Kerze zählt schon
+        daten[t] = d
+    if not daten:  # weder Positionen noch Aufträge: nur Bargeld
+        return {"bis": stand["bis"], "wert_schluss": json_zahl(stand["depotwert"]), "wert": json_zahl(stand["bargeld"]),
+                "aenderung": json_zahl(stand["bargeld"] - stand["depotwert"]), "positionen": [], "gekauft": [],
+                "verkauft": [], "nicht_gekauft": [], "ausgelassen": []}
+    neu, erg, bericht = papier_fortschreiben(stand, daten, {}, einst, set(), veto)
+    if erg is None:
+        return {"bis": stand["bis"], "fehlt": bericht.get("warnung") or "nicht weitergerechnet"}
+    bis = stand["bis"]
+    positionen = []
+    for p in erg["positionen"]:
+        d = daten[p["ticker"]]
+        kurs = d["C"][d["n"] - 1]
         positionen.append({
-            "ticker": p["ticker"], "kurs": json_zahl(k["kurs"] / rate), "wert": json_zahl(wert),
-            "ergebnis": json_zahl(wert - p["kosten"]), "heute": json_zahl((k["kurs"] / k["vortag"] - 1) * 100, 2),
-            "lage": json_zahl((k["kurs"] - p["stop"]) / (p["ziel"] - p["stop"]), 3) if p["ziel"] != p["stop"] else None})
-    wert = None if fehlt else stand["bargeld"] + summe
-    return {"bis": stand["bis"], "wert_schluss": json_zahl(stand["depotwert"]), "wert": json_zahl(wert),
-            "aenderung": json_zahl(wert - stand["depotwert"]) if wert is not None else None, "positionen": positionen}
+            "ticker": p["ticker"], "kurs": json_zahl(p["kurs_jetzt"]), "wert": json_zahl(p["wert"]),
+            "ergebnis": json_zahl(p["wert"] - p["kosten"]), "heute": json_zahl((kurs / d["C"][d["n"] - 2] - 1) * 100, 2),
+            "lage": json_zahl((kurs - p["stop"]) / (p["ziel"] - p["stop"]), 3) if p["ziel"] != p["stop"] else None,
+            "neu": iso(p["kauf_tag"]) > bis})
+    gekauft = [{"ticker": x["ticker"], "strategie": strategie_name(x["strategie"]), "kurs": json_zahl(x["einsatz_je_stueck"]),
+                "stueck": json_zahl(x["stueck"], 4), "einsatz": json_zahl(x["kosten"])}
+               for x in erg["positionen"] + erg["trades"] if iso(x["kauf_tag"]) > bis]
+    verkauft = [{"ticker": x["ticker"], "grund": x["grund"], "ergebnis": json_zahl(x["erloes"] - x["kosten"]),
+                 "prozent": json_zahl((x["erloes"] / x["kosten"] - 1) * 100, 1) if x["kosten"] else None,
+                 "zum_schluss": x["grund"] in ("Zeitstopp", "vor Quartalszahlen")} for x in erg["trades"]]
+    return {"bis": bis, "wert_schluss": json_zahl(stand["depotwert"]), "wert": json_zahl(erg["depotwert"]),
+            "aenderung": json_zahl(erg["depotwert"] - stand["depotwert"]), "positionen": positionen,
+            "gekauft": gekauft, "verkauft": verkauft, "nicht_gekauft": bericht["nicht_ausgefuehrt"],
+            "ausgelassen": bericht["ausgelassen"]}
 
 def live_daten(einst):
-    """Inhalt von docs/live.json. Liest Papier- und Claude-Depot nur, schreibt sie nie."""
+    """Inhalt von docs/live.json. Liest Papier- und Claude-Depot (und „Meine Regeln“) nur, schreibt sie nie."""
+    if einst.gehirn:
+        ordner, _ = papier_pfad(einst.gehirn)
+        if ordner:
+            einst.sperre_ticker, einst.sperre_strategien, _ = lies_meine_regeln(ordner)
     staende = {}
     for name, wert in (("papier", einst.papier), ("claude", einst.claude_depot)):
         if wert:
             pfad, _ = papier_pfad(wert)
             staende[name] = lade_papier(pfad, False)[0] if pfad else None
     ticker = list(dict.fromkeys(list(einst.ticker_liste) + [MARKT_TICKER, FX_TICKER]
-                                + [p["ticker"] for st in staende.values() if st for p in st["positionen"]]))
-    kurse = live_kurse(ticker)
-    fx = kurse.get(FX_TICKER, {}).get("kurs")
-    us = [k for t, k in kurse.items() if waehrung_von(t) == "USD" and not ist_krypto(t) and "=" not in t]
-    tage = [k["tag"] for k in us]
+                                + [x["ticker"] for st in staende.values() if st
+                                   for x in st["positionen"] + st["auftraege"]]))
+    tabellen = live_tabellen(ticker)
+    fx = tabellen[FX_TICKER]["Close"] if FX_TICKER in tabellen else None
+    fx_jetzt = float(fx.iloc[-1]) if fx is not None else None
+    letzte = {t: (float(df["Close"].iloc[-1]), float(df["Close"].iloc[-2])) for t, df in tabellen.items()}
+    us = [t for t in tabellen if waehrung_von(t) == "USD" and not ist_krypto(t) and "=" not in t]
+    tage = [tabellen[t].index[-1] for t in us]
     aktien = {}
     for t in einst.ticker_liste:
-        k, rate = kurse.get(t), (fx if waehrung_von(t) == "USD" else 1.0)
-        if k and rate:
-            aktien[t] = {"kurs": json_zahl(k["kurs"] / rate), "heute": json_zahl((k["kurs"] / k["vortag"] - 1) * 100, 2)}
-    q = kurse.get(MARKT_TICKER)
+        rate = fx_jetzt if waehrung_von(t) == "USD" else 1.0
+        if t in letzte and rate:
+            kurs, vortag = letzte[t]
+            aktien[t] = {"kurs": json_zahl(kurs / rate), "heute": json_zahl((kurs / vortag - 1) * 100, 2)}
+    depots = {}
+    if fx is not None:
+        claude = staende.get("claude")
+        entsch = dict((claude or {}).get("entscheidungen") or {})
+        if claude:
+            neue, _ = lies_claude_entscheidungen(einst.claude_entscheidungen)
+            entsch.update({t: e for t, e in neue.items() if t >= claude.get("versuch_ab", "")})
+
+        def veto(signal_tag, t):
+            return None if signal_tag is None else (entsch.get(iso(signal_tag)) or {}).get("auslassen", {}).get(t)
+
+        for name, st in staende.items():
+            depots[name] = live_vorschau(st, tabellen, fx, einst, veto if name == "claude" else None)
+    q = letzte.get(MARKT_TICKER)
     return {
         "version": 1, "erstellt": pd.Timestamp.now(tz=BERLIN).isoformat(timespec="seconds"),
         "kurse_vom": iso(max(set(tage), key=tage.count)) if tage else None,
-        "boerse_offen": any(k["offen"] for k in us), "fx": json_zahl(fx, 4),
-        "nasdaq": {"heute": json_zahl((q["kurs"] / q["vortag"] - 1) * 100, 2)} if q else None,
-        "aktien": aktien,
-        **{name: live_depot(st, kurse, fx) for name, st in staende.items()},
+        "boerse_offen": any(kerze_noch_offen(tabellen[t], t) for t in us), "fx": json_zahl(fx_jetzt, 4),
+        "nasdaq": {"heute": json_zahl((q[0] / q[1] - 1) * 100, 2)} if q else None,
+        "aktien": aktien, **depots,
     }
 
 def schreibe_live(einst):
@@ -3103,7 +3138,10 @@ def schreibe_live(einst):
     print(f"📡 Live-Kurse gespeichert: {einst.live} · Kurse vom {daten['kurse_vom']}"
           + (" (Börse offen)" if daten["boerse_offen"] else "")
           + (f" · Übungsdepot {de(p['wert'])} € ({de(p['aenderung'], 2, True)} € seit dem Schluss am {p['bis']})"
-             if p and p["wert"] is not None else ""))
+             if p and p.get("wert") is not None else "")
+          + (f" · heute gekauft: {', '.join(x['ticker'] for x in p['gekauft'])}" if p and p.get("gekauft") else "")
+          + (f" · heute verkauft: {', '.join(x['ticker'] + ' (' + x['grund'] + ')' for x in p['verkauft'])}"
+             if p and p.get("verkauft") else ""))
     return daten
 
 # ----------------------------------------------------------------------------
