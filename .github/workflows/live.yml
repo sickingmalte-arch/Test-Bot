@@ -1,0 +1,110 @@
+# Live für die Übersichtsseite: während der US-Börsenzeit etwa alle 15 Minuten die aktuellen Kurse (bei Yahoo etwa
+# 15 Minuten verzögert). Übungs- und Claude-Depot werden dabei nach denselben Regeln wie am Morgen bis jetzt
+# weitergerechnet (Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel) – als Vorschau. Endgültig bucht der
+# Morgen-Lauf (swing-bot.yml) mit den Schlusskursen; neue Signale gibt es weiter nur dort. Dieser Ablauf speichert
+# nichts im Repository: Er legt docs/live.json nur in die veröffentlichte Seite (daher keine Commits und nichts Neues
+# für Obsidian).
+name: Live-Kurse
+
+on:
+  schedule:
+    # Mo–Fr von 12 bis 22 Uhr deutscher Zeit alle 15 Minuten (der US-Handel läuft 15:30–22:00 Uhr, in den Wochen der
+    # Zeitumstellung 14:30–21:00 Uhr). GitHub rechnet Zeitpläne in UTC: die Zeiten unten decken Sommer- und Winterzeit
+    # ab, der Job „zeit“ lässt nur 12:00–22:10 Uhr deutscher Zeit durch. GitHub startet geplante Läufe oft etwas
+    # später oder lässt bei viel Betrieb einzelne aus – dann kommt der nächste.
+    - cron: "7,22,37,52 10-21 * * 1-5"
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+
+permissions:
+  contents: read
+  issues: read # Claudes Entscheidungen für das Claude-Depot lesen
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages # nie gleichzeitig mit dem Veröffentlichen nach dem Morgen-Lauf (uebersicht.yml)
+  cancel-in-progress: false
+
+jobs:
+  zeit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      los: ${{ steps.uhr.outputs.los }}
+    steps:
+      - name: Zwischen 12 und 22 Uhr deutscher Zeit?
+        id: uhr
+        run: |
+          uhr=$(TZ=Europe/Berlin date '+%H%M')
+          if [ "$GITHUB_EVENT_NAME" != "schedule" ] || { [ "$uhr" -ge 1200 ] && [ "$uhr" -le 2210 ]; }; then
+            echo "los=ja" >> "$GITHUB_OUTPUT"
+          else
+            echo "$(TZ=Europe/Berlin date '+%H:%M') Uhr deutscher Zeit – Live läuft nur von 12 bis 22 Uhr."
+          fi
+
+  live:
+    needs: zeit
+    if: needs.zeit.outputs.los == 'ja'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.seite.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main # neuester Stand von Seite und Depots
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-bot.txt
+
+      - name: Pakete installieren
+        run: pip install -r requirements-bot.txt
+
+      - name: Claudes Entscheidungen holen
+        # wie im Morgen-Lauf: nur Kommentare des Repository-Besitzers im Thema mit dem Label claude-depot
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BESITZER: ${{ github.repository_owner }}
+        run: |
+          datei="$RUNNER_TEMP/claude_entscheidungen.json"
+          : > "$datei"
+          nummer=$(gh issue list --repo "$GITHUB_REPOSITORY" --label claude-depot --state all --limit 100 \
+            --json number --jq 'map(.number) | min // empty')
+          if [ -n "$nummer" ]; then
+            # $ENV gehört zu jq (Filter in gh), nicht zur Shell
+            # shellcheck disable=SC2016
+            gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$nummer/comments" \
+              --jq '.[] | select(.user.login == $ENV.BESITZER) | {created_at, updated_at, body}' > "$datei"
+          fi
+
+      - name: Live-Kurse holen und Depots weiterrechnen
+        # Klappt das nicht (z. B. Yahoo nicht erreichbar), wird die Seite ohne Live-Teil veröffentlicht – sie zeigt
+        # dann wie gewohnt den Stand vom Morgen. Gleiche Einstellungen wie der Morgen-Lauf (Kontogröße, Risiko …).
+        continue-on-error: true
+        env:
+          KONTO: ${{ vars.KONTO || '10000' }}
+          RISIKO: ${{ vars.RISIKO || '1' }}
+          TICKER: ${{ vars.TICKER }}
+          OPTIONEN: ${{ vars.OPTIONEN }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -- --konto "$KONTO" --risiko "$RISIKO" --live docs/live.json --gehirn gehirn \
+                 --papier papier/papier_depot.json --claude-depot papier/claude_depot.json \
+                 --claude-entscheidungen "$RUNNER_TEMP/claude_entscheidungen.json"
+          if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
+          # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
+          # shellcheck disable=SC2086
+          python swing_scanner.py "$@" $OPTIONEN
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Seite veröffentlichen
+        id: seite
+        uses: actions/deploy-pages@v4

@@ -247,6 +247,25 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .ergebnis-pille.gut { background: rgba(12, 163, 12, .14); }
 .ergebnis-pille.schlecht { background: rgba(208, 59, 59, .14); }
 .leer { padding: 18px 14px; color: var(--text-2); font-size: 13px; }
+/* Live-Kurse während der Börsenzeit */
+.live-kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.live-raster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; margin-top: 12px; }
+.live-zeile { display: grid; grid-template-columns: 64px minmax(0, 1fr) 70px 96px; gap: 8px; align-items: baseline; padding: 9px 16px; border-bottom: 1px solid var(--line-soft); font-size: 13px; font-variant-numeric: tabular-nums; }
+.live-zeile:last-child { border-bottom: 0; }
+.live-zeile .t { font: 700 14px/1 var(--sans); color: var(--text); text-decoration: none; }
+.live-zeile > :nth-child(n+3) { text-align: right; }
+.live-zeile > :nth-child(3), .live-zeile > :nth-child(4) { white-space: nowrap; }
+.live-zeile .status { grid-column: 2 / -1; text-align: left; font-size: 11.5px; color: var(--text-2); }
+.live-zeile .status.warnung { color: var(--warnung); }
+.live-zeile .status.gut { color: var(--gut-text); }
+.neu-heute { font: 600 10px/1 var(--mono); color: var(--s1); letter-spacing: .06em; }
+.live-wartet { font-size: 13.5px; color: var(--text-2); line-height: 1.5; }
+.live-wartet b { color: var(--text); }
+.live-kopf { display: inline-flex; align-items: center; gap: 8px; }
+.live-kopf .punkt { display: inline-block; width: 7px; height: 7px; }
+.punkt.pulsiert { background: var(--gut); box-shadow: 0 0 6px var(--gut); animation: blinken 2s ease-in-out infinite; }
+@keyframes blinken { 50% { opacity: .35; } }
+.live-fuss { margin-top: 10px; font-size: 11.5px; color: var(--text-3); line-height: 1.5; }
 
 /* ---------- Claude ---------- */
 .vergleich { padding: 6px 16px 14px; }
@@ -473,15 +492,16 @@ button.kal-tag:hover { border-color: #3a4654; }
   .kachel:nth-child(3n) { border-right: 0; }
   .kachel:nth-child(-n+3) { border-bottom: 1px solid var(--line-soft); }
   .kurven-raster { grid-template-columns: minmax(0, 1fr); }
+  .live-raster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) {
   html { scroll-padding-top: calc(var(--kopf-h, 72px) + 64px); }
   .geruest { grid-template-columns: minmax(0, 1fr); }
   main { display: flex; flex-direction: column; }
   main > .hinweis { order: 0; }
-  #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
+  #live { order: 0; } #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
   #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } #fazit { order: 8; } main > .fuss { order: 9; }
-  .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
+  .seite a[href="#live"] { order: 0; } .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
   .seite a[href="#depot"] { order: 4; } .seite a[href="#positionen"] { order: 5; } .seite a[href="#claude"] { order: 6; }
   .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; } .seite a[href="#fazit"] { order: 9; } .seite a[href="#chat"] { order: 10; }
   .seite {
@@ -512,6 +532,7 @@ button.kal-tag:hover { border-color: #3a4654; }
   .marke .lang { display: none; }
   .uhr .zeit { font-size: 13px; }
   .kacheln { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .live-raster { grid-template-columns: minmax(0, 1fr); }
   .kachel { border-right: 1px solid var(--line-soft) !important; border-bottom: 1px solid var(--line-soft); padding: 12px; }
   .kachel:nth-child(2n) { border-right: 0 !important; }
   .kachel.held { grid-column: 1 / -1; border-right: 0 !important; }
@@ -524,6 +545,7 @@ button.kal-tag:hover { border-color: #3a4654; }
   .karten { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .punkt.pulsiert { animation: none; }
   .laufband-inhalt, .kern-linien path.fluss { animation: none; }
   html { scroll-behavior: auto; }
 }
@@ -555,6 +577,7 @@ button.kal-tag:hover { border-color: #3a4654; }
     <a href="#gehirn" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
     <a href="#kennzahlen"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Kennzahlen</a>
     <div class="label gruppe">Heute</div>
+    <a href="#live" id="nav-live" hidden><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5" fill="currentColor"/><path d="M4.5 4.5a5 5 0 0 0 0 7M11.5 4.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Live</a>
     <a href="#signale"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 12l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Signale<span class="zaehler hell" id="nav-signale" hidden></span></a>
     <div class="label gruppe">Geld</div>
     <a href="#depot"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 4V3h6v1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Depot &amp; Kurve</a>
@@ -910,6 +933,7 @@ const ERKLAERUNG = {
   zahlen: ["Quartalszahlen", "An diesem Tag legt die Firma ihre Zahlen vor. Der Kurs kann dann stark springen – nach oben wie nach unten. Der Bot verkauft deshalb spätestens kurz vor den Zahlen. Rot heißt: weniger als 7 Tage. Dann bleibt einem neuen Trade nur wenig Zeit bis zum Ziel."],
   fazit: ["Ergebnis", "So viel mehr (oder weniger) war das Übungsdepot zum Schluss wert als vorher – mit den noch offenen Positionen zum Schlusskurs (Buchgewinn oder -verlust) und nach Gebühren. „Woher kam das Ergebnis?“ zeigt den Anteil jeder Aktie, zusammen ergeben sie das Ergebnis. Umsatz: Wert aller Käufe und Verkäufe im Zeitraum."],
   chance: ["Ziel-Chance nach Black-Scholes", CHANCE_TEXT],
+  live: ["Live", "Mo–Fr von 12 bis 22 Uhr läuft Live: Sobald die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit, in den Wochen der Zeitumstellung 14:30–21:00 Uhr), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
 const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
@@ -1927,10 +1951,138 @@ function chatStart(repo) {
   chatLaden(true);
 }
 
+// ---------------------------------------------------------------------------
+// Live-Kurse (docs/live.json, nur während der US-Börsenzeit vom Ablauf live.yml): nur zum Anschauen
+// ---------------------------------------------------------------------------
+function liveBauen(D, L) {
+  const P = L.papier, C = L.claude;
+  const ok = x => x && !x.fehlt && x.wert !== null && x.wert !== undefined;
+  const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
+  const kacheln = el("div", { class: "panel kacheln live-kacheln" });
+  if (P) {
+    const proz = ok(P) && P.wert_schluss ? (P.wert / P.wert_schluss - 1) * 100 : null;
+    kacheln.append(kachel("Übungsdepot jetzt", ok(P) ? euro(P.wert) : "–",
+      ok(P) ? [el("span", { class: richtung(P.aenderung) }, `${P.aenderung >= 0 ? "▲" : "▼"} ${vz(P.aenderung)}${euro(P.aenderung)} (${prozent(proz)})`),
+        ` seit dem Schluss am ${datum(P.bis, false)}`] : `Vorschau nicht möglich (${P.fehlt || "Kurs fehlt"})`, { held: true }));
+  }
+  if (L.nasdaq) kacheln.append(kachel("Nasdaq-100 heute", prozent(L.nasdaq.heute), "seit dem letzten Schluss", { klasse: richtung(L.nasdaq.heute) }));
+  if (ok(C)) kacheln.append(kachel("Claude-Depot jetzt", euro(C.wert),
+    [el("span", { class: richtung(C.aenderung) }, `${C.aenderung >= 0 ? "▲" : "▼"} ${vz(C.aenderung)}${euro(C.aenderung)}`), " seit dem Schluss"]));
+  const zeile = (ticker, ...rest) => el("div", { class: "live-zeile" },
+    el("a", { class: "t", href: tvLink(ticker), target: "_blank", rel: "noopener" }, ticker), ...rest);
+  // Was das Übungsdepot heute nach seinen Regeln gekauft und verkauft hätte (endgültig erst beim Morgen-Lauf)
+  const heute = el("div", { class: "panel" }, el("div", { class: "panel-kopf" },
+    el("div", { class: "label" }, "Übungsdepot heute · vorläufig"), el("div", { class: "label" }, "nach denselben Regeln wie am Morgen")));
+  const gekauft = ok(P) ? P.gekauft : [], verkauft = ok(P) ? P.verkauft : [];
+  for (const g of gekauft) {
+    heute.append(zeile(g.ticker, el("span", {}, `gekauft · ${zahl(g.stueck, g.stueck % 1 ? 2 : 0)} Stück`), el("span", {}, ""),
+      el("span", { class: "mono" }, euro(g.kurs, 2)), el("span", { class: "status" }, `${g.strategie} · Einsatz ${euro(g.einsatz)}`)));
+  }
+  for (const v of verkauft) {
+    heute.append(zeile(v.ticker, el("span", {}, v.zum_schluss ? `verkauft zum Schluss · ${v.grund}` : `verkauft · ${v.grund}`),
+      el("span", { class: richtung(v.prozent) }, v.prozent !== null ? prozent(v.prozent) : ""),
+      el("span", { class: richtung(v.ergebnis) }, `${vz(v.ergebnis)}${euro(v.ergebnis, 2)}`),
+      v.zum_schluss ? el("span", { class: "status" }, "gilt zum Schlusskurs – bis dahin mit dem aktuellen Kurs gerechnet") : null));
+  }
+  if (ok(P) && P.nicht_gekauft.length) heute.append(el("div", { class: "live-zeile" }, el("span", { class: "status", style: "grid-column:1/-1" },
+    `Nicht gekauft: ${P.nicht_gekauft.join(", ")} – Eröffnung über dem Limit oder hinter dem Stop, kein Platz, kein Geld oder schon 2 aus derselben Branche.`)));
+  if (ok(C) && C.ausgelassen.length) heute.append(el("div", { class: "live-zeile" }, el("span", { class: "status", style: "grid-column:1/-1" },
+    `Claude-Depot lässt aus: ${C.ausgelassen.join(", ")}.`)));
+  if (!gekauft.length && !verkauft.length && !(ok(P) && P.nicht_gekauft.length)) heute.append(el("div", { class: "leer" }, "Heute noch kein Kauf und kein Verkauf."));
+  const pos = el("div", { class: "panel" }, el("div", { class: "panel-kopf" },
+    el("div", { class: "label" }, "Übungsdepot · Positionen jetzt"), el("div", { class: "label" }, "Kurs · heute · seit Kauf")));
+  for (const p of ok(P) ? P.positionen : []) {
+    pos.append(zeile(p.ticker, el("span", { class: "mono" }, p.kurs !== null ? euro(p.kurs, 2) : "kein Kurs", p.neu ? el("span", { class: "neu-heute" }, " neu") : null),
+      el("span", { class: richtung(p.heute) }, p.heute !== null ? prozent(p.heute) : "–"),
+      el("span", { class: richtung(p.ergebnis) }, p.ergebnis !== null ? `${vz(p.ergebnis)}${euro(p.ergebnis, 2)}` : "–")));
+  }
+  if (!ok(P) || !P.positionen.length) pos.append(el("div", { class: "leer" }, ok(P) ? "Gerade keine offene Position." : "Keine Vorschau."));
+  const kauf = D.signale.filter(s => s.art === "kaufen" && s.limit !== null && L.aktien[s.ticker]);
+  const sig = el("div", { class: "panel" }, el("div", { class: "panel-kopf" },
+    el("div", { class: "label" }, "Kauf-Signale · Kurs jetzt gegen Limit"), el("div", { class: "label" }, "Kurs · heute")));
+  for (const s of kauf) {
+    const a = L.aktien[s.ticker], drunter = a.kurs <= s.limit, imDepot = gekauft.some(g => g.ticker === s.ticker);
+    sig.append(zeile(s.ticker, el("span", { class: "mono" }, euro(a.kurs, 2)), el("span", { class: richtung(a.heute) }, prozent(a.heute)), el("span", {}, ""),
+      el("span", { class: `status ${imDepot || drunter ? "gut" : "warnung"}` }, imDepot ? `✓ Übungsdepot hat heute zur Eröffnung gekauft (Limit ${euro(s.limit, 2)})`
+        : drunter ? `✓ unter dem Limit von ${euro(s.limit, 2)} – eine Kauf-Order mit diesem Limit könnte ausgeführt werden`
+        : `über dem Limit von ${euro(s.limit, 2)} – eine Kauf-Order mit diesem Limit wird erst ausgeführt, wenn der Kurs fällt`)));
+  }
+  if (!kauf.length) sig.append(el("div", { class: "leer" }, "Heute kein Kauf-Signal."));
+  const inhalt = [kacheln, el("div", { class: "live-raster" }, heute, pos, sig),
+    el("div", { class: "live-fuss" }, "Kurse von Yahoo, etwa 15 Minuten verzögert. Käufe und Verkäufe rechnet der Bot alle 15 Minuten neu – nach denselben Regeln wie am Morgen (Kauf zur Eröffnung bis zum Limit, Stop und Ziel). Endgültig bucht er sie beim nächsten Morgen-Lauf mit den Schlusskursen; fast immer ist das Ergebnis dasselbe. Bleibt die Seite offen, aktualisiert sie sich alle 5 Minuten.")];
+  const kopf = [el("span", { class: "live-kopf" }, el("span", { class: `punkt${L.boerse_offen ? " pulsiert" : ""}` }),
+    L.boerse_offen ? `Börse offen · Stand ${uhr} Uhr` : `Börse zu · letzte Kurse ${datum(L.kurse_vom)} · Stand ${uhr} Uhr`)];
+  return abschnitt("live", "Live", kopf, inhalt, { erkl: "live" });
+}
+// US-Börsenstart (9:30 Uhr New York) heute in deutscher Zeit – in den Wochen der Zeitumstellung eine Stunde früher
+function boersenstart() {
+  const jetzt = new Date();
+  const minuten = tz => {
+    const t = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .formatToParts(jetzt).map(x => [x.type, x.value]));
+    return +t.hour * 60 + +t.minute;
+  };
+  const m = 570 + ((minuten("Europe/Berlin") - minuten("America/New_York") + 1440) % 1440);
+  return `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
+const berlinTag = d => d.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
+function liveWartet(L) {
+  const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
+  const kopf = [el("span", { class: "live-kopf" }, el("span", { class: "punkt" }), `Live läuft · Stand ${uhr} Uhr`)];
+  return abschnitt("live", "Live", kopf, el("div", { class: "panel panel-innen live-wartet" },
+    el("b", {}, `Die US-Börse öffnet heute um ${boersenstart()} Uhr.`),
+    ` Ab dann rechnet der Bot hier alle 15 Minuten Käufe und Verkäufe neu. Bis dahin gelten die Schlusskurse vom ${datum(L.kurse_vom)}`), { erkl: "live" });
+}
+function liveZeigen(L) {
+  const alt = document.getElementById("live"), nav = document.getElementById("nav-live");
+  // Kopfzeile: „STAND hh:mm“ vom Morgen-Lauf oder „LIVE hh:mm“
+  const stand = document.getElementById("stand"), standBox = stand.parentElement;
+  if (!("morgen" in stand.dataset)) { stand.dataset.morgen = stand.textContent; standBox.dataset.titel = standBox.title; }
+  // ganz, wenn die Live-Kurse neuer sind als die Daten vom Morgen; vor dem Börsenstart (Live läuft ab 12 Uhr) nur ein Hinweis
+  const neuer = geladeneDaten && L && L.kurse_vom && L.kurse_vom > geladeneDaten.daten_bis;
+  const wartet = !neuer && geladeneDaten && L && L.kurse_vom && !L.boerse_offen && berlinTag(new Date(L.erstellt)) === berlinTag(new Date())
+    && L.kurse_vom >= geladeneDaten.daten_bis && new Date().getUTCDay() % 6 !== 0;
+  if (wartet) {
+    const knoten = liveWartet(L);
+    if (alt) alt.replaceWith(knoten);
+    else {
+      const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");
+      if (hinweis) hinweis.after(knoten); else main.prepend(knoten);
+    }
+    nav.hidden = false;
+    stand.textContent = stand.dataset.morgen;
+    standBox.title = standBox.dataset.titel;
+    return;
+  }
+  if (!neuer) {
+    if (alt) alt.remove();
+    nav.hidden = true;
+    stand.textContent = stand.dataset.morgen;
+    standBox.title = standBox.dataset.titel;
+    return;
+  }
+  const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
+  stand.textContent = `LIVE ${uhr}`;
+  standBox.title = `Live-Kurse von ${uhr} Uhr (etwa 15 Minuten verzögert) – Signale und Depot-Buchungen vom Morgen-Lauf`;
+  const neu = liveBauen(geladeneDaten, L);
+  if (alt) alt.replaceWith(neu);
+  else {
+    const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");
+    if (hinweis) hinweis.after(neu); else main.prepend(neu);
+  }
+  nav.hidden = false;
+}
+function liveLaden() {
+  fetch(`live.json?${Date.now()}`, { cache: "no-store" })
+    .then(r => (r.ok ? r.json() : null))
+    .then(liveZeigen)
+    .catch(() => liveZeigen(null));
+}
+
 let geladeneDaten = null;
 fetch(`daten.json?${Date.now()}`, { cache: "no-store" })
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(D => { geladeneDaten = D; aufbauen(D); })
+  .then(D => { geladeneDaten = D; aufbauen(D); liveLaden(); setInterval(liveLaden, 5 * 60e3); })
   .catch(fehler => {
     console.error(fehler);
     document.getElementById("inhalt").replaceChildren(el("div", { class: "fehlerseite" },
