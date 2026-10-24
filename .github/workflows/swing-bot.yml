@@ -152,4 +152,19 @@ jobs:
               --body "Hier schreibt der Bot nach jedem Lauf mit Kauf-Signal einen Kommentar. GitHub schickt dir dazu eine E-Mail und – mit der GitHub-App – eine Push-Nachricht aufs Handy. Keine Nachrichten mehr: rechts auf Unsubscribe klicken. Wird dieses Thema geschlossen, legt der Bot beim nächsten Signal ein neues an." \
               | grep -o '[0-9]*$')
           fi
+          # Dieselbe Nachricht nicht zweimal schicken: Ein von Hand gestarteter Lauf und der (oft Stunden verspätete)
+          # geplante Lauf haben meist dieselben Kurse. Verglichen wird mit dem letzten Kommentar des Bots; klappt das
+          # Lesen nicht, wird die Nachricht wie bisher geschickt.
+          anzahl=$(gh api "repos/$GITHUB_REPOSITORY/issues/$nummer" --jq '.comments' 2>/dev/null || echo 0)
+          seite=$(( (anzahl + 99) / 100 ))
+          letzte=""
+          if [ "$seite" -gt 0 ]; then
+            letzte=$(gh api "repos/$GITHUB_REPOSITORY/issues/$nummer/comments?per_page=100&page=$seite" \
+              --jq '[.[] | select(.user.login == "github-actions[bot]")] | last | .body // ""' 2>/dev/null || true)
+          fi
+          gleich() { tr -d '\r' | sed -e 's/[[:space:]]*$//'; }
+          if [ -n "$letzte" ] && [ "$(printf '%s' "$letzte" | gleich)" = "$(gleich < "$datei")" ]; then
+            echo "Gleiche Nachricht wie zuletzt – nicht noch einmal geschickt."
+            exit 0
+          fi
           gh issue comment "$nummer" --repo "$GITHUB_REPOSITORY" --body-file "$datei"

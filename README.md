@@ -78,7 +78,7 @@ Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--berich
 1. App **GitHub** (Android oder iPhone) installieren und mit deinem Konto anmelden.
 2. In der App (sie ist auf Englisch): **Profile → Zahnrad (Settings) → Notifications** → Push-Nachrichten einschalten und dort **Direct mentions** (direkte Erwähnungen) anhaken. In den Handy-Einstellungen Benachrichtigungen für die GitHub-App erlauben.
 3. E-Mails: im Browser **github.com/settings/notifications** → bei **Participating, @mentions and custom** „Email“ angehakt lassen (Standard). Keine E-Mails gewünscht: Haken weg, die Push-Nachricht kommt trotzdem.
-4. Fertig – der Bot erwähnt dich (@Benutzername) in jedem Kommentar, damit die Nachricht sicher ankommt.
+4. Fertig – der Bot erwähnt dich (@Benutzername) in jedem Kommentar, damit die Nachricht sicher ankommt. Läuft der Bot mehrmals mit denselben Kursen (z. B. von Hand gestartet und später noch der geplante Lauf), schickt er dieselbe Nachricht nicht ein zweites Mal.
 
 Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jeden Börsentag, weil 24 Aktien beobachtet werden; die Nachricht nennt die besten nach denselben Grenzen wie der Handelsplan im Bericht. Steht der Tab „Issues“ nicht im Repository, ist er ausgeschaltet: **Settings → General → Features → Issues** anhaken. Klappt das Senden einmal nicht, bleibt der Lauf trotzdem grün und Bericht, Papier-Depot und Gehirn werden normal gespeichert.
 
