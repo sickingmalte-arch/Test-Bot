@@ -92,7 +92,7 @@ Sie sagen, wie stark sich der Optionspreis ändert, wenn sich eine Größe ände
 - Zu sehen ist beides im Handelsplan (Bericht und Handy-Nachricht), auf der Übersichtsseite bei jedem Signal und in den Trade-Notizen. Auf [[Lehren]] prüft der Bot laufend an allen gedachten Trades, ob die Formel stimmt.
 - **Er kauft nicht danach.** Im Test über 16 Jahre half die Ziel-Chance weder beim Auswählen noch beim Aussteigen. Der Grund steht schon oben in Abschnitt 5: Das Modell kennt keine Richtung (μ fehlt), der Bot verdient aber gerade an Trends und Erholungen.
 - **Was es im Bot schon gibt:**
-  - Der **Stop-Loss** ist so etwas wie ein Protective Put – ohne Prämie, aber ohne Schutz bei Kurslücken.
+  - Der **Stop-Loss** ist so etwas wie ein Protective Put – ohne Prämie, aber ohne Schutz bei Kurslücken. Ihn während des Trades anzuheben (Absicherung), half im Test nicht: [[Notizen/Gelernt – Stop nachziehen und absichern]].
   - Stop und Ziel hängen an der **ATR**, also schon an der Schwankung der Aktie.
   - **Squeeze-Ausbruch** setzt wie ein Straddle darauf, dass nach einer ruhigen Phase eine große Bewegung kommt (nur nach oben).
   - Das Risiko nach dem **VIX** (implizite Volatilität) zu verkleinern, wurde getestet und nicht übernommen (README, „Geprüft und nicht übernommen“).

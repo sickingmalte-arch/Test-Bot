@@ -3336,7 +3336,8 @@ def trade_lehren(info, stand, einst):
         if gewinn_abgegeben(info):
             lehren.append(f"↩️ Lag zwischendurch schon bei {r_text(info['mfe'])} im Plus (mehr als der halbe Weg zum "
                           f"Ziel) und endete trotzdem bei "
-                          f"{ergebnis}. Der Bot zieht den Stop nicht nach – wie oft das vorkommt, zählt [[Lehren]].")
+                          f"{ergebnis}. Der Bot zieht den Stop nicht nach (im Test half das nicht, siehe "
+                          f"[[Notizen/Gelernt – Stop nachziehen und absichern]]) – wie oft das vorkommt, zählt [[Lehren]].")
         elif info["R"] > 0 and info["mae"] is not None and info["mae"] <= -0.7:
             lehren.append(f"😅 Knapp: Zwischendurch lag der Trade bei {r_text(info['mae'])} – fast wäre der Stop gefallen.")
     if info["strategie"] in stand:
@@ -3612,7 +3613,8 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         text += [f"- {kennzahl_text(papier_k)} · Summe {de(sum(i['gewinn'] for i in trades), 2, True)} {waehrung}",
                  f"- Gewinn wieder abgegeben (erst mehr als den halben Weg zum Ziel im Plus, am Ende im Minus): "
                  f"{len(abgegeben)} von "
-                 f"{len(trades)}" + (" – wird das häufig, wäre ein nachgezogener Stop eine Idee für später."
+                 f"{len(trades)}" + (" – wird das über viele Trades deutlich häufiger, lohnt ein neuer Test (bisher half ein nachgezogener Stop nicht, "
+                                     "siehe [[Notizen/Gelernt – Stop nachziehen und absichern]])."
                                      if len(trades) >= 10 and len(abgegeben) / len(trades) >= 0.2 else ""),
                  f"- Stop mit Kurslücke (größerer Verlust als geplant): {len(luecken)} von {len(trades)}",
                  f"- Zeitstopp (nach {ZEITSTOPP_TAGE} Tagen ohne Ziel und Stop): {len(zeit)} von {len(trades)}"]
