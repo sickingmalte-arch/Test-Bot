@@ -3945,10 +3945,13 @@ def auswerten(einst):
     for z in zeilen:
         z["News"] = news.get(z["Ticker"], {}).get("spalte", "")
 
-    # Sortieren: Einstiegssignale nach CRV (wie im Depot), dann Warten, Hinweise, Beobachten, Fehler
+    # Sortieren: Einstiegssignale nach CRV (wie im Depot), dann Warten, Hinweise, Beobachten, Fehler. Das CRV wird
+    # gerundet: Bei gleichem CRV (z. B. 1,0) entschieden sonst winzige Rechenreste die Reihenfolge, und ein zweiter Lauf
+    # mit denselben Kursen schickte dieselben Signale in anderer Reihenfolge noch einmal aufs Handy. So gilt bei
+    # Gleichstand die Reihenfolge der Watchlist.
     tabelle = pd.DataFrame(zeilen).reindex(columns=SPALTEN + ["_fehler"])
     tabelle["_prio"] = tabelle["Signal"].map(PRIORITAET)
-    tabelle["_crv"] = tabelle["CRV"].fillna(-1e9)
+    tabelle["_crv"] = tabelle["CRV"].round(2).fillna(-1e9)
     tabelle = tabelle.sort_values(["_prio", "_crv"], ascending=[True, False], kind="stable")
     reihenfolge = list(tabelle["Ticker"])
     tabelle = tabelle[SPALTEN].reset_index(drop=True)
