@@ -101,7 +101,7 @@ Keine Nachrichten mehr: im Thema rechts **Unsubscribe**. Signale kommen fast jed
 - **Depotkurve:** gegen den Nasdaq-100, mit Fadenkreuz und Rückgang vom Hoch
 - **Strategien:** mit Mini-Kurven und den letzten 10 Trades
 - offene Positionen zwischen Stop und Ziel und das Claude-Depot
-- **Nachrichten auf Deutsch:** Der Bot übersetzt die Schlagzeilen maschinell mit dem kostenlosen Dienst MyMemory, jede hat einen Link „Artikel lesen“. Die Artikel selbst sind meist englisch; Chrome übersetzt sie über das Menü ⋮ → **Übersetzen**. Klappt die Übersetzung einmal nicht (Tageslimit des Dienstes), steht die Schlagzeile englisch da. Die Nachrichten-Regel prüft immer das englische Original.
+- **Nachrichten auf Deutsch:** Der Bot übersetzt die Schlagzeilen maschinell mit dem kostenlosen Dienst MyMemory, jede hat einen Link „Artikel lesen“ und „Original“ (zeigt die englische Überschrift). Börsen-Ausdrücke, die der Dienst oft falsch versteht, schreibt der Bot vorher in einfaches Englisch um (z. B. „loads up on“ → „kauft viel“ statt „belastet“, „stock“ → „Aktie“ statt „Lager“, „guidance“ → „Prognose“ statt „Anleitung“). Die Artikel selbst sind meist englisch; Chrome übersetzt sie über das Menü ⋮ → **Übersetzen**. Klappt die Übersetzung einmal nicht (Tageslimit des Dienstes), steht die Schlagzeile englisch da. Die Nachrichten-Regel prüft immer das englische Original.
 - **Chat-Fenster:** Tipps und Fragen an Claude (siehe unten)
 - **Erklärungen:** Ein kleines (i) erklärt Fachwörter wie CRV, R pro Trade oder Pkt, wenn du draufdrückst. Am Handy sind lange Abschnitte (Strategien, Positionen, Claude-Depot, Nachrichten) anfangs zugeklappt; ein Tipp auf die Überschrift klappt sie auf.
 
