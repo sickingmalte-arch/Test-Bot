@@ -705,6 +705,16 @@ UEBERSETZER = "https://api.mymemory.translated.net/get"  # kostenlos, ohne Anmel
 # Börsen-Ausdrücke, die der kostenlose Übersetzer oft falsch versteht ("Loads Up On" wurde zu "belastet" statt "kauft
 # viel"): vor dem Übersetzen in einfaches Englisch umschreiben. Nur für die Anzeige – die Nachrichten-Regel liest das Original.
 _WERT = r"(?:\S+ ){0,3}(?:estimates|expectations|forecasts?|views|consensus)\b"
+
+def _mehrzahl_verb(verb):
+    """'jumps' -> 'jump' für 'Tesla shares jump': mit Verb in der Einzahl liest der Übersetzer 'shares' als 'teilt'."""
+    unregelmaessig = {"is": "are", "was": "were", "has": "have", "does": "do"}
+    if verb.lower() in unregelmaessig:
+        return unregelmaessig[verb.lower()]
+    if re.search(r"[^aeiou]ies$", verb):
+        return verb[:-3] + "y"
+    return verb[:-2] if re.search(r"(?:ss|sh|ch|x|z|o)es$", verb) else verb[:-1]
+
 KLARTEXT = [(re.compile(m, re.I), e) for m, e in (
     (r"\bloads up on\b", "buys a lot of"), (r"\bloaded up on\b", "bought a lot of"),
     (r"\bloading up on\b", "buying a lot of"), (r"\bload up on\b", "buy a lot of"),
@@ -731,8 +741,9 @@ KLARTEXT = [(re.compile(m, re.I), e) for m, e in (
     (r"\b(profit|earnings|revenue|sales) beat\b", r"better-than-expected \1"),
     # "stock" allein wurde zu "Lager": "Is X Stock a Buy?" -> "Is X a Buy?", "Tesla stock jumps" -> "Tesla shares jump"
     (r"\bstock (?=an? (?:buy|sell|bargain|steal)\b)", ""),
-    (r"\bstock (?!(?:options|futures|picks|prices|markets|exchanges|splits|buybacks)\b)(\w+s)\b",
-     lambda m: "shares " + (m.group(1)[:-2] if re.search(r"(?:ss|sh|ch|x|z|o)es$", m.group(1)) else m.group(1)[:-1])),
+    (r"\bstock (?!(?:as|us|plus|minus|versus|this|thus|news|analysis|basis|bonus|status|focus|crisis|losses|sales|"
+     r"prices|options|futures|picks|markets|exchanges|splits|buybacks|ratings|holdings|returns|investors|traders|"
+     r"analysts)\b)(\w+s)\b", lambda m: "shares " + _mehrzahl_verb(m.group(1))),
     (r"\bstock\b(?! (?:market|exchange|split|options?|buyback|index|futures|picks?|price)\b)", "shares"),
     (r"\beyes\b(?= (?:a |an |the )?\S+(?: \S+)? (?:merger|deal|takeover|acquisition|ipo|listing|sale|bid)\b)", "is considering"),
 )]
@@ -741,7 +752,7 @@ NACHBESSERN = [(re.compile(m), e) for m, e in (
     (r"\bPreisziel", "Kursziel"), (r"\bApfels?\b", "Apple"),
     (r"\bApfel([a-zäöüß])", lambda m: "Apple-" + m.group(1).upper()),  # "Apfelanteil" -> "Apple-Anteil"
     (r"\bMeta-Plattformen\b", "Meta Platforms"), (r"\bAst SpaceMobile\b", "AST SpaceMobile"),
-    (r"\bTurbo-?Steuer", "TurboTax"),
+    (r"\bTurbo-?Steuer", "TurboTax"), (r"\bHims & (?:ihre|ihr|ihren|ihrer)\b", "Hims & Hers"),
 )]
 
 def klartext(text):
