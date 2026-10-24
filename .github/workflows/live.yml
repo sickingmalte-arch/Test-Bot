@@ -1,0 +1,64 @@
+# Live-Kurse für die Übersichtsseite: während der US-Börsenzeit etwa alle 15 Minuten die aktuellen Kurse (bei Yahoo
+# etwa 15 Minuten verzögert) und die Werte von Übungs- und Claude-Depot. Nur zum Anschauen – Signale, Käufe und
+# Verkäufe rechnet weiter der Morgen-Lauf (swing-bot.yml) mit den Schlusskursen. Dieser Ablauf speichert nichts im
+# Repository: Er legt docs/live.json nur in die veröffentlichte Seite (daher keine Commits und nichts Neues für
+# Obsidian).
+name: Live-Kurse
+
+on:
+  schedule:
+    # Mo–Fr 13:07 bis 21:52 UTC alle 15 Minuten: deckt den US-Handel ab (15:30–22:00 Uhr deutscher Zeit, in den
+    # Wochen der Zeitumstellung eine Stunde früher). GitHub startet geplante Läufe oft etwas später oder lässt bei
+    # viel Betrieb einzelne aus – dann kommt der nächste.
+    - cron: "7,22,37,52 13-21 * * 1-5"
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages # nie gleichzeitig mit dem Veröffentlichen nach dem Morgen-Lauf (uebersicht.yml)
+  cancel-in-progress: false
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.seite.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main # neuester Stand von Seite und Depots
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-bot.txt
+
+      - name: Pakete installieren
+        run: pip install -r requirements-bot.txt
+
+      - name: Live-Kurse holen
+        # Klappt das nicht (z. B. Yahoo nicht erreichbar), wird die Seite ohne Live-Kurse veröffentlicht – sie zeigt
+        # dann wie gewohnt den Stand vom Morgen.
+        continue-on-error: true
+        env:
+          TICKER: ${{ vars.TICKER }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -- --live docs/live.json --papier papier/papier_depot.json --claude-depot papier/claude_depot.json
+          if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
+          python swing_scanner.py "$@"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Seite veröffentlichen
+        id: seite
+        uses: actions/deploy-pages@v4

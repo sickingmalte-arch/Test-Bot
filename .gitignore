@@ -190,3 +190,6 @@ Thumbs.db
 
 # Zwischendateien beim Speichern (Papier-Depot, Gehirn)
 *.tmp
+
+# Live-Kurse (nur in der veröffentlichten Seite, nie im Repository)
+docs/live.json

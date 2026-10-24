@@ -11,10 +11,14 @@ on:
   schedule:
     # 6:47 UTC Di–Sa = 8:47 Uhr (Sommerzeit) bzw. 7:47 Uhr (Winterzeit) deutscher Zeit, jeweils für den
     # US-Handelstag davor. Nicht schon in der Nacht: Yahoo liefert die Tageskerze oft erst Stunden nach dem
-    # US-Schluss, dann wären alle Signale einen Tag alt. GitHub startet oft einige Minuten bis Stunden später –
-    # trotzdem vor dem US-Börsenstart um 15:30 Uhr.
+    # US-Schluss, dann wären alle Signale einen Tag alt. GitHub startet geplante Läufe oft Minuten bis Stunden
+    # später (am 23.10.2026 erst um 14:10 Uhr) – deshalb zwei Ersatz-Termine um 9:17 und 11:17 UTC, beide noch vor
+    # dem US-Börsenstart. Ein Ersatz-Termin rechnet nur, wenn es heute noch keinen vollständigen Bericht gibt
+    # (Job „pruefen“ unten); fehlten beim ersten Lauf noch Kurse, holt er sie nach.
     - cron: "47 6 * * 2-6"
-  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+    - cron: "17 9 * * 2-6"
+    - cron: "17 11 * * 2-6"
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions (rechnet immer)
 
 permissions:
   contents: write # Bericht und Papier-Depot zurück ins Repository schreiben
@@ -25,7 +29,36 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  pruefen:
+    # Schon erledigt? Gibt es einen Bericht von heute (deutsche Zeit) mit Signal-Tabelle, ohne Fehler (❌) und ohne
+    # die Warnung „Die Kurse vom … fehlen noch“, braucht ein geplanter Lauf nicht noch einmal zu rechnen. Von Hand
+    # gestartet rechnet er immer.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      fertig: ${{ steps.bericht.outputs.fertig }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+          sparse-checkout: bericht
+      - name: Bericht von heute vorhanden?
+        id: bericht
+        if: github.event_name == 'schedule'
+        run: |
+          heute=$(TZ=Europe/Berlin date '+%d.%m.%Y')
+          if [ -f bericht/README.md ] && grep -q "^Stand: .* $heute " bericht/README.md \
+              && grep -q "Daten bis" bericht/README.md && ! grep -q "^> ❌" bericht/README.md \
+              && ! grep -q "fehlen noch" bericht/README.md; then
+            echo "Heute ($heute) schon vollständig gelaufen – dieser Termin wird übersprungen."
+            echo "fertig=ja" >> "$GITHUB_OUTPUT"
+          else
+            echo "Noch kein vollständiger Bericht von heute ($heute) – der Bot rechnet."
+          fi
+
   scan:
+    needs: pruefen
+    if: needs.pruefen.outputs.fertig != 'ja'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

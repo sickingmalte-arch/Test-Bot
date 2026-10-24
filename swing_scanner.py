@@ -287,6 +287,9 @@ def lies_einstellungen():
                         "(holt der Workflow)")
     p.add_argument("--uebersicht", metavar="DATEI",
                    help="Daten für die Übersichtsseite (docs/index.html) als JSON in DATEI schreiben")
+    p.add_argument("--live", metavar="DATEI",
+                   help="nur Live-Kurse: aktuelle Kurse (etwa 15 Minuten verzögert) und Depotwerte von --papier und "
+                        "--claude-depot als JSON in DATEI schreiben – ohne Signale, ohne Buchungen, ändert keine Datei sonst")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--bericht", metavar="DATEI",
                    help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
@@ -3021,6 +3024,89 @@ def schreibe_uebersicht(datei, inhalt):
     os.replace(datei + ".tmp", datei)
 
 # ----------------------------------------------------------------------------
+# Live-Kurse für die Übersichtsseite (während der Börsenzeit, ohne Signale und ohne Buchungen)
+# ----------------------------------------------------------------------------
+def live_kurse(ticker_liste):
+    """Je Ticker der letzte Kurs (bei laufender Börse etwa 15 Minuten verzögert) und der Schluss davor."""
+    with YahooRuhig():
+        roh = yf.download(list(ticker_liste), period="5d", interval="1d", auto_adjust=True, group_by="ticker",
+                          progress=False, threads=True)
+    kurse = {}
+    for t in ticker_liste:
+        df = tabelle_fuer(roh, t)
+        if df is None or len(df) < 2:
+            continue
+        kurse[t] = {"kurs": float(df["Close"].iloc[-1]), "vortag": float(df["Close"].iloc[-2]),
+                    "tag": df.index[-1], "offen": kerze_noch_offen(df, t)}
+    return kurse
+
+def live_depot(stand, kurse, fx):
+    """Ein Papier-Depot zu Live-Kursen: Wert, Änderung seit dem letzten gebuchten Schluss, Positionen. Fehlt ein
+    Kurs, gibt es keinen Gesamtwert (nur die Positionen mit Kurs)."""
+    if not stand or not stand.get("bis"):
+        return None
+    positionen, summe, fehlt = [], 0.0, False
+    for p in stand["positionen"]:
+        k = kurse.get(p["ticker"])
+        rate = fx if waehrung_von(p["ticker"]) == "USD" else 1.0
+        if k is None or not rate:
+            fehlt = True
+            positionen.append({"ticker": p["ticker"], "kurs": None, "wert": None, "ergebnis": None, "heute": None,
+                               "lage": None})
+            continue
+        wert = positionswert(p, k["kurs"], rate)
+        summe += wert
+        positionen.append({
+            "ticker": p["ticker"], "kurs": json_zahl(k["kurs"] / rate), "wert": json_zahl(wert),
+            "ergebnis": json_zahl(wert - p["kosten"]), "heute": json_zahl((k["kurs"] / k["vortag"] - 1) * 100, 2),
+            "lage": json_zahl((k["kurs"] - p["stop"]) / (p["ziel"] - p["stop"]), 3) if p["ziel"] != p["stop"] else None})
+    wert = None if fehlt else stand["bargeld"] + summe
+    return {"bis": stand["bis"], "wert_schluss": json_zahl(stand["depotwert"]), "wert": json_zahl(wert),
+            "aenderung": json_zahl(wert - stand["depotwert"]) if wert is not None else None, "positionen": positionen}
+
+def live_daten(einst):
+    """Inhalt von docs/live.json. Liest Papier- und Claude-Depot nur, schreibt sie nie."""
+    staende = {}
+    for name, wert in (("papier", einst.papier), ("claude", einst.claude_depot)):
+        if wert:
+            pfad, _ = papier_pfad(wert)
+            staende[name] = lade_papier(pfad, False)[0] if pfad else None
+    ticker = list(dict.fromkeys(list(einst.ticker_liste) + [MARKT_TICKER, FX_TICKER]
+                                + [p["ticker"] for st in staende.values() if st for p in st["positionen"]]))
+    kurse = live_kurse(ticker)
+    fx = kurse.get(FX_TICKER, {}).get("kurs")
+    us = [k for t, k in kurse.items() if waehrung_von(t) == "USD" and not ist_krypto(t) and "=" not in t]
+    tage = [k["tag"] for k in us]
+    aktien = {}
+    for t in einst.ticker_liste:
+        k, rate = kurse.get(t), (fx if waehrung_von(t) == "USD" else 1.0)
+        if k and rate:
+            aktien[t] = {"kurs": json_zahl(k["kurs"] / rate), "heute": json_zahl((k["kurs"] / k["vortag"] - 1) * 100, 2)}
+    q = kurse.get(MARKT_TICKER)
+    return {
+        "version": 1, "erstellt": pd.Timestamp.now(tz=BERLIN).isoformat(timespec="seconds"),
+        "kurse_vom": iso(max(set(tage), key=tage.count)) if tage else None,
+        "boerse_offen": any(k["offen"] for k in us), "fx": json_zahl(fx, 4),
+        "nasdaq": {"heute": json_zahl((q["kurs"] / q["vortag"] - 1) * 100, 2)} if q else None,
+        "aktien": aktien,
+        **{name: live_depot(st, kurse, fx) for name, st in staende.items()},
+    }
+
+def schreibe_live(einst):
+    """--live: Live-Kurse holen und schreiben. Gibt die Daten zurück (None, wenn Yahoo nichts geliefert hat)."""
+    daten = live_daten(einst)
+    if not daten["aktien"] and not daten.get("papier"):
+        print("❌ Keine Live-Kurse von Yahoo – nichts geschrieben.")
+        return None
+    schreibe_uebersicht(einst.live, daten)
+    p = daten.get("papier")
+    print(f"📡 Live-Kurse gespeichert: {einst.live} · Kurse vom {daten['kurse_vom']}"
+          + (" (Börse offen)" if daten["boerse_offen"] else "")
+          + (f" · Übungsdepot {de(p['wert'])} € ({de(p['aenderung'], 2, True)} € seit dem Schluss am {p['bis']})"
+             if p and p["wert"] is not None else ""))
+    return daten
+
+# ----------------------------------------------------------------------------
 # Gehirn für Obsidian: Notizen, die der Bot bei jedem Lauf schreibt – und „Meine Regeln“, die er liest
 # ----------------------------------------------------------------------------
 GEHIRN_ANFANG = "%% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%"
@@ -4119,6 +4205,8 @@ def main():
             schreibe_bericht(datei, False)
         raise
     sys.stderr.write(fehlertext.getvalue())
+    if einst.live:  # nur Live-Kurse für die Übersichtsseite – kein Scanner, kein Bericht, keine Buchungen
+        return schreibe_live(einst)
     BERICHT_STATUS["papier"] = bool(einst.papier)
     ergebnis, absturz = None, True
     try:
