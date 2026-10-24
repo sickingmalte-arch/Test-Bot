@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=NOW)
 
-**Stand Do 22.10. 2026:** 🟢 KAUFEN – Ausbruch ↑ · Limit 142,48 · Stop 123,33 · Ziel 156,16 €
+**Stand Fr 23.10. 2026:** ⚠️ GEWINNE SICHERN – überhitzt – falls Long im Depot
 **Nächste Quartalszahlen:** Mi 28.10.
 
 ## Übungsdepot

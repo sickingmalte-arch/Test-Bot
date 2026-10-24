@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=LLY)
 
-**Stand Do 22.10. 2026:** 🟢 KAUFEN – ATR-Ausbruch ↑ · Limit 1.179,68 · Stop 1.063,50 · Ziel 1.262,67 €
+**Stand Fr 23.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 29.10.
 
 ## Übungsdepot

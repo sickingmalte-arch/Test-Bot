@@ -14,15 +14,15 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø +0,08 R · Treffer 63 % · ± Zufall 0,19 R
-- Ganze Geschichte: 153 Trades · Ø +0,23 R · Treffer 69 %
+- Ganze Geschichte: 151 Trades · Ø +0,22 R · Treffer 69 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
-- Ziel: 78× (51 %), Ø +0,75 R
+- Ziel: 76× (50 %), Ø +0,75 R
 - Zeitstopp: 24× (16 %), Ø +0,04 R
 - Stop: 21× (14 %), Ø -1,02 R
-- vor Quartalszahlen: 16× (10 %), Ø -0,10 R
+- vor Quartalszahlen: 16× (11 %), Ø -0,10 R
 - Ziel (Kurslücke): 8× (5 %), Ø +0,79 R
 - Stop (Kurslücke): 6× (4 %), Ø -1,27 R
 
@@ -33,8 +33,8 @@ tags:
 3. [[Aktien/MELI|MELI]]: 8 Trades · Ø +0,44 R · Treffer 75 %
 …
 17. [[Aktien/LLY|LLY]]: 5 Trades · Ø +0,01 R · Treffer 60 %
-18. [[Aktien/AMZN|AMZN]]: 10 Trades · Ø -0,12 R · Treffer 50 %
-19. [[Aktien/HIMS|HIMS]]: 6 Trades · Ø -0,25 R · Treffer 33 %
+18. [[Aktien/HIMS|HIMS]]: 6 Trades · Ø -0,25 R · Treffer 33 %
+19. [[Aktien/AMZN|AMZN]]: 8 Trades · Ø -0,34 R · Treffer 38 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 
 ### Lernverlauf (letzte 12 Monate)

@@ -4,22 +4,22 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Do 22.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Fr 23.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 > [!info] So funktioniert das Gehirn
 > - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, den **Wochenrückblick**, eine Notiz zu **jedem abgeschlossenen Trade** mit dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-10-22]] · Diese Woche: [[Wochen/2026-W43|Woche 43]]
+## Heute: [[Tage/2026-10-23]] · Diese Woche: [[Wochen/2026-W43|Woche 43]]
 
-- Signale: [[Aktien/NOW|NOW]] (🟢 KAUFEN), [[Aktien/MSFT|MSFT]] (🟢 KAUFEN), [[Aktien/AMD|AMD]] (🟢 KAUFEN), [[Aktien/PLTR|PLTR]] (🟢 KAUFEN), [[Aktien/LLY|LLY]] (🟢 KAUFEN)
-- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 21.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
+- Signale: [[Aktien/HIMS|HIMS]] (🟢 KAUFEN), [[Aktien/AMZN|AMZN]] (🟢 KAUFEN), [[Aktien/PLTR|PLTR]] (🟢 KAUFEN), [[Aktien/XOM|XOM]] (🟢 KAUFEN)
+- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Do 22.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
 
 ## Übungsdepot
 
-- 10.197,23 € (+2,0 % seit 2026-10-20) · 5 offen · noch keine Trades
-- Rückblick 12 Monate: +9,3 % (alle Aktien kaufen und halten: +3,2 %)
+- 10.110,11 € (+1,1 % seit 2026-10-20) · 5 offen · noch keine Trades
+- Rückblick 12 Monate: -5,4 % (alle Aktien kaufen und halten: +0,3 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
@@ -35,4 +35,8 @@ Stand: Kurse bis Do 22.10.2026 · Simulation mit Spielgeld, keine Anlageberatung
 ## Aktien
 
 [[Aktien/SE|SE]] · [[Aktien/HIMS|HIMS]] · [[Aktien/NOW|NOW]] · [[Aktien/INTU|INTU]] · [[Aktien/CRWV|CRWV]] · [[Aktien/NBIS|NBIS]] · [[Aktien/MELI|MELI]] · [[Aktien/IREN|IREN]] · [[Aktien/NFLX|NFLX]] · [[Aktien/AAPL|AAPL]] · [[Aktien/ASTS|ASTS]] · [[Aktien/SOFI|SOFI]] · [[Aktien/NVDA|NVDA]] · [[Aktien/MSFT|MSFT]] · [[Aktien/AMZN|AMZN]] · [[Aktien/META|META]] · [[Aktien/GOOGL|GOOGL]] · [[Aktien/TSLA|TSLA]] · [[Aktien/AMD|AMD]] · [[Aktien/PLTR|PLTR]] · [[Aktien/JPM|JPM]] · [[Aktien/LLY|LLY]] · [[Aktien/XOM|XOM]] · [[Aktien/COST|COST]]
+
+## Notizen
+
+[[Notizen/Gelernt aus dem Optionsskript|Gelernt aus dem Optionsskript]] · [[Notizen/Wissen – Optionen|Wissen – Optionen]]
 %% BOT-ENDE %%

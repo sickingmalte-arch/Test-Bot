@@ -10,7 +10,7 @@ Branche: Basiskonsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=COST)
 
-**Stand Do 22.10. 2026:** ⚠️ GEWINNE SICHERN – überhitzt – falls Long im Depot
+**Stand Fr 23.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 10.12.
 
 ## Übungsdepot
