@@ -702,9 +702,6 @@ def ereignisse(titel, ticker):
     return gefunden
 
 UEBERSETZER = "https://api.mymemory.translated.net/get"  # kostenlos, ohne Anmeldung bis 5000 Zeichen am Tag
-# Börsen-Ausdrücke, die der kostenlose Übersetzer oft falsch versteht ("Loads Up On" wurde zu "belastet" statt "kauft
-# viel"): vor dem Übersetzen in einfaches Englisch umschreiben. Nur für die Anzeige – die Nachrichten-Regel liest das Original.
-_WERT = r"(?:\S+ ){0,3}(?:estimates|expectations|forecasts?|views|consensus)\b"
 
 def _mehrzahl_verb(verb):
     """'jumps' -> 'jump' für 'Tesla shares jump': mit Verb in der Einzahl liest der Übersetzer 'shares' als 'teilt'."""
@@ -715,6 +712,9 @@ def _mehrzahl_verb(verb):
         return verb[:-3] + "y"
     return verb[:-2] if re.search(r"(?:ss|sh|ch|x|z|o)es$", verb) else verb[:-1]
 
+# Börsen-Ausdrücke, die der kostenlose Übersetzer oft falsch versteht ("Loads Up On" wurde zu "belastet" statt "kauft
+# viel"): vor dem Übersetzen in einfaches Englisch umschreiben. Nur für die Anzeige – die Nachrichten-Regel liest das Original.
+_WERT = r"(?:\S+ ){0,3}(?:estimates|expectations|forecasts?|views|consensus)\b"
 KLARTEXT = [(re.compile(m, re.I), e) for m, e in (
     (r"\bloads up on\b", "buys a lot of"), (r"\bloaded up on\b", "bought a lot of"),
     (r"\bloading up on\b", "buying a lot of"), (r"\bload up on\b", "buy a lot of"),
