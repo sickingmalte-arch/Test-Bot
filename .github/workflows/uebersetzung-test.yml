@@ -20,35 +20,29 @@ jobs:
           ART: ${{ matrix.art }}
         run: |
           cat > beispiele.txt <<'ENDE'
-          Sea Limited Stock Jumps After Shopee Profit Beat
-          Sea Limited (SE) Q3 Earnings: What To Expect
-          Is AST SpaceMobile Stock a Buy Now?
-          Apple stock hits record high as iPhone sales surge
-          Berkshire Trims Its Apple Stake Again
           Hims & Hers stock pops on new weight-loss drug
+          Hims & Hers Stock Falls After FDA Warning
+          Johnson & Johnson stock rises on strong drug sales
+          Is AST SpaceMobile Stock a Buy Now?
+          Is Nvidia Stock a Buy Before Earnings?
+          Should You Buy Palantir Stock Now?
           Tesla stock tanks after deliveries miss
-          Amazon Stock And Other Mega Cap Tech Names For The AI Infrastructure Reset
-          Palantir Slides After Earnings; Is The Bull Case Broken?
-          Earnings Season: What To Watch
-          CoreWeave Shares Tank After Microsoft Cuts Orders
-          Nebius Group Soars On New Nvidia Deal
-          ServiceNow Beats Q3 Estimates, Raises Guidance
-          Eli Lilly Cuts Price Of Weight-Loss Drug Zepbound
-          Exxon Mobil to Cut 2,000 Jobs Worldwide
-          Costco Same-Store Sales Rise 6% In September
-          Meta Platforms Faces EU Fine Over Data Use
-          Alphabet's Waymo Expands Robotaxi Service
-          JPMorgan Chase Beats Estimates As Trading Revenue Jumps
-          MercadoLibre Stock Falls On Margin Worries
-          Intuit Raises Annual Forecast On Strong TurboTax Demand
-          IREN Signs $9.7 Billion AI Cloud Deal With Microsoft
+          Apple stock hits record high as iPhone sales surge
+          Sea Limited Stock Jumps After Shopee Profit Beat
           SoFi Technologies Hikes Full-Year Outlook
-          Netflix Shares Slump After Revenue Forecast Misses
+          Fed Rate Hikes Weigh On Bank Stocks
+          Nebius Group Soars On New Nvidia Deal
+          Netflix stock soared after subscriber growth
+          Intuit Raises Annual Forecast On Strong TurboTax Demand
+          Meta Platforms Faces EU Fine Over Data Use
+          Cathie Wood-Led Ark Invest Sells PLTR, GOOG, SHOP Stocks — But Loads Up On PACB, FRNM And Other Biotech Firms
+          Berkshire Trims Its Apple Stake Again
+          Netflix Tops Estimates But Guidance Disappoints
+          Palantir Slides After Earnings; Is The Bull Case Broken?
           Microsoft Stock Market Value Tops $4 Trillion
-          AMD Downgraded to Neutral at Bank of America
-          Morgan Stanley Upgrades Nvidia To Overweight, Raises Price Target
-          Stock Market Today: Dow Falls As Oil Prices Rise
-          Nvidia Stock Split: What Investors Need To Know
+          Amazon Stock And Other Mega Cap Tech Names For The AI Infrastructure Reset
+          MercadoLibre Stock Price Target Raised At Goldman
+          CoreWeave Shares Tank After Microsoft Cuts Orders
           ENDE
           python3 - <<'ENDE'
           import html, json, os, re, time, urllib.parse, urllib.request

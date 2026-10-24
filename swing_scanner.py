@@ -726,14 +726,22 @@ KLARTEXT = [(re.compile(m, re.I), e) for m, e in (
     (r"\bpops\b", "jumps"), (r"\bpopped\b", "jumped"),
     (r"\bbull case\b", "optimistic scenario"), (r"\bbear case\b", "pessimistic scenario"),
     (r"\bbullish\b", "optimistic"), (r"\bbearish\b", "pessimistic"),
-    # "stock" allein wurde zu "Lager": "Tesla stock" -> "Tesla shares" (Aktien); "stock market" usw. bleiben
-    (r"\bstock\b(?! (?:market|exchange|split|options?|buyback|index|futures|picks?)\b)", "shares"),
+    (r"(?<!rate )(?<!price )(?<!tax )(?<!tariff )\bhikes\b", "raises"), (r"\bhiked\b", "raised"),
+    (r"\bsoars\b", "rises sharply"), (r"\bsoared\b", "rose sharply"), (r"\bsoaring\b", "rising sharply"),
+    (r"\b(profit|earnings|revenue|sales) beat\b", r"better-than-expected \1"),
+    # "stock" allein wurde zu "Lager": "Is X Stock a Buy?" -> "Is X a Buy?", "Tesla stock jumps" -> "Tesla shares jump"
+    (r"\bstock (?=an? (?:buy|sell|bargain|steal)\b)", ""),
+    (r"\bstock (?!(?:options|futures|picks|prices|markets|exchanges|splits|buybacks)\b)(\w+s)\b",
+     lambda m: "shares " + (m.group(1)[:-2] if re.search(r"(?:ss|sh|ch|x|z|o)es$", m.group(1)) else m.group(1)[:-1])),
+    (r"\bstock\b(?! (?:market|exchange|split|options?|buyback|index|futures|picks?|price)\b)", "shares"),
     (r"\beyes\b(?= (?:a |an |the )?\S+(?: \S+)? (?:merger|deal|takeover|acquisition|ipo|listing|sale|bid)\b)", "is considering"),
 )]
 # ... und danach im Deutschen nachbessern, was der Übersetzer falsch eindeutscht (Firmennamen, Börsenwörter)
 NACHBESSERN = [(re.compile(m), e) for m, e in (
     (r"\bPreisziel", "Kursziel"), (r"\bApfels?\b", "Apple"),
     (r"\bApfel([a-zäöüß])", lambda m: "Apple-" + m.group(1).upper()),  # "Apfelanteil" -> "Apple-Anteil"
+    (r"\bMeta-Plattformen\b", "Meta Platforms"), (r"\bAst SpaceMobile\b", "AST SpaceMobile"),
+    (r"\bTurbo-?Steuer", "TurboTax"),
 )]
 
 def klartext(text):
