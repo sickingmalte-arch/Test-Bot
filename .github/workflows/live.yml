@@ -8,10 +8,11 @@ name: Live-Kurse
 
 on:
   schedule:
-    # Mo–Fr 13:07 bis 21:52 UTC alle 15 Minuten: deckt den US-Handel ab (15:30–22:00 Uhr deutscher Zeit, in den
-    # Wochen der Zeitumstellung eine Stunde früher). GitHub startet geplante Läufe oft etwas später oder lässt bei
-    # viel Betrieb einzelne aus – dann kommt der nächste.
-    - cron: "7,22,37,52 13-21 * * 1-5"
+    # Mo–Fr von 12 bis 22 Uhr deutscher Zeit alle 15 Minuten (der US-Handel läuft 15:30–22:00 Uhr, in den Wochen der
+    # Zeitumstellung 14:30–21:00 Uhr). GitHub rechnet Zeitpläne in UTC: die Zeiten unten decken Sommer- und Winterzeit
+    # ab, der Job „zeit“ lässt nur 12:00–22:10 Uhr deutscher Zeit durch. GitHub startet geplante Läufe oft etwas
+    # später oder lässt bei viel Betrieb einzelne aus – dann kommt der nächste.
+    - cron: "7,22,37,52 10-21 * * 1-5"
   workflow_dispatch: # Knopf "Run workflow" im Tab Actions
 
 permissions:
@@ -25,7 +26,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  zeit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      los: ${{ steps.uhr.outputs.los }}
+    steps:
+      - name: Zwischen 12 und 22 Uhr deutscher Zeit?
+        id: uhr
+        run: |
+          uhr=$(TZ=Europe/Berlin date '+%H%M')
+          if [ "$GITHUB_EVENT_NAME" != "schedule" ] || { [ "$uhr" -ge 1200 ] && [ "$uhr" -le 2210 ]; }; then
+            echo "los=ja" >> "$GITHUB_OUTPUT"
+          else
+            echo "$(TZ=Europe/Berlin date '+%H:%M') Uhr deutscher Zeit – Live läuft nur von 12 bis 22 Uhr."
+          fi
+
   live:
+    needs: zeit
+    if: needs.zeit.outputs.los == 'ja'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:

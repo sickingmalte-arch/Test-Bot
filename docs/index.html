@@ -259,6 +259,8 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .live-zeile .status.warnung { color: var(--warnung); }
 .live-zeile .status.gut { color: var(--gut-text); }
 .neu-heute { font: 600 10px/1 var(--mono); color: var(--s1); letter-spacing: .06em; }
+.live-wartet { font-size: 13.5px; color: var(--text-2); line-height: 1.5; }
+.live-wartet b { color: var(--text); }
 .live-kopf { display: inline-flex; align-items: center; gap: 8px; }
 .live-kopf .punkt { display: inline-block; width: 7px; height: 7px; }
 .punkt.pulsiert { background: var(--gut); box-shadow: 0 0 6px var(--gut); animation: blinken 2s ease-in-out infinite; }
@@ -931,7 +933,7 @@ const ERKLAERUNG = {
   zahlen: ["Quartalszahlen", "An diesem Tag legt die Firma ihre Zahlen vor. Der Kurs kann dann stark springen – nach oben wie nach unten. Der Bot verkauft deshalb spätestens kurz vor den Zahlen. Rot heißt: weniger als 7 Tage. Dann bleibt einem neuen Trade nur wenig Zeit bis zum Ziel."],
   fazit: ["Ergebnis", "So viel mehr (oder weniger) war das Übungsdepot zum Schluss wert als vorher – mit den noch offenen Positionen zum Schlusskurs (Buchgewinn oder -verlust) und nach Gebühren. „Woher kam das Ergebnis?“ zeigt den Anteil jeder Aktie, zusammen ergeben sie das Ergebnis. Umsatz: Wert aller Käufe und Verkäufe im Zeitraum."],
   chance: ["Ziel-Chance nach Black-Scholes", CHANCE_TEXT],
-  live: ["Live", "Während die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
+  live: ["Live", "Mo–Fr von 12 bis 22 Uhr läuft Live: Sobald die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit, in den Wochen der Zeitumstellung 14:30–21:00 Uhr), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
 const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
@@ -2012,13 +2014,47 @@ function liveBauen(D, L) {
     L.boerse_offen ? `Börse offen · Stand ${uhr} Uhr` : `Börse zu · letzte Kurse ${datum(L.kurse_vom)} · Stand ${uhr} Uhr`)];
   return abschnitt("live", "Live", kopf, inhalt, { erkl: "live" });
 }
+// US-Börsenstart (9:30 Uhr New York) heute in deutscher Zeit – in den Wochen der Zeitumstellung eine Stunde früher
+function boersenstart() {
+  const jetzt = new Date();
+  const minuten = tz => {
+    const t = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .formatToParts(jetzt).map(x => [x.type, x.value]));
+    return +t.hour * 60 + +t.minute;
+  };
+  const m = 570 + ((minuten("Europe/Berlin") - minuten("America/New_York") + 1440) % 1440);
+  return `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
+const berlinTag = d => d.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
+function liveWartet(L) {
+  const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
+  const kopf = [el("span", { class: "live-kopf" }, el("span", { class: "punkt" }), `Live läuft · Stand ${uhr} Uhr`)];
+  return abschnitt("live", "Live", kopf, el("div", { class: "panel panel-innen live-wartet" },
+    el("b", {}, `Die US-Börse öffnet heute um ${boersenstart()} Uhr.`),
+    ` Ab dann rechnet der Bot hier alle 15 Minuten Käufe und Verkäufe neu. Bis dahin gelten die Schlusskurse vom ${datum(L.kurse_vom)}`), { erkl: "live" });
+}
 function liveZeigen(L) {
   const alt = document.getElementById("live"), nav = document.getElementById("nav-live");
   // Kopfzeile: „STAND hh:mm“ vom Morgen-Lauf oder „LIVE hh:mm“
   const stand = document.getElementById("stand"), standBox = stand.parentElement;
   if (!("morgen" in stand.dataset)) { stand.dataset.morgen = stand.textContent; standBox.dataset.titel = standBox.title; }
-  // nur, wenn die Live-Kurse neuer sind als die Daten vom Morgen (sonst zeigt die Seite ohnehin den letzten Schluss)
-  if (!geladeneDaten || !L || !L.kurse_vom || !(L.kurse_vom > geladeneDaten.daten_bis)) {
+  // ganz, wenn die Live-Kurse neuer sind als die Daten vom Morgen; vor dem Börsenstart (Live läuft ab 12 Uhr) nur ein Hinweis
+  const neuer = geladeneDaten && L && L.kurse_vom && L.kurse_vom > geladeneDaten.daten_bis;
+  const wartet = !neuer && geladeneDaten && L && L.kurse_vom && !L.boerse_offen && berlinTag(new Date(L.erstellt)) === berlinTag(new Date())
+    && L.kurse_vom >= geladeneDaten.daten_bis && new Date().getUTCDay() % 6 !== 0;
+  if (wartet) {
+    const knoten = liveWartet(L);
+    if (alt) alt.replaceWith(knoten);
+    else {
+      const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");
+      if (hinweis) hinweis.after(knoten); else main.prepend(knoten);
+    }
+    nav.hidden = false;
+    stand.textContent = stand.dataset.morgen;
+    standBox.title = standBox.dataset.titel;
+    return;
+  }
+  if (!neuer) {
     if (alt) alt.remove();
     nav.hidden = true;
     stand.textContent = stand.dataset.morgen;
