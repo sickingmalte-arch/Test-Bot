@@ -702,6 +702,40 @@ def ereignisse(titel, ticker):
     return gefunden
 
 UEBERSETZER = "https://api.mymemory.translated.net/get"  # kostenlos, ohne Anmeldung bis 5000 Zeichen am Tag
+# Börsen-Ausdrücke, die der kostenlose Übersetzer oft falsch versteht ("Loads Up On" wurde zu "belastet" statt "kauft
+# viel"): vor dem Übersetzen in einfaches Englisch umschreiben. Nur für die Anzeige – die Nachrichten-Regel liest das Original.
+_WERT = r"(?:\S+ ){0,3}(?:estimates|expectations|forecasts?|views|consensus)\b"
+KLARTEXT = [(re.compile(m, re.I), e) for m, e in (
+    (r"\bloads up on\b", "buys a lot of"), (r"\bloaded up on\b", "bought a lot of"),
+    (r"\bloading up on\b", "buying a lot of"), (r"\bload up on\b", "buy a lot of"),
+    (r"\btrims\b(?= (?:its |his |her |their |a )?(?:\S+ )?(?:stake|position|holding))", "reduces"),
+    (r"\btrimmed\b(?= (?:its |his |her |their |a )?(?:\S+ )?(?:stake|position|holding))", "reduced"),
+    (r"\b(?:beats|tops)\b(?= " + _WERT + ")", "exceeds"), (r"\b(?:topped)\b(?= " + _WERT + ")", "exceeded"),
+    (r"\bmisses\b(?= " + _WERT + ")", "falls short of"), (r"\bmissed\b(?= " + _WERT + ")", "fell short of"),
+    (r"\bguidance\b", "forecast"),
+    (r"\bearnings season\b", "reporting season"), (r"\bearnings report\b", "quarterly report"),
+    (r"\bearnings call\b", "conference call on the quarterly results"),
+    (r"\b(reports?|reported|reporting|ahead of|before|after) earnings\b", r"\1 quarterly results"),
+    (r"\b([\w.]+)-worried (investors|traders|markets?|buyers)\b", r"\2 worried about \1"),
+    (r"(?<!think )(?<!oil )(?<!storage )(?<!fuel )\btanks\b", "falls sharply"),
+    (r"(?<!think )(?<!oil )(?<!storage )(?<!fuel )\btanked\b", "fell sharply"), (r"\btanking\b", "falling sharply"),
+    (r"\b(shares|stocks) tank\b", r"\1 fall sharply"),
+    (r"\bcraters\b", "falls sharply"), (r"\bcratered\b", "fell sharply"),
+    (r"\bslides\b", "falls"), (r"\bslid\b", "fell"), (r"\bsheds\b", "loses"),
+    (r"\bpops\b", "jumps"), (r"\bpopped\b", "jumped"),
+    (r"\bbull case\b", "optimistic case"), (r"\bbear case\b", "pessimistic case"),
+    (r"\bbullish\b", "optimistic"), (r"\bbearish\b", "pessimistic"),
+    (r"\bupgrades\b(?= (?!(?:and|or|for|from|to|in)\b)\S)", "raises its rating on"), (r"\bupgraded\b", "rated higher"),
+    (r"\bdowngrades\b(?= (?!(?:and|or|for|from|to|in)\b)\S)", "lowers its rating on"), (r"\bdowngraded\b", "rated lower"),
+    (r"\beyes\b(?= (?:a |an |the )?\S+(?: \S+)? (?:merger|deal|takeover|acquisition|ipo|listing|sale|bid)\b)", "is considering"),
+)]
+NACHBESSERN = [(re.compile(m), e) for m, e in ((r"\bPreisziel", "Kursziel"),)]
+
+def klartext(text):
+    """Schlagzeile für den Übersetzer: Börsen-Ausdrücke aus KLARTEXT in einfaches Englisch umschreiben."""
+    for muster, ersatz in KLARTEXT:
+        text = muster.sub(ersatz, text)
+    return text
 
 def auf_deutsch(texte, zeitlimit=40):
     """Englische Schlagzeilen maschinell ins Deutsche übersetzen (für die Übersichtsseite).
@@ -712,7 +746,7 @@ def auf_deutsch(texte, zeitlimit=40):
         if time.monotonic() - start > zeitlimit:
             break
         try:
-            anfrage = urllib.request.Request(UEBERSETZER + "?" + urllib.parse.urlencode({"q": text[:450], "langpair": "en|de"}),
+            anfrage = urllib.request.Request(UEBERSETZER + "?" + urllib.parse.urlencode({"q": klartext(text)[:450], "langpair": "en|de"}),
                                              headers={"User-Agent": "Swing-Bot (GitHub Actions)"})
             with urllib.request.urlopen(anfrage, timeout=10) as antwort:
                 d = json.loads(antwort.read().decode("utf-8"))
@@ -723,7 +757,10 @@ def auf_deutsch(texte, zeitlimit=40):
         deutsch = str(d["responseData"].get("translatedText") or "").strip()
         if str(d.get("responseStatus")) != "200" or d.get("quotaFinished") or not deutsch or "MYMEMORY WARNING" in deutsch.upper():
             break
-        fertig[text] = html.unescape(deutsch)
+        deutsch = html.unescape(deutsch)
+        for muster, ersatz in NACHBESSERN:
+            deutsch = muster.sub(ersatz, deutsch)
+        fertig[text] = deutsch
     return fertig
 
 def werte_news(zusatz, kurstag, scanner_zeilen):

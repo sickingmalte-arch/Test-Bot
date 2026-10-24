@@ -1,0 +1,56 @@
+# NUR ZUM TEST (wird wieder gelöscht): Schlagzeilen mit und ohne Umschreiben übersetzen lassen
+name: Uebersetzung-Test
+on:
+  push:
+    branches: [claude/new-session-hbq1tg]
+    paths: [.github/workflows/uebersetzung-test.yml]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        art: [vorher, nachher]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Übersetzen
+        env:
+          ART: ${{ matrix.art }}
+        run: |
+          cat > beispiele.txt <<'ENDE'
+          Cathie Wood-Led Ark Invest Sells PLTR, GOOG, SHOP Stocks — But Loads Up On PACB, FRNM And Other Biotech Firms
+          3 Key Things to Monitor When Tech Giants Report Earnings
+          Apple's new hardware push is meeting AI-worried investors at the right moment
+          Elon Musk Eyes SpaceX-Tesla Merger, Huang Pitches ‘Financeable’ Chips, Zuckerberg Wants More Compute: Mag 7 Voices This Week
+          3 Oil Stocks With Earnings Growth Over 5%
+          Netflix Tops Estimates But Guidance Disappoints
+          Intel Misses Third-Quarter Revenue Estimates, Shares Tank
+          Tesla stock tanks after deliveries miss
+          Oil tanks are full as crude prices fall
+          Think tanks warn about AI regulation
+          Morgan Stanley Upgrades Nvidia To Overweight, Raises Price Target
+          AMD Downgraded to Neutral at Bank of America
+          Analyst Upgrades And Downgrades For Tuesday
+          Palantir Slides After Earnings; Is The Bull Case Broken?
+          Berkshire Trims Its Apple Stake Again
+          Hims & Hers stock pops on new weight-loss drug
+          Billionaire Loaded Up on Nvidia Ahead Of Earnings
+          SoFi Sheds 8% As Bearish Bets Rise
+          Earnings Season: What To Watch
+          ENDE
+          python3 - <<'ENDE'
+          import html, json, os, re, time, urllib.parse, urllib.request
+          src = open("swing_scanner.py", encoding="utf-8").read()
+          ns = {"re": re, "html": html, "json": json, "time": time, "urllib": urllib}
+          exec(src[src.index("UEBERSETZER ="):src.index("def werte_news")], ns)
+          if os.environ["ART"] == "vorher":
+              ns["klartext"] = lambda t: t
+              ns["NACHBESSERN"].clear()
+          texte = [z.strip() for z in open("beispiele.txt", encoding="utf-8") if z.strip()]
+          d = ns["auf_deutsch"](texte, zeitlimit=120)
+          for t in texte:
+              print(t)
+              print("   ->", d.get(t, "(nicht übersetzt)"))
+          ENDE
