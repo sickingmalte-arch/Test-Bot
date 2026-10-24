@@ -716,6 +716,7 @@ KLARTEXT = [(re.compile(m, re.I), e) for m, e in (
     (r"\bearnings season\b", "reporting season"), (r"\bearnings report\b", "quarterly report"),
     (r"\bearnings call\b", "conference call on the quarterly results"),
     (r"\b(reports?|reported|reporting|ahead of|before|after) earnings\b", r"\1 quarterly results"),
+    (r"\bearnings(?=\s*(?:[:;,!?]|$| preview\b))", "quarterly results"),
     (r"\b([\w.]+)-worried (investors|traders|markets?|buyers)\b", r"\2 worried about \1"),
     (r"(?<!think )(?<!oil )(?<!storage )(?<!fuel )\btanks\b", "falls sharply"),
     (r"(?<!think )(?<!oil )(?<!storage )(?<!fuel )\btanked\b", "fell sharply"), (r"\btanking\b", "falling sharply"),
@@ -723,19 +724,24 @@ KLARTEXT = [(re.compile(m, re.I), e) for m, e in (
     (r"\bcraters\b", "falls sharply"), (r"\bcratered\b", "fell sharply"),
     (r"\bslides\b", "falls"), (r"\bslid\b", "fell"), (r"\bsheds\b", "loses"),
     (r"\bpops\b", "jumps"), (r"\bpopped\b", "jumped"),
-    (r"\bbull case\b", "optimistic case"), (r"\bbear case\b", "pessimistic case"),
+    (r"\bbull case\b", "optimistic scenario"), (r"\bbear case\b", "pessimistic scenario"),
     (r"\bbullish\b", "optimistic"), (r"\bbearish\b", "pessimistic"),
-    (r"\bupgrades\b(?= (?!(?:and|or|for|from|to|in)\b)\S)", "raises its rating on"), (r"\bupgraded\b", "rated higher"),
-    (r"\bdowngrades\b(?= (?!(?:and|or|for|from|to|in)\b)\S)", "lowers its rating on"), (r"\bdowngraded\b", "rated lower"),
+    # "stock" allein wurde zu "Lager": "Tesla stock" -> "Tesla shares" (Aktien); "stock market" usw. bleiben
+    (r"\bstock\b(?! (?:market|exchange|split|options?|buyback|index|futures|picks?)\b)", "shares"),
     (r"\beyes\b(?= (?:a |an |the )?\S+(?: \S+)? (?:merger|deal|takeover|acquisition|ipo|listing|sale|bid)\b)", "is considering"),
 )]
-NACHBESSERN = [(re.compile(m), e) for m, e in ((r"\bPreisziel", "Kursziel"),)]
+# ... und danach im Deutschen nachbessern, was der Übersetzer falsch eindeutscht (Firmennamen, Börsenwörter)
+NACHBESSERN = [(re.compile(m), e) for m, e in (
+    (r"\bPreisziel", "Kursziel"), (r"\bApfels?\b", "Apple"),
+    (r"\bApfel([a-zäöüß])", lambda m: "Apple-" + m.group(1).upper()),  # "Apfelanteil" -> "Apple-Anteil"
+)]
 
 def klartext(text):
     """Schlagzeile für den Übersetzer: Börsen-Ausdrücke aus KLARTEXT in einfaches Englisch umschreiben."""
+    neu = text
     for muster, ersatz in KLARTEXT:
-        text = muster.sub(ersatz, text)
-    return text
+        neu = muster.sub(ersatz, neu)
+    return neu[:1].upper() + neu[1:] if text[:1].isupper() else neu
 
 def auf_deutsch(texte, zeitlimit=40):
     """Englische Schlagzeilen maschinell ins Deutsche übersetzen (für die Übersichtsseite).

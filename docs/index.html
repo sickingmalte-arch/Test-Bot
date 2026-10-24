@@ -289,6 +289,9 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .nachricht a.titel:hover { text-decoration: underline; }
 .nachricht .meta a { color: #6fb0ff; text-decoration: none; white-space: nowrap; }
 .nachricht .meta a:hover { text-decoration: underline; }
+.nachricht .original-knopf { font: inherit; color: #6fb0ff; background: none; border: 0; padding: 0; cursor: pointer; }
+.nachricht .original-knopf:hover { text-decoration: underline; }
+.nachricht .original { margin-top: 4px; color: var(--text-2); font-size: 12px; }
 .fuss { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--text-3); font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; }
 .fehlerseite { max-width: 520px; margin: 18vh auto; padding: 24px; text-align: center; color: var(--text-2); }
 
@@ -1671,13 +1674,19 @@ function aufbauen(D) {
     // Überschrift auf Deutsch (maschinell übersetzt), der Link führt zum Original-Artikel
     const link = /^https?:\/\//i.test(n.link || "") ? n.link : null;
     const titel = n.titel_de || n.titel;
+    // Übersetzt? Dann lässt sich die englische Original-Überschrift antippen (am Handy gibt es keinen Tooltip)
+    const original = n.titel_de ? el("div", { class: "original", lang: "en", hidden: true }, n.titel) : null;
+    const originalKnopf = original ? el("button", { type: "button", class: "original-knopf", "aria-expanded": "false",
+      onclick: e => { original.hidden = !original.hidden; e.currentTarget.setAttribute("aria-expanded", String(!original.hidden)); } }, "Original") : null;
     nach.append(el("div", { class: "nachricht" },
       el("div", { class: "t", style: "font-weight:700" }, n.ticker),
       el("div", {}, n.warnt ? el("span", { class: "schlecht", title: "spricht gegen das Signal" }, "⚠ ") : null,
         link ? el("a", { class: "titel", href: link, target: "_blank", rel: "noopener", title: n.titel_de ? `Original: ${n.titel}` : null }, titel)
           : el("span", { class: "titel", title: n.titel_de ? `Original: ${n.titel}` : null }, titel),
         el("div", { class: "meta" }, `${zeit} · ${n.quelle}${n.ereignisse.length ? " · " + n.ereignisse.join(", ") : ""}`,
-          link ? [" · ", el("a", { href: link, target: "_blank", rel: "noopener" }, "Artikel lesen ↗")] : null))));
+          link ? [" · ", el("a", { href: link, target: "_blank", rel: "noopener" }, "Artikel lesen ↗")] : null,
+          originalKnopf ? [" · ", originalKnopf] : null),
+        original)));
   }
   if (!D.schlagzeilen.length) nach.append(el("div", { class: "leer" }, "Keine Schlagzeilen zu Aktien mit Signal."));
   const uebersetzt = D.schlagzeilen.some(n => n.titel_de);
