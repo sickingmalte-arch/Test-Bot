@@ -1,6 +1,6 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Sa 24.10.2026 09:38 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Sa 24.10.2026 13:40 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
 ## 📈 SWING-SCANNER · Daten bis 23.10.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1204 $
 
@@ -10,8 +10,8 @@ Regel: höchstens 5 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | 🟢 KAUFEN | ATR-Ausbruch ↑ | 163,51 | 165,25 | 153,11 | 173,92 | 1,0 | 9 | 1.472 | 94 | Fr 30.10. |  |
 | [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | 🟢 KAUFEN | Rücksetzer ↑ | 175,60 | 179,23 | 153,83 | 197,37 | 1,0 | 4 | 702 | 87 | Mo 02.11. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | 🟢 KAUFEN | ATR-Ausbruch ↑ | 163,51 | 165,25 | 153,11 | 173,92 | 1,0 | 9 | 1.472 | 94 | Fr 30.10. |  |
 | [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | 🟢 KAUFEN | RSI-2-Rücksetzer ↑ | 24,73 | 25,55 | 20,65 | 28,00 | 0,8 | 24 | 594 | 98 | Mo 09.11. |  |
 | [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | 🟢 KAUFEN | RSI-2-Rücksetzer ↑ | 221,34 | 224,31 | 206,47 | 233,23 | 0,8 | 6 | 1.328 | 89 | Do 29.10. |  |
 | [META](https://www.tradingview.com/chart/?symbol=META) | ⏸ WARTEN | Zahlen gerade erst – Gegenbewegung riskant | 573,54 | – | – | – | – | – | – | – | Mi 27.01. |  |
@@ -35,21 +35,21 @@ Regel: höchstens 5 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 | [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.136,56 | – | – | – | – | – | – | – | Do 29.10. |  |
 | [COST](https://www.tradingview.com/chart/?symbol=COST) | BEOBACHTEN |  | 895,46 | – | – | – | – | – | – | – | Do 10.12. |  |
 
-🟢 1. XOM · ATR-Ausbruch ↑: Am Mo 26.10. ab 14:30 Uhr (US-Börsenstart) 9 Stück kaufen, Limit 165,25 € (höchster Kaufkurs). Sofort Stop 153,11 € setzen, Ziel 173,92 €. Greift der Stop, verlierst du ca. 94 € (bei Einstieg zum Limit bis 109 €, bei Kurslücken mehr). Spätestens Do 29.10. vor 21:00 Uhr verkaufen (Quartalszahlen Fr 30.10. vor Börsenbeginn). Ziel-Chance nach Black-Scholes: 22 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 43 % (nur Info – der Stop kann vorher kommen).  
-🟢 2. PLTR · Rücksetzer ↑: Am Mo 26.10. ab 14:30 Uhr (US-Börsenstart) 4 Stück kaufen, Limit 179,23 € (höchster Kaufkurs). Sofort Stop 153,83 € setzen, Ziel 197,37 €. Greift der Stop, verlierst du ca. 87 € (bei Einstieg zum Limit bis 102 €, bei Kurslücken mehr). Spätestens Fr 30.10. vor 21:00 Uhr verkaufen (Quartalszahlen Mo 02.11. während des Handels). Ziel-Chance nach Black-Scholes: 34 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen).  
+🟢 1. PLTR · Rücksetzer ↑: Am Mo 26.10. ab 14:30 Uhr (US-Börsenstart) 4 Stück kaufen, Limit 179,23 € (höchster Kaufkurs). Sofort Stop 153,83 € setzen, Ziel 197,37 €. Greift der Stop, verlierst du ca. 87 € (bei Einstieg zum Limit bis 102 €, bei Kurslücken mehr). Spätestens Fr 30.10. vor 21:00 Uhr verkaufen (Quartalszahlen Mo 02.11. während des Handels). Ziel-Chance nach Black-Scholes: 34 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen).  
+🟢 2. XOM · ATR-Ausbruch ↑: Am Mo 26.10. ab 14:30 Uhr (US-Börsenstart) 9 Stück kaufen, Limit 165,25 € (höchster Kaufkurs). Sofort Stop 153,11 € setzen, Ziel 173,92 €. Greift der Stop, verlierst du ca. 94 € (bei Einstieg zum Limit bis 109 €, bei Kurslücken mehr). Spätestens Do 29.10. vor 21:00 Uhr verkaufen (Quartalszahlen Fr 30.10. vor Börsenbeginn). Ziel-Chance nach Black-Scholes: 22 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 43 % (nur Info – der Stop kann vorher kommen).  
 🟢 3. HIMS · RSI-2-Rücksetzer ↑: Am Mo 26.10. ab 14:30 Uhr (US-Börsenstart) 24 Stück kaufen, Limit 25,55 € (höchster Kaufkurs). Sofort Stop 20,65 € setzen, Ziel 28,00 €. Greift der Stop, verlierst du ca. 98 € (bei Einstieg zum Limit bis 118 €, bei Kurslücken mehr). Spätestens Fr 06.11. vor 22:00 Uhr verkaufen (Quartalszahlen Mo 09.11. während des Handels). Ziel-Chance nach Black-Scholes: 45 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 48 % (nur Info – der Stop kann vorher kommen).  
 🟢 4. AMZN · RSI-2-Rücksetzer ↑: Am Mo 26.10. ab 14:30 Uhr (US-Börsenstart) 6 Stück kaufen, Limit 224,31 € (höchster Kaufkurs). Sofort Stop 206,47 € setzen, Ziel 233,23 €. Greift der Stop, verlierst du ca. 89 € (bei Einstieg zum Limit bis 107 €, bei Kurslücken mehr). Spätestens Do 29.10. vor 21:00 Uhr verkaufen (Quartalszahlen Do 29.10. nach Börsenschluss). Ziel-Chance nach Black-Scholes: 56 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 52 % (nur Info – der Stop kann vorher kommen).  
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
+PLTR: You Are Inheriting a Portfolio of Unwanted Investments. How to Fix It. (Barrons.com, 24.10. 11:00)  
+PLTR: What Will a $10,000 Investment in Palantir Be Worth by 2030? (Motley Fool, 24.10. 10:20)  
 XOM: 3 Oil Stocks With Earnings Growth Over 5% (Simply Wall St., 24.10. 09:11)  
 XOM: 3 Energy Stocks to Buy and Hold for the Next Decade, Starting With ExxonMobil (Motley Fool, 23.10. 23:35)  
-PLTR: Cathie Wood-Led Ark Invest Sells PLTR, GOOG, SHOP Stocks — But Loads Up On PACB, FRNM And Other Biotech Firms (Stocktwits, 24.10. 07:29)  
-PLTR: What Does Palantir Technologies (PLTR) Sovereign AI Push Mean For Investors? (Simply Wall St., 24.10. 05:17)  
 HIMS: Hims & Hers Health (HIMS) Debuts Injectable And Oral Testosterone Therapies (Simply Wall St., 24.10. 05:13)  
 HIMS: Hims & Hers Health, Inc. (HIMS) Declines More Than Market: Some Information for Investors (Zacks, 23.10. 22:45)  
-AMZN: Amazon Stock And Other Mega Cap Tech Names For The AI Infrastructure Reset (Simply Wall St., 24.10. 02:19)  
-AMZN: Review & Preview: The Dow’s Turn (Barrons.com, 24.10. 01:55)  
-META: What Could Berkshire Hathaway (BRK.B) Gain From An Early AI Funding Round? (Simply Wall St., 24.10. 04:15)  
-META: Elon Musk Eyes SpaceX-Tesla Merger, Huang Pitches ‘Financeable’ Chips, Zuckerberg Wants More Compute: Mag 7 Voices This Week (Stocktwits, 24.10. 02:07)  
+AMZN: 3 Key Things to Monitor When Tech Giants Report Earnings (Motley Fool, 24.10. 12:05)  
+AMZN: Billionaire Ken Griffin Says We May Be in a Bubble. Here’s What History Says Happens Next. (Motley Fool, 24.10. 11:30)  
+META: Apple's new hardware push is meeting AI-worried investors at the right moment (Yahoo Finance, 24.10. 12:00)  
+META: Billionaire Ken Griffin Says We May Be in a Bubble. Here’s What History Says Happens Next. (Motley Fool, 24.10. 11:30)  
 RSI-2-Rücksetzer ↑: RSI(2) unter 10 über der 200-Tage-Linie (kurzer Rücksetzer im langen Aufwärtstrend). Stop −2,5 ATR, Ziel +2 ATR – braucht etwa 56 % Treffer  
 Rücksetzer ↑: Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
 ATR-Ausbruch ↑: Schluss erstmals mehr als 2 ATR über der EMA 20 (Keltner-Kanal – Bewegung größer als das normale Schwanken), über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
@@ -81,7 +81,7 @@ Lernregel: Ab 20 Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr a
 
 Depotwert am 23.10.2026: 10.110,11 € (+1,1 %) · davon frei: 3.239,55 € · 5/5 Positionen, offenes Risiko 4,0 %  
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 9.825,55 € (-1,7 %)  
-Neu am 23.10.: nicht ausgeführt (Limit nicht erreicht, Kurslücke, kein Platz/Geld oder schon 2 aus derselben Branche im Depot): TSLA, PLTR, AMD, MSFT.  
+Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 23.10.2026).  
 Keine Käufe zur nächsten Eröffnung möglich: PLTR, XOM, AMZN – Depot voll, 5/5 Positionen. Verkauft wird erst nach der Eröffnung, deshalb verfallen diese Signale.  
 Gespeichert in: papier/papier\_depot.json im Repository (neu anfangen: die Datei im Repository löschen, die Historie bei GitHub behält den alten Stand). Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, 1,00 € Gebühr + 0,1 % Spread je Order.  
 
@@ -101,7 +101,7 @@ Seit Versuchsbeginn (22.10.2026, Stand 23.10.2026): Claude-Depot -0,9 % · Übun
 Zu den neuen Aufträgen (Signale vom Fr 23.10.) entscheidet Claude bis zur Eröffnung am Mo 26.10. – sonst gelten sie wie beim Übungsdepot.  
 Depotwert am 23.10.2026: 10.110,11 € (+1,1 %) · davon frei: 3.239,55 € · 5/5 Positionen, offenes Risiko 4,0 %  
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 9.825,55 € (-1,7 %)  
-Neu am 23.10.: nicht ausgeführt (Limit nicht erreicht, Kurslücke, kein Platz/Geld oder schon 2 aus derselben Branche im Depot): TSLA, PLTR, AMD, MSFT.  
+Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 23.10.2026).  
 Keine Käufe zur nächsten Eröffnung möglich: PLTR, XOM, AMZN – Depot voll, 5/5 Positionen. Verkauft wird erst nach der Eröffnung, deshalb verfallen diese Signale.  
 Gespeichert in: papier/claude\_depot.json im Repository (neu anfangen: die Datei im Repository löschen, die Historie bei GitHub behält den alten Stand). Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, 1,00 € Gebühr + 0,1 % Spread je Order.  
 
@@ -116,12 +116,12 @@ Gespeichert in: papier/claude\_depot.json im Repository (neu anfangen: die Datei
 
 ## 🤖 VIRTUELLES DEPOT · Der Bot handelt seit 24.10.2025 mit 10.000 € nach seinen eigenen Signalen
 
-Depotwert heute (mit Lernen): 9.455,45 € (-5,4 %) · davon frei: 6.042,27 € · 4/5 Positionen offen, offenes Risiko 3,4 %  
-Ohne Lernen: 9.444,39 € · Unterschied +11 € · Zufallsspanne ±1.346 € → Das liegt im Zufallsbereich – ob das Lernen hilft, lässt sich aus diesem Zeitraum nicht ablesen (das ist fast immer so).  
-Ohne Marktfilter: 9.689,12 € · Unterschied -234 € · Zufallsspanne ±1.160 € → im Zufallsbereich – in diesem Zeitraum kein klarer Unterschied.  
+Depotwert heute (mit Lernen): 9.446,57 € (-5,5 %) · davon frei: 6.033,39 € · 4/5 Positionen offen, offenes Risiko 3,4 %  
+Ohne Lernen: 9.616,96 € · Unterschied -170 € · Zufallsspanne ±1.327 € → Das liegt im Zufallsbereich – ob das Lernen hilft, lässt sich aus diesem Zeitraum nicht ablesen (das ist fast immer so).  
+Ohne Marktfilter: 9.520,55 € · Unterschied -74 € · Zufallsspanne ±942 € → im Zufallsbereich – in diesem Zeitraum kein klarer Unterschied.  
 Zum Vergleich – alle Ticker am 24.10. kaufen und halten: 10.033,68 € (+0,3 %)  
-Abgeschlossene Trades: 94 · Gewinner: 45 (48 %) · größter Rückgang des Depots: 9,0 % · höchstes gleichzeitiges Risiko: 4,7 % (5 Positionen)  
-Long: 94 Trades, 45 Gewinner, -562,78 € · Kosten: Gebühren 192,00 € + Spread ca. 166,09 €  
+Abgeschlossene Trades: 94 · Gewinner: 45 (48 %) · größter Rückgang des Depots: 9,4 % · höchstes gleichzeitiges Risiko: 4,7 % (5 Positionen)  
+Long: 94 Trades, 45 Gewinner, -571,65 € · Kosten: Gebühren 192,00 € + Spread ca. 167,36 €  
 
 | Ticker | Art | Strategie | Einstieg | Einstiegskurs | Ausstieg | Ausstiegskurs | Grund | Einsatz | Ergebnis | Ergebnis % |
 | --- | --- | --- | --- | ---: | --- | ---: | --- | ---: | ---: | ---: |
@@ -143,7 +143,7 @@ Long: 94 Trades, 45 Gewinner, -562,78 € · Kosten: Gebühren 192,00 € + Spre
 | [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | Long | Ausbruch ↑ | 05.08.26 | 140,61 | 01.09.26 | 154,71 | Zeitstopp | 563 | +54,40 | +9,7 |
 | [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | Long | MACD-Wende ↑ | 05.08.26 | 16,28 | 01.09.26 | 14,66 | Zeitstopp | 603 | -62,02 | -10,3 |
 | [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | Long | Ausbruch ↑ | 13.08.26 | 93,02 | 31.08.26 | 71,22 | Stop | 373 | -89,20 | -23,9 |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | Long | Ausbruch ↑ | 04.08.26 | 240,14 | 31.08.26 | 223,93 | Zeitstopp | 1.202 | -83,05 | -6,9 |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | Long | Ausbruch ↑ | 04.08.26 | 240,14 | 31.08.26 | 223,93 | Zeitstopp | 962 | -66,84 | -7,0 |
 | [COST](https://www.tradingview.com/chart/?symbol=COST) | Long | EMA-Kreuz ↑ | 30.07.26 | 833,68 | 26.08.26 | 818,15 | Zeitstopp | 1.668 | -33,06 | -2,0 |
 | [JPM](https://www.tradingview.com/chart/?symbol=JPM) | Long | MACD-Wende ↑ | 16.07.26 | 303,30 | 12.08.26 | 314,46 | Zeitstopp | 1.214 | +42,63 | +3,5 |
 | [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | Long | Ausbruch ↑ | 31.07.26 | 390,16 | 04.08.26 | 432,21 | Ziel | 781 | +82,10 | +10,5 |
