@@ -12,13 +12,20 @@ on:
     # 6:47 UTC Di–Sa = 8:47 Uhr (Sommerzeit) bzw. 7:47 Uhr (Winterzeit) deutscher Zeit, jeweils für den
     # US-Handelstag davor. Nicht schon in der Nacht: Yahoo liefert die Tageskerze oft erst Stunden nach dem
     # US-Schluss, dann wären alle Signale einen Tag alt. GitHub startet geplante Läufe oft Minuten bis Stunden
-    # später (am 23.10.2026 erst um 14:10 Uhr) – deshalb zwei Ersatz-Termine um 9:17 und 11:17 UTC, beide noch vor
-    # dem US-Börsenstart. Ein Ersatz-Termin rechnet nur, wenn es heute noch keinen vollständigen Bericht gibt
+    # später (am 23.10.2026 erst um 14:10 Uhr) oder gar nicht – deshalb zwei Ersatz-Termine um 9:17 und 11:17 UTC,
+    # beide noch vor dem US-Börsenstart. Außerdem stößt die Kette in live.yml um 6:47 UTC den Lauf an. Ein Ersatz-Termin rechnet nur, wenn es heute noch keinen vollständigen Bericht gibt
     # (Job „pruefen“ unten); fehlten beim ersten Lauf noch Kurse, holt er sie nach.
     - cron: "47 6 * * 2-6"
     - cron: "17 9 * * 2-6"
     - cron: "17 11 * * 2-6"
   workflow_dispatch: # Knopf "Run workflow" im Tab Actions (rechnet immer)
+    inputs:
+      automatisch:
+        # Die Kette in live.yml startet den Morgen-Lauf mit „ja“ – dann wird wie bei einem geplanten Termin geprüft,
+        # ob es heute schon einen vollständigen Bericht gibt.
+        description: "Nur intern (von live.yml gestartet) – bitte leer lassen"
+        required: false
+        default: ""
 
 permissions:
   contents: write # Bericht und Papier-Depot zurück ins Repository schreiben
@@ -31,8 +38,8 @@ concurrency:
 jobs:
   pruefen:
     # Schon erledigt? Gibt es einen Bericht von heute (deutsche Zeit) mit Signal-Tabelle, ohne Fehler (❌) und ohne
-    # die Warnung „Die Kurse vom … fehlen noch“, braucht ein geplanter Lauf nicht noch einmal zu rechnen. Von Hand
-    # gestartet rechnet er immer.
+    # die Warnung „Die Kurse vom … fehlen noch“, braucht ein geplanter (oder von live.yml angestoßener) Lauf nicht noch
+    # einmal zu rechnen. Von Hand gestartet rechnet er immer.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -44,7 +51,7 @@ jobs:
           sparse-checkout: bericht
       - name: Bericht von heute vorhanden?
         id: bericht
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || inputs.automatisch == 'ja'
         run: |
           heute=$(TZ=Europe/Berlin date '+%d.%m.%Y')
           if [ -f bericht/README.md ] && grep -q "^Stand: .* $heute " bericht/README.md \
