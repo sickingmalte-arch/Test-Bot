@@ -47,7 +47,7 @@ Das Poster zeigt noch viele weitere (Doji Star, Kicking, Tasuki Gap, Abandoned B
 
 - **Ausbrüche aus Seitwärtsphasen** handelt er schon lange: Strategien „Ausbruch“ (über das 20-Tage-Hoch mit viel Volumen), „Squeeze-Ausbruch“ (nach einer ruhigen Phase) und „ATR-Ausbruch“. Das entspricht Rechteck, Wimpel und Dreieck auf dem Poster.
 - **Bei jedem Signal zeigt er die Kerzenmuster** des Tages, bei Ausbrüchen und Doppelböden das **Musterziel**, und in der Trade-Notiz das Muster am Signaltag.
-- **Er kauft und verkauft nicht danach.** Als Bestätigung, Warnung, Vorrang oder als Ziel hat das im Test über 16 Jahre nicht geholfen. Die Selbstkontrolle auf [[Lehren]] zeigt laufend, ob Signale mit Muster besser laufen.
+- **Er kauft und verkauft nicht danach.** Als Bestätigung, Warnung, Vorrang oder als Ziel hat das im Test über 16 Jahre nicht geholfen. Auch als eigene Strategien (Blatt „Chart Pattern“ von Finanzradar, Kauf und Short) waren die Chartmuster nicht besser. Die Selbstkontrolle auf [[Lehren]] zeigt laufend, ob Signale mit Muster besser laufen.
 
 ## Warum Muster weniger bringen, als das Poster verspricht
 

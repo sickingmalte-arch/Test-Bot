@@ -5,7 +5,7 @@ tags: [lernen, forschung]
 
 Stand: 27.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
-Diese Notiz ändert der Bot nie. Sie hält fest, was aus dem Poster „Candlestick Patterns & Chart Patterns“, den beiden Lehrbüchern und weiteren Ideen vom Oktober 2026 getestet wurde. So werden dieselben Ideen nicht noch einmal ungeprüft eingebaut. Zurück zur [[Start|Startseite]] · siehe auch [[Notizen/Wissen – Kerzen- und Chartmuster]], [[Notizen/Wissen – Traden lernen (Lehrbücher)]] und [[Lehren]].
+Diese Notiz ändert der Bot nie. Sie hält fest, was aus dem Poster „Candlestick Patterns & Chart Patterns“, dem Blatt „Chart Pattern“ von Finanzradar, den beiden Lehrbüchern und weiteren Ideen vom Oktober 2026 getestet wurde. So werden dieselben Ideen nicht noch einmal ungeprüft eingebaut. Zurück zur [[Start|Startseite]] · siehe auch [[Notizen/Wissen – Kerzen- und Chartmuster]], [[Notizen/Wissen – Traden lernen (Lehrbücher)]] und [[Lehren]].
 
 ## So wurde getestet
 
@@ -27,6 +27,42 @@ Diese Notiz ändert der Bot nie. Sie hält fest, was aus dem Poster „Candlesti
 
 - **Doppelboden allein:** 35–60 % Treffer. Das Ziel lag im Mittel 2- bis 2,5-mal so weit weg wie der Stop. Ergebnis je Trade von −0,14 bis +0,34 R, in 3 von 6 Fällen im Minus.
 - **Variables Ziel bei Ausbrüchen:** Das kam am nächsten heran. 2015–2021 mit den 60 anderen Aktien waren es aber −1,9 Punkte, deshalb nicht übernommen.
+
+## Finanzradar-Blatt: Chartmuster als eigene Strategien
+
+Das Blatt zeigt 20 Chartmuster mit Einstieg, Stop und Ziel: rechts die Muster zum Kaufen, links die gespiegelten Muster für Shorts. Getestet wurden 8 Mustergruppen in beide Richtungen: Doppel-, Dreifachboden, Kopf-Schulter, Rechteck, Dreieck, Flagge, Keil und Tasse. Gekauft wird am Tag des Ausbruchs, das Ziel ist die Höhe des Musters.
+
+- **Stop vom Blatt (1 ATR hinter der Ausbruchslinie):** Er ist zu eng und wird oft ausgelöst. Flagge, Tasse, Dreieck und Rechteck waren damit schlechter.
+- **Stop wie beim Bot (3 ATR vom Schlusskurs):** Damit sind die Muster zum Kaufen leicht im Plus, aber nicht besser als die Strategien, die der Bot schon hat.
+
+| Muster zum Kaufen (Stop wie beim Bot) | im Plus | Ø Ergebnis je Trade |
+| --- | --- | --- |
+| Flagge/Wimpel | 6 von 6 | +0,14 R |
+| Dreieck | 6 von 6 | +0,10 R |
+| Keil | 6 von 6 | +0,09 R |
+| Dreifachboden | 5 von 6 | +0,11 R |
+| Rechteck (nur 43 Trades in 16 Jahren) | 5 von 6 | +0,18 R |
+| Tasse/Rounding Bottom | 5 von 6 | +0,13 R |
+| Doppelboden | 3 von 6 | +0,01 R |
+| umgekehrte Kopf-Schulter | 3 von 6 | +0,07 R |
+
+**Shorts mit der linken Seite:** Alle 8 Short-Muster verlieren im Schnitt.
+- Mit Marktfilter sind sie in 0 bis 2 von 6 Fällen im Plus, im Schnitt −0,06 bis −0,34 R je Trade.
+- Ohne Marktfilter sind sie ebenfalls im Minus. Nur das fallende Rechteck lag in 3 von 6 Fällen im Plus, aber mit nur 20 Trades in 16 Jahren.
+
+**Im Übungsdepot:**
+
+| Idee | Rendite besser | Ø Rendite pro Jahr | Trefferquote | größter Rückgang größer |
+| --- | --- | --- | --- | --- |
+| alle 8 Muster zum Kaufen als neue Strategien | 2 von 6 | −0,1 Punkte (−2,2 bis +1,9) | +0,3 Punkte | 3 von 6 |
+| nur die 6 Muster, die 2015–2021 gut waren | 2 von 6 | −0,5 (−2,7 bis +1,9) | +0,2 | 2 von 6 |
+| alle 8 mit dem engen Stop vom Blatt | 3 von 6 | +0,2 (−1,8 bis +1,6) | −1,2 | 3 von 6 |
+| Mitsprechen als Bestätigung: alte Strategien kaufen nur, wenn in den letzten 10 Tagen ein Muster ausbrach | 1 von 6 | −4,1 (−9,3 bis +0,6) | +0,6 | 3 von 6 |
+| Mitsprechen als Vorrang: Signale mit Muster zuerst kaufen | 2 von 6 | −0,3 (−1,2 bis +0,5) | +0,1 | 0 von 6 |
+
+**Warum es nichts bringt:**
+- Der Bot hat schon genug gute Signale. Die Grenze ist das Risiko pro Trade, nicht die Zahl der Signale. Neue Muster verdrängen nur andere, ähnlich gute Käufe.
+- Als Bestätigung lassen die Muster rund 40 % der Käufe weg, auch viele gute.
 
 ## Lehrbücher
 
