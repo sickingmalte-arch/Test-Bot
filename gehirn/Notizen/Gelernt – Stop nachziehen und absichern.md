@@ -3,9 +3,9 @@ tags: [lernen, forschung]
 ---
 # 🛡️ Gelernt: Stop nachziehen und absichern
 
-Stand: 24.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 26.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
-Diese Notiz ändert der Bot nie. Sie hält fest, welche Arten von Absicherung getestet wurden, bei denen der Stop-Loss während des Trades angehoben wird – damit dieselben Ideen nicht noch einmal ungeprüft eingebaut werden. Zurück zur [[Start|Startseite]] · siehe auch [[Lehren]] und [[Notizen/Gelernt aus dem Optionsskript]].
+Diese Notiz ändert der Bot nie. Sie hält fest, welche Arten von Absicherung getestet wurden, bei denen der Stop-Loss während des Trades angehoben oder früher verkauft wird – damit dieselben Ideen nicht noch einmal ungeprüft eingebaut werden. Zurück zur [[Start|Startseite]] · siehe auch [[Lehren]] und [[Notizen/Gelernt aus dem Optionsskript]].
 
 ## Wie der Bot es heute macht
 
@@ -28,6 +28,26 @@ Schon früher getestet (siehe README unter „Geprüft und nicht übernommen“)
 - **Halb verkaufen am Ziel, Rest laufen lassen:** Stop der zweiten Hälfte erst auf den Einstand, dann 3 ATR unter dem höchsten Schluss. Rendite nur in 1 von 6 Fällen besser, im Schnitt −1,2 Prozentpunkte. Die zweite Hälfte blockierte einen der 5 Plätze.
 
 Ergebnis: **Keine der sechs Arten wurde übernommen.** Stop und Ziel bleiben fest.
+
+## Gewinne sichern, wenn die Aktie überhitzt ist
+
+Der Bot zeigt bei manchen Aktien „⚠️ ÜBERHITZT“ (früher „Gewinne sichern“): Der RSI liegt über 70, oder der Kurs steht am oberen Bollinger-Band. Getestet wurde im Oktober 2026, ob das Übungsdepot dann verkaufen sollte. Verkauft wird zur nächsten Eröffnung, weil der Bot „überhitzt“ erst nach Börsenschluss sieht. Gleicher Test wie oben.
+
+| Variante | Rendite besser | Ø Rendite pro Jahr | Trefferquote | größter Rückgang größer |
+| --- | --- | --- | --- | --- |
+| immer verkaufen, wenn überhitzt | 0 von 6 | −5,6 Prozentpunkte (−6,4 bis −4,2) | +1,9 Punkte | 4 von 6 |
+| nur wenn die Position im Plus ist | 0 von 6 | −5,4 (−6,4 bis −4,6) | +3,9 | 6 von 6 |
+| nur stark überhitzt (RSI über 70 und am oberen Band), im Plus | 1 von 6 | −2,0 (−4,0 bis +1,4) | +2,1 | 5 von 6 |
+| nur bei RSI über 80, im Plus | 1 von 6 | −0,9 (−1,8 bis +0,1) | +0,1 | 3 von 6 |
+
+Beispiel 2015–2021 mit der Watchlist, „nur im Plus“: 7,5 % statt 12,7 % Rendite pro Jahr. Der größte Rückgang war 2010–2014 bis 28 % statt 14 %.
+
+**Warum es schlechter ist, obwohl die Trefferquote steigt:**
+- **Kleine Gewinne, volle Verluste:** Gewinner werden mit einem kleinen Plus verkauft, statt das Ziel zu erreichen. Verlierer werden nie überhitzt und laufen weiter bis zum Stop.
+- **Überhitzt heißt oft: Der Trend ist stark.** Gerade nach einem Ausbruch steigt eine überhitzte Aktie oft weiter bis zum Ziel. Die Strategie ATR-Ausbruch kauft sogar absichtlich, wenn der Kurs weit über der EMA 20 liegt.
+- **Im Depot bleiben die schwachen Positionen.** Die Gewinner sind schnell weg, deshalb wird der größte Rückgang größer.
+
+Ergebnis: **Nicht übernommen.** „⚠️ ÜBERHITZT“ bleibt nur eine Info, im Bericht, auf der Übersichtsseite und in TradingView.
 
 ## Warum Absicherung hier nicht hilft
 

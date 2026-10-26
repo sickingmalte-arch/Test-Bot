@@ -28,7 +28,7 @@ Quellen:
 | Chart- und Kerzenmuster | Doppelboden, Kopf-Schulter, Keil, Rechteck, Wimpel, Dreieck; Kerzen wie Hammer | siehe [[Notizen/Wissen – Kerzen- und Chartmuster]] – nur Info |
 | Bollinger-Bänder | Schwankung; enge Bänder = Ausbruch steht bevor („Squeeze“) | Strategie Squeeze-Ausbruch, Gegenbewegung am unteren Band |
 | MACD | Kreuzung zweier gleitender Durchschnitte = neuer Trend | Strategie MACD-Wende |
-| RSI und Stochastik | über 70 bzw. 80 überkauft, unter 30 bzw. 20 überverkauft | RSI-2-Rücksetzer, Gegenbewegung; „Gewinne sichern“-Hinweis bei überhitzt |
+| RSI und Stochastik | über 70 bzw. 80 überkauft, unter 30 bzw. 20 überverkauft | RSI-2-Rücksetzer, Gegenbewegung; Hinweis „überhitzt“ nur als Info – danach verkaufen war im Test schlechter (siehe [[Notizen/Gelernt – Stop nachziehen und absichern]]) |
 | ADX | Stärke eines Trends (unter 20 schwach, über 50 stark) | getestet als Filter → schlechter |
 | Parabolic SAR | Ende eines Trends, Zeitpunkt zum Ausstieg | ähnlich wie nachgezogener Stop – getestet, schlechter |
 | Ichimoku | Trend und Unterstützung in einem Bild | ähnlich wie die Trend-Linien des Bots |
