@@ -3232,6 +3232,18 @@ def depot_export(stand, daten, markt, fx):
         "tage": tages_bilanz(stand, daten),
     }
 
+CHART_TAGE = 60  # Tageskerzen je Chart auf der Übersichtsseite (etwa 3 Monate)
+
+def chart_export(d):
+    """Die letzten Tageskerzen einer Aktie für einen Chart auf der Übersichtsseite: Kurse in Kurswährung und der
+    Wechselkurs des letzten Tages – die Seite rechnet damit in €, wie bei Stop, Ziel und Limit."""
+    n = d["n_fertig"]
+    if not n:
+        return None
+    von = max(0, n - CHART_TAGE)
+    return {"faktor": json_zahl(d["FX"][n - 1], 6), "tage": [iso(t) for t in d["idx"][von:n]],
+            **{k: [json_zahl(x) for x in d[q][von:n]] for k, q in (("o", "O_ersatz"), ("h", "H"), ("l", "L"), ("c", "C"))}}
+
 def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier, claude, depot, daten, markt, fx,
                      trend, lern, tagebuch, news, fehlt):
     """Alles, was die Übersichtsseite zeigt, als JSON-fähiges dict."""
@@ -3329,6 +3341,11 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
         "signale": signale, "plan": plan, "strategien": strategien, "schlagzeilen": schlagzeilen[:12],
         "papier": depot_export(papier, daten, markt, fx), "claude": claude_teil, "rueckblick": rueckblick,
         "chance_pruefung": chance_export(chance_pruefung(tagebuch, daten)),
+        # Charts mit Stop, Ziel und Kauf: offene Positionen beider Depots, Aufträge und Kauf-Signale
+        "charts": {t: c for t in dict.fromkeys(
+            [x["ticker"] for st in (papier, claude) if st for x in st["positionen"] + st["auftraege"]]
+            + [x["ticker"] for x in signale if x["art"] in ("kaufen", "short")])
+            if t in daten and (c := chart_export(daten[t])) is not None},
     }
 
 def chance_export(gruppen):
@@ -3442,12 +3459,15 @@ def live_daten(einst):
         for name, st in staende.items():
             depots[name] = live_vorschau(st, tabellen, fx, einst, veto if name == "claude" else None)
     q = letzte.get(MARKT_TICKER)
+    # heutige (laufende) Kerze je Aktie für die Charts der Seite, in Kurswährung wie in daten.json
+    kerzen = {t: [iso(df.index[-1]), *(json_zahl(float(df[k].iloc[-1])) for k in ("Open", "High", "Low", "Close"))]
+              for t, df in tabellen.items() if t not in (MARKT_TICKER, FX_TICKER)}
     return {
         "version": 1, "erstellt": pd.Timestamp.now(tz=BERLIN).isoformat(timespec="seconds"),
         "kurse_vom": iso(max(set(tage), key=tage.count)) if tage else None,
         "boerse_offen": any(kerze_noch_offen(tabellen[t], t) for t in us), "fx": json_zahl(fx_jetzt, 4),
         "nasdaq": {"heute": json_zahl((q[0] / q[1] - 1) * 100, 2)} if q else None,
-        "aktien": aktien, **depots,
+        "aktien": aktien, "kerzen": kerzen, **depots,
     }
 
 def schreibe_live(einst):
