@@ -173,7 +173,7 @@ def strategie_name(key):
 KAUFEN = "🟢 KAUFEN"
 SHORT = "🔴 SHORT"
 WARTEN = "⏸ WARTEN"
-SICHERN = "⚠️ GEWINNE SICHERN"
+SICHERN = "⚠️ ÜBERHITZT"  # nur Info – verkaufen danach war im Test schlechter
 BEOBACHTEN = "BEOBACHTEN"
 FEHLER = "❌ FEHLER"
 PRIORITAET = {KAUFEN: 1, SHORT: 1, WARTEN: 2, SICHERN: 3, BEOBACHTEN: 4, FEHLER: 5}
@@ -1713,9 +1713,9 @@ def scanner_zeile(t, d, pausiert, einst):
         zeile.update({"Signal": WARTEN, "Strategie": f"{strategie_name(gesperrt[0])} – Marktfilter "
                                                      f"({'kein Long im Abwärtsmarkt' if lang else 'kein Short im Aufwärtsmarkt'})"})
     elif d["ueberhitzt"][i]:
-        zeile.update({"Signal": SICHERN, "Strategie": "überhitzt – falls Long im Depot"})
+        zeile.update({"Signal": SICHERN, "Strategie": "überhitzt – nur Info, Depot verkauft nicht"})
     elif einst.mit_short and d["ueberverkauft"][i]:
-        zeile.update({"Signal": SICHERN, "Strategie": "überverkauft – falls Short im Depot"})
+        zeile.update({"Signal": SICHERN, "Strategie": "überverkauft – nur Info (für Shorts)"})
     else:
         zeile.update({"Signal": BEOBACHTEN, "Strategie": ""})
     return zeile
@@ -1990,8 +1990,12 @@ def fusszeilen(zeilen, einst, waehrung, news, zusatz):
                 f"weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine "
                 f"Regel hält den Bot zurück (Grund in der Spalte Strategie).")
     if any(z.get("Signal") == SICHERN for z in zeilen):
-        fuss.append("⚠️ GEWINNE SICHERN = überhitzt bzw. überverkauft. Nur ein Hinweis für eine Position, die du schon "
-                    "hast (z. B. einen Teil verkaufen oder den Stop nachziehen) – das virtuelle Depot handelt danach nicht.")
+        fuss.append("⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: "
+                    "überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte "
+                    "Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh "
+                    "verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am "
+                    "Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach "
+                    f"{ZEITSTOPP_TAGE} Handelstagen.")
     if einst.mit_short:
         fuss.append("🔴 Short = auf fallende Kurse setzen (z. B. per CFD oder Turbo-Schein). Verluste sind nach oben "
                     "offen. Bei Hebelprodukten zählt der Verlust am Stop, nicht der Einsatz: Hebel × Einsatz = echte "
@@ -2158,7 +2162,7 @@ def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
         return [f"background-color: {bg}; color: {fg}" if bg else ""] * len(zeile)
 
     # Schmale Ausgabe (z. B. Colab mit Seitenleiste): Signal, Strategie und News dürfen umbrechen,
-    # das Symbol bleibt dabei am Wort („⚠️ GEWINNE / SICHERN“)
+    # das Symbol bleibt dabei am Wort („⚠️ ÜBERHITZT“, „⏸ WARTEN“)
     signal_html = {**formate, "Signal": lambda v: str(v).replace(" ", "\u00a0", 1),
                    "News": lambda v: str(v).replace("/", "/\u200b")}
     kopf = absatz(titel, "font-size: 1.15em; font-weight: bold;") + absatz(zusammenfassung)
