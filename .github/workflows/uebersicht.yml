@@ -33,6 +33,22 @@ jobs:
         with:
           ref: main # neuester Stand – auch nach einem Bot-Lauf, der seine Daten gerade gespeichert hat
 
+      - name: Live-Kurse behalten
+        # docs/live.json legt live.yml nur in die veröffentlichte Seite (keine Commits). Ohne diesen Schritt löscht jedes
+        # Veröffentlichen hier (nach dem Morgen-Lauf oder einer Änderung an der Seite) den Live-Teil, bis der nächste
+        # Live-Lauf kommt. Alte Live-Kurse zeigt die Seite nicht an (nur, wenn sie neuer sind als die Daten vom Morgen).
+        continue-on-error: true
+        env:
+          SEITE: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: |
+          if curl -fsS --max-time 20 "$SEITE/live.json?t=$(date +%s)" -o "$RUNNER_TEMP/live.json" \
+              && python3 -c 'import json, sys; json.load(open(sys.argv[1]))' "$RUNNER_TEMP/live.json"; then
+            mv "$RUNNER_TEMP/live.json" docs/live.json
+            echo "Live-Kurse der veröffentlichten Seite übernommen."
+          else
+            echo "Keine Live-Kurse veröffentlicht – die Seite zeigt den Stand vom Morgen."
+          fi
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
