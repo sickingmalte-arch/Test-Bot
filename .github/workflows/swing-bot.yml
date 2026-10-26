@@ -13,8 +13,9 @@ on:
     # US-Handelstag davor. Nicht schon in der Nacht: Yahoo liefert die Tageskerze oft erst Stunden nach dem
     # US-Schluss, dann wären alle Signale einen Tag alt. GitHub startet geplante Läufe oft Minuten bis Stunden
     # später (am 23.10.2026 erst um 14:10 Uhr) oder gar nicht – deshalb zwei Ersatz-Termine um 9:17 und 11:17 UTC,
-    # beide noch vor dem US-Börsenstart. Außerdem stößt die Kette in live.yml um 6:47 UTC den Lauf an. Ein Ersatz-Termin rechnet nur, wenn es heute noch keinen vollständigen Bericht gibt
-    # (Job „pruefen“ unten); fehlten beim ersten Lauf noch Kurse, holt er sie nach.
+    # beide noch vor dem US-Börsenstart. Außerdem stößt die Kette in live.yml um 6:47 UTC den Lauf an. Ein
+    # Ersatz-Termin rechnet nur, wenn es heute noch keinen vollständigen Bericht gibt (Job „pruefen“ unten); fehlten
+    # beim ersten Lauf noch Kurse, holt er sie nach.
     - cron: "47 6 * * 2-6"
     - cron: "17 9 * * 2-6"
     - cron: "17 11 * * 2-6"
