@@ -234,6 +234,11 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 /* ---------- Positionen & Trades ---------- */
 .position { display: grid; grid-template-columns: 96px minmax(0, 1fr) 120px; grid-template-areas: "kopf bahn ergebnis"; gap: 6px 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line-soft); }
 .position .p-kopf { grid-area: kopf; } .position .p-bahn { grid-area: bahn; } .position .ergebnis { grid-area: ergebnis; }
+.position.mit-chart { grid-template-areas: "kopf bahn ergebnis" ". chart chart"; }
+.position .p-chart { grid-area: chart; }
+.kurs-chart { position: relative; width: 100%; margin-top: 6px; }
+.chart-text { display: flex; justify-content: space-between; gap: 8px; font: 10px/1.3 var(--mono); color: var(--text-3); margin-top: 2px; }
+.chart-text a { color: var(--text-3); }
 .position:last-child { border-bottom: 0; }
 .position .t { font: 700 15px/1 var(--sans); }
 .position .klein { font: 10px/1.3 var(--mono); color: var(--text-3); margin-top: 4px; }
@@ -543,6 +548,7 @@ button.kal-tag:hover { border-color: #3a4654; }
   .kachel .wert { font-size: 22px; }
   .kachel.held .wert { font-size: 32px; }
   .position { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "kopf ergebnis" "bahn bahn"; padding: 12px 14px; }
+  .position.mit-chart { grid-template-areas: "kopf ergebnis" "bahn bahn" "chart chart"; }
   .position .p-kopf { display: flex; align-items: baseline; gap: 8px; }
   .balken-zeile { grid-template-columns: 96px minmax(0, 1fr) 60px; }
   .karten { grid-template-columns: minmax(0, 1fr); }
@@ -621,6 +627,8 @@ button.kal-tag:hover { border-color: #3a4654; }
   </form>
 </aside>
 
+<!-- TradingView Lightweight Charts™ (Apache-2.0, https://www.tradingview.com/lightweight-charts/) für die Kurs-Charts -->
+<script src="lightweight-charts-5.0.9.js"></script>
 <script>
 "use strict";
 // ---------------------------------------------------------------------------
@@ -1044,6 +1052,69 @@ function striche(werte, { max = 10 } = {}) {
   const box = el("div", { class: "striche", role: "img", "aria-label": `${werte.filter(v => v > 0).length} von ${werte.length} im Plus` });
   werte.slice(-max).forEach(v => box.append(el("i", { class: v > 0 ? "gut" : v < 0 ? "schlecht" : "" })));
   return box;
+}
+// Kurs-Chart (TradingView Lightweight Charts): Tageskerzen der letzten 3 Monate in € mit Linien für Kauf, Stop,
+// Ziel und Limit. Während der Börsenzeit ersetzt die Live-Kerze aus live.json die heutige (chartsLive).
+const CHARTS = new Map(); // Ticker -> [{ serie, faktor }]
+function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, hoehe = 170 } = {}) {
+  const C = D.charts && D.charts[ticker], LW = window.LightweightCharts;
+  if (!C || !LW || !C.tage.length) return null;
+  const f = C.faktor || 1;
+  const box = el("div", { class: "kurs-chart", style: `height:${hoehe}px` });
+  const chart = LW.createChart(box, {
+    autoSize: true,
+    // Hinweis auf TradingView steht unter dem Chart (Lizenz der Bibliothek), nicht als Logo über den Kerzen
+    layout: { background: { type: "solid", color: "transparent" }, textColor: css("--text-3"), fontSize: 10, fontFamily: css("--mono"), attributionLogo: false },
+    grid: { vertLines: { visible: false }, horzLines: { color: css("--line-soft") } },
+    rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.08, bottom: 0.08 } },
+    timeScale: { borderVisible: false, fixLeftEdge: true, fixRightEdge: true },
+    crosshair: { mode: LW.CrosshairMode.Normal },
+    handleScroll: false, handleScale: false,
+    localization: { locale: "de-DE", dateFormat: "dd.MM.yyyy", priceFormatter: p => zahl(p, 2) },
+  });
+  // Stop, Ziel, Kauf und Limit immer im Bild, auch wenn der Kurs noch weit davon entfernt ist
+  const preise = [stop, ziel, einstieg, limit].filter(Number.isFinite);
+  const serie = chart.addSeries(LW.CandlestickSeries, {
+    upColor: css("--gut"), downColor: css("--schlecht"), borderVisible: false,
+    wickUpColor: css("--gut"), wickDownColor: css("--schlecht"), priceLineVisible: false,
+    autoscaleInfoProvider: standard => {
+      const r = standard();
+      if (r && r.priceRange && preise.length) {
+        r.priceRange.minValue = Math.min(r.priceRange.minValue, ...preise);
+        r.priceRange.maxValue = Math.max(r.priceRange.maxValue, ...preise);
+      }
+      return r;
+    },
+  });
+  serie.setData(C.tage.map((t, i) => ({ time: t, open: C.o[i] / f, high: C.h[i] / f, low: C.l[i] / f, close: C.c[i] / f }))
+    .filter(k => [k.open, k.high, k.low, k.close].every(Number.isFinite)));
+  const linie = (preis, titel, farbe, stil) => {
+    if (preis !== null && preis !== undefined) serie.createPriceLine({ price: preis, title: titel, color: farbe, lineWidth: 1, lineStyle: stil, axisLabelVisible: true });
+  };
+  linie(ziel, "Ziel", css("--gut-text"), LW.LineStyle.Dashed);
+  linie(stop, "Stop", css("--schlecht-text"), LW.LineStyle.Dashed);
+  linie(einstieg, "Kauf", css("--text-2"), LW.LineStyle.Solid);
+  linie(limit, "Limit", css("--text-2"), LW.LineStyle.Dotted);
+  if (kauf_tag && C.tage.includes(kauf_tag)) {
+    LW.createSeriesMarkers(serie, [{ time: kauf_tag, position: "belowBar", color: css("--s1"), shape: "arrowUp", text: "Kauf" }]);
+  }
+  chart.timeScale().fitContent();
+  if (!CHARTS.has(ticker)) CHARTS.set(ticker, []);
+  CHARTS.get(ticker).push({ serie, faktor: f });
+  return el("div", {}, box, el("div", { class: "chart-text" },
+    el("span", {}, "3 Monate in € · ", el("a", { href: "https://www.tradingview.com/", target: "_blank", rel: "noopener", title: "TradingView Lightweight Charts™, Copyright (c) 2025 TradingView, Inc." }, "Chart: TradingView")),
+    el("a", { href: tvLink(ticker), target: "_blank", rel: "noopener" }, "live öffnen ↗")));
+}
+function chartsLive(L) {
+  if (!L || !L.kerzen) return;
+  for (const [t, liste] of CHARTS) {
+    const k = L.kerzen[t];
+    if (!k || k.slice(1).some(x => x === null || x === undefined)) continue;
+    for (const { serie, faktor } of liste) {
+      try { serie.update({ time: k[0], open: k[1] / faktor, high: k[2] / faktor, low: k[3] / faktor, close: k[4] / faktor }); }
+      catch (e) { /* Live-Kerze älter als die letzte Tageskerze: nichts zu tun */ }
+    }
+  }
 }
 function bahn({ stop, ziel, kurs, einstieg, limit }) {
   // Lage zwischen Stop (links) und Ziel (rechts). Mit Einstieg: Strecke Einstieg -> Kurs grün (Gewinn) oder rot (Verlust);
@@ -1501,6 +1572,7 @@ function aufbauen(D) {
         el("div", {}, el("div", { class: "label" }, "Ziel"), el("div", { class: "wert" }, euro(s.ziel, 2)))),
       bahn({ stop: s.stop, ziel: s.ziel, kurs: s.kurs, limit: s.limit }),
       el("div", { class: "bahn-text" }, el("span", {}, "Stop"), el("span", {}, `Kurs ${euro(s.kurs, 2)}`), el("span", {}, "Ziel")),
+      kursChart(D, s.ticker, { stop: s.stop, ziel: s.ziel, limit: s.limit, hoehe: 140 }),
       zahlenZeile(zahlenVon.get(s.ticker), s.zahlen),
       s.chance !== null && s.chance !== undefined ? el("div", { class: "zahlen-zeile chance-zeile" },
         el("span", {}, `Ziel-Chance: Formel ${zahl(s.chance)}\u00a0%` + (s.chance_praxis !== null && s.chance_praxis !== undefined ? ` · bisher erreicht ${zahl(s.chance_praxis)}\u00a0%` : "")), info("chance")) : null,
@@ -1606,14 +1678,17 @@ function aufbauen(D) {
       el("div", { class: "label" }, `frei ${euro(P.bargeld)}`)));
     for (const p of P.positionen) {
       const proz = p.wert && p.ergebnis !== null ? (p.ergebnis / (p.wert - p.ergebnis)) * 100 : null;
-      pos.append(el("div", { class: "position" },
+      const chart = kursChart(D, p.ticker, { stop: p.stop, ziel: p.ziel, kauf_tag: p.kauf_tag,
+        einstieg: p.stop !== null && p.einstieg_lage !== null ? p.stop + p.einstieg_lage * (p.ziel - p.stop) : null });
+      pos.append(el("div", { class: `position${chart ? " mit-chart" : ""}` },
         el("div", { class: "p-kopf" }, el("div", { class: "t" }, el("a", { href: tvLink(p.ticker), target: "_blank", rel: "noopener", style: "text-decoration:none" }, p.ticker)), el("div", { class: "klein" }, `seit ${datum(p.kauf_tag, false)}`)),
         el("div", { class: "p-bahn" }, el("div", { class: "klein", style: "margin:0 0 2px" }, p.strategie),
           p.stop !== null && p.kurs !== null ? bahn({ stop: p.stop, ziel: p.ziel, kurs: p.kurs, einstieg: p.stop + (p.einstieg_lage ?? 0) * (p.ziel - p.stop) }) : null,
           el("div", { class: "bahn-text" }, el("span", {}, `Stop ${euro(p.stop, 2)}`), el("span", {}, `Ziel ${euro(p.ziel, 2)}`)),
           zahlenZeile(p.zahlen_tag || zahlenVon.get(p.ticker), null)),
         el("div", { class: `ergebnis ${richtung(p.ergebnis)}` }, p.ergebnis === null ? "–" : `${vz(p.ergebnis)}${euro(p.ergebnis, 2)}`,
-          el("small", {}, `${proz === null ? "" : prozent(proz)} · Wert ${euro(p.wert)}`))));
+          el("small", {}, `${proz === null ? "" : prozent(proz)} · Wert ${euro(p.wert)}`)),
+        chart ? el("div", { class: "p-chart" }, chart) : null));
     }
     if (!P.positionen.length) pos.append(el("div", { class: "leer" }, "Gerade keine offene Position."));
     const auftr = el("div", { class: "panel-innen", style: "border-top:1px solid var(--line-soft)" },
@@ -2094,6 +2169,7 @@ function liveZeigen(L) {
     if (hinweis) hinweis.after(neu); else main.prepend(neu);
   }
   nav.hidden = false;
+  chartsLive(L);
 }
 function liveLaden() {
   fetch(`live.json?${Date.now()}`, { cache: "no-store" })
