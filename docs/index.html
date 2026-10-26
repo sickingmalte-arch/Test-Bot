@@ -936,12 +936,21 @@ const ERKLAERUNG = {
   zahlen: ["Quartalszahlen", "An diesem Tag legt die Firma ihre Zahlen vor. Der Kurs kann dann stark springen – nach oben wie nach unten. Der Bot verkauft deshalb spätestens kurz vor den Zahlen. Rot heißt: weniger als 7 Tage. Dann bleibt einem neuen Trade nur wenig Zeit bis zum Ziel."],
   fazit: ["Ergebnis", "So viel mehr (oder weniger) war das Übungsdepot zum Schluss wert als vorher – mit den noch offenen Positionen zum Schlusskurs (Buchgewinn oder -verlust) und nach Gebühren. „Woher kam das Ergebnis?“ zeigt den Anteil jeder Aktie, zusammen ergeben sie das Ergebnis. Umsatz: Wert aller Käufe und Verkäufe im Zeitraum."],
   chance: ["Ziel-Chance nach Black-Scholes", CHANCE_TEXT],
+  muster: ["Muster und Nachrichten", "Kerzenmuster vom Poster (z. B. Hammer, Bullish Engulfing, Shooting Star) am Signaltag, bei Ausbrüchen und Doppelböden das Musterziel (Höhe des Musters nach oben verlängert) und wie viele gute und schlechte Schlagzeilen es in den letzten Tagen gab. Nur zur Info: Als Kaufregel oder Ziel hat das im Test über 16 Jahre nicht geholfen, der Bot kauft und verkauft deshalb nicht danach. Auf der Lehren-Seite im Gehirn prüft er weiter, ob Signale mit Muster oder guten Nachrichten besser laufen."],
   live: ["Live", "Mo–Fr von 12 bis 22 Uhr läuft Live: Sobald die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit, in den Wochen der Zeitumstellung 14:30–21:00 Uhr), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
 const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
 document.body.append(erklaerung);
 let infoOffen = null;
+// Zeile auf der Signal-Karte: Kerzenmuster, Musterziel und Nachrichten-Stimmung (nur Info)
+function musterZeile(s) {
+  const teile = [];
+  if (s.muster && s.muster.length) teile.push(`Muster: ${s.muster.join(", ")}` + (s.muster_praxis !== null && s.muster_praxis !== undefined ? ` · bisher ${zahl(s.muster_praxis)}\u00a0% im Plus` : ""));
+  if (s.musterziel !== null && s.musterziel !== undefined) teile.push(`Musterziel ${euro(s.musterziel, 2)}`);
+  if (s.stimmung && (s.stimmung.gut || s.stimmung.schlecht)) teile.push(`Nachrichten: ${s.stimmung.gut} gut · ${s.stimmung.schlecht} schlecht`);
+  return teile.length ? el("div", { class: "zahlen-zeile chance-zeile" }, el("span", {}, teile.join(" · ")), info("muster")) : null;
+}
 function info(schluessel) {
   return el("button", { type: "button", class: "info", "data-info": schluessel, "aria-label": `Erklärung: ${ERKLAERUNG[schluessel][0]}`,
     "aria-expanded": "false", "aria-controls": "erklaerung" }, "i");
@@ -1492,6 +1501,7 @@ function aufbauen(D) {
       zahlenZeile(zahlenVon.get(s.ticker), s.zahlen),
       s.chance !== null && s.chance !== undefined ? el("div", { class: "zahlen-zeile chance-zeile" },
         el("span", {}, `Ziel-Chance: Formel ${zahl(s.chance)}\u00a0%` + (s.chance_praxis !== null && s.chance_praxis !== undefined ? ` · bisher erreicht ${zahl(s.chance_praxis)}\u00a0%` : "")), info("chance")) : null,
+      musterZeile(s),
       el("div", { class: "fuss" },
         el("span", {}, s.stueck ? `${zahl(s.stueck, s.stueck % 1 ? 2 : 0)} Stück · Risiko ${euro(s.risiko)}` : "Konto zu klein"),
         el("span", {}, `CRV ${zahl(s.crv, 1)}`, info("crv")))));

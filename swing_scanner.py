@@ -808,8 +808,11 @@ def werte_news(zusatz, kurstag, scanner_zeilen):
             continue
         richtung = 1 if z["Signal"] == KAUFEN else -1 if z["Signal"] == SHORT else 0
         zeilen, etiketten, warnende, warnung = [], [], [], False
+        stimmung = {"gut": 0, "schlecht": 0}  # Schlagzeilen mit guten bzw. schlechten Ereignissen für die Aktie (nur Info)
         for s in lesbar.get(t, []):
             ev = [] if s["video"] or anzahl.get(s["titel"], 0) > 1 else ereignisse(s["titel"], t)
+            stimmung["gut"] += any(r > 0 for r, _ in ev)
+            stimmung["schlecht"] += any(r < 0 for r, _ in ev)
             warnt = False
             for r, etikett in ev:
                 gegen = r == 0 or (richtung and r == -richtung)
@@ -822,7 +825,8 @@ def werte_news(zusatz, kurstag, scanner_zeilen):
             zeilen.append({**s, "ereignisse": [e2 for _, e2 in ev], "warnt": warnt})
         spalte = ("⚠️ " if warnung else "📰 ") + ", ".join(etiketten) if etiketten else ""
         zeilen.sort(key=lambda z: (not z["warnt"], not z["ereignisse"]))  # Warnungen, dann Ereignisse zuerst
-        ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "warnende": warnende, "info": "ok"}
+        ergebnis[t] = {"spalte": spalte, "zeilen": zeilen[:2], "warnung": warnung, "warnende": warnende, "info": "ok",
+                       "stimmung": stimmung}
     return ergebnis
 
 
@@ -993,6 +997,172 @@ def chance_gesamt(gruppen):
     return {"n": n, "chance": mittel("chance"), "beruehrt": mittel("beruehrt"),
             "abstand": sum(abs(g["beruehrt"] - g["chance"]) * g["n"] for g in gruppen) / n}
 
+# Kerzen- und Chartmuster (Poster „Candlestick Patterns & Chart Patterns“, Lehrbücher „Traden lernen“ und „Forex
+# Trading lernen“): nur zur Info mit Selbstkontrolle – als Kaufregel (bestätigen, warnen, vorziehen) und als
+# variables Ziel haben sie im Test über 16 Jahre nicht geholfen (gehirn/Notizen/Gelernt – Muster und Lehrbücher.md).
+KERZEN_NAMEN = {
+    "bull": {"engulfing": "Bullish Engulfing", "hammer": "Hammer", "harami": "Bullish Harami",
+             "piercing": "Piercing Line", "morning_star": "Morning Star", "three_soldiers": "Three White Soldiers"},
+    "bear": {"engulfing": "Bearish Engulfing", "shooting_star": "Shooting Star", "hanging_man": "Hanging Man",
+             "evening_star": "Evening Star", "dark_cloud": "Dark Cloud Cover", "three_crows": "Three Black Crows"},
+}
+AUSBRUCH_STRATEGIEN = ("ausbruch_long", "atr_ausbruch_long", "squeeze_long")  # Musterziel: Höhe nach oben verlängert
+
+def kerzenmuster(df):
+    """Bullische und bärische Kerzenmuster je Tag (nur aus Kursen bis zu diesem Tag): {"bull": {name: Bool-Array},
+    "bear": {…}}. Hammer und Hanging Man nur nach einem Rückgang bzw. Anstieg in den 5 Tagen davor."""
+    o, h, l, c = df["Open"], df["High"], df["Low"], df["Close"]
+    body, spanne = (c - o).abs(), (h - l).replace(0, np.nan)
+    oben, unten = h - np.maximum(o, c), np.minimum(o, c) - l
+    gruen, rot = c > o, c < o
+    rot1, gruen1 = rot.shift(1, fill_value=False), gruen.shift(1, fill_value=False)
+    o1, c1, h1, l1, o2, c2 = o.shift(1), c.shift(1), h.shift(1), l.shift(1), o.shift(2), c.shift(2)
+    body1, body2 = (c1 - o1).abs(), (c2 - o2).abs()
+    lang1, lang2 = body1 >= 0.6 * (h1 - l1), body2 >= 0.6 * (h.shift(2) - l.shift(2))
+    gefallen, gestiegen = c < c.shift(5), c > c.shift(5)
+    klein = body <= 0.35 * spanne
+    muster = {
+        "bull": {"engulfing": rot1 & gruen & (o <= c1) & (c >= o1) & (body > body1),
+                 "hammer": gefallen & klein & (unten >= 2 * body) & (oben <= 0.25 * spanne),
+                 "harami": rot1 & lang1 & gruen & (o > c1) & (c < o1),
+                 "piercing": rot1 & lang1 & gruen & (o < c1) & (c > (o1 + c1) / 2) & (c < o1),
+                 "morning_star": (c2 < o2) & lang2 & (body1 <= 0.3 * body2) & gruen & (c > (o2 + c2) / 2),
+                 "three_soldiers": gruen & gruen1 & gruen.shift(2, fill_value=False) & (c > c1) & (c1 > c2)
+                                   & (o > o1) & (o1 > o2)},
+        "bear": {"engulfing": gruen1 & rot & (o >= c1) & (c <= o1) & (body > body1),
+                 "shooting_star": gestiegen & klein & (oben >= 2 * body) & (unten <= 0.25 * spanne),
+                 "hanging_man": gestiegen & klein & (unten >= 2 * body) & (oben <= 0.25 * spanne),
+                 "evening_star": (c2 > o2) & lang2 & (body1 <= 0.3 * body2) & rot & (c < (o2 + c2) / 2),
+                 "dark_cloud": gruen1 & lang1 & rot & (o > c1) & (c < (o1 + c1) / 2) & (c > o1),
+                 "three_crows": rot & rot1 & rot.shift(2, fill_value=False) & (c < c1) & (c1 < c2) & (o < o1)
+                                & (o1 < o2)},
+    }
+    return {seite: {k: m.fillna(False).to_numpy(bool) for k, m in liste.items()} for seite, liste in muster.items()}
+
+def doppelboden(df, links=5, rechts=5, fenster=80):
+    """Doppelboden (W) wie auf dem Poster: zwei Tiefs (Wendepunkte mit je 5 Tagen links und rechts, erst nach diesen
+    5 Tagen bekannt) höchstens 0,75 ATR auseinander, 10–80 Tage Abstand, beide das Tief der Gegend, Höhe mindestens
+    2 ATR. Signal am ersten Schluss über der Nackenlinie (höchstes Hoch zwischen den Tiefs), höchstens 25 Tage nach dem
+    zweiten Tief. Gibt (Bool-Array, Musterziel = Nackenlinie + Höhe) zurück."""
+    h, l, c = df["High"].to_numpy(float), df["Low"].to_numpy(float), df["Close"].to_numpy(float)
+    atr = df["ATR"].to_numpy(float)
+    n = len(df)
+    ok, ziel = np.zeros(n, bool), np.full(n, np.nan)
+    bestaetigt = {}
+    for p in range(links, n - rechts):
+        if l[p] == l[p - links:p + rechts + 1].min():
+            bestaetigt.setdefault(p + rechts, []).append(p)
+    bekannt = []
+    for i in range(1, n):
+        bekannt += bestaetigt.get(i, [])
+        if not bekannt or not np.isfinite(atr[i]) or i - bekannt[-1] > 25:
+            continue
+        p2 = bekannt[-1]
+        for p1 in reversed(bekannt[:-1]):
+            if p2 - p1 < 10:
+                continue
+            if p2 - p1 > fenster:
+                break
+            if abs(l[p1] - l[p2]) > 0.75 * atr[i]:
+                continue
+            boden = min(l[p1], l[p2])
+            if l[max(0, p1 - 20):i + 1].min() < boden:
+                continue
+            nacken = h[p1:p2 + 1].max()
+            if nacken - boden >= 2 * atr[i] and c[i] > nacken >= c[i - 1]:
+                ok[i], ziel[i] = True, nacken + (nacken - boden)
+            break
+    return ok, ziel
+
+def muster_am_tag(d, i):
+    """Erkannte Kerzenmuster an Tag i: bullische am Tag oder am Tag davor, bärische am Tag selbst (Namen)."""
+    k = d.get("KERZEN")
+    if k is None or i is None:
+        return {"bull": [], "bear": []}
+    bull = [KERZEN_NAMEN["bull"][m] for m, a in k["bull"].items() if a[i] or (i >= 1 and a[i - 1])]
+    bear = [KERZEN_NAMEN["bear"][m] for m, a in k["bear"].items() if a[i]]
+    return {"bull": bull, "bear": bear}
+
+def muster_gruppe(muster):
+    """Gruppe der Selbstkontrolle: 'bear' hat Vorrang (Warnzeichen), dann 'bull', sonst 'keins'."""
+    return "bear" if muster["bear"] else "bull" if muster["bull"] else "keins"
+
+def musterziel(d, i, strategie):
+    """Kursziel aus dem Chartmuster (nur Info, in Kurswährung) und seine Art – oder (NaN, None)."""
+    if i is None or i < 21:
+        return math.nan, None
+    db = d.get("DBOD")
+    if db is not None and db[0][i]:
+        return float(db[1][i]), "Doppelboden (W): Nackenlinie + Höhe"
+    if strategie in AUSBRUCH_STRATEGIEN:
+        hoch, tief = np.nanmax(d["H"][i - 20:i]), np.nanmin(d["L"][i - 20:i])
+        if np.isfinite(hoch) and np.isfinite(tief) and hoch > tief:
+            return float(hoch + (hoch - tief)), "Ausbruch: Höhe der Seitwärtsphase nach oben verlängert"
+    return math.nan, None
+
+def muster_pruefung(tagebuch, daten):
+    """Selbstkontrolle der Kerzenmuster an allen gedachten Kauf-Trades: je Gruppe (bärisches Muster am Signaltag,
+    bullisches am Signaltag oder Tag davor, keins) Zahl, Trefferquote und Ø R."""
+    gruppen = {g: [] for g in ("bull", "bear", "keins")}
+    for e in tagebuch:
+        d = daten.get(e["ticker"])
+        if d is None or STRATEGIEN[e["strategie"]]["richtung"] < 0:
+            continue
+        i = d["pos"].get(e["signal_tag"])
+        if i is not None:
+            gruppen[muster_gruppe(muster_am_tag(d, i))].append(e["R"])
+    return {g: {"n": len(r), "quote": 100 * float(np.mean(np.array(r) > 0)), "schnitt": float(np.mean(r))}
+            for g, r in gruppen.items() if r}
+
+def muster_praxis(gruppe, pruefung, mindestens=30):
+    """Trefferquote der gedachten Trades in dieser Muster-Gruppe (NaN bei weniger als 'mindestens' Trades)."""
+    g = pruefung.get(gruppe)
+    return g["quote"] if g and g["n"] >= mindestens else math.nan
+
+# Nachrichten-Stimmung je Signal (gute und schlechte Schlagzeilen der letzten Tage) – neben dem Übungsdepot gespeichert,
+# damit die Lehren-Seite später prüfen kann, ob Signale mit guten Nachrichten wirklich besser laufen. Alte Schlagzeilen
+# gibt es nicht, deshalb lässt sich das nur ab jetzt sammeln.
+NACHRICHTEN_LOG = "nachrichten_log.json"
+
+def nachrichten_log_lesen(pfad):
+    try:
+        with open(pfad, encoding="utf-8") as f:
+            daten = json.load(f)
+        return [e for e in daten if isinstance(e, dict) and {"tag", "ticker", "gut", "schlecht"} <= set(e)]
+    except (OSError, ValueError, TypeError):
+        return []
+
+def nachrichten_log_schreiben(pfad, zeilen):
+    """Stimmung aller Ticker mit Strategie-Signal ergänzen (ein Eintrag je Tag und Ticker, ein neuer Lauf ersetzt ihn)."""
+    neu = {(f"{z['_stand']:%Y-%m-%d}", z["Ticker"]): {"tag": f"{z['_stand']:%Y-%m-%d}", "ticker": z["Ticker"],
+                                                      "strategie": z["_strategie"], "gut": int(z["_stimmung"]["gut"]),
+                                                      "schlecht": int(z["_stimmung"]["schlecht"])}
+           for z in zeilen if z.get("_strategie") and z.get("_stimmung") and "_stand" in z}
+    if not neu:
+        return
+    alt = {(e["tag"], e["ticker"]): e for e in nachrichten_log_lesen(pfad)}
+    alt.update(neu)
+    eintraege = sorted(alt.values(), key=lambda e: (e["tag"], e["ticker"]))[-3000:]
+    try:
+        with open(pfad, "w", encoding="utf-8") as f:
+            json.dump(eintraege, f, ensure_ascii=False, indent=1)
+    except OSError as e:
+        print(f"⚠️ Nachrichten-Stimmung nicht gespeichert: {e}")
+
+def nachrichten_pruefung(log, tagebuch):
+    """Selbstkontrolle der Nachrichten-Stimmung: gedachte Trades je Gruppe (mehr gute / mehr schlechte / gleich viele
+    oder keine Schlagzeilen am Signaltag) mit Trefferquote und Ø R."""
+    stimmung = {(e["tag"], e["ticker"]): e for e in log}
+    gruppen = {"gut": [], "schlecht": [], "neutral": []}
+    for e in tagebuch:
+        s = stimmung.get((f"{e['signal_tag']:%Y-%m-%d}", e["ticker"]))
+        if s is None or STRATEGIEN[e["strategie"]]["richtung"] < 0:
+            continue
+        g = "gut" if s["gut"] > s["schlecht"] else "schlecht" if s["schlecht"] > s["gut"] else "neutral"
+        gruppen[g].append(e["R"])
+    return {g: {"n": len(r), "quote": 100 * float(np.mean(np.array(r) > 0)), "schnitt": float(np.mean(r))}
+            for g, r in gruppen.items() if r}
+
 def markt_trend(markt_df):
     """Nasdaq-100 (QQQ) je Tag: 1 = Schluss über der 200-Tage-Linie, 0 = darunter, NaN = noch zu wenig Daten."""
     if markt_df is None or "Close" not in markt_df:
@@ -1036,6 +1206,8 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst, markt=None):
         "pos": {tag: i for i, tag in enumerate(df.index)},
         "termine": None,
     }
+    d["KERZEN"] = kerzenmuster(df)  # nur Info (Selbstkontrolle auf der Lehren-Seite)
+    d["DBOD"] = doppelboden(df)
     d["morgen"] = d["gesperrt"] = d["gerade"] = np.zeros(n, bool)
     if zahlen_df is not None:
         termine = zahlen_termine(zahlen_df)
@@ -1525,7 +1697,10 @@ def scanner_zeile(t, d, pausiert, einst):
                       "Strategie": strategie_name(wahl) + ("" if stueck else " (Konto zu klein)"), "Limit": limit,
                       "Stop": stop, "Ziel": ziel, "CRV": r * (ziel - kurs) / (r * (kurs - stop)), "Stück": stueck,
                       "Einsatz": stueck * kurs, "Risiko": stueck * abs(kurs - stop),
-                      "_chance": ziel_chance(d["C"][i], ziel_a[i], d["VOLA"][i])})
+                      "_chance": ziel_chance(d["C"][i], ziel_a[i], d["VOLA"][i]), "_muster": muster_am_tag(d, i)})
+        mz, mz_art = musterziel(d, i, wahl)
+        if math.isfinite(mz) and r > 0:
+            zeile.update({"_musterziel": mz / rate, "_musterziel_art": mz_art})
         if zeile["_offen"]:
             zeile["Strategie"] += " (vorläufig)"
     elif grund is not None:
@@ -1570,6 +1745,24 @@ def berlin(tag, uhr_ny):
     """US-Börsenzeit (New York) an einem Tag -> Uhrzeit in Deutschland, z. B. '15:30'."""
     return f"{pd.Timestamp(f'{tag:%Y-%m-%d} {uhr_ny}', tz=NY).tz_convert(BERLIN):%H:%M}"
 
+def muster_satz(zeile, waehrung):
+    """Kerzenmuster, Musterziel und Nachrichten-Stimmung eines Signals als Zusatz zum Handelsplan (nur Info)."""
+    teile = []
+    muster = zeile.get("_muster")
+    if muster and (muster["bull"] or muster["bear"]):
+        namen = [f"{m} (bullisch)" for m in muster["bull"]] + [f"{m} (bärisch)" for m in muster["bear"]]
+        praxis = zeile.get("_muster_praxis", math.nan)
+        teile.append(f"Kerzenmuster: {', '.join(namen)}"
+                     + (f" – gedachte Trades mit so einem Muster bisher {de(praxis, 0)} % im Plus" if math.isfinite(praxis)
+                        else ""))
+    if math.isfinite(zeile.get("_musterziel", math.nan)):
+        teile.append(f"Musterziel {de(zeile['_musterziel'])} {waehrung} ({zeile['_musterziel_art']}; der Bot verkauft "
+                     f"trotzdem am Ziel {de(zeile['Ziel'])} {waehrung})")
+    stimmung = zeile.get("_stimmung")
+    if stimmung and (stimmung["gut"] or stimmung["schlecht"]):
+        teile.append(f"Nachrichten der letzten Tage: {stimmung['gut']} gut, {stimmung['schlecht']} schlecht")
+    return f" {'. '.join(teile)} (nur Info)." if teile else ""
+
 def handelsplan(zeile, nr, einst, waehrung):
     """Ein Satz, was genau zu tun ist (für KAUFEN/SHORT)."""
     t = zeile["Ticker"]
@@ -1607,6 +1800,7 @@ def handelsplan(zeile, nr, einst, waehrung):
         satz += (f" Ziel-Chance nach Black-Scholes: {de(zeile['_chance'] * 100, 0)} % in {ZEITSTOPP_TAGE} Handelstagen"
                  + (f", bei ähnlichen Signalen bisher wirklich erreicht: {de(praxis, 0)} %" if math.isfinite(praxis) else "")
                  + " (nur Info – der Stop kann vorher kommen).")
+    satz += muster_satz(zeile, waehrung)
     if str(zeile.get("Zahlen", "")).startswith("?"):
         satz += " Achtung: Quartalszahlen-Termin unbekannt – vor dem Kauf selbst prüfen."
     return satz
@@ -2991,6 +3185,11 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                         "crv": json_zahl(z.get("CRV")), "stueck": json_zahl(z.get("Stück"), 4), "einsatz": json_zahl(z.get("Einsatz")),
                         "chance": json_zahl(z.get("_chance", math.nan) * 100, 0),
                         "chance_praxis": json_zahl(z.get("_chance_praxis"), 0),
+                        "muster": ([f"{m} (bullisch)" for m in z["_muster"]["bull"]]
+                                   + [f"{m} (bärisch)" for m in z["_muster"]["bear"]]) if z.get("_muster") else [],
+                        "muster_praxis": json_zahl(z.get("_muster_praxis"), 0),
+                        "musterziel": json_zahl(z.get("_musterziel")), "musterziel_art": z.get("_musterziel_art"),
+                        "stimmung": z.get("_stimmung"),
                         "risiko": json_zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
                         "zahlen_tag": iso(z["_termin"].date()) if z.get("_termin") is not None else None,
                         "branche": BRANCHE.get(t), "im_plan": t in im_plan, "fehler": z.get("_fehler")})
@@ -3476,13 +3675,14 @@ def papier_trade_info(tr, daten):
             "einsatz": tr["kosten"], "stueck": tr["stueck"],
             "crv": r * (tr["ziel"] - tr["einstieg_usd"]) / (r * (tr["einstieg_usd"] - tr["stop"]))
             if r * (tr["einstieg_usd"] - tr["stop"]) > 0 else np.nan,
-            "tage": None, "tage_art": "Handelstage", "mfe": None, "mae": None, "chance": math.nan}
+            "tage": None, "tage_art": "Handelstage", "mfe": None, "mae": None, "chance": math.nan, "muster": None}
     d = daten.get(tr["ticker"])
     if d is not None:
         a = d["pos"].get(als_tag(info["kauf_tag"], d["idx"]))
         b = d["pos"].get(als_tag(info["verkauf_tag"], d["idx"]))
         if a is not None and a >= 1 and "VOLA" in d:
             info["chance"] = ziel_chance(d["C"][a - 1], tr["ziel"], d["VOLA"][a - 1])
+            info["muster"] = muster_am_tag(d, a - 1)
         if a is not None and b is not None and b >= a:
             info["tage"] = b - a + 1
             hoch, tief = np.nanmax(d["H"][a:b + 1]), np.nanmin(d["L"][a:b + 1])
@@ -3530,6 +3730,49 @@ def trade_lehren(info, stand, einst):
         lehren.append(f"🧠 {link_strategie(info['strategie'])} beim Schreiben dieser Notiz: "
                       f"{strategie_status(info['strategie'], stand, einst)}.")
     return lehren
+
+MUSTER_GRUPPEN = (("bull", "bullisches Kerzenmuster (am Signaltag oder Tag davor)"),
+                  ("bear", "bärisches Kerzenmuster am Signaltag"), ("keins", "kein Kerzenmuster"))
+
+def muster_lehren(gruppen):
+    """Abschnitt der Lehren-Seite: Laufen Signale mit Kerzenmuster (Poster) besser als ohne?"""
+    text = ["", "## 🕯️ Selbstkontrolle: Kerzenmuster", "",
+            "Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullish Engulfing, Shooting Star) "
+            "und bei Ausbrüchen und Doppelböden das Musterziel. Er kauft **nicht** danach – als Bestätigung, Warnung, "
+            "Vorrang oder Ziel hat das im Test über 16 Jahre nicht geholfen (siehe [[Notizen/Gelernt – Muster und "
+            "Lehrbücher]]). Hier prüft er an allen gedachten Kauf-Trades weiter, ob sich das ändert.", ""]
+    if not gruppen:
+        return text + ["- Noch keine gedachten Trades."]
+    text += ["| Gruppe | Trades | im Plus | Ø je Trade |", "| --- | --- | --- | --- |"]
+    text += [f"| {name} | {gruppen[g]['n']} | {de(gruppen[g]['quote'], 0)} % | {r_text(gruppen[g]['schnitt'], 2)} |"
+             for g, name in MUSTER_GRUPPEN if g in gruppen]
+    if "keins" in gruppen and ("bull" in gruppen or "bear" in gruppen):
+        abst = [abs(gruppen[g]["quote"] - gruppen["keins"]["quote"]) for g in ("bull", "bear") if g in gruppen]
+        text += ["", "- " + ("Mit und ohne Muster liegen nah beieinander – die Muster sagen bei diesen Strategien wenig "
+                             "voraus." if max(abst) < 3 else "Die Gruppen liegen mehr als 3 Prozentpunkte auseinander. "
+                             "Erst bei vielen Trades und in allen Zeiträumen wäre das ein Grund für einen neuen Test.")]
+    return text
+
+def nachrichten_lehren(gruppen, n_log, mindestens=30):
+    """Abschnitt der Lehren-Seite: Laufen Signale mit guten Nachrichten besser? (gesammelt ab dem Start der Funktion)"""
+    text = ["", "## 📰 Selbstkontrolle: Nachrichten-Stimmung", "",
+            "Zu jedem Signal zählt der Bot die guten und schlechten Schlagzeilen der letzten Tage (z. B. Hochstufung, "
+            "gute Quartalszahlen bzw. Herabstufung, Klage). Schlechte sperren den Kauf wie bisher; gute ändern nichts. "
+            "Alte Schlagzeilen gibt es nicht, darum sammelt er ab jetzt und prüft hier, ob Signale mit guten Nachrichten "
+            f"wirklich besser laufen. Mitentscheiden dürfte die Stimmung erst, wenn jede Gruppe mindestens {mindestens} "
+            "Trades hat und der Unterschied deutlich ist.", ""]
+    if not gruppen:
+        return text + [f"- Gesammelt: {n_log} Signal{'' if n_log == 1 else 'e'} mit Schlagzeilen, davon noch keins mit "
+                       "abgeschlossenem Trade."]
+    namen = {"gut": "mehr gute Schlagzeilen", "schlecht": "mehr schlechte", "neutral": "gleich viele oder keine"}
+    text += ["| Stimmung am Signaltag | Trades | im Plus | Ø je Trade |", "| --- | --- | --- | --- |"]
+    text += [f"| {namen[g]} | {gruppen[g]['n']} | {de(gruppen[g]['quote'], 0)} % | {r_text(gruppen[g]['schnitt'], 2)} |"
+             for g in ("gut", "schlecht", "neutral") if g in gruppen]
+    zu_wenig = [namen[g] for g in ("gut", "neutral") if gruppen.get(g, {}).get("n", 0) < mindestens]
+    text += ["", f"- Gesammelt: {n_log} Signal{'' if n_log == 1 else 'e'} mit Schlagzeilen. " + (
+        f"Noch zu wenige Trades für ein Urteil ({', '.join(zu_wenig)})." if zu_wenig else
+        "Genug Trades für einen ersten Vergleich – ein Unterschied wäre ein Grund für einen sauberen Test.")]
+    return text
 
 def chance_lehren(gruppen):
     """Abschnitt der Lehren-Seite: Stimmt die Ziel-Chance nach Black-Scholes – und sagt sie etwas über Gewinner?"""
@@ -3625,7 +3868,10 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
                 f"- Plan: Stop {de(info['stop'])} {waehrung} · Ziel {de(info['ziel'])} {waehrung}"
                 + (f" · Chance-Risiko {de(info['crv'], 1)}" if math.isfinite(info["crv"]) else "")
                 + (f" · Ziel-Chance nach Black-Scholes {de(info['chance'] * 100, 0)} %" if math.isfinite(info["chance"])
-                   else ""),
+                   else "")
+                + (" · Kerzenmuster am Signaltag: " + ", ".join(
+                    [f"{m} (bullisch)" for m in info["muster"]["bull"]] + [f"{m} (bärisch)" for m in info["muster"]["bear"]])
+                   if info.get("muster") and (info["muster"]["bull"] or info["muster"]["bear"]) else ""),
                 f"- Ausstieg: {datum(pd.Timestamp(info['verkauf_tag']))} {info['verkauf_tag'][:4]} zu "
                 f"{de(info['ausstieg'])} {waehrung} – {info['grund']} · nach {info['tage']} {info['tage_art']}",
                 f"- Ergebnis: **{de(info['gewinn'], 2, True)} {waehrung} ({r_text(info['R'], 2)})** nach Gebühren "
@@ -3791,6 +4037,9 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
                     "Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt "
                     "Ø R, siehe Rangliste oben)." if unter else "- Keine Aktie liegt bei 50 % oder darunter.")
     text += chance_lehren(chance_pruefung(tagebuch, daten))
+    text += muster_lehren(muster_pruefung(tagebuch, daten))
+    log = nachrichten_log_lesen(einst.nachrichten_log) if getattr(einst, "nachrichten_log", None) else []
+    text += nachrichten_lehren(nachrichten_pruefung(log, tagebuch), len(log))
     text += ["", "## Aus dem Übungsdepot (echte Vorwärts-Trades)", ""]
     if papier_k:
         abgegeben = [i for i in trades if gewinn_abgegeben(i)]
@@ -4012,6 +4261,7 @@ def auswerten(einst):
         papier_datei, papier_fehler = papier_pfad(einst.papier)
         if papier_datei:
             papier_stand, papier_fehler = lade_papier(papier_datei, einst.papier_neu)
+            einst.nachrichten_log = os.path.join(os.path.dirname(papier_datei), NACHRICHTEN_LOG)
     claude_datei = claude_stand = claude_fehler = None
     if einst.claude_depot and einst.papier:
         claude_datei = os.path.abspath(os.path.expanduser(einst.claude_depot))
@@ -4093,9 +4343,12 @@ def auswerten(einst):
         else:
             zeilen.append(fehler_zeile(t, gruende.get(t, "keine Kursdaten")))
     chance_gruppen = chance_pruefung(tagebuch, daten)  # Selbstkontrolle der Ziel-Chance (nur Info)
+    muster_gruppen = muster_pruefung(tagebuch, daten)  # Selbstkontrolle der Kerzenmuster (nur Info)
     for z in zeilen:
         if "_chance" in z:
             z["_chance_praxis"] = chance_praxis(z["_chance"], chance_gruppen)
+        if "_muster" in z:
+            z["_muster_praxis"] = muster_praxis(muster_gruppe(z["_muster"]), muster_gruppen)
     if not any("_stand" in z for z in zeilen):
         fehlerliste = [f"❌ {z['Ticker']}: {z.get('_fehler', '')}" for z in zeilen]
         for z in fehlerliste:
@@ -4130,6 +4383,10 @@ def auswerten(einst):
         einst.nachrichten_sperre, einst.nachrichten_tag = frozenset(sperre), stand_tag
     for z in zeilen:
         z["News"] = news.get(z["Ticker"], {}).get("spalte", "")
+        if news.get(z["Ticker"], {}).get("stimmung"):
+            z["_stimmung"] = news[z["Ticker"]]["stimmung"]
+    if news and getattr(einst, "nachrichten_log", None):
+        nachrichten_log_schreiben(einst.nachrichten_log, zeilen)
 
     # Sortieren: Einstiegssignale nach CRV (wie im Depot), dann Warten, Hinweise, Beobachten, Fehler. Das CRV wird
     # gerundet: Bei gleichem CRV (z. B. 1,0) entschieden sonst winzige Rechenreste die Reihenfolge, und ein zweiter Lauf
