@@ -4,26 +4,31 @@
 # Morgen-Lauf (swing-bot.yml) mit den Schlusskursen; neue Signale gibt es weiter nur dort. Dieser Ablauf speichert
 # nichts im Repository: Er legt docs/live.json nur in die veröffentlichte Seite (daher keine Commits und nichts Neues
 # für Obsidian).
+#
+# Kette statt Zeitplan: GitHub lässt geplante Läufe oft aus (am 26.10.2026 kam von 48 geplanten Live-Läufen nur einer,
+# am 24.10. von drei Morgen-Terminen nur der letzte). Deshalb startet jeder Lauf am Ende selbst den nächsten (Job
+# „weiter“): Mo–Fr von 12 bis 22 Uhr etwa alle 15 Minuten, dazwischen wartet er – höchstens 5,5 Stunden am Stück, dann
+# startet ein neuer Lauf und wartet weiter. Di–Sa um 6:47 UTC stößt die Kette auch den Morgen-Lauf an (der rechnet nur,
+# wenn es heute noch keinen vollständigen Bericht gibt). Anhalten: Actions → Live-Kurse → „…“ → Disable workflow.
 name: Live-Kurse
 
 on:
   schedule:
-    # Mo–Fr von 12 bis 22 Uhr deutscher Zeit alle 15 Minuten (der US-Handel läuft 15:30–22:00 Uhr, in den Wochen der
-    # Zeitumstellung 14:30–21:00 Uhr). GitHub rechnet Zeitpläne in UTC: die Zeiten unten decken Sommer- und Winterzeit
-    # ab, der Job „zeit“ lässt nur 12:00–22:10 Uhr deutscher Zeit durch. GitHub startet geplante Läufe oft etwas
-    # später oder lässt bei viel Betrieb einzelne aus – dann kommt der nächste.
-    - cron: "7,22,37,52 10-21 * * 1-5"
-  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+    # Nur Starthilfe, falls die Kette einmal abreißt: Jeder geplante Lauf, der doch kommt, führt die Kette weiter.
+    - cron: "7,37 6-20 * * 1-5"
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions: holt sofort Live-Kurse und startet die Kette
+    inputs:
+      kette:
+        description: "Nur intern (von der Kette gestartet) – bitte leer lassen"
+        required: false
+        default: ""
 
 permissions:
   contents: read
   issues: read # Claudes Entscheidungen für das Claude-Depot lesen
   pages: write
   id-token: write
-
-concurrency:
-  group: pages # nie gleichzeitig mit dem Veröffentlichen nach dem Morgen-Lauf (uebersicht.yml)
-  cancel-in-progress: false
+  actions: write # den nächsten Lauf der Kette und den Morgen-Lauf starten
 
 jobs:
   zeit:
@@ -32,14 +37,19 @@ jobs:
     outputs:
       los: ${{ steps.uhr.outputs.los }}
     steps:
-      - name: Zwischen 12 und 22 Uhr deutscher Zeit?
+      - name: Mo–Fr zwischen 12 und 22 Uhr deutscher Zeit?
         id: uhr
+        env:
+          KETTE: ${{ inputs.kette }}
         run: |
           uhr=$(TZ=Europe/Berlin date '+%H%M')
-          if [ "$GITHUB_EVENT_NAME" != "schedule" ] || { [ "$uhr" -ge 1200 ] && [ "$uhr" -le 2210 ]; }; then
+          tag=$(TZ=Europe/Berlin date '+%u')
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$KETTE" != "ja" ]; then
+            echo "los=ja" >> "$GITHUB_OUTPUT" # von Hand gestartet: immer
+          elif [ "$tag" -le 5 ] && [ "$uhr" -ge 1200 ] && [ "$uhr" -le 2210 ]; then
             echo "los=ja" >> "$GITHUB_OUTPUT"
           else
-            echo "$(TZ=Europe/Berlin date '+%H:%M') Uhr deutscher Zeit – Live läuft nur von 12 bis 22 Uhr."
+            echo "$(TZ=Europe/Berlin date '+%a %H:%M') Uhr deutscher Zeit – Live läuft nur Mo–Fr von 12 bis 22 Uhr."
           fi
 
   live:
@@ -47,6 +57,9 @@ jobs:
     if: needs.zeit.outputs.los == 'ja'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: pages # nie gleichzeitig mit dem Veröffentlichen nach dem Morgen-Lauf (uebersicht.yml)
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.seite.outputs.page_url }}
@@ -108,3 +121,70 @@ jobs:
       - name: Seite veröffentlichen
         id: seite
         uses: actions/deploy-pages@v4
+
+  weiter:
+    # Wartet bis zum nächsten Termin und startet dann den nächsten Lauf (und am Morgen den Swing-Bot). Läuft auch,
+    # wenn „live“ übersprungen wurde oder fehlschlug, damit die Kette nicht abreißt. Laufen einmal zwei Ketten
+    # (z. B. weil ein geplanter Starthilfe-Lauf doch kam), macht nur der neueste Lauf weiter.
+    needs: [zeit, live]
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - name: Nächsten Termin bestimmen
+        id: termin
+        shell: python3 {0}
+        run: |
+          import datetime as dt, os, zoneinfo
+          B, U = zoneinfo.ZoneInfo("Europe/Berlin"), dt.timezone.utc
+          jetzt = dt.datetime.now(U)
+
+          def live_termin(ab):
+              """Frühester Live-Zeitpunkt ab 'ab': Mo–Fr zwischen 12:00 und 22:10 Uhr deutscher Zeit."""
+              for i in range(8):
+                  tag = (ab.astimezone(B) + dt.timedelta(days=i)).date()
+                  if tag.weekday() > 4:
+                      continue
+                  start = dt.datetime.combine(tag, dt.time(12, 0), B)
+                  ende = dt.datetime.combine(tag, dt.time(22, 10), B)
+                  if max(ab, start) <= ende:
+                      return max(ab, start)
+
+          def morgen_termin(ab):
+              """Nächster Morgen-Lauf ab 'ab': Di–Sa um 6:47 UTC (wie der Zeitplan in swing-bot.yml)."""
+              for i in range(8):
+                  tag = (ab + dt.timedelta(days=i)).date()
+                  if 1 <= tag.weekday() <= 5 and dt.datetime.combine(tag, dt.time(6, 47), U) >= ab:
+                      return dt.datetime.combine(tag, dt.time(6, 47), U)
+
+          ziel, art = min((live_termin(jetzt + dt.timedelta(minutes=13)), "live"), (morgen_termin(jetzt), "morgen"))
+          if ziel - jetzt > dt.timedelta(hours=5, minutes=30):
+              ziel, art = jetzt + dt.timedelta(hours=5, minutes=30), "warten"
+          print(f"Nächster Lauf: {ziel.astimezone(B):%a %d.%m. %H:%M} Uhr deutscher Zeit ({art})")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"sekunden={max(0, int((ziel - jetzt).total_seconds()))}\nart={art}\n")
+
+      - name: Warten und weitermachen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEKUNDEN: ${{ steps.termin.outputs.sekunden }}
+          ART: ${{ steps.termin.outputs.art }}
+        run: |
+          sleep "$SEKUNDEN"
+          neuester=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow live.yml --limit 1 \
+            --json databaseId --jq '.[0].databaseId' || true)
+          if [ -n "$neuester" ] && [ "$neuester" != "$GITHUB_RUN_ID" ]; then
+            echo "Ein neuerer Lauf führt die Kette weiter – hier ist Schluss."
+            exit 0
+          fi
+          starte() { # bei einer Störung bis zu dreimal versuchen
+            for warte in 0 10 30; do
+              sleep "$warte"
+              gh workflow run "$@" --repo "$GITHUB_REPOSITORY" --ref main && return 0
+            done
+            return 1
+          }
+          if [ "$ART" = "morgen" ]; then
+            starte swing-bot.yml -f automatisch=ja || echo "::warning::Morgen-Lauf ließ sich nicht starten"
+          fi
+          starte live.yml -f kette=ja
