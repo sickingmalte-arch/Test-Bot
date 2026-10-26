@@ -659,7 +659,9 @@ NEWS_EREIGNISSE = [  # (Muster, Richtung: +1 gut / −1 schlecht / 0 Sonderfall,
     (r"\b(to join|added to|joins?)\b.{0,20}\b(s&p|nasdaq-100|index)\b", 1, "Indexaufnahme"),
     (r"\bstock split\b", 1, "Aktiensplit"),
     (r"\b(signs?|wins?|secures?|lands?)\b.{0,30}\b(deal|contract|agreement)\b", 1, "Auftrag/Vertrag"),
-    (r"\b(to acquire|to be acquired|acquisition of|merger|takeover|buyout)\b"
+    (r"\b(to acquire|to be acquired|acquisition of|merger|takeover)\b"
+     # „buyout“ ist auch eine Abfindung für Mitarbeiter („offers voluntary buyout to 60,000 employees“) – das zählt nicht
+     r"|(?<!voluntary )(?<!employee )\bbuyouts?\b(?!.{0,40}\b(employees|workers|staff|retirees)\b)"
      r"|\b(agrees?|deal|offer|bid|talks)\s+to\s+buy\s+(?!back\b)"
      r"|\bto buy\s+(?!back\b)(?-i:[A-Z])\S*(\s+(?!(chips?|gpus?|servers?|spectrum|shares|stakes?|miners?|rights|assets)\b)\S+)?"
      r"\s+for \$\d"
@@ -1406,12 +1408,14 @@ def gleiche_branche(ticker, andere):
     return sum(1 for x in andere if b is not None and BRANCHE.get(x) == b)
 
 def ausfuehrbare_auftraege(stand):
-    """Teilt die Aufträge des Papier-Depots auf: (ausführbar, {Grund: [Ticker]}). Verkauft wird erst nach der
-    Eröffnung (simuliere_depot, Schritt 1 vor 2) – ist das Depot jetzt schon voll oder die Branche schon belegt,
-    verfällt der Auftrag sicher. Nur für die Anzeige; gespeichert werden alle Aufträge."""
+    """Teilt die Aufträge des Papier-Depots auf: (ausführbar, {Grund: [Ticker]}, Nachrücker). Gekauft wird zur
+    Eröffnung in der gespeicherten Reihenfolge, verkauft erst danach (simuliere_depot, Schritt 1 vor 2) – ist das
+    Depot jetzt schon voll oder die Branche schon belegt, verfällt der Auftrag sicher. Belegen erst die Aufträge
+    davor die Plätze, rückt er nur nach, wenn einer davon nicht zum Limit klappt. Nur für die Anzeige; gespeichert
+    werden alle Aufträge."""
     im_depot = [p["ticker"] for p in stand["positionen"]]
     shorts = sum(1 for p in stand["positionen"] if p["richtung"] < 0)
-    ok, verfallen = [], {}
+    ok, verfallen, nachruecker = [], {}, []
     for a in stand["auftraege"]:
         if len(im_depot) >= MAX_POSITIONEN:
             grund = f"Depot voll, {len(im_depot)}/{MAX_POSITIONEN} Positionen"
@@ -1422,10 +1426,16 @@ def ausfuehrbare_auftraege(stand):
         elif a["richtung"] < 0 and shorts >= MAX_SHORTS:
             grund = f"schon {MAX_SHORTS} Shorts im Depot"
         else:
-            ok.append(a)
+            geplant = [x["ticker"] for x in ok]
+            if (len(im_depot) + len(ok) >= MAX_POSITIONEN or a["ticker"] in geplant
+                    or gleiche_branche(a["ticker"], im_depot + geplant) >= MAX_JE_BRANCHE
+                    or (a["richtung"] < 0 and shorts + sum(x["richtung"] < 0 for x in ok) >= MAX_SHORTS)):
+                nachruecker.append(a)
+            else:
+                ok.append(a)
             continue
         verfallen.setdefault(grund, []).append(a["ticker"])
-    return ok, verfallen
+    return ok, verfallen, nachruecker
 
 def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None, veto=None):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
@@ -1860,11 +1870,13 @@ def schreibe_nachricht(datei, einstiege, plan, papier, woche=None):
         zeilen += [f"- {p}" for p in plan]
         if any(z["_offen"] for z in einstiege):
             zeilen += ["", "⚠️ Vorläufig: Die Börse war beim Lauf noch offen – das Signal kann bis zum Schluss wegfallen."]
-        auftraege, verfallen = ausfuehrbare_auftraege(papier) if papier else ([], {})
+        auftraege, verfallen, nachruecker = ausfuehrbare_auftraege(papier) if papier else ([], {}, [])
         if auftraege:
             zeilen += ["", "📒 Übungsdepot: " + ", ".join(
                 f"{'kauft' if a['richtung'] > 0 else 'shortet'} {a['ticker']}" for a in auftraege)
-                + " zur nächsten Eröffnung (nur bis zum Limit)."]
+                + " zur nächsten Eröffnung (nur bis zum Limit)."
+                + (f" Klappt ein Kauf nicht, rückt {', '.join(a['ticker'] for a in nachruecker)} nach."
+                   if nachruecker else "")]
         elif verfallen:
             zeilen += ["", f"📒 Übungsdepot: kauft diesmal nichts ({'; '.join(verfallen)})."]
         if woche:
@@ -2827,7 +2839,7 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
         zeilen.append(f"Abgeschlossene Trades: {len(trades)} · Gewinner: {gewinner} ({de(gewinner / len(trades) * 100, 0)} %)"
                       f" · Summe {de(summe, 2, True)} {waehrung} · größter Rückgang {de(rueckgang, 1)} % · Kosten: "
                       f"Gebühren {de(stand['gebuehren'])} {waehrung} + Spread ca. {de(stand['spread'])} {waehrung}")
-    auftraege, verfallen = ausfuehrbare_auftraege(stand)
+    auftraege, verfallen, nachruecker = ausfuehrbare_auftraege(stand)
     if auftraege:
         def kurs(t, wert):
             return wert / (fx_heute if waehrung_von(t) == "USD" and fx_heute else 1)
@@ -2841,6 +2853,10 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                           f"Ziel {de(kurs(a['ticker'], a['ziel']))} {waehrung}"
                           + (f" (am {datum(termine[a['ticker']])})" if termine[a["ticker"]] != erster else "")
                           for a in auftraege))
+        if nachruecker:
+            zeilen.append(f"Nachrücker (gekauft nur, wenn ein Auftrag davor nicht zum Limit klappt – sonst sind die "
+                          f"{MAX_POSITIONEN} Plätze bzw. die Branche schon belegt): "
+                          + ", ".join(f"{a['ticker']} {name_von(a['strategie'])}" for a in nachruecker))
         if erg is not None and eroeffnung_vorbei(auftraege, termine):
             zeilen.append(f"Die Eröffnung am {datum(erster)} ist schon gelaufen: Das Papier-Depot bucht einen Tag erst, "
                           f"wenn er für alle Werte fertig ist – also beim nächsten Lauf nach dem Handelstag (am besten "
@@ -3200,7 +3216,7 @@ def depot_export(stand, daten, markt, fx):
                "prozent": json_zahl((t["erloes"] / t["kosten"] - 1) * 100, 1) if t["kosten"] else None}
               for t in stand["trades"][-30:]][::-1]
     alle = stand["trades"]
-    ok, verfallen = ausfuehrbare_auftraege(stand)
+    ok, verfallen, nachruecker = ausfuehrbare_auftraege(stand)
     return {
         "angelegt": stand.get("angelegt"), "bis": stand["bis"], "startkapital": json_zahl(stand["startkapital"]),
         "wert": json_zahl(stand["depotwert"]), "bargeld": json_zahl(stand["bargeld"]),
@@ -3211,6 +3227,7 @@ def depot_export(stand, daten, markt, fx):
         "summe": json_zahl(sum(t["erloes"] - t["kosten"] for t in alle)),
         "positionen": positionen, "trades": trades,
         "auftraege": [{"ticker": a["ticker"], "strategie": strategie_name(a["strategie"])} for a in ok],
+        "nachruecker": [{"ticker": a["ticker"], "strategie": strategie_name(a["strategie"])} for a in nachruecker],
         "verfallen": [{"grund": g, "ticker": t} for g, t in verfallen.items()],
         "tage": tages_bilanz(stand, daten),
     }
@@ -4138,9 +4155,11 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         text += [f"- Abgeschlossen: {trade_link[id(i)]} ({i['grund']}, {i['verkauf_tag']})" for i in neu_zu]
         text += [f"- Offen: {link_aktie(p['ticker'])} {'Long' if p['richtung'] > 0 else 'Short'} mit "
                  f"{link_strategie(p['strategie'])} seit {str(p['kauf_tag'])[:10]}" for p in papier["positionen"]]
-        auftraege, verfallen = ausfuehrbare_auftraege(papier)
+        auftraege, verfallen, nachruecker = ausfuehrbare_auftraege(papier)
         text += [f"- Auftrag für den nächsten Handelstag: {link_aktie(a['ticker'])} mit {link_strategie(a['strategie'])}"
                  for a in auftraege]
+        text += [f"- Rückt nach, falls ein Auftrag davor nicht zum Limit klappt: {link_aktie(a['ticker'])} mit "
+                 f"{link_strategie(a['strategie'])}" for a in nachruecker]
         text += [f"- Kein Kauf möglich ({grund}): " + ", ".join(link_aktie(t) for t in liste)
                  for grund, liste in verfallen.items()]
     elif not einst.papier:

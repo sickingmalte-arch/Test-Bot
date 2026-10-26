@@ -391,7 +391,7 @@ button.kal-tag:hover { border-color: #3a4654; }
 .markierung.voll { color: var(--warnung); border: 1px solid rgba(250, 178, 25, .35); }
 .depot-status { font-size: 12.5px; margin: -4px 0 10px; display: flex; gap: 6px; align-items: baseline; }
 .depot-status.kauft { color: var(--text-1); }
-.depot-status.drin { color: var(--text-2); }
+.depot-status.drin, .depot-status.nach { color: var(--text-2); }
 .depot-status.nicht { color: var(--warnung); }
 .karte.gedimmt .werte, .karte.gedimmt .bahn, .karte.gedimmt .bahn-text { opacity: .55; }
 .zahlen-zeile { margin-top: 10px; font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
@@ -1379,11 +1379,13 @@ function aufbauen(D) {
   // Was das Übungsdepot mit jedem Kauf-Signal macht – sonst sieht eine Karte wie eine Kaufempfehlung aus, obwohl das Depot voll ist
   const kauftDepot = new Set(P ? P.auftraege.map(a => a.ticker) : []);
   const imDepot = new Set(P ? P.positionen.map(p => p.ticker) : []);
+  const rueckt = new Set(P && P.nachruecker ? P.nachruecker.map(a => a.ticker) : []);
   const nichtGrund = new Map();
   if (P) for (const v of P.verfallen) for (const t of v.ticker) nichtGrund.set(t, v.grund);
   const depotStatus = t => !P ? null
     : kauftDepot.has(t) ? { art: "kauft", marke: "Wird gekauft", text: "Das Übungsdepot kauft zur nächsten Eröffnung (nur bis zum Limit)." }
     : imDepot.has(t) ? { art: "drin", marke: "Schon im Depot", text: "Liegt schon im Übungsdepot – kein zweiter Kauf." }
+    : rueckt.has(t) ? { art: "nach", marke: "Rückt nach", text: "Gekauft nur, wenn ein Kauf davor nicht zum Limit klappt – sonst sind die Plätze bzw. die Branche schon belegt." }
     : nichtGrund.has(t) ? { art: "nicht", marke: nichtGrund.get(t).startsWith("Depot voll") ? "Depot voll" : "Kein Kauf", text: `${nichtGrund.get(t)} – wird nicht gekauft.` }
     : { art: "nicht", marke: "Kein Kauf", text: "Das Übungsdepot kauft dieses Signal nicht." };
   const kaufAnzahl = kaufen.filter(s => kauftDepot.has(s.ticker)).length;
@@ -1480,11 +1482,11 @@ function aufbauen(D) {
   const beob = D.signale.filter(s => s.art === "beobachten");
   const fehler = D.signale.filter(s => s.art === "fehler");
   const karten = el("div", { class: "karten" });
-  const rang = { kauft: 0, drin: 1, nicht: 2 };
+  const rang = { kauft: 0, nach: 1, drin: 2, nicht: 3 };
   const sortiert = P ? [...kaufen].sort((a, b) => rang[depotStatus(a.ticker).art] - rang[depotStatus(b.ticker).art]) : kaufen;
   for (const s of sortiert) {
     const st = depotStatus(s.ticker);
-    const [mKlasse, mText] = st ? [{ kauft: "plan", drin: "drin", nicht: "voll" }[st.art], st.marke]
+    const [mKlasse, mText] = st ? [{ kauft: "plan", nach: "drin", drin: "drin", nicht: "voll" }[st.art], st.marke]
       : [s.im_plan ? "plan" : "kaufen", s.im_plan ? "Im Handelsplan" : s.art === "short" ? "Short" : "Kaufen"];
     const vorne = st ? st.art === "kauft" : s.im_plan;
     karten.append(el("article", { class: `panel karte${vorne ? " im-plan" : ""}${st && st.art !== "kauft" ? " gedimmt" : ""}` },
@@ -1617,7 +1619,8 @@ function aufbauen(D) {
     const auftr = el("div", { class: "panel-innen", style: "border-top:1px solid var(--line-soft)" },
       el("div", { class: "label" }, "Nächste Eröffnung"),
       el("div", { style: "margin-top:6px;font-size:13px;color:var(--text-2)" },
-        P.auftraege.length ? `Kauft zur Eröffnung (nur bis zum Limit): ${P.auftraege.map(a => a.ticker).join(", ")}` :
+        P.auftraege.length ? `Kauft zur Eröffnung (nur bis zum Limit): ${P.auftraege.map(a => a.ticker).join(", ")}`
+          + (P.nachruecker && P.nachruecker.length ? ` · klappt ein Kauf nicht, rückt ${P.nachruecker.map(a => a.ticker).join(", ")} nach` : "") :
           P.verfallen.length ? `Kauft nichts: ${P.verfallen.map(v => `${v.ticker.join(", ")} – ${v.grund}`).join("; ")}` : "Keine Aufträge."));
     pos.append(auftr);
     const tr = el("div", { class: "panel" }, el("div", { class: "panel-kopf" },
