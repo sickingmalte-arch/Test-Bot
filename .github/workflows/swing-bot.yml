@@ -168,18 +168,37 @@ jobs:
           exit 1
 
       - name: Nachricht aufs Handy
-        # Bei Kauf-Signalen ein Kommentar im Thema „📲 Swing-Bot: Signale“ (Tab Issues). GitHub schickt dir dazu eine
-        # E-Mail und – mit der GitHub-App – eine Push-Nachricht. Klappt das nicht, bleibt der Lauf trotzdem grün.
-        if: always() && steps.bot.outcome == 'success'
+        # Ein Kommentar im Thema „📲 Swing-Bot: Signale“ (Tab Issues) bei Kauf-Signalen, nach dem letzten Handelstag
+        # der Woche (Wochenrückblick) und wenn der Lauf abbricht – höchstens eine Fehlermeldung am Tag. Seit live.yml
+        # den Morgen-Lauf anstößt, kommt GitHubs eigene Fehler-Mail oft nicht mehr bei dir an. GitHub schickt dir zum
+        # Kommentar eine E-Mail und – mit der GitHub-App – eine Push-Nachricht. Klappt das nicht, bleibt der Lauf grün.
+        if: always()
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           BESITZER: ${{ github.repository_owner }}
           BERICHT: ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/bericht/README.md
+          LAUF: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JOB: ${{ job.status }}
+          ERGEBNIS: ${{ steps.bot.outcome }}
         run: |
           datei="$RUNNER_TEMP/nachricht.md"
-          if [ ! -s "$datei" ]; then
-            echo "Kein Signal – keine Nachricht."
+          heute=$(TZ=Europe/Berlin date '+%d.%m.%Y')
+          fehler=""
+          if [ "$JOB" != "success" ]; then
+            case "$ERGEBNIS" in
+              success) grund="Der Bot hat gerechnet, aber das Ergebnis konnte nicht gespeichert werden." ;;
+              failure) grund="Der Bot ist mit einem Fehler abgebrochen – der Grund steht unten im Bericht." ;;
+              cancelled) grund="Der Lauf wurde abgebrochen (von Hand oder nach 30 Minuten)." ;;
+              *) grund="Der Bot ist gar nicht gestartet: Ein Schritt davor ist fehlgeschlagen (z. B. Pakete installieren)." ;;
+            esac
+            fehler="**❌ Swing-Bot: Der Lauf vom $heute ist nicht durchgelaufen.**"
+            # Fehlermeldung oben, eine Nachricht des Bots (Signale) bleibt darunter erhalten
+            { printf '%s\n' "$fehler" "" "$grund Der nächste Termin versucht es erneut. Details: $LAUF"
+              if [ -s "$datei" ]; then echo; cat "$datei"; fi; } > "$datei.neu"
+            mv "$datei.neu" "$datei"
+          elif [ ! -s "$datei" ]; then
+            echo "Kein Signal und kein Wochenrückblick – keine Nachricht."
             exit 0
           fi
           { echo; echo "Ganzer Bericht: $BERICHT"; echo; echo "@$BESITZER"; } >> "$datei"
@@ -190,7 +209,7 @@ jobs:
           if [ -z "$nummer" ]; then
             nummer=$(gh issue create --repo "$GITHUB_REPOSITORY" --label swing-bot-signale \
               --title "📲 Swing-Bot: Signale" \
-              --body "Hier schreibt der Bot nach jedem Lauf mit Kauf-Signal einen Kommentar. GitHub schickt dir dazu eine E-Mail und – mit der GitHub-App – eine Push-Nachricht aufs Handy. Keine Nachrichten mehr: rechts auf Unsubscribe klicken. Wird dieses Thema geschlossen, legt der Bot beim nächsten Signal ein neues an." \
+              --body "Hier schreibt der Bot einen Kommentar nach jedem Lauf mit Kauf-Signal, nach dem letzten Handelstag der Woche (Wochenrückblick) und wenn ein Lauf abbricht. GitHub schickt dir dazu eine E-Mail und – mit der GitHub-App – eine Push-Nachricht aufs Handy. Keine Nachrichten mehr: rechts auf Unsubscribe klicken. Wird dieses Thema geschlossen, legt der Bot bei der nächsten Nachricht ein neues an." \
               | grep -o '[0-9]*$')
           fi
           # Dieselbe Nachricht nicht zweimal schicken: Ein von Hand gestarteter Lauf und der (oft Stunden verspätete)
@@ -206,6 +225,11 @@ jobs:
           gleich() { tr -d '\r' | sed -e 's/[[:space:]]*$//'; }
           if [ -n "$letzte" ] && [ "$(printf '%s' "$letzte" | gleich)" = "$(gleich < "$datei")" ]; then
             echo "Gleiche Nachricht wie zuletzt – nicht noch einmal geschickt."
+            exit 0
+          fi
+          # Bricht auch der Ersatz-Termin ab, nicht noch einmal melden: Fehler von heute stand schon im letzten Kommentar
+          if [ -n "$fehler" ] && [ "$(printf '%s\n' "$letzte" | head -n 1 | gleich)" = "$fehler" ]; then
+            echo "Der Fehler von heute wurde schon gemeldet – keine zweite Nachricht."
             exit 0
           fi
           gh issue comment "$nummer" --repo "$GITHUB_REPOSITORY" --body-file "$datei"

@@ -1805,14 +1805,53 @@ def handelsplan(zeile, nr, einst, waehrung):
         satz += " Achtung: Quartalszahlen-Termin unbekannt – vor dem Kauf selbst prüfen."
     return satz
 
-def schreibe_nachricht(datei, einstiege, plan, papier):
-    """Kurze Nachricht fürs Handy (z. B. als Kommentar bei GitHub): nur bei Kauf- oder Short-Signalen, sonst wird die
-    Datei gelöscht, damit keine alte Nachricht noch einmal verschickt wird. Gibt einen Hinweis zurück, falls etwas
-    nicht klappt."""
+def wochen_rueckblick(stand, bis_vorher, markt, fx):
+    """Wochenrückblick des Übungsdepots für die Handy-Nachricht (Zeilen) – nur in dem Lauf, der den letzten
+    US-Handelstag einer Woche neu ins Depot bucht, sonst None."""
+    if not stand or not stand.get("verlauf") or not stand.get("bis"):
+        return None
+    bis = pd.Timestamp(stand["bis"])
+    if not bis_vorher or pd.Timestamp(bis_vorher) >= bis:
+        return None  # Depot gerade erst angelegt, oder dieser Tag war schon gebucht (z. B. Lauf von Hand wiederholt)
+    if tuple((bis + NYSE_TAG).isocalendar())[:2] == tuple(bis.isocalendar())[:2]:
+        return None  # die Woche geht noch weiter
+    montag = bis - pd.Timedelta(days=bis.weekday())
+    verlauf = [(pd.Timestamp(t), float(w)) for t, w in stand["verlauf"]]
+    davor = [w for t, w in verlauf if t < montag]
+    vorher = davor[-1] if davor else float(stand["startkapital"])
+    wert = verlauf[-1][1]
+    woche = lambda tag: bool(tag) and montag <= pd.Timestamp(tag) <= bis
+    kaeufe = sum(woche(p.get("kauf_tag")) for p in (stand.get("trades") or []) + (stand.get("positionen") or []))
+    verkauft = [p for p in stand.get("trades") or [] if woche(p.get("verkauf_tag"))]
+    im_plus = sum(p["erloes"] > p["kosten"] for p in verkauft)
+    seit = (f"in dieser Woche, seit dem Start {de((wert / stand['startkapital'] - 1) * 100, 1, True)} %" if davor
+            else "seit dem Start")
+    zeilen = [f"**📅 Wochenrückblick Übungsdepot** ({montag:%d.%m.}–{bis:%d.%m.%Y})",
+              f"- Wert {de(wert, 0)} €: {de(wert - vorher, 0, True)} € ({de((wert / vorher - 1) * 100, 1, True)} %) "
+              + seit,
+              f"- {kaeufe} {'Kauf' if kaeufe == 1 else 'Käufe'}, {len(verkauft)} "
+              f"{'Verkauf' if len(verkauft) == 1 else 'Verkäufe'}"
+              + (f", davon {im_plus} im Plus" if verkauft else "")]
+    vergleich = papier_vergleich(stand, markt, fx)
+    if vergleich is not None:
+        basis = vergleich[vergleich.index.tz_localize(None) < montag]
+        q_vorher = basis.iloc[-1] if len(basis) else float(stand["startkapital"])
+        zeilen.append(f"- Nasdaq-100 (QQQ, in €) in derselben Zeit: "
+                      f"{de((vergleich.iloc[-1] / q_vorher - 1) * 100, 1, True)} %")
+    return zeilen
+
+def schreibe_nachricht(datei, einstiege, plan, papier, woche=None):
+    """Kurze Nachricht fürs Handy (z. B. als Kommentar bei GitHub): bei Kauf- oder Short-Signalen und nach dem letzten
+    Handelstag der Woche (Wochenrückblick), sonst wird die Datei gelöscht, damit keine alte Nachricht noch einmal
+    verschickt wird. Gibt einen Hinweis zurück, falls etwas nicht klappt."""
     try:
-        if not einstiege:
+        if not einstiege and not woche:
             if os.path.exists(datei):
                 os.remove(datei)
+            return None
+        if not einstiege:
+            with open(datei, "w", encoding="utf-8", newline="\n") as f:
+                f.write("\n".join(woche + ["", "Simulation mit Spielgeld – keine Anlageberatung."]) + "\n")
             return None
         heute = max(z["_stand"] for z in einstiege)
         n = len(einstiege)
@@ -1828,6 +1867,8 @@ def schreibe_nachricht(datei, einstiege, plan, papier):
                 + " zur nächsten Eröffnung (nur bis zum Limit)."]
         elif verfallen:
             zeilen += ["", f"📒 Übungsdepot: kauft diesmal nichts ({'; '.join(verfallen)})."]
+        if woche:
+            zeilen += [""] + woche
         zeilen += ["", "Simulation mit Spielgeld – keine Anlageberatung."]
         with open(datei, "w", encoding="utf-8", newline="\n") as f:
             f.write("\n".join(zeilen) + "\n")
@@ -4483,7 +4524,8 @@ def auswerten(einst):
 
     if einst.nachricht:
         # Fehlt der letzte US-Handelstag noch, wären Signal und Kauftag schon veraltet – dann keine Nachricht
-        h = schreibe_nachricht(einst.nachricht, [] if fehlt is not None else einstiege, plan, papier)
+        woche = None if fehlt is not None else wochen_rueckblick(papier, (papier_stand or {}).get("bis"), markt, fx)
+        h = schreibe_nachricht(einst.nachricht, [] if fehlt is not None else einstiege, plan, papier, woche)
         if h:
             print(f"⚠️ {h}")
             BERICHT_HINWEISE.append(h)
