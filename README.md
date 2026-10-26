@@ -73,7 +73,12 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot am Morgen nach jede
 
 Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--claude-depot`, `--claude-entscheidungen`, `--uebersicht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 
-**Nachricht aufs Handy bei Kauf-Signalen.** Hat der Bot ein Signal, schreibt er nach dem Lauf einen Kommentar ins Thema **„📲 Swing-Bot: Signale“** (Tab **Issues**; das Thema legt er beim ersten Signal selbst an): Aktie, Strategie, Stückzahl, Limit, Stop, Ziel und bis wann verkaufen – dazu ein Link zum Bericht. GitHub schickt dir dazu eine E-Mail, und mit der **GitHub-App** kommt eine Push-Nachricht. Einmalig einrichten:
+**Nachricht aufs Handy bei Kauf-Signalen.** Hat der Bot ein Signal, schreibt er nach dem Lauf einen Kommentar ins Thema **„📲 Swing-Bot: Signale“** (Tab **Issues**; das Thema legt er bei der ersten Nachricht selbst an): Aktie, Strategie, Stückzahl, Limit, Stop, Ziel und bis wann verkaufen – dazu ein Link zum Bericht. GitHub schickt dir dazu eine E-Mail, und mit der **GitHub-App** kommt eine Push-Nachricht. Außerdem kommen dort zwei weitere Nachrichten:
+
+- **Wochenrückblick:** am Samstagmorgen mit dem Morgen-Lauf, denn erst dann ist der Freitag im Übungsdepot gebucht. Bei einem Feiertag am Freitag kommt er schon nach dem Donnerstag. Darin steht in drei Zeilen, wie sich das Übungsdepot in der Woche verändert hat (in € und %, dazu seit dem Start), wie viele Käufe und Verkäufe es gab und wie viele davon im Plus waren, und wie der Nasdaq-100 (QQQ, in €) im selben Zeitraum lief.
+- **Fehlermeldung, wenn der Morgen-Lauf abbricht:** mit dem Grund und einem Link zum Lauf, höchstens eine am Tag. Das ist nötig, weil die Live-Kette den Morgen-Lauf anstößt: Dann kommt GitHubs eigene Fehler-Mail meist nicht mehr bei dir an.
+
+Einmalig einrichten:
 
 1. App **GitHub** (Android oder iPhone) installieren und mit deinem Konto anmelden.
 2. In der App (sie ist auf Englisch): **Profile → Zahnrad (Settings) → Notifications** → Push-Nachrichten einschalten und dort **Direct mentions** (direkte Erwähnungen) anhaken. In den Handy-Einstellungen Benachrichtigungen für die GitHub-App erlauben.
@@ -278,7 +283,7 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 | `--claude-entscheidungen DATEI` | Claudes Entscheidungen fürs Claude-Depot (Kommentare aus dem GitHub-Thema als JSON; holt der automatische Lauf) |
 | `--uebersicht DATEI` | Daten für die Übersichtsseite (`docs/index.html`) als JSON in DATEI schreiben (nutzt der automatische Lauf: `docs/daten.json`) |
 | `--live DATEI` | nur Live-Vorschau: aktuelle Kurse, dazu `--papier` und `--claude-depot` nach denselben Regeln bis jetzt weitergerechnet (Käufe, Stop, Ziel) als JSON in DATEI (nutzt der Ablauf `live.yml`: `docs/live.json`) – ohne neue Signale, speichert sonst nichts |
-| `--nachricht DATEI` | bei Kauf-Signalen den Handelsplan als kurze Nachricht in DATEI schreiben (nutzt der automatische Lauf für die Nachricht aufs Handy; ohne Signal wird die Datei gelöscht) |
+| `--nachricht DATEI` | bei Kauf-Signalen den Handelsplan als kurze Nachricht in DATEI schreiben, nach dem letzten Handelstag der Woche dazu den Wochenrückblick des Übungsdepots (nutzt der automatische Lauf für die Nachricht aufs Handy; ohne Signal und Wochenrückblick wird die Datei gelöscht) |
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
 
