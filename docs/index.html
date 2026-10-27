@@ -124,8 +124,14 @@ main { padding: 16px 20px 40px; min-width: 0; }
 .kern-spalte.aus .kern-box { border-left: 1px solid var(--line); border-right: 2px solid var(--s3); }
 .kern-box .wert { font: 600 20px/1.1 var(--sans); margin-top: 4px; }
 .kern-box .klein { font-size: 11px; color: var(--text-2); margin-top: 2px; }
-.kern-mitte { position: relative; display: grid; place-items: center; min-height: 260px; }
-.kern-mitte canvas { width: 100%; height: 100%; max-width: 320px; max-height: 300px; aspect-ratio: 1; }
+.kern-mitte { position: relative; display: grid; place-items: center; align-content: center; gap: 6px; min-height: 280px; }
+.kern-mitte canvas { width: 100%; height: auto; max-width: 420px; aspect-ratio: 5 / 4; cursor: pointer; touch-action: manipulation; }
+.netz-legende { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; font-size: 11px; color: var(--text-2); }
+.netz-legende span { display: inline-flex; align-items: center; gap: 5px; }
+.netz-legende i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.netz-legende i.ring { background: transparent; border: 1.5px solid var(--gut-text); width: 9px; height: 9px; }
+.netz-legende .netz-hinweis { color: var(--text-3); }
+.netz-tipp { max-width: 290px; }
 .kern-linien { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 .kern-linien path { fill: none; stroke: var(--line); stroke-width: 1; }
 .kern-linien path.fluss { stroke: var(--s1); stroke-opacity: .55; stroke-dasharray: 4 14; animation: fliessen 2.4s linear infinite; }
@@ -528,8 +534,8 @@ button.kal-tag:hover { border-color: #3a4654; }
   .kern { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 0; gap: 10px; }
   .kern-kopf { grid-template-columns: 1fr 1fr; }
   .kern-kopf > :nth-child(2) { display: none; }
-  .kern-mitte { grid-column: 1 / -1; grid-row: 2; min-height: 170px; }
-  .kern-mitte canvas { max-width: 180px; max-height: 180px; }
+  .kern-mitte { grid-column: 1 / -1; grid-row: 2; min-height: 0; }
+  .kern-mitte canvas { max-width: 360px; }
   .kern-box { padding: 7px 9px; }
   .kern-box .wert { font-size: 17px; }
   .kern-spalte.ein { grid-column: 1; grid-row: 3; }
@@ -864,48 +870,201 @@ function sparkline(werte, { breite = 92, hoehe = 28, farbe = css("--s1"), basis 
 }
 
 // ---------------------------------------------------------------------------
-// Gehirn-Kugel (Punkte auf einer drehenden Kugel)
+// Gehirn-Netz: Punkte in Gehirnform, verbunden wie Nervenzellen. Die Strategien sind die hellen Knoten
+// (grün aktiv, gelb pausiert, grau aus); Impulse laufen durch das Netz, von Strategien mit Signal heute besonders oft.
 // ---------------------------------------------------------------------------
-function kugel(canvas) {
+const NETZ_FARBE = { aktiv: "#3fb950", pausiert: "#fab219", aus: "#7d8894" };
+const NETZ_ORTE = [[0.7, 0.62, 0.6], [0.22, 0.9, 0.55], [-0.28, 0.9, 0.55], [-0.72, 0.55, 0.62],
+                   [0.75, 0.05, 0.75], [0.25, 0.35, 0.88], [-0.25, 0.3, 0.88], [-0.7, 0.02, 0.75]];
+function gehirnForm() {
+  const punkte = [], gold = Math.PI * (3 - Math.sqrt(5));
+  const kugel = (n, f) => {
+    for (let i = 0; i < n; i++) {
+      const y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(1 - y * y), th = gold * i;
+      punkte.push(f(Math.cos(th) * r, y, Math.sin(th) * r));
+    }
+  };
+  for (const seite of [1, -1]) kugel(430, (x, y, z) => {  // Großhirn: zwei Hälften mit Windungen
+    const falte = 1 + 0.07 * Math.sin(9 * x + 4 * Math.sin(6 * y)) * Math.cos(7 * z + 3 * y);
+    let px = x * falte, py = y * 0.72 * falte;
+    if (py < -0.28) py = -0.28 + (py + 0.28) * 0.5;  // unten flacher
+    if (px > 0.35 && py < -0.12) py += 0.06;          // Stirn
+    return [px, py + 0.12, z * 0.44 * falte + seite * 0.47];
+  });
+  kugel(120, (x, y, z) => { const r = 1 + 0.07 * Math.sin(16 * y); return [-0.6 + x * 0.32 * r, -0.42 + y * 0.18 * r, z * 0.62 * r]; });  // Kleinhirn
+  for (let i = 0; i < 28; i++) { const w = i * 2.4, h = i / 27; punkte.push([-0.26 + 0.07 * Math.cos(w) + h * 0.06, -0.3 - h * 0.5, 0.07 * Math.sin(w)]); }  // Hirnstamm
+  return punkte;
+}
+function gehirnNetz(canvas, strategien, feuernd, mitte) {
   const ctx = canvas.getContext("2d");
-  const N = 760, punkte = [];
-  const gold = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < N; i++) {
-    const yy = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - yy * yy), th = gold * i;
-    punkte.push([Math.cos(th) * r, yy, Math.sin(th) * r]);
+  const punkte = gehirnForm(), n = punkte.length;
+  // Nachbarn: je Punkt die 3 nächsten (einmal berechnet)
+  const nachbarn = punkte.map(() => []), kanten = [];
+  for (let i = 0; i < n; i++) {
+    const best = [[9, -1], [9, -1], [9, -1]];
+    for (let j = 0; j < n; j++) {
+      if (j === i) continue;
+      const d = (punkte[i][0] - punkte[j][0]) ** 2 + (punkte[i][1] - punkte[j][1]) ** 2 + (punkte[i][2] - punkte[j][2]) ** 2;
+      if (d < best[2][0]) { best[2] = [d, j]; best.sort((a, b) => a[0] - b[0]); }
+    }
+    for (const [d, j] of best) if (j >= 0 && d < 0.05 && !nachbarn[i].includes(j)) { nachbarn[i].push(j); nachbarn[j].push(i); kanten.push([i, j]); }
   }
-  let winkel = 0.6, sichtbar = true, groesse = 0;
-  const neigung = 0.38;
-  function malen() {
-    const dpr = window.devicePixelRatio || 1;
-    const b = canvas.clientWidth, h = canvas.clientHeight;
-    if (Math.round(b * dpr) !== canvas.width || Math.round(h * dpr) !== canvas.height) { canvas.width = Math.round(b * dpr); canvas.height = Math.round(h * dpr); }
-    groesse = Math.min(b, h) * 0.42;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, b, h);
-    const cx = b / 2, cy = h / 2;
-    const glanz = ctx.createRadialGradient(cx, cy, groesse * 0.1, cx, cy, groesse * 1.25);
-    glanz.addColorStop(0, "rgba(57,135,229,0.10)"); glanz.addColorStop(1, "rgba(57,135,229,0)");
-    ctx.fillStyle = glanz; ctx.fillRect(0, 0, b, h);
-    const cw = Math.cos(winkel), sw = Math.sin(winkel), cn = Math.cos(neigung), sn = Math.sin(neigung);
-    for (const [px, py, pz] of punkte) {
+  // Strategie-Knoten auf der Außenseite der vorderen Hälfte
+  const vergeben = new Set();
+  const knoten = strategien.slice(0, NETZ_ORTE.length).map((st, k) => {
+    let beste = 0, bd = 9;
+    for (let i = 0; i < 430; i++) {
+      if (vergeben.has(i)) continue;
+      const d = (punkte[i][0] - NETZ_ORTE[k][0]) ** 2 + (punkte[i][1] - NETZ_ORTE[k][1]) ** 2 + (punkte[i][2] - NETZ_ORTE[k][2]) ** 2;
+      if (d < bd) { bd = d; beste = i; }
+    }
+    vergeben.add(beste);
+    const name = st.name.replace(/ /g, " ");
+    return { ...st, name, punkt: beste, farbe: NETZ_FARBE[st.status] || NETZ_FARBE.aus, feuert: feuernd.has(name), sx: 0, sy: 0, sz: 0 };
+  });
+  const sx = new Float32Array(n), sy = new Float32Array(n), sz = new Float32Array(n);
+  // Impulse: starten an einer Strategie (mit Signal heute viel öfter) und wandern durch das Netz
+  const gewicht = knoten.map(k => k.feuert ? 6 : k.status === "aktiv" ? 1.5 : k.status === "pausiert" ? 0.5 : 0.15);
+  const summe = gewicht.reduce((a, b) => a + b, 0);
+  const neuerImpuls = () => {
+    let r = Math.random() * summe, k = 0;
+    while (k < knoten.length - 1 && (r -= gewicht[k]) > 0) k++;
+    const von = knoten.length ? knoten[k].punkt : Math.floor(Math.random() * n);
+    const nb = nachbarn[von];
+    return { von, nach: nb.length ? nb[Math.floor(Math.random() * nb.length)] : von, t: 0, v: 0.035 + Math.random() * 0.03,
+             rest: 6 + Math.floor(Math.random() * 12), farbe: knoten.length ? knoten[k].farbe : "#9ec5f4" };
+  };
+  const impulse = Array.from({ length: 30 }, () => { const p = neuerImpuls(); p.t = Math.random(); return p; });
+  let sichtbar = true, zeit = 0, zuletzt = 0, b = 0, h = 0, cx = 0, cy = 0, groesse = 0;
+  function projiziere(winkel) {
+    const cw = Math.cos(winkel), sw = Math.sin(winkel), ne = 0.35, cn = Math.cos(ne), sn = Math.sin(ne);
+    for (let i = 0; i < n; i++) {
+      const [px, py, pz] = punkte[i];
       const x1 = px * cw + pz * sw, z1 = -px * sw + pz * cw;
       const y1 = py * cn - z1 * sn, z2 = py * sn + z1 * cn;
-      const tiefe = (z2 + 1) / 2;
-      ctx.globalAlpha = 0.12 + tiefe * 0.78;
-      ctx.fillStyle = tiefe > 0.82 ? "#9ec5f4" : "#c8d1db";
-      const r = 0.55 + tiefe * 0.9;
-      ctx.beginPath(); ctx.arc(cx + x1 * groesse, cy + y1 * groesse, r, 0, Math.PI * 2); ctx.fill();
+      const f = 3.4 / (3.4 - z2);
+      sx[i] = cx + x1 * groesse * f; sy[i] = cy - y1 * groesse * f; sz[i] = z2;
+    }
+  }
+  function malen(dt) {
+    const dpr = window.devicePixelRatio || 1;
+    b = canvas.clientWidth; h = canvas.clientHeight;
+    if (!b || !h) return;
+    if (Math.round(b * dpr) !== canvas.width || Math.round(h * dpr) !== canvas.height) { canvas.width = Math.round(b * dpr); canvas.height = Math.round(h * dpr); }
+    groesse = Math.min(b / 2.35, h / 2.0); cx = b / 2; cy = h / 2 + groesse * 0.02;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, b, h);
+    const glanz = ctx.createRadialGradient(cx, cy, groesse * 0.1, cx, cy, groesse * 1.35);
+    glanz.addColorStop(0, "rgba(57,135,229,0.13)"); glanz.addColorStop(1, "rgba(57,135,229,0)");
+    ctx.fillStyle = glanz; ctx.fillRect(0, 0, b, h);
+    projiziere(bewegungAus ? 0.2 : 0.2 + 0.4 * Math.sin(zeit / 9000));
+    // Verbindungen: hinten blass, vorne heller
+    for (const vorne of [false, true]) {
+      ctx.beginPath();
+      for (const [i, j] of kanten) {
+        if ((sz[i] + sz[j] > 0) !== vorne) continue;
+        ctx.moveTo(sx[i], sy[i]); ctx.lineTo(sx[j], sy[j]);
+      }
+      ctx.strokeStyle = vorne ? "rgba(140,185,240,0.2)" : "rgba(140,185,240,0.07)"; ctx.lineWidth = 0.7; ctx.stroke();
+    }
+    for (let i = 0; i < n; i++) {
+      const tiefe = (sz[i] + 1.2) / 2.4;
+      ctx.globalAlpha = 0.15 + tiefe * 0.7;
+      ctx.fillStyle = tiefe > 0.75 ? "#9ec5f4" : "#c8d1db";
+      const r = 0.5 + tiefe * 0.9;
+      ctx.fillRect(sx[i] - r / 2, sy[i] - r / 2, r, r);
+    }
+    ctx.globalAlpha = 1;
+    // Impulse
+    for (const p of impulse) {
+      if (!bewegungAus) {
+        p.t += p.v * dt;
+        while (p.t >= 1) {
+          p.t -= 1;
+          if (--p.rest <= 0) { Object.assign(p, neuerImpuls()); break; }
+          const nb = nachbarn[p.nach].filter(j => j !== p.von);
+          p.von = p.nach; p.nach = nb.length ? nb[Math.floor(Math.random() * nb.length)] : p.von;
+        }
+      }
+      const x = sx[p.von] + (sx[p.nach] - sx[p.von]) * p.t, y = sy[p.von] + (sy[p.nach] - sy[p.von]) * p.t;
+      const tiefe = (sz[p.von] + 1.2) / 2.4;
+      ctx.strokeStyle = p.farbe; ctx.globalAlpha = 0.35 * tiefe + 0.1; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.moveTo(sx[p.von], sy[p.von]); ctx.lineTo(x, y); ctx.stroke();
+      ctx.fillStyle = p.farbe; ctx.globalAlpha = 0.18 * tiefe + 0.05;
+      ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 0.6 + tiefe * 0.4;
+      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+    // Strategie-Knoten mit Leuchten; mit Signal heute pulsiert ein Ring
+    const beschriften = b >= 300, schilder = [];
+    ctx.font = `600 10px ${css("--sans") || "sans-serif"}`; ctx.textBaseline = "middle";
+    for (const k of knoten) {
+      const i = k.punkt, x = sx[i], y = sy[i], tiefe = (sz[i] + 1.2) / 2.4;
+      k.sx = x; k.sy = y; k.sz = sz[i];
+      const g = ctx.createRadialGradient(x, y, 0, x, y, 15);
+      g.addColorStop(0, k.farbe + "aa"); g.addColorStop(1, k.farbe + "00");
+      ctx.globalAlpha = 0.35 + tiefe * 0.65; ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = k.farbe; ctx.beginPath(); ctx.arc(x, y, 3.6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#e6edf3"; ctx.beginPath(); ctx.arc(x, y, 1.4, 0, Math.PI * 2); ctx.fill();
+      if (k.feuert) {
+        const phase = bewegungAus ? 0.5 : (zeit / 1400) % 1;
+        ctx.strokeStyle = k.farbe; ctx.lineWidth = 1.5; ctx.globalAlpha = (1 - phase) * 0.9;
+        ctx.beginPath(); ctx.arc(x, y, 5 + phase * 16, 0, Math.PI * 2); ctx.stroke();
+      }
+      if (beschriften && sz[i] > -0.15) schilder.push([k.name.replace(/\s*[↑↓]$/, ""), x, y, tiefe]);
+    }
+    const belegt = [];
+    for (const [text, x, y, tiefe] of schilder.sort((a, c) => a[2] - c[2])) {
+      const w = ctx.measureText(text).width;
+      let links = x > cx, ly = y - 10;
+      if (!links && x + 8 + w > b - 2) links = true;
+      if (links && x - 8 - w < 2) links = false;
+      const lx = links ? x - 8 - w : x + 8;
+      for (let n = 0; n < 4 && belegt.some(r => lx < r[0] + r[2] && lx + w > r[0] && Math.abs(ly - r[1]) < 12); n++) ly += 12;
+      belegt.push([lx, ly, w]);
+      ctx.globalAlpha = 0.5 + tiefe * 0.45; ctx.fillStyle = "#c8d1db";
+      ctx.fillText(text, lx, ly);
     }
     ctx.globalAlpha = 1;
   }
-  function schleife() { if (sichtbar && !document.hidden) { winkel += 0.0035; malen(); } requestAnimationFrame(schleife); }
-  malen();
+  function schleife(jetzt) {
+    if (sichtbar && !document.hidden) {
+      const dt = zuletzt ? Math.min(jetzt - zuletzt, 60) / 16.7 : 1;
+      zeit += dt * 16.7; malen(dt);
+    }
+    zuletzt = jetzt;
+    requestAnimationFrame(schleife);
+  }
+  // Antippen oder mit der Maus darauf: Details zur Strategie
+  const tipp = el("div", { class: "tooltip netz-tipp", role: "status" });
+  mitte.append(tipp);
+  function zeigeTipp(e) {
+    const r = canvas.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    let treffer = null, bd = 26 * 26;
+    for (const k of knoten) { const d = (k.sx - mx) ** 2 + (k.sy - my) ** 2; if (d < bd) { bd = d; treffer = k; } }
+    if (!treffer) { tipp.style.opacity = 0; return; }
+    const status = { aktiv: "✅ aktiv", pausiert: "⏸ pausiert (lief zuletzt schlecht)", aus: "⛔ aus (Meine Regeln)" }[treffer.status] || treffer.status;
+    tipp.replaceChildren(...[
+      el("div", { class: "datum" }, treffer.name),
+      el("div", { class: "zeile" }, el("i", { style: `background:${treffer.farbe}` }), status),
+      treffer.trades ? el("div", { class: "zeile" }, el("i", { style: "background:transparent" }),
+        `Ø ${vz(treffer.schnitt)}${zahl(treffer.schnitt, 2)} R · Treffer ${zahl(treffer.quote, 0)} % · letzte ${treffer.trades} Trades`) : null,
+      treffer.feuert ? el("div", { class: "zeile" }, el("i", { style: `background:${treffer.farbe}` }), el("b", {}, "Signal heute")) : null].filter(Boolean));
+    const m = mitte.getBoundingClientRect(), w = tipp.offsetWidth;
+    tipp.style.left = `${Math.min(Math.max(4, r.left - m.left + treffer.sx - w / 2), m.width - w - 4)}px`;
+    tipp.style.top = `${Math.max(4, r.top - m.top + treffer.sy - tipp.offsetHeight - 14)}px`;
+    tipp.style.opacity = 1;
+  }
+  canvas.addEventListener("pointermove", e => { if (e.pointerType === "mouse") zeigeTipp(e); });
+  canvas.addEventListener("pointerleave", () => { tipp.style.opacity = 0; });
+  canvas.addEventListener("click", zeigeTipp);
+  malen(1);
   if (!bewegungAus) {
     new IntersectionObserver(e => { sichtbar = e[0].isIntersecting; }).observe(canvas);
     requestAnimationFrame(schleife);
   }
-  new ResizeObserver(malen).observe(canvas);
+  new ResizeObserver(() => malen(0)).observe(canvas);
 }
 
 function kernLinien(kern) {
@@ -1570,13 +1729,24 @@ function aufbauen(D) {
     C ? ["Claude ließ aus", zahl(C.ausgelassen), "Signale seit Start"] : ["Schlagzeilen", zahl(G.schlagzeilen), "gelesen"],
   ];
   const box = ([l, w, k, e]) => el("div", { class: "kern-box" }, el("div", { class: "label" }, l, e ? info(e) : null), el("div", { class: "wert" }, w), el("div", { class: "klein" }, k));
-  const canvas = el("canvas", { "aria-hidden": "true" });
+  const strategien = D.strategien || [];
+  const feuernd = new Set(D.signale.filter(x => x.art === "kaufen" || x.art === "short").map(x => (x.strategie || "").replace(/\u00a0/g, " ")));
+  const anzahl = st => strategien.filter(x => x.status === st).length;
+  const canvas = el("canvas", { role: "img", "aria-label": `Gehirn-Netz: ${strategien.length} Strategien, ${anzahl("aktiv")} aktiv, ${anzahl("pausiert")} pausiert, ${anzahl("aus")} aus` +
+    (feuernd.size ? `. Signal heute: ${[...feuernd].join(", ")}` : "") });
+  const netzLegende = el("div", { class: "netz-legende" },
+    el("span", {}, el("i", { style: `background:${NETZ_FARBE.aktiv}` }), "aktiv"),
+    el("span", {}, el("i", { style: `background:${NETZ_FARBE.pausiert}` }), "pausiert"),
+    el("span", {}, el("i", { style: `background:${NETZ_FARBE.aus}` }), "aus"),
+    el("span", {}, el("i", { class: "ring" }), "Signal heute"),
+    el("span", { class: "netz-hinweis" }, "Knoten antippen"));
+  const mitte = el("div", { class: "kern-mitte" }, canvas, netzLegende);
   const kern = el("div", { class: "panel kern" },
     el("div", { class: "kern-kopf" }, el("div", { class: "label" }, "Eingang"),
       el("div", { class: "label" }, el("span", { class: "punkt gut", style: "display:inline-block;margin-right:6px;vertical-align:1px" }), "Gehirn läuft"),
       el("div", { class: "label" }, "Ausgang")),
     el("div", { class: "kern-spalte ein" }, ein.map(box)),
-    el("div", { class: "kern-mitte" }, canvas),
+    mitte,
     el("div", { class: "kern-spalte aus" }, aus.map(box)),
     el("div", { class: "kern-fuss" },
       el("div", { class: "label" }, "Prüft ", el("b", {}, `${G.strategien} Strategien`), " bei ", el("b", {}, `${G.aktien} Aktien`)),
@@ -1861,8 +2031,8 @@ function aufbauen(D) {
       `aktualisiert ${lief} Uhr`)));
   document.getElementById("seite-fuss").replaceChildren(document.createTextNode(`Bot lief ${lief}`), el("br"), document.createTextNode(`Daten bis ${datum(D.daten_bis, false)}`));
 
-  // Kugel, Linien, Navigation
-  kugel(canvas);
+  // Gehirn-Netz, Linien, Navigation
+  gehirnNetz(canvas, strategien, feuernd, mitte);
   const neuLinien = () => kernLinien(kern);
   requestAnimationFrame(neuLinien);
   new ResizeObserver(neuLinien).observe(kern);
