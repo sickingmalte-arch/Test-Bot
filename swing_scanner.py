@@ -4062,6 +4062,77 @@ def lern_wechsel(pausen, tage, key, seit):
         vorher = jetzt
     return wechsel
 
+WISSEN_NOTIZ = "Was der Bot schon weiß"  # Übersicht aller Tests in gehirn/Notizen (verlinkt die Startseite)
+
+def gehirn_karte(einst, stand, ok, ampel, papier, trades, tagebuch, daten, waehrung):
+    """Gehirn-Karte für die Startseite als Mermaid-Diagramm (zeichnen Obsidian und GitHub): Eingänge → Strategien
+    (farbig nach Lernstand) → Signale → Übungsdepot → Lehren, das Tagebuch als Lernschleife. Nur Anzeige."""
+    def knoten(name, *zeilen):
+        return f'{name}["{"<br/>".join(str(z).replace(chr(34), chr(39)) for z in zeilen)}"]'
+    zahl = lambda x: de(x, 0)
+    if ampel and ampel.startswith("🟢"):
+        markt, markt_art = knoten("markt", "🟢 Markt", "Nasdaq-100 über der", "200-Tage-Linie"), "ein"
+    elif ampel and ampel.startswith("🔴"):
+        markt, markt_art = knoten("markt", "🔴 Markt", "Nasdaq-100 unter der", "200-Tage-Linie: kein Kauf"), "rot"
+    else:
+        markt, markt_art = knoten("markt", "⚪ Markt", "Filter aus"), "aus"
+    gesperrt = len(einst.sperre_ticker) + len(einst.sperre_strategien)
+    zeilen = ["```mermaid", "flowchart TB",
+              "  " + knoten("kurse", "📈 Kurse", f"{len(einst.ticker_liste)} Aktien"),
+              "  " + knoten("termine", "📅 Quartalszahlen",
+                           f"{sum(1 for d in daten.values() if d.get('termine') is not None)} Termine"),
+              "  " + markt,
+              "  " + knoten("regeln", "📝 Meine Regeln", f"{gesperrt} gesperrt" if gesperrt else "nichts gesperrt")]
+    schluessel = [k for k in STRATEGIEN if not short_aus(k, einst)]
+    arten = {"aktiv": [], "pausiert": [], "aus": []}
+    strategie_knoten = []
+    for i, k in enumerate(schluessel):
+        st = stand[k]
+        if k in einst.sperre_strategien:
+            zeichen, art, wert = "⛔", "aus", "von dir aus"
+        elif st["im_minus"] or st["pausiert"]:
+            zeichen, art, wert = "⏸", "pausiert", f"Ø {r_text(st['schnitt'], 2)}"
+        elif st["n"] < LERNEN_MIN_TRADES:
+            zeichen, art, wert = "✅", "aktiv", f"lernt noch ({st['n']})"
+        else:
+            zeichen, art, wert = "✅", "aktiv", f"Ø {r_text(st['schnitt'], 2)}"
+        arten[art].append(f"s{i}")
+        strategie_knoten.append("    " + knoten(f"s{i}", f"{zeichen} {strategie_name(k).replace(chr(160), ' ')}", wert))
+    pausiert = len(arten["pausiert"])
+    zeilen += [f'  subgraph KERN["🧠 {len(schluessel)} Strategien · {len(arten["aktiv"])} aktiv"]', "    direction TB",
+               *strategie_knoten]
+    halb = (len(schluessel) + 1) // 2
+    zeilen += [f"    s{i} ~~~ s{i + halb}" for i in range(len(schluessel) - halb)]  # zwei Reihen statt einer langen
+    zeilen.append("  end")
+    kauf = sum(1 for z in ok if z.get("Signal") in (KAUFEN, SHORT))
+    warten = sum(1 for z in ok if z.get("Signal") == WARTEN)
+    heiss = sum(1 for z in ok if z.get("Signal") == SICHERN)
+    signal = ["🎯 Signale heute", f"{kauf} kaufen · {warten} warten"] + ([f"{heiss} überhitzt"] if heiss else [])
+    if papier:
+        rendite = (papier["depotwert"] / papier["startkapital"] - 1) * 100
+        depot = knoten("depot", "📒 Übungsdepot", f"{zahl(papier['depotwert'])} {waehrung} ({de(rendite, 1, True)} %)",
+                       f"{len(papier['positionen'])} offen")
+    else:
+        depot = knoten("depot", "📒 Übungsdepot", "noch keins")
+    zeilen += ["  " + knoten("tb", "📓 Tagebuch", f"{zahl(len(tagebuch))} gedachte Trades"),
+               "  " + knoten("sig", *signal), "  " + depot,
+               "  " + knoten("lehren", "🎓 Lehren", f"{len(trades)} abgeschlossene Trades"),
+               "  kurse --> KERN", "  termine -->|Sperre| KERN", "  markt -->|Filter| KERN", "  regeln --> KERN",
+               "  KERN -->|denkt mit| tb",
+               f"  tb -->|Lernregel: {pausiert} pausiert| KERN" if pausiert else "  tb -->|Lernregel| KERN",
+               "  KERN --> sig", "  sig -->|kauft zur Eröffnung| depot", "  depot --> lehren",
+               "  classDef ein fill:#0f2742,stroke:#3987e5,color:#e6edf3",
+               "  classDef rot fill:#3d1414,stroke:#f47067,color:#e6edf3",
+               "  classDef aktiv fill:#0d3320,stroke:#3fb950,color:#e6edf3",
+               "  classDef pausiert fill:#3b2e0a,stroke:#fab219,color:#e6edf3",
+               "  classDef aus fill:#22272e,stroke:#6e7681,color:#9ba7b4",
+               "  classDef aus2 fill:#2a1846,stroke:#a371f7,color:#e6edf3",
+               f"  class kurse,termine,regeln ein", f"  class markt {markt_art}", "  class tb,sig,depot,lehren aus2",
+               *(f"  class {','.join(v)} {art}" for art, v in arten.items() if v),
+               "  style KERN fill:#0b1016,stroke:#3987e5,color:#e6edf3",
+               "```"]
+    return zeilen
+
 def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, alle_tage, daten, papier, depot, trend,
                     papier_hinweis=None, markt_vergleich=None):
     """Schreibt alle Notizen des Gehirns. Gibt (Zahl neuer Trade-Notizen, Hinweise) zurück; eine Notiz, die nicht
@@ -4431,7 +4502,11 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
     text = ["# 🧠 Gehirn des Swing-Bots", "",
             f"Stand: Kurse bis {WOCHENTAGE[heute.weekday()]} {heute:%d.%m.%Y}" + (" (vorläufig)" if vorlaeufig else "")
             + " · Simulation mit Spielgeld, keine Anlageberatung.", "",
-            "> [!info] So funktioniert das Gehirn",
+            *gehirn_karte(einst, stand, ok, ampel, papier, trades, tagebuch, daten, waehrung), ""]
+    if os.path.exists(pfad("Notizen", WISSEN_NOTIZ + ".md")):
+        text += [f"> [!example] 🔬 [[Notizen/{WISSEN_NOTIZ}|{WISSEN_NOTIZ}]]",
+                 "> Alle geprüften Ideen auf einen Blick: was übernommen wurde, was nicht und warum.", ""]
+    text += ["> [!info]- So funktioniert das Gehirn (antippen zum Aufklappen)",
             "> - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, den **Wochenrückblick**, eine Notiz zu **jedem "
             "abgeschlossenen Trade** mit "
             "dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.",
