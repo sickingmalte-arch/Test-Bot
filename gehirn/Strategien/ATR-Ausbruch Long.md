@@ -14,22 +14,22 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø +0,03 R · Treffer 53 % · ± Zufall 0,21 R
-- Ganze Geschichte: 453 Trades · Ø +0,10 R · Treffer 56 %
+- Ganze Geschichte: 454 Trades · Ø +0,10 R · Treffer 55 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
-- Ziel: 139× (31 %), Ø +0,95 R
-- Zeitstopp: 113× (25 %), Ø +0,03 R
-- Stop: 86× (19 %), Ø -1,00 R
-- vor Quartalszahlen: 76× (17 %), Ø -0,04 R
+- Ziel: 138× (30 %), Ø +0,95 R
+- Zeitstopp: 114× (25 %), Ø +0,02 R
+- Stop: 88× (19 %), Ø -1,00 R
+- vor Quartalszahlen: 75× (17 %), Ø -0,04 R
 - Ziel (Kurslücke): 21× (5 %), Ø +1,09 R
 - Stop (Kurslücke): 18× (4 %), Ø -1,16 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 
-1. [[Aktien/COST|COST]]: 19 Trades · Ø +0,43 R · Treffer 74 %
-2. [[Aktien/ASTS|ASTS]]: 18 Trades · Ø +0,30 R · Treffer 61 %
+1. [[Aktien/COST|COST]]: 19 Trades · Ø +0,35 R · Treffer 68 %
+2. [[Aktien/ASTS|ASTS]]: 17 Trades · Ø +0,33 R · Treffer 65 %
 3. [[Aktien/GOOGL|GOOGL]]: 21 Trades · Ø +0,29 R · Treffer 52 %
 …
 22. [[Aktien/SE|SE]]: 21 Trades · Ø -0,10 R · Treffer 52 %

@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=PLTR)
 
-**Stand Fr 23.10. 2026:** 🟢 KAUFEN – Rücksetzer ↑ · Limit 179,23 · Stop 153,83 · Ziel 197,37 €
+**Stand Mo 26.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 02.11.
 
 ## Übungsdepot

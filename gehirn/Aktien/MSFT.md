@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MSFT)
 
-**Stand Fr 23.10. 2026:** BEOBACHTEN
+**Stand Mo 26.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 28.10.
 
 ## Übungsdepot
@@ -19,14 +19,14 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 124 Trades · Ø +0,17 R · Treffer 62 %
+- **Alle Strategien zusammen:** 123 Trades · Ø +0,18 R · Treffer 63 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 11 Trades · Ø +0,15 R · Treffer 55 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 19 Trades · Ø +0,25 R · Treffer 68 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 7 Trades · Ø +0,15 R · Treffer 57 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 18 Trades · Ø +0,31 R · Treffer 72 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 20 Trades · Ø +0,14 R · Treffer 60 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 16 Trades · Ø +0,12 R · Treffer 62 %
-- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 12 Trades · Ø +0,17 R · Treffer 50 %
+- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 11 Trades · Ø +0,23 R · Treffer 55 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 21 Trades · Ø +0,08 R · Treffer 62 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]

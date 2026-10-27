@@ -10,7 +10,7 @@ Branche: Kommunikation (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=META)
 
-**Stand Fr 23.10. 2026:** ⏸ WARTEN – Zahlen gerade erst – Gegenbewegung riskant
+**Stand Mo 26.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 27.01.
 
 ## Übungsdepot

@@ -10,7 +10,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=SOFI)
 
-**Stand Fr 23.10. 2026:** BEOBACHTEN
+**Stand Mo 26.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Di 27.10.
 
 ## Übungsdepot

@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=LLY)
 
-**Stand Fr 23.10. 2026:** BEOBACHTEN
+**Stand Mo 26.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 29.10.
 
 ## Übungsdepot
@@ -19,8 +19,8 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 129 Trades · Ø +0,02 R · Treffer 49 %
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 14 Trades · Ø +0,04 R · Treffer 50 %
+- **Alle Strategien zusammen:** 129 Trades · Ø +0,01 R · Treffer 48 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 14 Trades · Ø -0,10 R · Treffer 43 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 23 Trades · Ø -0,07 R · Treffer 43 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 5 Trades · Ø +0,01 R · Treffer 60 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 22 Trades · Ø -0,16 R · Treffer 36 %

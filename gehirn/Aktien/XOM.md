@@ -10,7 +10,7 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=XOM)
 
-**Stand Fr 23.10. 2026:** 🟢 KAUFEN – ATR-Ausbruch ↑ · Limit 165,25 · Stop 153,11 · Ziel 173,92 €
+**Stand Mo 26.10. 2026:** ⚠️ ÜBERHITZT – überhitzt – nur Info, Depot verkauft nicht
 **Nächste Quartalszahlen:** Fr 30.10.
 
 ## Übungsdepot
