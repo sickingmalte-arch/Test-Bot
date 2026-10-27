@@ -140,6 +140,38 @@ main { padding: 16px 20px 40px; min-width: 0; }
 .kern-fuss { grid-column: 1 / -1; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--line-soft); padding-top: 10px; }
 .kern-fuss .label b { color: var(--text-1); font-weight: 600; }
 
+/* ---------- Heute auf einen Blick ---------- */
+.heute { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 0; }
+.heute-links { padding: 16px 18px; border-right: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 10px; }
+.heute-satz { font: 500 19px/1.4 var(--sans); color: var(--text-1); }
+.heute-satz b { font-weight: 650; }
+.heute-tag { font-size: 13px; color: var(--text-2); }
+.heute-punkte { list-style: none; margin: 0; padding: 10px 18px; display: flex; flex-direction: column; }
+.heute-punkte li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 13.5px; line-height: 1.45; }
+.heute-punkte li:last-child { border-bottom: 0; }
+.heute-punkte .zeichen { font-size: 15px; line-height: 1.3; text-align: center; }
+.heute-punkte .klein { display: block; font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.heute-punkte li.achtung { color: var(--text-1); }
+.heute-punkte li.achtung b { color: var(--schlecht-text); }
+.fortschritt { position: relative; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.fortschritt i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--s1); }
+
+/* ---------- Ehrliche Bilanz ---------- */
+.kacheln.echt { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2.3fr); }
+.kacheln.sim { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kacheln-kopf { grid-column: 1 / -1; padding: 10px 16px 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.kacheln-kopf .klein { font-size: 11.5px; color: var(--text-3); }
+.bilanz { padding: 14px 16px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.bilanz .fortschritt { height: 8px; }
+.bilanz-zeile { display: grid; grid-template-columns: 112px minmax(0, 1fr) 132px; gap: 10px; align-items: center; font-size: 12px; color: var(--text-2); }
+.bilanz-zeile b { color: var(--text-1); font-weight: 600; font-variant-numeric: tabular-nums; }
+.skala { position: relative; height: 18px; }
+.skala .linie { position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: var(--line); border-radius: 1px; }
+.skala .zufall { position: absolute; top: 4px; height: 10px; border-radius: 3px; background: rgba(57, 135, 229, .18); border: 1px solid rgba(57, 135, 229, .35); }
+.skala .soll { position: absolute; top: 1px; width: 2px; height: 16px; margin-left: -1px; background: var(--text-2); }
+.skala .ist { position: absolute; top: 4px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; border: 2px solid var(--panel); }
+.bilanz .hinweis-klein { font-size: 11.5px; color: var(--text-3); line-height: 1.45; }
+
 /* ---------- Kennzahl-Kacheln ---------- */
 .kacheln { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; }
 .kachel { padding: 14px 16px; border-right: 1px solid var(--line-soft); min-width: 0; }
@@ -203,6 +235,7 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 
 /* ---------- Signale ---------- */
 .karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.karten.wenige { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
 .karte { padding: 14px; position: relative; overflow: hidden; }
 .karte.im-plan { border-color: #24476f; }
 .karte.im-plan::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 2px; background: var(--s1); }
@@ -507,6 +540,11 @@ button.kal-tag:hover { border-color: #3a4654; }
 /* ---------- Handy ---------- */
 @media (max-width: 1180px) {
   .kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kacheln.echt { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .kacheln.echt .bilanz { grid-column: 1 / -1; border-top: 1px solid var(--line-soft); }
+  .kacheln.sim { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .heute { grid-template-columns: minmax(0, 1fr); }
+  .heute-links { border-right: 0; border-bottom: 1px solid var(--line-soft); }
   .kachel:nth-child(3n) { border-right: 0; }
   .kachel:nth-child(-n+3) { border-bottom: 1px solid var(--line-soft); }
   .kurven-raster { grid-template-columns: minmax(0, 1fr); }
@@ -517,6 +555,7 @@ button.kal-tag:hover { border-color: #3a4654; }
   .geruest { grid-template-columns: minmax(0, 1fr); }
   main { display: flex; flex-direction: column; }
   main > .hinweis { order: 0; }
+  #heute { order: -1; } .seite a[href="#heute"] { order: -1; }
   #live { order: 0; } #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
   #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } #fazit { order: 8; } main > .fuss { order: 9; }
   .seite a[href="#live"] { order: 0; } .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
@@ -550,6 +589,10 @@ button.kal-tag:hover { border-color: #3a4654; }
   .marke .lang { display: none; }
   .uhr .zeit { font-size: 13px; }
   .kacheln { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .heute-satz { font-size: 17px; }
+  .kacheln.echt .kachel { grid-column: 1 / -1; border-right: 0 !important; }
+  .bilanz-zeile { grid-template-columns: 84px minmax(0, 1fr); }
+  .bilanz-zeile > :last-child { grid-column: 1 / -1; }
   .live-raster { grid-template-columns: minmax(0, 1fr); }
   .kachel { border-right: 1px solid var(--line-soft) !important; border-bottom: 1px solid var(--line-soft); padding: 12px; }
   .kachel:nth-child(2n) { border-right: 0 !important; }
@@ -593,7 +636,8 @@ button.kal-tag:hover { border-color: #3a4654; }
 <div class="geruest">
   <nav class="seite" id="navigation" aria-label="Bereiche">
     <div class="label gruppe">Überblick</div>
-    <a href="#gehirn" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
+    <a href="#heute" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Auf einen Blick</a>
+    <a href="#gehirn"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
     <a href="#kennzahlen"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Kennzahlen</a>
     <div class="label gruppe">Heute</div>
     <a href="#live" id="nav-live" hidden><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5" fill="currentColor"/><path d="M4.5 4.5a5 5 0 0 0 0 7M11.5 4.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Live</a>
@@ -766,7 +810,7 @@ function linienDiagramm(box, { reihen, hoehe = 260, rueckgang = null, mindestSpa
       svg.append(sv("line", { x1: links, x2: breite - R.r, y1: y(t), y2: y(t), stroke: css("--line-soft"), "stroke-width": 1 }));
       svg.append(sv("text", { x: links - 8, y: y(t) + 3, "text-anchor": "end" }, yText(t)));
     }
-    const nTicks = Math.min(5, daten.length);
+    const nTicks = Math.min(5, daten.length, Math.max(2, Math.floor((breite - links - R.r) / 64)));
     for (let k = 0; k < nTicks; k++) {
       const i = Math.round((k / Math.max(nTicks - 1, 1)) * (daten.length - 1));
       svg.append(sv("text", { x: x(i), y: hoehe - 4, "text-anchor": k === 0 ? "start" : k === nTicks - 1 ? "end" : "middle" }, datum(daten[i], false)));
@@ -1107,6 +1151,7 @@ const ERKLAERUNG = {
   zahlen: ["Quartalszahlen", "An diesem Tag legt die Firma ihre Zahlen vor. Der Kurs kann dann stark springen – nach oben wie nach unten. Der Bot verkauft deshalb spätestens kurz vor den Zahlen. Rot heißt: weniger als 7 Tage. Dann bleibt einem neuen Trade nur wenig Zeit bis zum Ziel."],
   fazit: ["Ergebnis", "So viel mehr (oder weniger) war das Übungsdepot zum Schluss wert als vorher – mit den noch offenen Positionen zum Schlusskurs (Buchgewinn oder -verlust) und nach Gebühren. „Woher kam das Ergebnis?“ zeigt den Anteil jeder Aktie, zusammen ergeben sie das Ergebnis. Umsatz: Wert aller Käufe und Verkäufe im Zeitraum."],
   chance: ["Ziel-Chance nach Black-Scholes", CHANCE_TEXT],
+  bilanz: ["Ehrliche Bilanz", "Wie schlägt sich das Übungsdepot wirklich – verglichen mit dem, was der Test mit echten Kursen von 2010 bis 2026 erwartet hat (gleiche Regeln, Aktien der Watchlist, mit Kosten)? Der blaue Bereich ist der Spielraum des Zufalls: Auch mit genau diesen Regeln landet das Ergebnis bei so wenigen Trades meistens irgendwo darin. Der Strich ist die Erwartung, der Punkt das Übungsdepot. Gewinnfaktor = alle Gewinne geteilt durch alle Verluste, über 1 heißt: unterm Strich verdient. Unter etwa 30 Trades kann alles noch Zufall sein."],
   ueberhitzt: ["Überhitzt – nur Info", "RSI über 70 oder Kurs am oberen Bollinger-Band: Die Aktie ist in kurzer Zeit stark gestiegen. Das Übungsdepot verkauft deshalb nicht. Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr: Die Gewinner werden früh verkauft, die Verlierer laufen trotzdem bis zum Stop. Gerade nach einem Ausbruch steigt eine überhitzte Aktie oft weiter bis zum Ziel. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen."],
   muster: ["Muster und Nachrichten", "Kerzenmuster vom Poster (z. B. Hammer, Bullish Engulfing, Shooting Star) am Signaltag, bei Ausbrüchen und Doppelböden das Musterziel (Höhe des Musters nach oben verlängert) und wie viele gute und schlechte Schlagzeilen es in den letzten Tagen gab. Nur zur Info: Als Kaufregel oder Ziel hat das im Test über 16 Jahre nicht geholfen, der Bot kauft und verkauft deshalb nicht danach. Auf der Lehren-Seite im Gehirn prüft er weiter, ob Signale mit Muster oder guten Nachrichten besser laufen."],
   live: ["Live", "Mo–Fr von 12 bis 22 Uhr läuft Live: Sobald die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit, in den Wochen der Zeitumstellung 14:30–21:00 Uhr), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
@@ -1660,6 +1705,116 @@ function fazitBauen(D) {
 }
 
 // ---------------------------------------------------------------------------
+// Ehrliche Bilanz: Übungsdepot gegen die Erwartung aus dem Test, mit dem Spielraum des Zufalls
+// ---------------------------------------------------------------------------
+function zufallsSpanne(E, n) {
+  if (!E || !n) return null;
+  const p = E.quote / 100, qb = 200 * Math.sqrt(p * (1 - p) / n), rb = 2 * E.streuung_r / Math.sqrt(n);
+  return { q: [Math.max(E.quote - qb, 0), Math.min(E.quote + qb, 100)], r: [E.schnitt_r - rb, E.schnitt_r + rb] };
+}
+function skala(min, max, spanne, soll, ist, farbe) {
+  const pos = v => `${(Math.min(Math.max((v - min) / (max - min), 0), 1) * 100).toFixed(1)}%`;
+  return el("div", { class: "skala", "aria-hidden": "true" }, el("div", { class: "linie" }),
+    spanne ? el("div", { class: "zufall", style: `left:${pos(spanne[0])};right:calc(100% - ${pos(spanne[1])})` }) : null,
+    el("div", { class: "soll", style: `left:${pos(soll)}` }),
+    ist !== null && ist !== undefined ? el("div", { class: "ist", style: `left:${pos(ist)};background:${farbe}` }) : null);
+}
+function bilanzBlock(P, E) {
+  const B = P && P.bilanz, n = B ? B.n : 0, min = (E && E.min_trades) || 30;
+  const box = el("div", { class: "bilanz" },
+    el("div", { class: "kachel-titel" }, el("div", { class: "label" }, "Ehrliche Bilanz", info("bilanz")),
+      el("div", { class: "label" }, `${n} / ${min} Trades`)),
+    el("div", { class: "fortschritt", role: "img", "aria-label": `${n} von ${min} Trades` }, el("i", { style: `width:${Math.min(n / min, 1) * 100}%` })));
+  if (!E) return box;
+  const sp = zufallsSpanne(E, n);
+  const farbe = (ist, s) => ist === null ? css("--text-3") : s && (ist < s[0]) ? css("--schlecht-text") : s && ist > s[1] ? css("--gut-text") : css("--s1");
+  const quote = B ? B.quote : null, r = B ? B.schnitt_r : null;
+  box.append(
+    el("div", { class: "bilanz-zeile" }, el("span", {}, "Trefferquote"), skala(0, 100, sp && sp.q, E.quote, quote, farbe(quote, sp && sp.q)),
+      el("span", {}, el("b", {}, quote === null ? "–" : `${zahl(quote, 0)} %`), ` · erwartet ${zahl(E.quote, 0)} %`)),
+    el("div", { class: "bilanz-zeile" }, el("span", {}, "Ø Ergebnis"), skala(-1, 1, sp && sp.r, E.schnitt_r, r, farbe(r, sp && sp.r)),
+      el("span", {}, el("b", {}, r === null ? "–" : `${vz(r)}${zahl(r, 2)} R`), ` · erwartet ${vz(E.schnitt_r)}${zahl(E.schnitt_r, 2)} R`)),
+    el("div", { class: "bilanz-zeile" }, el("span", {}, "Gewinnfaktor"), el("span", {}, B && B.gewinnfaktor !== null ? `alle Gewinne ${euro(B.plus)} ÷ alle Verluste ${euro(B.minus)}` : B && B.plus > 0 ? "bisher kein Verlust-Trade" : "noch keine Trades"),
+      el("span", {}, el("b", {}, B && B.gewinnfaktor !== null ? zahl(B.gewinnfaktor, 1) : "–"), ` · erwartet ${zahl(E.gewinnfaktor, 1)}`)));
+  let text;
+  if (n < min) {
+    const monate = Math.max(1, Math.round((min - n) / E.trades_je_jahr * 12));
+    text = `${n ? `Erst ${n} ${n === 1 ? "Trade" : "Trades"}` : "Noch keine abgeschlossenen Trades"}: Unter etwa ${min} Trades kann alles noch Zufall sein. Bei etwa ${E.trades_je_jahr} Trades im Jahr dauert es noch grob ${monate} ${monate === 1 ? "Monat" : "Monate"}.`;
+  } else text = `Mit ${n} Trades wird der Vergleich langsam aussagekräftig – wirklich sicher erst nach einigen Hundert.`;
+  if (sp && quote !== null) {
+    const drin = quote >= sp.q[0] && quote <= sp.q[1] && r >= sp.r[0] && r <= sp.r[1];
+    text += drin ? " Das Übungsdepot liegt im Spielraum des Zufalls – so, wie man es nach dem Test erwarten kann."
+      : (quote < sp.q[0] || r < sp.r[0]) ? " Das Übungsdepot liegt darunter – auffällig, aber noch kein Beweis." : " Das Übungsdepot liegt darüber – meist ist das Glück.";
+  }
+  box.append(el("div", { class: "hinweis-klein" }, text, ` Punkt = Übungsdepot, Strich = Erwartung aus dem Test ${E.zeitraum} (gleiche Regeln, mit Kosten), blau = Spielraum des Zufalls.`));
+  return box;
+}
+
+// ---------------------------------------------------------------------------
+// Heute auf einen Blick: das Wichtigste in ganzen Sätzen
+// ---------------------------------------------------------------------------
+function heuteAbschnitt(D, P, kaufen, depotStatus) {
+  const links = el("div", { class: "heute-links" });
+  if (P) {
+    const seit = (P.wert / P.startkapital - 1) * 100;
+    const q = P.qqq && P.qqq.length ? (P.qqq[P.qqq.length - 1][1] / P.startkapital - 1) * 100 : null;
+    const d = q === null ? null : seit - q;
+    links.append(el("div", { class: "heute-satz" }, "Das Übungsdepot steht bei ", el("b", {}, euro(P.wert)), " (",
+      el("span", { class: richtung(seit) }, prozent(seit)), ` seit ${datum(P.angelegt, false)})`,
+      d === null ? "." : Math.abs(d) < 0.05 ? " – gleichauf mit dem Nasdaq-100." : [" und liegt ", el("b", { class: richtung(d) }, `${zahl(Math.abs(d), 1)} Punkte ${d > 0 ? "vor" : "hinter"}`), " dem Nasdaq-100."]));
+    const t = P.tage && P.tage.length ? P.tage[P.tage.length - 1] : null;
+    if (t && P.tage.length > 1) {
+      const vorher = t.wert - t.aenderung, pz = vorher ? (t.aenderung / vorher) * 100 : 0;
+      const qq = P.qqq && P.qqq.length > 1 ? (P.qqq[P.qqq.length - 1][1] / P.qqq[P.qqq.length - 2][1] - 1) * 100 : null;
+      links.append(el("div", { class: "heute-tag" }, `Letzter Börsentag (${datum(t.tag)}): `,
+        el("b", { class: richtung(t.aenderung) }, `${vz(t.aenderung)}${euro(t.aenderung, 2)}`), ` (${prozent(pz)})`,
+        qq === null ? "" : ` · Nasdaq-100 ${prozent(qq)}`));
+    }
+    const E = D.erwartung, n = P.bilanz ? P.bilanz.n : 0, min = (E && E.min_trades) || 30;
+    links.append(el("div", { class: "heute-tag" }, n < min ? `Ehrliche Bilanz: ${n} von ${min} abgeschlossenen Trades – für ein Urteil noch zu früh`
+      : `Ehrliche Bilanz: ${n} abgeschlossene Trades – Details unter Kennzahlen`),
+      el("div", { class: "fortschritt", "aria-hidden": "true" }, el("i", { style: `width:${Math.min(n / min, 1) * 100}%` })));
+  } else links.append(el("div", { class: "heute-satz" }, "Noch kein Übungsdepot."));
+
+  const punkte = [];
+  const punkt = (zeichen, inhalt, klein = null, klasse = "") => punkte.push(el("li", { class: klasse }, el("span", { class: "zeichen", "aria-hidden": "true" }, zeichen),
+    el("span", {}, ...[].concat(inhalt), klein ? el("span", { class: "klein" }, klein) : null)));
+  // Kaufen
+  if (P) {
+    const auftraege = P.auftraege.map(a => { const s = kaufen.find(k => k.ticker === a.ticker); return s ? `${a.ticker} bis ${euro(s.limit, 2)}` : a.ticker; });
+    if (auftraege.length) punkt("🛒", [el("b", {}, "Kauft zur nächsten Eröffnung: "), auftraege.join(", ")],
+      P.nachruecker && P.nachruecker.length ? `Rückt nach, falls ein Kauf nicht klappt: ${P.nachruecker.map(a => a.ticker).join(", ")}` : "Nur bis zum Limit – liegt der Kurs darüber, verfällt der Auftrag.");
+    else if (kaufen.length) {
+      const st = kaufen.map(s => depotStatus(s.ticker));
+      const grund = st.every(x => x && x.art === "drin") ? "die Signale liegen schon im Depot"
+        : P.verfallen.length ? P.verfallen[0].grund : "kein Signal passt gerade ins Depot";
+      punkt("🛒", [el("b", {}, "Kauft nichts: "), grund], `${kaufen.length} Kauf-Signal${kaufen.length === 1 ? "" : "e"} heute: ${kaufen.map(s => s.ticker).join(", ")}`);
+    } else punkt("🛒", [el("b", {}, "Keine Kauf-Signale"), " – der Bot wartet auf bessere Gelegenheiten."]);
+  }
+  // Quartalszahlen bei offenen Positionen
+  if (P) {
+    const bald = P.positionen.filter(p => p.zahlen_tag).map(p => ({ t: p.ticker, iso: p.zahlen_tag, tage: Math.round((tag(p.zahlen_tag) - tag(HEUTE)) / 864e5) }))
+      .filter(x => x.tage >= 0 && x.tage < 7).sort((a, b) => a.tage - b.tage);
+    if (bald.length) punkt("⚠️", [el("b", {}, "Quartalszahlen bald: "), bald.map(x => `${x.t} ${x.tage === 0 ? "heute" : x.tage === 1 ? "morgen" : `in ${x.tage} Tagen`}`).join(", ")],
+      "Der Bot verkauft eine Position spätestens zum Schluss des Tages vor den Zahlen – automatisch.", "achtung");
+  }
+  // Positionen
+  if (P && P.positionen.length) {
+    const mit = P.positionen.filter(p => p.ergebnis !== null);
+    const summe = mit.reduce((a, p) => a + p.ergebnis, 0);
+    const sortiert = [...mit].sort((a, b) => b.ergebnis - a.ergebnis);
+    punkt("📒", [el("b", {}, `${P.positionen.length} von ${D.regeln.max_positionen} Plätzen belegt`), " · zusammen ",
+      el("span", { class: richtung(summe) }, `${vz(summe)}${euro(summe, 2)}`)],
+      sortiert.length > 1 ? `Vorne: ${sortiert[0].ticker} ${vz(sortiert[0].ergebnis)}${euro(sortiert[0].ergebnis, 0)} · hinten: ${sortiert[sortiert.length - 1].ticker} ${vz(sortiert[sortiert.length - 1].ergebnis)}${euro(sortiert[sortiert.length - 1].ergebnis, 0)}` : null);
+  } else if (P) punkt("📒", [el("b", {}, "Keine offenen Positionen")]);
+  // Markt
+  if (D.markt.ueber_200 !== null) punkt(D.markt.ueber_200 ? "🟢" : "🔴",
+    [el("b", {}, D.markt.ueber_200 ? "Markt: Käufe erlaubt" : "Markt: keine neuen Käufe"), D.markt.ueber_200 ? " – der Nasdaq-100 liegt über seiner 200-Tage-Linie." : " – der Nasdaq-100 liegt unter seiner 200-Tage-Linie."]);
+  const inhalt = el("div", { class: "panel heute" }, links, el("ul", { class: "heute-punkte" }, ...punkte));
+  return abschnitt("heute", "Auf einen Blick", `Kurse bis ${datum(D.daten_bis)} · das Wichtigste in Sätzen`, inhalt);
+}
+
+// ---------------------------------------------------------------------------
 // Seite aufbauen
 // ---------------------------------------------------------------------------
 function aufbauen(D) {
@@ -1709,6 +1864,7 @@ function aufbauen(D) {
   const bauen = () => band.map(([z, inhalt]) => el("span", {}, el("span", { class: "zeitstempel" }, z), ...inhalt));
   lb.replaceChildren(...bauen(), ...(bewegungAus ? [] : bauen()));
   lb.style.animationDuration = `${Math.max(30, band.length * 7)}s`;
+  main.append(heuteAbschnitt(D, P, kaufen, depotStatus));
 
   if (D.fehlt) {
     main.append(el("div", { class: "hinweis" }, el("b", {}, "Achtung: "), `Die Kurse vom ${datum(D.fehlt)} fehlen noch – die Signale sind einen Tag alt. Nicht danach handeln, der nächste Lauf holt den Tag nach.`));
@@ -1755,38 +1911,41 @@ function aufbauen(D) {
   kern.prepend(sv("svg", { class: "kern-linien", "aria-hidden": "true" }));
   main.append(abschnitt("gehirn", "Gehirn-Kern", `Daten bis ${datum(D.daten_bis)} · was heute reinkam und was rauskam`, kern));
 
-  // ---------- Kennzahlen ----------
-  const kacheln = el("div", { class: "panel kacheln" });
+  // ---------- Kennzahlen: echtes Übungsdepot und Rückblick (Simulation) getrennt ----------
+  const echt = el("div", { class: "panel kacheln echt" });
   if (P) {
     const seit = (P.wert / P.startkapital - 1) * 100;
     const q = P.qqq && P.qqq.length ? (P.qqq[P.qqq.length - 1][1] / P.startkapital - 1) * 100 : null;
-    kacheln.append(kachel("Übungsdepot", euro(P.wert), [el("span", { class: richtung(seit) }, `${seit >= 0 ? "▲" : "▼"} ${prozent(seit)}`), ` seit ${datum(P.angelegt, false)}`],
+    echt.append(kachel("Übungsdepot · echt", euro(P.wert), [el("span", { class: richtung(seit) }, `${seit >= 0 ? "▲" : "▼"} ${prozent(seit)}`), ` seit ${datum(P.angelegt, false)}`],
       { held: true, extra: sparkline(P.verlauf.map(v => v[1]), { breite: 150, hoehe: 30, basis: P.startkapital }) }));
     if (q !== null) {
       const diff = seit - q;
-      kacheln.append(kachel("gegen Nasdaq-100", `${vz(diff)}${zahl(diff, 1)} Pkt`, `Nasdaq-100 im selben Zeitraum ${prozent(q)}`, { klasse: richtung(diff), erkl: "pkt" }));
+      echt.append(kachel("gegen Nasdaq-100", `${vz(diff)}${zahl(diff, 1)} Pkt`, `Nasdaq-100 im selben Zeitraum ${prozent(q)} · größter Rückgang bisher ${prozent(P.max_rueckgang ? -P.max_rueckgang : 0, 1, false)}`, { klasse: richtung(diff), erkl: "pkt" }));
     }
+    echt.append(bilanzBlock(P, D.erwartung));
   }
+  const sim = el("div", { class: "panel kacheln sim" });
   if (RB) {
     const quote = RB.trades_anzahl ? (RB.gewinner / RB.trades_anzahl) * 100 : null;
     const rendite = (RB.end_wert / RB.start_wert - 1) * 100;
     const q = RB.qqq ? (RB.qqq[RB.qqq.length - 1][1] / RB.start_wert - 1) * 100 : null;
-    kacheln.append(kachel("Trefferquote · 12 Mon.", prozent(quote, 0, false), `${RB.gewinner} von ${RB.trades_anzahl} Trades mit Gewinn`,
+    sim.append(el("div", { class: "kacheln-kopf" }, el("span", { class: "label" }, `Rückblick · Simulation ${RB.monate || 12} Monate`),
+      el("span", { class: "klein" }, "gleiche Regeln rückwärts gerechnet, mit der heutigen Watchlist – sieht oft besser aus, als es vorwärts wird")));
+    sim.append(kachel("Trefferquote", prozent(quote, 0, false), `${RB.gewinner} von ${RB.trades_anzahl} Trades mit Gewinn`,
       { erkl: "quote", extra: el("div", { class: "striche" }, ...Array.from({ length: 10 }, (_, i) => el("i", { class: i < Math.round((quote || 0) / 10) ? "gut" : "" }))) }));
-    kacheln.append(kachel("Rendite · 12 Mon.", prozent(rendite), q !== null ? `Nasdaq-100 ${prozent(q)}` : "Rückblick", { klasse: richtung(rendite) }));
-    kacheln.append(kachel("Trades · 12 Mon.", zahl(RB.trades_anzahl), `Rückblick seit ${datumJahr(RB.start)}`));
-    kacheln.append(kachel("Größter Rückgang · 12 Mon.", prozent(-RB.max_rueckgang, 1),
-      P && P.max_rueckgang !== null ? `Rückblick (Simulation). Echtes Übungsdepot bisher: ${prozent(P.max_rueckgang ? -P.max_rueckgang : 0, 1, false)}` : "im Rückblick, vom Hoch",
-      { klasse: "schlecht", erkl: "rueckgang" }));
+    sim.append(kachel("Rendite", prozent(rendite), q !== null ? `Nasdaq-100 ${prozent(q)}` : "Rückblick", { klasse: richtung(rendite) }));
+    sim.append(kachel("Trades", zahl(RB.trades_anzahl), `seit ${datumJahr(RB.start)}`));
+    sim.append(kachel("Größter Rückgang", prozent(-RB.max_rueckgang, 1), "vom bisherigen Hoch", { klasse: "schlecht", erkl: "rueckgang" }));
   }
-  main.append(abschnitt("kennzahlen", "Kennzahlen", "Übungsdepot (echt, vorwärts) und Rückblick der letzten 12 Monate", kacheln));
+  main.append(abschnitt("kennzahlen", "Kennzahlen", "oben das echte Übungsdepot, unten der Rückblick (Simulation)",
+    el("div", { style: "display:grid;gap:12px" }, P ? echt : null, RB ? sim : null)));
 
   // ---------- Signale ----------
   const warten = D.signale.filter(s => s.art === "warten");
   const sichern = D.signale.filter(s => s.art === "sichern");
   const beob = D.signale.filter(s => s.art === "beobachten");
   const fehler = D.signale.filter(s => s.art === "fehler");
-  const karten = el("div", { class: "karten" });
+  const karten = el("div", { class: `karten${kaufen.length <= 2 ? " wenige" : ""}` });
   const rang = { kauft: 0, nach: 1, drin: 2, nicht: 3 };
   const sortiert = P ? [...kaufen].sort((a, b) => rang[depotStatus(a.ticker).art] - rang[depotStatus(b.ticker).art]) : kaufen;
   for (const s of sortiert) {
@@ -2388,7 +2547,8 @@ function liveZeigen(L) {
     if (alt) alt.replaceWith(knoten);
     else {
       const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");
-      if (hinweis) hinweis.after(knoten); else main.prepend(knoten);
+      const anker = hinweis || document.getElementById("heute");
+      if (anker) anker.after(knoten); else main.prepend(knoten);
     }
     nav.hidden = false;
     stand.textContent = stand.dataset.morgen;
@@ -2409,7 +2569,8 @@ function liveZeigen(L) {
   if (alt) alt.replaceWith(neu);
   else {
     const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");
-    if (hinweis) hinweis.after(neu); else main.prepend(neu);
+    const anker = hinweis || document.getElementById("heute");
+    if (anker) anker.after(neu); else main.prepend(neu);
   }
   nav.hidden = false;
   chartsLive(L);
