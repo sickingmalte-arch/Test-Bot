@@ -25,6 +25,8 @@ py -3 Automatisches_trading_system.py --candles 180
 
 ## Swing-Scanner für die Aktien-Watchlist
 
+> 🧊 **Die Kaufregeln sind bis Ende Januar 2027 (31.01.2027) eingefroren.** Das Übungsdepot läuft seit dem 20.10.2026 als echter Vorwärtstest. Ehrlich messen kann es nur, wenn sich die Regeln dabei nicht ändern – also keine neuen oder geänderten Strategien, Stops, Ziele, Limits, Lernregel, Positionsgrößen, Grenzen oder Kosten. Webseite, Nachrichten und Handy dürfen weiter verbessert werden. Dass das wirklich eingehalten wird, prüft der **Sicherheits-Check** (siehe unten) bei jedem Pull Request automatisch.
+
 ### In Google Colab (ohne Installation)
 
 Neue Zelle anlegen, einfügen und mit Umschalt + Enter ausführen:
@@ -60,7 +62,7 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot am Morgen nach jede
 
 1. **Einmalig:** Die Änderungen müssen im Hauptzweig `main` sein (Pull Request → **Merge**). Zeitgesteuerte Abläufe laufen bei GitHub nur aus `main`. Willst du ein anderes Startkapital als 10.000 €, trag es vorher ein (Schritt 5).
 2. **Sofort testen:** **Actions → Swing-Bot → Run workflow**. Ein Lauf dauert einige Minuten. Danach gibt es die Ordner `bericht` und `papier`.
-3. **Ergebnis ansehen:** Im Repository die Datei `bericht/README.md` öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot und Rückblick; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung). Steht dort ❌, steht der Grund gleich dabei. Das Gehirn für Obsidian (Tagebuch, Lehren, deine Regeln) liegt im Ordner `gehirn` – siehe unten.
+3. **Ergebnis ansehen:** Im Repository die Datei `bericht/README.md` öffnen (auch in der GitHub-App: Code → `bericht` → `README.md`). Dort stehen Signale, Handelsplan, Lernstand, Papier-Depot, Rückblick und die ehrliche Bilanz; ein Klick auf einen Ticker öffnet den Chart bei TradingView. Jeder Lauf zeigt den Bericht außerdem unter **Actions → Swing-Bot → Lauf anklicken** (Zusammenfassung). Steht dort ❌, steht der Grund gleich dabei. Das Gehirn für Obsidian (Tagebuch, Lehren, deine Regeln) liegt im Ordner `gehirn` – siehe unten.
 4. **Papier-Depot:** liegt in `papier/papier_depot.json` und wird nach jedem Lauf gespeichert. Der Bot holt verpasste Tage nach, falls GitHub einen Lauf auslässt oder Yahoo einmal nicht antwortet. Dein bisheriges Depot aus Google Drive weiterführen: erst einmal Schritt 2, dann `MyDrive/swing_scanner/papier_depot.json` aus Drive herunterladen, im Repository den Ordner `papier` öffnen → **Add file → Upload files** → Datei hineinziehen (sie muss genau `papier_depot.json` heißen und ersetzt die vom ersten Lauf) → **Commit changes**. Nicht hochladen, während gerade ein Lauf arbeitet (sonst wird dieser Lauf nicht gespeichert; der nächste rechnet weiter). Drive-Depot und GitHub-Depot sind danach zwei getrennte Dateien – wenn du beide fortschreibst, laufen sie auseinander.
 5. **Einstellungen ohne Code:** **Settings → Secrets and variables → Actions → Tab „Variables“ → New repository variable**:
 
@@ -136,7 +138,7 @@ Der automatische Lauf schreibt jeden Morgen Notizen für [Obsidian](https://obsi
 
 - **`Start.md`** – Übersicht: heutige Signale, Übungsdepot, was der Bot gelernt hat, deine Regeln.
 - **`Tage/2026-10-21.md`** – Tagesnotiz: Marktlage, Entscheidungen, Übungsdepot, Änderungen beim Lernen.
-- **`Wochen/2026-W43.md`** – Wochenrückblick: Depotwert am Wochenanfang und jetzt, abgeschlossene und neue Trades der Woche, Trefferquote im Übungsdepot (gesamt und je Aktie), Änderungen beim Lernen und Links zu den Tagesnotizen. Während der Woche schreibt der Bot sie bei jedem Lauf neu, danach bleibt sie stehen. Unten ist unter „Meine Gedanken zur Woche“ Platz für dich – am besten erst, wenn die Woche vorbei ist (dann ändert der Bot die Notiz nicht mehr).
+- **`Wochen/2026-W43.md`** – Wochenrückblick: Depotwert am Wochenanfang und jetzt, abgeschlossene und neue Trades der Woche, die **ehrliche Bilanz** seit dem Start (siehe unten), Trefferquote im Übungsdepot (gesamt und je Aktie), Änderungen beim Lernen und Links zu den Tagesnotizen. Während der Woche schreibt der Bot sie bei jedem Lauf neu, danach bleibt sie stehen. Unten ist unter „Meine Gedanken zur Woche“ Platz für dich – am besten erst, wenn die Woche vorbei ist (dann ändert der Bot die Notiz nicht mehr).
 - **`Trades/…`** – je abgeschlossenem Trade im Übungsdepot eine Notiz: warum gekauft, was passiert ist (z. B. Stop durch Kurslücke, Gewinn wieder abgegeben) und **was der Bot daraus lernt**. Darunter ist Platz für deine Gedanken; diese Notiz ändert der Bot danach nie mehr.
 - **`Strategien/…`** und **`Aktien/…`** – je eine Seite mit Bilanz, Lernstand (aktiv, pausiert, aus) und allen Trades, alles verlinkt.
 - **`Lehren.md`** – was der Bot aus allen Trades zieht: Lernregel, Ausstiegsgründe, Muster und ehrliche Hinweise zum Zufall. Dazu die **Selbstkontrolle der Ziel-Chance** (siehe unten).
@@ -262,6 +264,26 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 - *Mehr Aktien, mehr Positionen, Shorts* (Oktober 2026): 84 statt 24 Aktien war in allen drei Zeiträumen schlechter. Bis 15 Positionen brachte nur mit mehr Gesamtrisiko mehr Rendite (+1,3 bis +2,1, nicht überall) und dann bis 24 % statt 16 % Rückgang. Alle Short-Strategien verlieren, auch zehn verbesserte Varianten (nur im Abwärtsmarkt, nur schwache Aktien, näheres Ziel, Bruch der 200-Tage-Linie, RSI über 70 …); eine Absicherung mit einem Nasdaq-100-Short senkte überall die Rendite und vergrößerte die Rückgänge.
 - *Höchstens 2 Positionen je Branche* wurde übernommen: Rendite in 5 von 6 Fällen besser (im Schnitt +0,4 Prozentpunkte, im sechsten innerhalb des Zufalls), größter Rückgang nie schlechter, meist 1–2 Prozentpunkte kleiner.
 
+### Ehrliche Bilanz des Übungsdepots
+
+Im Bericht (Abschnitt „⚖️ EHRLICHE BILANZ“) und in jedem Wochenrückblick im Gehirn steht, wie sich das Übungsdepot seit dem Start wirklich schlägt – nur zur Anzeige, an den Regeln ändert das nichts:
+
+- **Gegen den Markt:** Übungsdepot seit dem Start in % im Vergleich zum Nasdaq-100 (QQQ) im selben Zeitraum, beides in € (der Nasdaq-100 mit dem Euro-Kurs umgerechnet).
+- **Abgeschlossene Trades:** Anzahl, Trefferquote (Anteil mit Gewinn nach Kosten), Ø Ergebnis in R (1 R = was der Bot bei einem Trade bis zum Stop riskiert hat, beim Standard etwa 100 €) und Gewinnfaktor (alle Gewinne zusammen ÷ alle Verluste zusammen; über 1 = unterm Strich verdient).
+- **Erwartung aus dem Test mit echten Kursen** (2010–2026, gleiche Regeln, Standard-Watchlist, mit Kosten, 16 Läufe): Trefferquote 57 %, Ø +0,12 R je Trade, Gewinnfaktor 1,4, etwa 90 Trades im Jahr – und daneben, wie das Übungsdepot liegt.
+- **Spielraum des Zufalls:** zwischen welchen Werten Trefferquote und Ø Ergebnis bei so wenigen Trades auch mit genau diesen Regeln meistens liegen. Unter etwa 30 Trades kann alles noch Zufall sein; bei etwa 90 Trades im Jahr sind 30 Trades nach rund 4 Monaten erreicht.
+- Zum Vergleich der Rückblick der letzten 12 Monate (sieht oft zu gut aus, weil die Aktien im Nachhinein ausgewählt sind).
+
+### Sicherheits-Check (automatischer Test)
+
+Bei jedem Pull Request und jeder Änderung in `main` startet GitHub den Ablauf `.github/workflows/tests.yml` („Sicherheits-Check“). Schlägt ein Test fehl, ist der Pull Request rot (❌) – dann bitte nicht übernehmen.
+
+- **Feste Testdaten:** In `tests/daten/` liegen Tageskerzen von 2017 bis 2024 für 8 Aktien der Watchlist (AAPL, NVDA, MSFT, AMD, LLY, XOM, JPM, COST), den Nasdaq-100 (QQQ) und den Euro-Kurs, dazu ihre Quartalszahlen-Termine – zusammen etwa 1,4 MB. Der Test fragt Yahoo nicht und rechnet deshalb jedes Mal gleich.
+- **Fingerabdruck der Kaufregeln:** Mit diesen Daten rechnet der Test Strategie-Tagebuch, Lernregel und virtuelles Depot (2022–2024) durch und vergleicht das Ergebnis mit `tests/fingerabdruck.json`: die Zahlen der Regeln (Risiko, Stop- und Zielabstände, Grenzen, Lernregel …), jeder gedachte Trade des Tagebuchs, jede Pause der Lernregel und jeder Trade des Depots (Aktie, Strategie, Tage, Grund, Ergebnis in R) samt Endwert. Ändert eine Änderung auch nur einen Trade, zeigt der Test, welcher es ist.
+- **Kleine Tests:** Positionsgröße, Stop, Ziel und Limit, Quartalszahlen-Sperre, Marktfilter, höchstens 5 Positionen und 2 je Branche, Laden und Speichern des Papier-Depots (auch eine alte Datei vom ersten Tag muss lesbar bleiben).
+- **Selbst ausführen:** `python -m pip install -r tests/requirements.txt`, dann `python -m pytest tests` (dauert wenige Sekunden).
+- **Absichtliche Regeländerung** (erst nach dem 31.01.2027): Den Fingerabdruck darf nur der eigene Befehl `python tests/fingerabdruck_neu.py` neu erzeugen, nie die Hand. Im Pull Request muss dann deutlich stehen: „Regeländerung: Fingerabdruck neu erzeugt“, mit Grund und Testergebnis.
+
 ### Optionen
 
 | Option | Bedeutung |
@@ -290,6 +312,6 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
 
-Die festen Regeln (Positionsgrenzen, Lernregel, Zeitstopp …) stehen als Konstanten oben im Skript. Sie sind bewusst vorab festgelegt: Wer sie so lange verstellt, bis der Rückblick gut aussieht, passt sie nur an den Zufall der Vergangenheit an.
+Die festen Regeln (Positionsgrenzen, Lernregel, Zeitstopp …) stehen als Konstanten oben im Skript. Sie sind bewusst vorab festgelegt: Wer sie so lange verstellt, bis der Rückblick gut aussieht, passt sie nur an den Zufall der Vergangenheit an. Bis Ende Januar 2027 bleiben sie ganz unverändert (siehe oben, Sicherheits-Check).
 
 Daten: 5 Jahre Tageskerzen, Quartalszahlen-Termine und Schlagzeilen von Yahoo Finance. Mit `--mit-short`: Short-Positionen (z. B. per CFD oder Turbo-Schein) haben nach oben offene Verluste; Leih- und Finanzierungskosten sind im Rückblick nicht berücksichtigt. Der Rückblick nutzt die heutige Watchlist und sieht deshalb für Kauf-Strategien tendenziell zu gut aus. Vergangene Ergebnisse sind keine Garantie für die Zukunft; die Ausgabe ist keine Anlageberatung.

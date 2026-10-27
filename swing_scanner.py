@@ -2753,6 +2753,122 @@ def papier_vergleich(stand, markt, fx):
         return None
     return pd.Series(stand["startkapital"] * werte.to_numpy() / werte.iloc[0], index=pd.DatetimeIndex(tage))
 
+# Was der Test mit echten Kursen je abgeschlossenem Depot-Trade ergab: 2010–2026, die 24 Aktien der Standard-Watchlist,
+# dieselben Regeln mit Gebühr und Spread, Mittel aus 16 Läufen mit zufälliger Reihenfolge der Aktien (etwa 1.500 Trades).
+# Nur zum Vergleich in der ehrlichen Bilanz – keine Regel.
+TEST_ERWARTUNG = {"zeitraum": "2010–2026", "quote": 57.1, "schnitt_r": 0.115, "gewinnfaktor": 1.39, "streuung_r": 0.90,
+                  "trades_je_jahr": 90}
+BILANZ_MIN_TRADES = 30  # darunter kann das Ergebnis des Übungsdepots noch reiner Zufall sein
+BILANZ_TITEL = "⚖️ EHRLICHE BILANZ · Übungsdepot"
+
+def trade_bilanz(trades):
+    """Anzahl, Trefferquote, Ø R und Gewinnfaktor abgeschlossener Depot-Trades (Ergebnis nach Kosten) oder None."""
+    if not trades:
+        return None
+    gewinn = [t["erloes"] - t["kosten"] for t in trades]
+    r = [g / t["risiko_eur"] if t["risiko_eur"] > 0 else 0.0 for g, t in zip(gewinn, trades)]
+    plus, minus = sum(g for g in gewinn if g > 0), -sum(g for g in gewinn if g < 0)
+    treffer = sum(1 for g in gewinn if g > 0)
+    return {"n": len(trades), "treffer": treffer, "quote": treffer / len(trades) * 100, "schnitt_r": sum(r) / len(r),
+            "plus": plus, "minus": minus, "gewinnfaktor": plus / minus if minus > 0 else None}
+
+def gewinnfaktor_text(b):
+    if b["gewinnfaktor"] is not None:
+        return de(b["gewinnfaktor"], 1)
+    return "noch keiner (bisher kein Verlust)" if b["plus"] > 0 else "–"
+
+def ehrliche_bilanz(stand, vergleich, waehrung, rueckblick=None):
+    """Ehrliche Bilanz des Übungsdepots seit dem Start als Textzeilen: gegen den Nasdaq-100 (in €), die abgeschlossenen
+    Trades und was der Test mit echten Kursen erwartet hat – mit dem Spielraum des Zufalls. Nur Anzeige."""
+    e = TEST_ERWARTUNG
+    start = pd.Timestamp(stand["angelegt"] or stand["verlauf"][0][0])
+    wert = stand["depotwert"]
+    rendite = (wert / stand["startkapital"] - 1) * 100
+    zeile = (f"Seit dem Start am {start:%d.%m.%Y} (Kurse bis {pd.Timestamp(stand['bis']):%d.%m.%Y}): Übungsdepot "
+             f"{de(rendite, 1, True)} % ({de(wert)} {waehrung})")
+    if vergleich is not None and len(vergleich):
+        markt = (vergleich.iloc[-1] / stand["startkapital"] - 1) * 100
+        abstand = rendite - markt
+        lage = ("liegt gleichauf" if abs(abstand) < 0.05 else
+                f"liegt {'vorn' if abstand > 0 else 'hinten'} (Abstand {de(abs(abstand), 1)} Prozentpunkte)")
+        zeile += (f" · Nasdaq-100 (QQQ, in € umgerechnet) im selben Zeitraum {de(markt, 1, True)} % "
+                  f"({de(vergleich.iloc[-1])} {waehrung}) → das Übungsdepot {lage}")
+    else:
+        zeile += " · Nasdaq-100: diesmal kein Vergleich möglich (Kurse fehlen)"
+    zeilen = [zeile + "."]
+    b = trade_bilanz(stand["trades"])
+    if b is None:
+        zeilen.append("Abgeschlossene Trades: noch keine – diese Bilanz beginnt mit dem ersten Verkauf.")
+    else:
+        zeilen.append(f"Abgeschlossene Trades: {b['n']} · davon im Plus: {b['treffer']} (Trefferquote "
+                      f"{de(b['quote'], 0)} %) · Ø Ergebnis {r_text(b['schnitt_r'], 2)} je Trade · Gewinnfaktor "
+                      f"{gewinnfaktor_text(b)} (alle Gewinne {de(b['plus'])} {waehrung} ÷ alle Verluste "
+                      f"{de(b['minus'])} {waehrung}).")
+    zeilen.append(f"Erwartung aus dem Test mit echten Kursen ({e['zeitraum']}, gleiche Regeln, Aktien der "
+                  f"Standard-Watchlist): Trefferquote {de(e['quote'], 0)} % · Ø {r_text(e['schnitt_r'], 2)} je Trade · "
+                  f"Gewinnfaktor {de(e['gewinnfaktor'], 1)} · etwa {e['trades_je_jahr']} Trades im Jahr.")
+    if b is not None:
+        def vergleich_text(ist, soll, text_ist, text_soll):
+            return f"{text_ist} statt {text_soll} ({'besser' if ist > soll else 'schlechter' if ist < soll else 'gleich'})"
+        teile = [vergleich_text(round(b["quote"]), round(e["quote"]), f"Trefferquote {de(b['quote'], 0)} %",
+                                f"{de(e['quote'], 0)} %"),
+                 vergleich_text(round(b["schnitt_r"], 2), round(e["schnitt_r"], 2),
+                                f"Ø {r_text(b['schnitt_r'], 2)}", r_text(e["schnitt_r"], 2))]
+        if b["gewinnfaktor"] is not None:
+            teile.append(vergleich_text(round(b["gewinnfaktor"], 1), round(e["gewinnfaktor"], 1),
+                                        f"Gewinnfaktor {de(b['gewinnfaktor'], 1)}", de(e["gewinnfaktor"], 1)))
+        zeilen.append("Übungsdepot daneben: " + " · ".join(teile) + ".")
+        # Spielraum des Zufalls: grob ± 2 Standardfehler um die Erwartung des Tests
+        p = e["quote"] / 100
+        q_breit = 200 * math.sqrt(p * (1 - p) / b["n"])
+        q_von, q_bis = max(e["quote"] - q_breit, 0), min(e["quote"] + q_breit, 100)
+        r_breit = 2 * e["streuung_r"] / math.sqrt(b["n"])
+        r_von, r_bis = e["schnitt_r"] - r_breit, e["schnitt_r"] + r_breit
+        drin = q_von <= b["quote"] <= q_bis and r_von <= b["schnitt_r"] <= r_bis
+        unter = b["quote"] < q_von or b["schnitt_r"] < r_von
+        urteil = ("Das Übungsdepot liegt innerhalb – also so, wie man es nach dem Test erwarten kann." if drin else
+                  "Das Übungsdepot liegt darunter – auffällig, aber noch kein Beweis. Genauer hinschauen, die Regeln "
+                  "trotzdem nicht ändern (eingefroren bis Ende Januar 2027)." if unter else
+                  "Das Übungsdepot liegt darüber – meist ist das Glück, das sich später wieder ausgleicht.")
+        zeilen.append(f"Spielraum des Zufalls: Bei {b['n']} {'Trade' if b['n'] == 1 else 'Trades'} liegt die "
+                      f"Trefferquote auch mit genau diesen Regeln meistens irgendwo zwischen {de(q_von, 0)} % und "
+                      f"{de(q_bis, 0)} %, das Ø Ergebnis zwischen {r_text(r_von, 2)} und {r_text(r_bis, 2)}. {urteil}")
+    n = b["n"] if b else 0
+    if n < BILANZ_MIN_TRADES:
+        monate = max(1, round((BILANZ_MIN_TRADES - n) / e["trades_je_jahr"] * 12))
+        anzahl = f"Erst {n} abgeschlossene {'Trade' if n == 1 else 'Trades'}" if n else "Noch keine abgeschlossenen Trades"
+        zeilen.append(f"⚠️ {anzahl}: Unter etwa {BILANZ_MIN_TRADES} "
+                      f"Trades kann das alles noch Zufall sein – auch gute Regeln haben Pechsträhnen und schlechte "
+                      f"Glückssträhnen. Bei etwa {e['trades_je_jahr']} Trades im Jahr dauert es noch grob {monate} "
+                      f"{'Monat' if monate == 1 else 'Monate'}.")
+    else:
+        zeilen.append(f"Mit {n} Trades wird der Vergleich langsam aussagekräftig – wirklich sicher ist er erst nach "
+                      f"vielen Monaten und einigen Hundert Trades.")
+    rb = trade_bilanz((rueckblick or {}).get("trades"))
+    if rb is not None:
+        zeilen.append(f"Zum Vergleich der Rückblick ({pd.Timestamp(rueckblick['start']):%m/%Y}–"
+                      f"{pd.Timestamp(rueckblick['ende']):%m/%Y}, heute nachgerechnet): {rb['n']} Trades · "
+                      f"Trefferquote {de(rb['quote'], 0)} % · Ø {r_text(rb['schnitt_r'], 2)} · Gewinnfaktor "
+                      f"{gewinnfaktor_text(rb)}. Er sieht oft zu gut aus, weil die Aktien der Watchlist im Nachhinein "
+                      f"ausgewählt sind.")
+    zeilen.append("So liest du das: Trefferquote = Anteil der Trades mit Gewinn (nach Kosten). R = der Betrag, den der "
+                  "Bot bei einem Trade bis zum Stop riskiert hat (beim Standard 1 % des Kontos, bei 10.000 € also "
+                  "rund 100 €); +0,5 R heißt: halb so viel gewonnen, wie riskiert war. Gewinnfaktor = alle Gewinne "
+                  "zusammen geteilt durch alle Verluste zusammen; über 1 heißt: unterm Strich verdient. Nasdaq-100 "
+                  "(QQQ) = die 100 größten Werte der US-Technologiebörse Nasdaq, mit dem Euro-Kurs umgerechnet wie das "
+                  "Übungsdepot.")
+    return zeilen
+
+def zeige_bilanz(stand, vergleich, waehrung, notebook, rueckblick=None):
+    zeilen = ehrliche_bilanz(stand, vergleich, waehrung, rueckblick)
+    berichte(BILANZ_TITEL, zeilen)
+    text = "\n".join(["", BILANZ_TITEL, *("   " + z for z in zeilen)])
+    if not notebook:
+        print(text)
+        return
+    zeige(absatz(BILANZ_TITEL, "font-size: 1.15em; font-weight: bold; margin-top: 18px;")
+          + "".join(absatz(z) for z in zeilen), text)
+
 def eroeffnung_vorbei(auftraege, termine):
     """Ist die Eröffnung, zu der die Aufträge ausgeführt werden, jetzt schon vorbei (Lauf während der Börsenzeit)?"""
     for a in auftraege:
@@ -3735,6 +3851,15 @@ def meine_regeln_vorlage(ticker_liste):
               "> - Ab dem nächsten Lauf gilt die Regel für Signale und Papier-Depot; offene Aufträge dafür werden "
               "gestrichen, offene Positionen laufen bis Stop, Ziel, Zeitstopp oder vor Quartalszahlen weiter. Im "
               "Rückblick (Simulation der letzten Monate) gilt sie auch rückwirkend.", "",
+              "> [!info] 🧊 Die Kaufregeln des Bots sind bis Ende Januar 2027 eingefroren",
+              "> - Das Übungsdepot läuft seit dem 20.10.2026 als echter Test mit virtuellem Geld. Ehrlich messen kann es "
+              "nur, wenn sich die Regeln des Bots dabei nicht ändern: keine neuen oder geänderten Strategien, Stops, Ziele, "
+              "Limits, Lernregel, Positionsgrößen oder Grenzen bis zum 31.01.2027.",
+              "> - Webseite, Nachrichten und Handy dürfen weiter verbessert werden.",
+              "> - Ein automatischer Sicherheits-Check bei GitHub prüft das bei jeder Änderung am Bot (siehe README, "
+              "„Sicherheits-Check“).",
+              "> - Deine Haken unten bleiben deine Entscheidung. Aber jeder neue Haken ändert, was das Übungsdepot kauft – "
+              "dann misst es nicht mehr nur den Bot.", "",
               "## Aktien sperren (der Bot kauft oder shortet sie nicht)", ""]
     zeilen += [f"- [ ] {t}" for t in ticker_liste]
     zeilen += ["", "## Strategien ausschalten (zusätzlich zur Lernregel des Bots)", ""]
@@ -3938,7 +4063,7 @@ def lern_wechsel(pausen, tage, key, seit):
     return wechsel
 
 def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, alle_tage, daten, papier, depot, trend,
-                    papier_hinweis=None):
+                    papier_hinweis=None, markt_vergleich=None):
     """Schreibt alle Notizen des Gehirns. Gibt (Zahl neuer Trade-Notizen, Hinweise) zurück; eine Notiz, die nicht
     gelesen oder geschrieben werden kann, wird übersprungen und gemeldet."""
     ok = [z for z in zeilen if "_stand" in z]
@@ -4272,6 +4397,9 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         text.append("- Offen: " + (", ".join(link_aktie(x["ticker"]) for x in papier["positionen"]) or "nichts"))
     else:
         text.append("- noch kein Übungsdepot")
+    if papier.get("verlauf"):
+        text += ["", "## ⚖️ Ehrliche Bilanz seit dem Start", ""]
+        text += [f"- {z}" for z in ehrliche_bilanz(papier, markt_vergleich, waehrung, depot)]
     text += ["", "## Trefferquote im Übungsdepot (seit dem Start)", ""]
     if trades:
         je_aktie = {}
@@ -4601,6 +4729,8 @@ def auswerten(einst):
                 if einst.sperre_ticker or einst.sperre_strategien else "")
             zeige_depot(depot, ohne, einst, waehrung, notebook, ohne_regel, rueckschau, einst.ohne_zahlen,
                         ohne_filter, einst.marktfilter and trend is not None)
+    if papier is not None:
+        zeige_bilanz(papier, papier_vergleich(papier, markt, fx), waehrung, notebook, depot)
 
     if einst.nachricht:
         # Fehlt der letzte US-Handelstag noch, wären Signal und Kauftag schon veraltet – dann keine Nachricht
@@ -4623,8 +4753,10 @@ def auswerten(einst):
                 if t in roh and t not in daten_gehirn:
                     daten_gehirn[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t), zusatz.get(t, {}).get("zahlen"),
                                                   einst, trend)
+            markt_vergleich = papier_vergleich(papier_gehirn, markt, fx) if papier_gehirn else None
             neu, gehirn_hinweise = schreibe_gehirn(gehirn_ordner, einst, waehrung, zeilen, tagebuch, stand, pausen,
-                                                   alle_tage, daten_gehirn, papier_gehirn, depot, trend, papier_hinweis)
+                                                   alle_tage, daten_gehirn, papier_gehirn, depot, trend, papier_hinweis,
+                                                   markt_vergleich)
             print(f"\n🧠 Gehirn aktualisiert: {gehirn_ordner}" + (f" ({neu} neu abgeschlossene Trades)" if neu else ""))
             for h in gehirn_hinweise:
                 print(f"⚠️ {h}")
