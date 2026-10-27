@@ -1,0 +1,34 @@
+# Sicherheits-Check: rechnet die Kaufregeln mit festen Kursdaten (tests/daten) und vergleicht mit dem gespeicherten
+# Fingerabdruck (tests/fingerabdruck.json), dazu kleine Tests für Positionsgröße, Stop/Ziel/Limit, Quartalszahlen,
+# Marktfilter, Branchen-Grenze und das Papier-Depot. Läuft bei jedem Pull Request und jedem Push auf main; schlägt
+# ein Test fehl, ist der Pull Request rot. Die Kaufregeln sind bis Ende Januar 2027 eingefroren – eine absichtliche
+# Regeländerung nur mit „python tests/fingerabdruck_neu.py“ und deutlichem Hinweis im Pull Request.
+name: Sicherheits-Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13" # wie beim Erzeugen des Fingerabdrucks
+          cache: pip
+          cache-dependency-path: tests/requirements.txt
+
+      - name: Pakete installieren
+        run: pip install -r tests/requirements.txt
+
+      - name: Tests
+        run: python -m pytest -q tests

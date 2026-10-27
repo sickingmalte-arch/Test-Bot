@@ -1,0 +1,6 @@
+# Feste Versionen nur für den Sicherheits-Check (tests.yml): Mit anderen pandas-/numpy-Versionen könnten einzelne
+# Rundungen anders ausfallen. Der Bot selbst nutzt requirements-bot.txt.
+pandas==3.0.6
+numpy==2.5.4
+yfinance==1.7.0
+pytest==9.0.3
