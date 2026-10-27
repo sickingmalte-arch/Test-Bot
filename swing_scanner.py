@@ -3333,6 +3333,7 @@ def depot_export(stand, daten, markt, fx):
               for t in stand["trades"][-30:]][::-1]
     alle = stand["trades"]
     ok, verfallen, nachruecker = ausfuehrbare_auftraege(stand)
+    b = trade_bilanz(alle)
     return {
         "angelegt": stand.get("angelegt"), "bis": stand["bis"], "startkapital": json_zahl(stand["startkapital"]),
         "wert": json_zahl(stand["depotwert"]), "bargeld": json_zahl(stand["bargeld"]),
@@ -3346,6 +3347,10 @@ def depot_export(stand, daten, markt, fx):
         "nachruecker": [{"ticker": a["ticker"], "strategie": strategie_name(a["strategie"])} for a in nachruecker],
         "verfallen": [{"grund": g, "ticker": t} for g, t in verfallen.items()],
         "tage": tages_bilanz(stand, daten),
+        # ehrliche Bilanz der abgeschlossenen Trades (Trefferquote, Ø R, Gewinnfaktor) – nur Anzeige
+        "bilanz": {"n": b["n"], "treffer": b["treffer"], "quote": json_zahl(b["quote"], 1),
+                   "schnitt_r": json_zahl(b["schnitt_r"], 3), "plus": json_zahl(b["plus"]), "minus": json_zahl(b["minus"]),
+                   "gewinnfaktor": json_zahl(b["gewinnfaktor"], 2)} if b else None,
     }
 
 CHART_TAGE = 60  # Tageskerzen je Chart auf der Übersichtsseite (etwa 3 Monate)
@@ -3475,6 +3480,7 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
         "markt": {"ueber_200": None if lage is None else bool(lage == 1)},
         "regeln": {"max_positionen": MAX_POSITIONEN, "max_je_branche": MAX_JE_BRANCHE,
                    "max_risiko": MAX_GESAMTRISIKO_PROZENT, "zeitstopp": ZEITSTOPP_TAGE},
+        "erwartung": dict(TEST_ERWARTUNG, min_trades=BILANZ_MIN_TRADES),
         "gehirn": {"aktien": len(daten), "strategien": len(strategien),
                    "aktiv": sum(1 for s in strategien if s["status"] == "aktiv"),
                    "termine": sum(1 for d in daten.values() if d["termine"] is not None),
