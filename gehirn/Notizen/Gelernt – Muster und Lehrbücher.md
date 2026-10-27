@@ -5,7 +5,7 @@ tags: [lernen, forschung]
 
 Stand: 27.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
-Diese Notiz ändert der Bot nie. Sie hält fest, was aus dem Poster „Candlestick Patterns & Chart Patterns“, dem Blatt „Chart Pattern“ von Finanzradar, den beiden Lehrbüchern und weiteren Ideen vom Oktober 2026 getestet wurde. So werden dieselben Ideen nicht noch einmal ungeprüft eingebaut. Zurück zur [[Start|Startseite]] · siehe auch [[Notizen/Wissen – Kerzen- und Chartmuster]], [[Notizen/Wissen – Traden lernen (Lehrbücher)]] und [[Lehren]].
+Diese Notiz ändert der Bot nie. Sie hält fest, was aus dem Poster „Candlestick Patterns & Chart Patterns“, dem Blatt „Chart Pattern“ von Finanzradar, den beiden Lehrbüchern, Volumen-Regeln und weiteren Ideen vom Oktober 2026 getestet wurde. So werden dieselben Ideen nicht noch einmal ungeprüft eingebaut. Zurück zur [[Start|Startseite]] · siehe auch [[Notizen/Wissen – Kerzen- und Chartmuster]], [[Notizen/Wissen – Traden lernen (Lehrbücher)]] und [[Lehren]].
 
 ## So wurde getestet
 
@@ -74,6 +74,39 @@ Das Blatt zeigt 20 Chartmuster mit Einstieg, Stop und Ziel: rechts die Muster zu
 | neue Strategie Fibonacci-Rücksetzer (38,2–61,8 %, Ziel = letztes Hoch) | 2 von 6 | −1,4 (−4,0 bis +2,5) | 5 von 6 |
 
 Vieles aus den Büchern macht der Bot schon, z. B. die 1-%-Regel, den Stop bei jedem Trade, das Tagebuch und Ausbrüche. Mehrere Indikatoren zur Bestätigung und Ausstiege nach Signal (z. B. Parabolic SAR) waren schon früher getestet und nicht besser.
+
+## Volumen: als eigene Strategie und als Mitentscheider
+
+Der Bot nutzt das Volumen schon an einer Stelle: „Ausbruch“ kauft nur, wenn am Signaltag mindestens 1,5-mal so viel gehandelt wurde wie im Schnitt der 20 Tage davor. Getestet wurde im Oktober 2026, ob mehr Volumen-Regeln helfen.
+
+**Vier Volumen-Strategien, jede für sich** (alle Signale, ohne Depot; Stop und Ziel wie bei den anderen Strategien):
+
+| Strategie | So kauft sie | im Plus | Ø Ergebnis je Trade |
+| --- | --- | --- | --- |
+| Pocket Pivot | steigender Tag mit mehr Volumen als jeder fallende Tag der letzten 2 Wochen, im Aufwärtstrend | 6 von 6 | +0,06 R |
+| Volumen-Spitze | mindestens doppeltes Volumen, Schluss im oberen Drittel des Tages, über der 50-Tage-Linie | 6 von 6 | +0,08 R |
+| OBV-Ausbruch | On-Balance-Volume (aufsummiertes Volumen steigender minus fallender Tage) auf 20-Tage-Hoch, der Kurs noch nicht | 6 von 6 | +0,08 R |
+| Kapitulation | Abverkauf von mehr als 1,5 ATR mit 2,5-fachem Volumen, Schluss in der oberen Tageshälfte, über der 200-Tage-Linie | 4 von 6 (nur 90 Trades) | +0,05 R |
+
+Das ist etwa so gut wie die Strategien, die der Bot schon hat (+0,05 bis +0,12 R), aber nicht besser.
+
+**Im Übungsdepot:**
+
+| Idee | Rendite besser | Ø Rendite pro Jahr | größter Rückgang größer |
+| --- | --- | --- | --- |
+| die 4 Volumen-Strategien zusätzlich | 2 von 6 | −0,8 Punkte (−2,0 bis +0,3) | 1 von 6 |
+| alte Strategien nur bei mindestens durchschnittlichem Volumen | 2 von 6 | −1,6 (−5,3 bis +2,3) | 4 von 6 |
+| … nur bei den Trend-Strategien | 3 von 6 | −1,5 (−4,6 bis +1,2) | 3 von 6 |
+| nicht kaufen bei sehr wenig Volumen (unter 70 % vom Schnitt) | 2 von 6 | −0,5 (−2,5 bis +2,3) | 3 von 6 |
+| Signale mit mehr Volumen zuerst kaufen | 3 von 6 | −0,8 (−3,0 bis +0,9) | 4 von 6 |
+
+**Warum es nichts bringt:**
+- **Keine Richtung:** Viel Volumen heißt nur, dass viel gehandelt wird – nicht, ob es danach hoch oder runter geht.
+- **Schon drin:** Wo Volumen hilft (beim Ausbruch über das 20-Tage-Hoch), nutzt der Bot es schon.
+- **Ruhige Rücksetzer sind gut:** Rücksetzer und Gegenbewegungen passieren oft bei wenig Handel. Ein Volumen-Filter wirft gerade diese guten Käufe weg.
+- **Genug Signale:** Neue Strategien verdrängen nur andere, ähnlich gute Käufe, weil der Bot ohnehin mehr Signale hat als Plätze.
+
+Ergebnis: **Nicht übernommen.** Das Volumen zählt weiter nur beim „Ausbruch“.
 
 ## Weitere Ideen vom Oktober 2026
 
