@@ -3233,6 +3233,34 @@ def depot_export(stand, daten, markt, fx):
     }
 
 CHART_TAGE = 60  # Tageskerzen je Chart auf der Übersichtsseite (etwa 3 Monate)
+KERZEN_30MIN_MAX = 300  # 30-Minuten-Kerzen je Chart höchstens (ein Monat sind etwa 21 × 13 = 273)
+
+def kerzen_30min(ticker_liste, zeitraum="1mo"):
+    """30-Minuten-Kerzen für die Charts der Übersichtsseite (nur Anzeige, die Regeln rechnen mit Tageskerzen):
+    {Ticker: {"t": [...], "o": [...], ...}} in Kurswährung. Die Zeit steht als deutsche Uhrzeit in Sekunden
+    (so, als wäre sie UTC) – der Chart zeigt sie dadurch ohne Umrechnung richtig an. Liefert Yahoo nichts,
+    bleibt es beim Tageschart."""
+    ticker_liste = [t for t in dict.fromkeys(ticker_liste) if not ist_krypto(t)]
+    if not ticker_liste:
+        return {}
+    try:
+        with YahooRuhig():
+            roh = yf.download(ticker_liste, period=zeitraum, interval="30m", auto_adjust=True, group_by="ticker",
+                              progress=False, threads=True)
+    except Exception as fehler:  # nur Anzeige: ein Fehler hier darf den Lauf nicht stören
+        print(f"⚠️ 30-Minuten-Kerzen nicht geladen ({type(fehler).__name__}) – die Charts zeigen nur Tageskerzen.")
+        return {}
+    erg = {}
+    for t in ticker_liste:
+        df = tabelle_fuer(roh, t)
+        if df is None:
+            continue
+        df = df.dropna(subset=["Open"]).tail(KERZEN_30MIN_MAX)
+        idx = df.index if df.index.tz is not None else df.index.tz_localize("UTC")
+        sekunden = (idx.tz_convert(BERLIN).tz_localize(None) - pd.Timestamp("1970-01-01")) // pd.Timedelta(seconds=1)
+        erg[t] = {"t": [int(x) for x in sekunden],
+                  **{k: [json_zahl(x) for x in df[q]] for k, q in (("o", "Open"), ("h", "High"), ("l", "Low"), ("c", "Close"))}}
+    return erg
 
 def chart_export(d):
     """Die letzten Tageskerzen einer Aktie für einen Chart auf der Übersichtsseite: Kurse in Kurswährung und der
@@ -3341,12 +3369,19 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
         "signale": signale, "plan": plan, "strategien": strategien, "schlagzeilen": schlagzeilen[:12],
         "papier": depot_export(papier, daten, markt, fx), "claude": claude_teil, "rueckblick": rueckblick,
         "chance_pruefung": chance_export(chance_pruefung(tagebuch, daten)),
-        # Charts mit Stop, Ziel und Kauf: offene Positionen beider Depots, Aufträge und Kauf-Signale
-        "charts": {t: c for t in dict.fromkeys(
-            [x["ticker"] for st in (papier, claude) if st for x in st["positionen"] + st["auftraege"]]
-            + [x["ticker"] for x in signale if x["art"] in ("kaufen", "short")])
-            if t in daten and (c := chart_export(daten[t])) is not None},
+        "charts": charts_export(papier, claude, signale, daten),
     }
+
+def charts_export(papier, claude, signale, daten):
+    """Charts mit Stop, Ziel und Kauf: offene Positionen beider Depots, Aufträge und Kauf-Signale – Tageskerzen
+    und, wenn Yahoo sie liefert, die 30-Minuten-Kerzen des letzten Monats ("m30")."""
+    ticker = [t for t in dict.fromkeys(
+        [x["ticker"] for st in (papier, claude) if st for x in st["positionen"] + st["auftraege"]]
+        + [x["ticker"] for x in signale if x["art"] in ("kaufen", "short")]) if t in daten]
+    charts = {t: c for t in ticker if (c := chart_export(daten[t])) is not None}
+    for t, m30 in kerzen_30min(list(charts)).items():
+        charts[t]["m30"] = m30
+    return charts
 
 def chance_export(gruppen):
     """Selbstkontrolle der Ziel-Chance für die Übersichtsseite (Prozentwerte gerundet)."""
@@ -3462,12 +3497,14 @@ def live_daten(einst):
     # heutige (laufende) Kerze je Aktie für die Charts der Seite, in Kurswährung wie in daten.json
     kerzen = {t: [iso(df.index[-1]), *(json_zahl(float(df[k].iloc[-1])) for k in ("Open", "High", "Low", "Close"))]
               for t, df in tabellen.items() if t not in (MARKT_TICKER, FX_TICKER)}
+    # und die 30-Minuten-Kerzen von heute (Watchlist, Positionen und Aufträge)
+    kerzen30 = kerzen_30min([t for t in ticker if t not in (MARKT_TICKER, FX_TICKER)], "1d")
     return {
         "version": 1, "erstellt": pd.Timestamp.now(tz=BERLIN).isoformat(timespec="seconds"),
         "kurse_vom": iso(max(set(tage), key=tage.count)) if tage else None,
         "boerse_offen": any(kerze_noch_offen(tabellen[t], t) for t in us), "fx": json_zahl(fx_jetzt, 4),
         "nasdaq": {"heute": json_zahl((q[0] / q[1] - 1) * 100, 2)} if q else None,
-        "aktien": aktien, "kerzen": kerzen, **depots,
+        "aktien": aktien, "kerzen": kerzen, "kerzen30": kerzen30, **depots,
     }
 
 def schreibe_live(einst):

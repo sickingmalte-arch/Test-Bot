@@ -239,6 +239,10 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .kurs-chart { position: relative; width: 100%; margin-top: 6px; }
 .chart-text { display: flex; justify-content: space-between; gap: 8px; font: 10px/1.3 var(--mono); color: var(--text-3); margin-top: 2px; }
 .chart-text a { color: var(--text-3); }
+.chart-umschalter { display: inline-flex; gap: 2px; vertical-align: 1px; }
+.chart-umschalter button { font: 10px/1.2 var(--mono); background: transparent; color: var(--text-3); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; cursor: pointer; }
+.chart-umschalter button[aria-pressed="true"] { color: var(--text-1); border-color: var(--text-3); }
+.kurs-chart[hidden] { display: none; }
 .position:last-child { border-bottom: 0; }
 .position .t { font: 700 15px/1 var(--sans); }
 .position .klein { font: 10px/1.3 var(--mono); color: var(--text-3); margin-top: 4px; }
@@ -1053,66 +1057,126 @@ function striche(werte, { max = 10 } = {}) {
   werte.slice(-max).forEach(v => box.append(el("i", { class: v > 0 ? "gut" : v < 0 ? "schlecht" : "" })));
   return box;
 }
-// Kurs-Chart (TradingView Lightweight Charts): Tageskerzen der letzten 3 Monate in € mit Linien für Kauf, Stop,
-// Ziel und Limit. Während der Börsenzeit ersetzt die Live-Kerze aus live.json die heutige (chartsLive).
-const CHARTS = new Map(); // Ticker -> [{ serie, faktor }]
+// Kurs-Chart (TradingView Lightweight Charts) mit Linien für Kauf, Stop, Ziel und Limit, umschaltbar zwischen
+// 30-Minuten-Kerzen (letzter Monat, deutsche Zeit, ziehbar) und Tageskerzen (3 Monate). Während der Börsenzeit
+// kommen die Live-Kerzen aus live.json dazu (chartsLive). Die Wahl gilt für alle Charts und bleibt gespeichert.
+const CHARTS = new Map(); // Ticker -> [{ serie, faktor, art: "tag" | "m30", letzte }]
+const CHART_UMSCHALTER = [];
+let chartArt = "m30";
+try { chartArt = localStorage.getItem("swingbot-chart") === "tag" ? "tag" : "m30"; } catch (e) { /* egal */ }
+function chartUmschalten(art) {
+  chartArt = art;
+  try { localStorage.setItem("swingbot-chart", art); } catch (e) { /* egal */ }
+  for (const u of CHART_UMSCHALTER) u(art);
+}
 function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, hoehe = 170 } = {}) {
   const C = D.charts && D.charts[ticker], LW = window.LightweightCharts;
   if (!C || !LW || !C.tage.length) return null;
   const f = C.faktor || 1;
-  const box = el("div", { class: "kurs-chart", style: `height:${hoehe}px` });
-  const chart = LW.createChart(box, {
-    autoSize: true,
-    // Hinweis auf TradingView steht unter dem Chart (Lizenz der Bibliothek), nicht als Logo über den Kerzen
-    layout: { background: { type: "solid", color: "transparent" }, textColor: css("--text-3"), fontSize: 10, fontFamily: css("--mono"), attributionLogo: false },
-    grid: { vertLines: { visible: false }, horzLines: { color: css("--line-soft") } },
-    rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.08, bottom: 0.08 } },
-    timeScale: { borderVisible: false, fixLeftEdge: true, fixRightEdge: true },
-    crosshair: { mode: LW.CrosshairMode.Normal },
-    handleScroll: false, handleScale: false,
-    localization: { locale: "de-DE", dateFormat: "dd.MM.yyyy", priceFormatter: p => zahl(p, 2) },
-  });
+  const kerzen = (zeiten, K) => zeiten.map((t, i) => ({ time: t, open: K.o[i] / f, high: K.h[i] / f, low: K.l[i] / f, close: K.c[i] / f }))
+    .filter(k => [k.open, k.high, k.low, k.close].every(Number.isFinite));
   // Stop, Ziel, Kauf und Limit immer im Bild, auch wenn der Kurs noch weit davon entfernt ist
   const preise = [stop, ziel, einstieg, limit].filter(Number.isFinite);
-  const serie = chart.addSeries(LW.CandlestickSeries, {
-    upColor: css("--gut"), downColor: css("--schlecht"), borderVisible: false,
-    wickUpColor: css("--gut"), wickDownColor: css("--schlecht"), priceLineVisible: false,
-    autoscaleInfoProvider: standard => {
-      const r = standard();
-      if (r && r.priceRange && preise.length) {
-        r.priceRange.minValue = Math.min(r.priceRange.minValue, ...preise);
-        r.priceRange.maxValue = Math.max(r.priceRange.maxValue, ...preise);
-      }
-      return r;
-    },
-  });
-  serie.setData(C.tage.map((t, i) => ({ time: t, open: C.o[i] / f, high: C.h[i] / f, low: C.l[i] / f, close: C.c[i] / f }))
-    .filter(k => [k.open, k.high, k.low, k.close].every(Number.isFinite)));
-  const linie = (preis, titel, farbe, stil) => {
-    if (preis !== null && preis !== undefined) serie.createPriceLine({ price: preis, title: titel, color: farbe, lineWidth: 1, lineStyle: stil, axisLabelVisible: true });
-  };
-  linie(ziel, "Ziel", css("--gut-text"), LW.LineStyle.Dashed);
-  linie(stop, "Stop", css("--schlecht-text"), LW.LineStyle.Dashed);
-  linie(einstieg, "Kauf", css("--text-2"), LW.LineStyle.Solid);
-  linie(limit, "Limit", css("--text-2"), LW.LineStyle.Dotted);
-  if (kauf_tag && C.tage.includes(kauf_tag)) {
-    LW.createSeriesMarkers(serie, [{ time: kauf_tag, position: "belowBar", color: css("--s1"), shape: "arrowUp", text: "Kauf" }]);
+  const tagIso = t => new Date(t * 1000).toISOString().slice(0, 10); // 30-Min-Zeiten sind deutsche Uhrzeit „als UTC“
+  function zeichne(daten, art) {
+    const box = el("div", { class: "kurs-chart", style: `height:${hoehe}px` });
+    const m30 = art === "m30";
+    const chart = LW.createChart(box, {
+      autoSize: true,
+      // Hinweis auf TradingView (Lizenz der Bibliothek) steht im Fuß der Seite und als Link unter dem Chart, nicht als Logo
+      layout: { background: { type: "solid", color: "transparent" }, textColor: css("--text-3"), fontSize: 10, fontFamily: css("--mono"), attributionLogo: false },
+      grid: { vertLines: { visible: false }, horzLines: { color: css("--line-soft") } },
+      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.08, bottom: 0.08 } },
+      timeScale: { borderVisible: false, fixLeftEdge: true, fixRightEdge: true, timeVisible: m30, secondsVisible: false },
+      crosshair: { mode: LW.CrosshairMode.Normal },
+      // 30 Minuten: seitlich ziehen zeigt ältere Kerzen; senkrecht scrollt weiter die Seite
+      handleScroll: m30 ? { mouseWheel: false, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false } : false,
+      handleScale: false,
+      localization: { locale: "de-DE", dateFormat: "dd.MM.yyyy", priceFormatter: p => zahl(p, 2) },
+    });
+    const serie = chart.addSeries(LW.CandlestickSeries, {
+      upColor: css("--gut"), downColor: css("--schlecht"), borderVisible: false,
+      wickUpColor: css("--gut"), wickDownColor: css("--schlecht"), priceLineVisible: false,
+      autoscaleInfoProvider: standard => {
+        const r = standard();
+        if (r && r.priceRange && preise.length) {
+          r.priceRange.minValue = Math.min(r.priceRange.minValue, ...preise);
+          r.priceRange.maxValue = Math.max(r.priceRange.maxValue, ...preise);
+        }
+        return r;
+      },
+    });
+    serie.setData(daten);
+    const linie = (preis, titel, farbe, stil) => {
+      if (preis !== null && preis !== undefined) serie.createPriceLine({ price: preis, title: titel, color: farbe, lineWidth: 1, lineStyle: stil, axisLabelVisible: true });
+    };
+    linie(ziel, "Ziel", css("--gut-text"), LW.LineStyle.Dashed);
+    linie(stop, "Stop", css("--schlecht-text"), LW.LineStyle.Dashed);
+    linie(einstieg, "Kauf", css("--text-2"), LW.LineStyle.Solid);
+    linie(limit, "Limit", css("--text-2"), LW.LineStyle.Dotted);
+    const kauf = kauf_tag && daten.find(k => (m30 ? tagIso(k.time) : k.time) === kauf_tag); // gekauft zur Eröffnung
+    if (kauf) LW.createSeriesMarkers(serie, [{ time: kauf.time, position: "belowBar", color: css("--s1"), shape: "arrowUp", text: "Kauf" }]);
+    // Ausschnitt: Tageskerzen ganz, 30 Minuten die letzten 5 Handelstage (älteres per Ziehen)
+    const ausschnitt = () => {
+      if (!m30) { chart.timeScale().fitContent(); return; }
+      const tage = [...new Set(daten.map(k => tagIso(k.time)))];
+      const ab = daten.findIndex(k => tagIso(k.time) === tage[Math.max(0, tage.length - 5)]);
+      chart.timeScale().setVisibleLogicalRange({ from: ab, to: daten.length - 1 });
+    };
+    ausschnitt();
+    new ResizeObserver(([e]) => {
+      const breit = e.contentRect.width > 0;
+      if (breit && !box.dataset.breit) requestAnimationFrame(ausschnitt);
+      box.dataset.breit = breit ? "1" : "";
+    }).observe(box);
+    if (!CHARTS.has(ticker)) CHARTS.set(ticker, []);
+    CHARTS.get(ticker).push({ chart, serie, faktor: f, art, letzte: daten.length ? daten[daten.length - 1].time : null });
+    return { box, ausschnitt };
   }
-  chart.timeScale().fitContent();
-  if (!CHARTS.has(ticker)) CHARTS.set(ticker, []);
-  CHARTS.get(ticker).push({ serie, faktor: f });
-  return el("div", {}, box, el("div", { class: "chart-text" },
-    el("span", {}, "3 Monate in € · ", el("a", { href: "https://www.tradingview.com/", target: "_blank", rel: "noopener", title: "TradingView Lightweight Charts™, Copyright (c) 2025 TradingView, Inc." }, "Chart: TradingView")),
-    el("a", { href: tvLink(ticker), target: "_blank", rel: "noopener" }, "live öffnen ↗")));
+  const ansichten = { tag: zeichne(kerzen(C.tage, C), "tag") };
+  const m30 = C.m30 && C.m30.t.length ? kerzen(C.m30.t, C.m30) : [];
+  if (m30.length) ansichten.m30 = zeichne(m30, "m30");
+  const text = el("span", {});
+  const knoepfe = Object.keys(ansichten).length > 1
+    ? ["m30", "tag"].map(art => el("button", { type: "button", "data-art": art, onclick: () => chartUmschalten(art) }, art === "m30" ? "30 Min" : "Tag"))
+    : [];
+  const zeige = art => {
+    const a = ansichten[art] ? art : "tag";
+    for (const [name, v] of Object.entries(ansichten)) v.box.hidden = name !== a;
+    for (const k of knoepfe) k.setAttribute("aria-pressed", String(k.dataset.art === a));
+    text.textContent = a === "m30" ? " deutsche Zeit · ← ziehen" : " 3 Monate";
+  };
+  CHART_UMSCHALTER.push(zeige);
+  zeige(chartArt);
+  return el("div", {}, ...Object.values(ansichten).map(v => v.box), el("div", { class: "chart-text" },
+    el("span", {}, knoepfe.length ? el("span", { class: "chart-umschalter" }, ...knoepfe) : null, text),
+    el("a", { href: tvLink(ticker), target: "_blank", rel: "noopener", title: "Chart mit TradingView Lightweight Charts™ gezeichnet – hier der volle Chart bei TradingView" }, "TradingView ↗")));
 }
 function chartsLive(L) {
-  if (!L || !L.kerzen) return;
+  if (!L) return;
   for (const [t, liste] of CHARTS) {
-    const k = L.kerzen[t];
-    if (!k || k.slice(1).some(x => x === null || x === undefined)) continue;
-    for (const { serie, faktor } of liste) {
-      try { serie.update({ time: k[0], open: k[1] / faktor, high: k[2] / faktor, low: k[3] / faktor, close: k[4] / faktor }); }
-      catch (e) { /* Live-Kerze älter als die letzte Tageskerze: nichts zu tun */ }
+    for (const e of liste) {
+      const neu = [];
+      if (e.art === "tag" && L.kerzen && L.kerzen[t]) {
+        const k = L.kerzen[t];
+        if (!k.slice(1).some(x => x === null || x === undefined)) neu.push({ time: k[0], o: k[1], h: k[2], l: k[3], c: k[4] });
+      }
+      if (e.art === "m30" && L.kerzen30 && L.kerzen30[t]) {
+        const K = L.kerzen30[t];
+        K.t.forEach((zeit, i) => { if (e.letzte === null || zeit >= e.letzte) neu.push({ time: zeit, o: K.o[i], h: K.h[i], l: K.l[i], c: K.c[i] }); });
+      }
+      const ts = e.chart.timeScale(), vorher = e.serie.data().length, sicht = ts.getVisibleLogicalRange();
+      for (const k of neu) {
+        if ([k.o, k.h, k.l, k.c].some(x => x === null || x === undefined)) continue;
+        try {
+          e.serie.update({ time: k.time, open: k.o / e.faktor, high: k.h / e.faktor, low: k.l / e.faktor, close: k.c / e.faktor });
+          if (e.art === "m30") e.letzte = k.time;
+        } catch (fehler) { /* Live-Kerze älter als die letzte Kerze: nichts zu tun */ }
+      }
+      // Neue Kerzen sichtbar machen – außer jemand hat gerade zu älteren Kerzen gezogen
+      if (e.serie.data().length > vorher && (!sicht || sicht.to >= vorher - 1.5)) {
+        if (e.art === "tag") ts.fitContent(); else ts.scrollToRealTime();
+      }
     }
   }
 }
@@ -1790,7 +1854,9 @@ function aufbauen(D) {
   // ---------- Fuß ----------
   const bericht = D.repo ? `https://github.com/${D.repo}/blob/main/bericht/README.md` : null;
   main.append(el("footer", { class: "fuss" },
-    el("span", {}, "Simulation mit echten Kursen, ohne echtes Geld – keine Anlageberatung."),
+    el("span", {}, "Simulation mit echten Kursen, ohne echtes Geld – keine Anlageberatung. Charts: ",
+      el("a", { href: "https://www.tradingview.com/", target: "_blank", rel: "noopener" }, "TradingView"),
+      " Lightweight Charts™, Copyright (c) 2025 TradingView, Inc."),
     el("span", {}, bericht ? el("a", { href: bericht, target: "_blank", rel: "noopener" }, "Ganzer Bericht") : null, bericht ? " · " : "",
       `aktualisiert ${lief} Uhr`)));
   document.getElementById("seite-fuss").replaceChildren(document.createTextNode(`Bot lief ${lief}`), el("br"), document.createTextNode(`Daten bis ${datum(D.daten_bis, false)}`));
