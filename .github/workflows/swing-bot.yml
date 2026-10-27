@@ -31,6 +31,7 @@ on:
 permissions:
   contents: write # Bericht und Papier-Depot zurück ins Repository schreiben
   issues: write # bei Kauf-Signalen ein Kommentar im Thema „Swing-Bot: Signale“ (Nachricht aufs Handy)
+  actions: write # nach einem von live.yml angestoßenen Lauf die Übersichtsseite starten (siehe letzter Schritt)
 
 concurrency:
   group: swing-bot # nie zwei Läufe gleichzeitig (das Papier-Depot würde sich sonst überschreiben)
@@ -233,3 +234,13 @@ jobs:
             exit 0
           fi
           gh issue comment "$nummer" --repo "$GITHUB_REPOSITORY" --body-file "$datei"
+
+      - name: Übersichtsseite veröffentlichen
+        # uebersicht.yml startet sonst von selbst, wenn dieser Lauf fertig ist. Hat aber live.yml den Lauf angestoßen
+        # (Morgen-Lauf um 6:47 UTC), startet GitHub bei Läufen des Bots keine Folge-Abläufe – die Seite zeigte dann bis
+        # zum nächsten Live-Lauf um 12 Uhr noch den Stand von gestern. Deshalb hier ausdrücklich starten.
+        if: always() && github.triggering_actor == 'github-actions[bot]'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run uebersicht.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"
