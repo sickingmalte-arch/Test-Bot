@@ -2113,23 +2113,26 @@ function liveBauen(D, L) {
   return abschnitt("live", "Live", kopf, inhalt, { erkl: "live" });
 }
 // US-Börsenstart (9:30 Uhr New York) heute in deutscher Zeit – in den Wochen der Zeitumstellung eine Stunde früher
+// Uhrzeit (Minuten) jetzt in einer Zeitzone und der US-Börsenstart (9:30 New York) in deutscher Zeit
+function minutenIn(tz) {
+  const t = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+    .formatToParts(new Date()).map(x => [x.type, x.value]));
+  return +t.hour * 60 + +t.minute;
+}
+const startMinuten = () => 570 + ((minutenIn("Europe/Berlin") - minutenIn("America/New_York") + 1440) % 1440);
 function boersenstart() {
-  const jetzt = new Date();
-  const minuten = tz => {
-    const t = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
-      .formatToParts(jetzt).map(x => [x.type, x.value]));
-    return +t.hour * 60 + +t.minute;
-  };
-  const m = 570 + ((minuten("Europe/Berlin") - minuten("America/New_York") + 1440) % 1440);
+  const m = startMinuten();
   return `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 }
 const berlinTag = d => d.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
 function liveWartet(L) {
-  const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
-  const kopf = [el("span", { class: "live-kopf" }, el("span", { class: "punkt" }), `Live läuft · Stand ${uhr} Uhr`)];
+  // Vor dem ersten Live-Lauf des Tages (er startet um 12 Uhr) gibt es noch keine Uhrzeit von heute
+  const heute = L && L.erstellt && berlinTag(new Date(L.erstellt)) === berlinTag(new Date());
+  const uhr = heute ? new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" }) : null;
+  const kopf = [el("span", { class: "live-kopf" }, el("span", { class: "punkt" }), heute ? `Live läuft · Stand ${uhr} Uhr` : `Live ab ${boersenstart()} Uhr`)];
   return abschnitt("live", "Live", kopf, el("div", { class: "panel panel-innen live-wartet" },
     el("b", {}, `Die US-Börse öffnet heute um ${boersenstart()} Uhr.`),
-    ` Ab dann rechnet der Bot hier alle 15 Minuten Käufe und Verkäufe neu. Bis dahin gelten die Schlusskurse vom ${datum(L.kurse_vom)}`), { erkl: "live" });
+    ` Ab dann rechnet der Bot hier alle 15 Minuten Käufe und Verkäufe neu. Bis dahin gelten die Schlusskurse vom ${datum((L && L.kurse_vom) || geladeneDaten.daten_bis)}`), { erkl: "live" });
 }
 function liveZeigen(L) {
   const alt = document.getElementById("live"), nav = document.getElementById("nav-live");
@@ -2138,8 +2141,12 @@ function liveZeigen(L) {
   if (!("morgen" in stand.dataset)) { stand.dataset.morgen = stand.textContent; standBox.dataset.titel = standBox.title; }
   // ganz, wenn die Live-Kurse neuer sind als die Daten vom Morgen; vor dem Börsenstart (Live läuft ab 12 Uhr) nur ein Hinweis
   const neuer = geladeneDaten && L && L.kurse_vom && L.kurse_vom > geladeneDaten.daten_bis;
-  const wartet = !neuer && geladeneDaten && L && L.kurse_vom && !L.boerse_offen && berlinTag(new Date(L.erstellt)) === berlinTag(new Date())
-    && L.kurse_vom >= geladeneDaten.daten_bis && new Date().getUTCDay() % 6 !== 0;
+  // Hinweis „Börse öffnet um …“ an Börsentagen: ab dem ersten Live-Lauf des Tages, und schon morgens nach dem
+  // Morgen-Lauf bis eine halbe Stunde nach dem Börsenstart, auch wenn nur die Live-Kurse von gestern da sind
+  const vonHeute = L && L.erstellt && berlinTag(new Date(L.erstellt)) === berlinTag(new Date());
+  const wartet = !neuer && geladeneDaten && new Date().getUTCDay() % 6 !== 0
+    && (L && L.kurse_vom ? !L.boerse_offen && L.kurse_vom >= geladeneDaten.daten_bis : true)
+    && (vonHeute || minutenIn("Europe/Berlin") < startMinuten() + 30);
   if (wartet) {
     const knoten = liveWartet(L);
     if (alt) alt.replaceWith(knoten);
