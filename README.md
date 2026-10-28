@@ -333,3 +333,30 @@ Ein zweiter Bot neben dem Swing-Bot: `labor/strategie_labor.py` sucht jede Nacht
 - **Automatisch:** `.github/workflows/labor.yml` läuft Mo–Fr um 21:13 UTC (23:13 Uhr Sommerzeit) und speichert `labor/BERICHT.md`, `labor/WISSEN.md`, `labor/ergebnis.json`, `labor/gedaechtnis.json` und `labor/labor_depot.json`.
 - **Ohne Internet ausprobieren:** `python labor/strategie_labor.py --daten tests/daten/kurse --budget klein --ausgabe /tmp/labor` (feste Testdaten 2017–2024, nur 8 Aktien, davon 4 Tech). Tests: `tests/test_labor.py` (kein Blick in die Zukunft, Kosten, Stop mit Kurslücke, Shorts, Saison, Bibliothek, Urteilsregeln, Deflated Sharpe, Reproduzierbarkeit).
 - **Vorsicht:** Die Aktienliste ist von heute, abgestürzte oder verschwundene Aktien fehlen. Long-Strategien und Halten sehen dadurch besser aus, als man es damals hätte wissen können. Im Probelauf mit den Testdaten enthält die Tech-Gruppe NVDA und AMD, also zwei der größten Gewinner der Jahre: Dort sehen alle Long-Ideen besser aus, als sie sind.
+
+## Broker-Bot (Alpaca, Spielgeld)
+
+`broker/broker_bot.py` führt die Entscheidungen des Swing-Bots als **echte Orders in einem Paper-Konto bei Alpaca** aus: echte Kurse und echte Ausführung, aber virtuelles Geld. Er erfindet keine eigenen Signale, sondern spiegelt das Übungsdepot (`papier/papier_depot.json`) und misst, wie weit echte Ausführungen von der Simulation abweichen (`broker/BERICHT.md`, Spalte „Abweichung“). Die eingefrorenen Kaufregeln des Swing-Bots nutzt er nur lesend.
+
+**Was er tut**
+- **Kauf zur Eröffnung bis zum Limit:** nur die Aufträge, die das Übungsdepot zur Eröffnung wirklich ausführt (gleiche Grenzen: 5 Positionen, 2 je Branche), als Limit-Order für die Eröffnungsauktion. Stückzahl aus dem Handelsplan (`docs/daten.json`).
+- **Stop und Ziel beim Broker:** für jede offene Position eine OCO-Order (greift die eine, wird die andere gestrichen), mit den Werten aus dem Übungsdepot.
+- **Vor Quartalszahlen und am 20. Handelstag:** Verkauf zum Schlusskurs (Schlussauktion), wie im Übungsdepot.
+- **Hat das Übungsdepot eine Position geschlossen**, die beim Broker noch offen ist: Verkauf zum nächsten Kurs.
+- **Verpasste Käufe holt er nicht nach** (Limit nicht erreicht oder Lauf zu spät).
+- Läuft nach jedem Morgen-Lauf des Swing-Bots und zweimal nach dem US-Börsenstart (`.github/workflows/broker.yml`). Jeder Lauf prüft den Stand neu und schickt nichts doppelt.
+
+**Einrichten (einmalig, etwa 10 Minuten)**
+1. Kostenloses Konto bei [alpaca.markets](https://alpaca.markets) anlegen. Für das Paper-Konto reicht eine E-Mail-Adresse.
+2. Optional im Alpaca-Dashboard das Paper-Konto auf 10.000 $ zurücksetzen („Reset“), damit es so groß ist wie das Übungsdepot.
+3. Im Dashboard unter **Paper Trading → API Keys** neue Schlüssel erzeugen.
+4. Bei GitHub: **Settings → Secrets and variables → Actions → New repository secret**: `ALPACA_KEY_ID` und `ALPACA_SECRET_KEY` eintragen.
+5. **Probelauf:** Tab **Actions → Broker-Bot → Run workflow**. Der Bericht zeigt, was er tun würde, schickt aber nichts.
+6. **Scharf schalten:** unter **Variables** die Variable `BROKER_AN` mit dem Wert `ja` anlegen. **Not-Aus:** `BROKER_AN` löschen oder auf `nein` setzen.
+7. Optional: `BROKER_MAX_ORDER` (Höchstbetrag je Order in $, Standard 5000).
+
+**Sicherheit und Grenzen**
+- Fest auf die Paper-Adresse von Alpaca eingestellt. Echtes Geld ist bewusst nicht vorgesehen. Ein Umstieg wäre eine eigene Änderung, frühestens nachdem das Übungsdepot die Erwartung trifft (die Kaufregeln sind bis 31.01.2027 eingefroren).
+- Er fasst nur Orders an, die er selbst angelegt hat (Kennung `tb-`).
+- Abweichungen von der Simulation: Stückzahl aus dem Handelsplan (berechnet zum Limit, das Übungsdepot rechnet mit dem Eröffnungskurs), Nachrücker werden nicht gespiegelt, am Tag des Verkaufs zum Schlusskurs liegt kein Stop mehr beim Broker. Gerechnet und gehandelt wird in US-Dollar.
+- Tests ohne Internet mit einem nachgebauten Alpaca-Konto: `tests/test_broker.py` (Probelauf, Kauf zur Eröffnung, Stop und Ziel, Quartalszahlen, Zeitstopp, Shorts, Obergrenze, kein doppeltes Senden).
