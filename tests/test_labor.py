@@ -46,11 +46,14 @@ def test_kein_blick_in_die_zukunft():
         zukunft[t] = df.mul(faktor, axis=0)
     g = dict(GRUND, familie="ausbruch", short="immer", max_long=3, max_short=2, stop_atr=3.0, zeitstopp=20,
              marktfilter="beides", markt_ausstieg=True, hebel=1.5)
-    a = labor.simuliere(labor.Markt(daten, BRANCHE), g, 300, x, glattstellen=False)
-    b = labor.simuliere(labor.Markt(zukunft, BRANCHE), g, 300, x, glattstellen=False)
-    assert len(a["trades"]) > 5
-    assert np.allclose(a["werte"], b["werte"])
-    assert a["trades"] == b["trades"]
+    buecher = dict(GRUND, short="immer", max_long=3, max_short=2, ueberspringen=21, rangfolge="hoch_52w",
+                   groesse="volatilitaet", saison="nov_bis_apr", rueckblick=60)
+    for genom in (g, buecher, dict(g, groesse="atr_risiko")):
+        a = labor.simuliere(labor.Markt(daten, BRANCHE), genom, 300, x, glattstellen=False)
+        b = labor.simuliere(labor.Markt(zukunft, BRANCHE), genom, 300, x, glattstellen=False)
+        assert len(a["trades"]) > 5
+        assert np.allclose(a["werte"], b["werte"])
+        assert a["trades"] == b["trades"]
 
 
 def test_kosten_bei_seitwaerts():
@@ -109,6 +112,8 @@ def test_walk_forward_reproduzierbar(tmp_path):
     wieder = json.loads((tmp_path / "a" / "gedaechtnis.json").read_text(encoding="utf-8"))["belege"]
     assert len(wieder) == len(belege)
     assert (tmp_path / "a" / "BERICHT.md").read_text(encoding="utf-8").startswith("# 🧪 Strategie-Labor")
+    assert "Bibliothek" in (tmp_path / "a" / "WISSEN.md").read_text(encoding="utf-8")
+    assert len(a["wissen"]) == len(labor.lade_bibliothek(WURZEL / "labor" / "bibliothek.json")["hypothesen"])
 
 
 def test_gewichte_lernen_aus_verlusten():
@@ -118,3 +123,55 @@ def test_gewichte_lernen_aus_verlusten():
     w = labor.gewichte_aus(belege)["short"]
     assert w['"immer"'] == 0.3
     assert w['"aus"'] > 1
+
+
+def test_alte_bauplaene_rechnen_wie_vorher():
+    """Fehlen die Gene aus der Bibliothek (alter Bauplan im Gedächtnis), gilt das Verhalten ohne die Lehren."""
+    m = labor.Markt(labor.lade_ordner(WURZEL / "tests" / "daten" / "kurse"), BRANCHE)
+    alt = dict(GRUND, max_long=3)
+    neu = dict(alt, ueberspringen=0, rangfolge="momentum", groesse="gleich", saison="immer")
+    assert np.array_equal(labor.simuliere(m, alt, 300, 900)["werte"], labor.simuliere(m, neu, 300, 900)["werte"])
+
+
+def test_saison_kauft_nur_von_november_bis_april():
+    m = labor.Markt(labor.lade_ordner(WURZEL / "tests" / "daten" / "kurse"), BRANCHE)
+    erg = labor.simuliere(m, dict(GRUND, saison="nov_bis_apr", max_long=3), 300, 1800)
+    assert erg["trades"]
+    for t in erg["trades"]:
+        assert int(t["kauf"][5:7]) in (11, 12, 1, 2, 3, 4, 5)  # Kauf zur Eröffnung nach einem Signal bis Ende April
+        if int(t["kauf"][5:7]) == 5:
+            assert int(t["kauf"][8:10]) <= 3
+
+
+def test_bibliothek_passt_zum_bauplan(tmp_path):
+    bib = labor.lade_bibliothek(WURZEL / "labor" / "bibliothek.json")
+    quellen = {q["id"] for q in bib["quellen"]}
+    assert len(bib["hypothesen"]) >= 10 and len(quellen) >= 10
+    for q in bib["quellen"]:
+        assert q["link"].startswith("https://") and q["kernaussagen"] and q["vorsicht"]
+    kaputt = tmp_path / "bibliothek.json"
+    kaputt.write_text(json.dumps(dict(bib, hypothesen=[dict(bib["hypothesen"][0], test=999)])), encoding="utf-8")
+    try:
+        labor.lade_bibliothek(kaputt)
+    except ValueError:
+        return
+    raise AssertionError("eine Hypothese mit unbekanntem Wert muss abgelehnt werden")
+
+
+def test_urteile_streng_wie_harvey_liu_zhu():
+    assert labor.urteil_fuer(5.0, 0.0, 3.5, 0.0) == "bestaetigt"
+    assert labor.urteil_fuer(5.0, 0.0, 2.5, 0.0) == "tendenz"
+    assert labor.urteil_fuer(0.5, 0.1, 0.5, 0.2) == "unklar"
+    assert labor.urteil_fuer(-17.9, -2.7, -3.9, -2.4) == "verworfen"  # viel Rendite für wenig Ruhe
+    assert labor.urteil_fuer(-0.3, -5.0, -0.2, -3.5) == "bestaetigt"  # deutlich ruhiger, kaum Rendite verloren
+    assert labor.urteil_fuer(1.0, 6.0, 0.5, 3.0) == "verworfen"       # tieferer Rückgang ohne mehr Rendite
+
+
+def test_deflated_sharpe_wird_mit_mehr_versuchen_strenger():
+    rng = np.random.default_rng(1)
+    werte = 10_000 * np.cumprod(1 + rng.normal(0.0008, 0.01, 750))
+    sharpes = list(rng.normal(0.5, 0.6, 200))
+    einer = labor.deflated_sharpe(werte, [1.0])
+    viele = labor.deflated_sharpe(werte, sharpes)
+    assert einer["schwelle"] == 0.0
+    assert viele["schwelle"] > 1.0 and viele["dsr"] < einer["dsr"]

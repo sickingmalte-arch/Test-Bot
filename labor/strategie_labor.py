@@ -5,6 +5,8 @@ Bauplan und Regeln stehen in labor/PROMPT.md. Kurz:
 - erzeugt Strategien als Baupläne aus Genen, prüft sie Walk-Forward (3 Jahre suchen, 1 unbekanntes Jahr handeln),
 - vergleicht mit Nasdaq-100 halten, Tech-Aktien halten und dem Swing-Bot,
 - merkt sich in labor/gedaechtnis.json, welche Gene im Testjahr verloren haben, und zieht sie seltener,
+- liest seine Bibliothek (labor/bibliothek.json: Lehren aus Trading-Büchern und Studien), prüft jede Lehre selbst an
+  Kursen und übernimmt nur, was die Prüfung besteht (labor/WISSEN.md),
 - führt ein eigenes Übungsdepot mit Spielgeld (keine echten Orders).
 
 Der Swing-Bot (swing_scanner.py) bleibt unverändert; von dort kommen nur die Branchenliste und die Kosten.
@@ -22,6 +24,7 @@ import json
 import math
 import pathlib
 import random
+import statistics
 import sys
 import time
 
@@ -58,7 +61,17 @@ GENE = {
     "umschichten": [5, 10, 20],                # nur Momentum: alle so viele Tage neu sortieren
     "rsi_grenze": [5, 10, 15],                 # nur Rücksetzer: RSI(2) unter dieser Grenze
     "hebel": [1.0, 1.25, 1.5],
+    # aus der Bibliothek (der erste Wert ist jeweils das Verhalten ohne die Lehre)
+    "ueberspringen": [0, 21],                  # Jegadeesh & Titman: letzten Monat beim Momentum auslassen (12-1)
+    "rangfolge": ["momentum", "hoch_52w"],     # George & Hwang: Nähe zum 52-Wochen-Hoch statt vergangener Rendite
+    "groesse": ["gleich", "volatilitaet", "atr_risiko"],  # Barroso/Moreira: nach Schwankung · Turtle: 1 ATR = 1 %
+    "saison": ["immer", "nov_bis_apr"],        # Bouman & Jacobsen: nur November bis April long
 }
+STANDARD = {gen: werte[0] for gen, werte in GENE.items()}  # fehlt ein Gen (alter Bauplan), gilt der erste Wert
+
+T_BESTAETIGT = 3.0           # Harvey, Liu & Zhu: eine Lehre gilt erst ab t-Wert 3 als bestätigt (2–3: Tendenz)
+TURTLE_RISIKO = 0.01         # Turtle-Regel: 1 ATR Bewegung kostet 1 % des Kontos
+MIN_VERGLEICHE = 8           # so viele Vergleiche mit Wirkung braucht eine Lehre mindestens für ein Urteil
 
 FAMILIEN_NAME = {"momentum": "Momentum-Rotation", "ausbruch": "Ausbruch", "ruecksetzer": "Rücksetzer"}
 
@@ -151,6 +164,8 @@ class Markt:
         ueber = (self.C > sma200) & gueltig
         self.breite = (ueber.sum(axis=1) / gueltig.sum(axis=1).replace(0, np.nan)).to_numpy()
         self.breite_ok = np.nan_to_num(self.breite, nan=0.0) > 0.5
+        self.vola = self.atr / self.c  # Ø Tagesschwankung in % des Kurses
+        self.winter = np.isin(self.tage.month, (11, 12, 1, 2, 3, 4))
 
     def _atr(self):
         vorher = self.C.shift()
@@ -168,8 +183,13 @@ class Markt:
     def sma(self, n):
         return self._merke(("sma", n), lambda: self.C.rolling(n).mean().to_numpy())
 
-    def momentum(self, n):
-        return self._merke(("mom", n), lambda: (self.C / self.C.shift(n) - 1).to_numpy())
+    def momentum(self, n, auslassen=0):
+        return self._merke(("mom", n, auslassen),
+                           lambda: (self.C.shift(auslassen) / self.C.shift(n + auslassen) - 1).to_numpy())
+
+    def naehe_hoch(self):
+        """Schluss geteilt durch das Hoch der letzten 52 Wochen (1 = am Hoch)."""
+        return self._merke(("naehe",), lambda: (self.C / self.H.rolling(252, min_periods=60).max()).to_numpy())
 
     def hoch(self, n):
         return self._merke(("hoch", n), lambda: self.H.shift(1).rolling(n).max().to_numpy())
@@ -196,7 +216,7 @@ def signale(m, g):
     """Bool-Matrizen (Tage × Aktien) für Einstieg und Ausstieg, dazu die Rangfolge. Alles zum Schlusskurs von Tag t."""
     c, lb = m.c, g["rueckblick"]
     trend = m.sma(g["trendlinie"])
-    mom = m.momentum(lb)
+    mom = m.momentum(lb, g["ueberspringen"])
     with np.errstate(invalid="ignore"):
         ueber, unter = c > trend, c < trend
         if g["familie"] == "momentum":
@@ -211,18 +231,28 @@ def signale(m, g):
             long_ein, short_ein = (m.rsi2 < grenze) & ueber, (m.rsi2 > 100 - grenze) & unter
             long_aus, short_aus = m.rsi2 > 70, m.rsi2 < 30
     gueltig = ~np.isnan(mom) & ~np.isnan(m.atr) & m.tech[None, :]
-    return long_ein & gueltig, short_ein & gueltig, long_aus, short_aus, np.nan_to_num(mom, nan=0.0)
+    if g["rangfolge"] == "hoch_52w":
+        rang = m.naehe_hoch()
+        gueltig &= ~np.isnan(rang)
+    else:
+        rang = mom
+    return long_ein & gueltig, short_ein & gueltig, long_aus, short_aus, np.nan_to_num(rang, nan=0.0)
 
 
 def marktampel(m, g):
-    """Je Tag: Long erlaubt? Short erlaubt?"""
+    """Je Tag: Long erlaubt? Short erlaubt? Long-Saison?"""
     filt = g["marktfilter"]
     long_ok = {"qqq": m.qqq_ok, "breite": m.breite_ok, "beides": m.qqq_ok & m.breite_ok,
                "aus": np.ones(len(m.tage), dtype=bool)}[filt]
     baer = ~(m.qqq_ok if filt == "aus" else long_ok)
     short_ok = {"aus": np.zeros(len(m.tage), dtype=bool), "nur_baerenmarkt": baer,
                 "immer": np.ones(len(m.tage), dtype=bool)}[g["short"]]
-    return long_ok, short_ok
+    saison = m.winter if g["saison"] == "nov_bis_apr" else np.ones(len(m.tage), dtype=bool)
+    return long_ok & saison, short_ok, saison
+
+
+def vollstaendig(g):
+    return {**STANDARD, **g}
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -233,8 +263,9 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
     """Handelt den Bauplan g von Tag start bis ende (Indizes). Entscheidung zum Schluss, Ausführung zur nächsten
     Eröffnung, Stop auch innerhalb des Tages (Kurslücke: Eröffnungskurs). Gibt Wertverlauf, Trades und Kosten zurück."""
     gebuehr, spread = kosten or KOSTEN
+    g = vollstaendig(g)
     long_ein, short_ein, long_aus, short_aus, rang = signale(m, g)
-    long_ok, short_ok = marktampel(m, g)
+    long_ok, short_ok, saison = marktampel(m, g)
     plaetze = g["max_long"] + (g["max_short"] if g["short"] != "aus" else 0)
     bargeld, positionen, trades = kapital, {}, []
     auftraege_aus, auftraege_ein = set(), []
@@ -303,6 +334,8 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
                 gruende.append("Zeitstopp")
             if g["markt_ausstieg"] and not (long_ok[t] if p["r"] > 0 else short_ok[t]):
                 gruende.append("Marktampel")
+            if p["r"] > 0 and not saison[t]:
+                gruende.append("Saison")
             if umschichten and (long_aus[t, j] if p["r"] > 0 else short_aus[t, j]):
                 gruende.append("Signal vorbei")
             if gruende:
@@ -311,6 +344,16 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
         if not umschichten:
             continue
         platz_wert = g["hebel"] * wert / plaetze
+        ziel_vola = np.nanmedian(m.vola[t, m.tech]) if g["groesse"] == "volatilitaet" else np.nan
+
+        def stueckzahl(j):
+            kurs = m.c[t, j]
+            if g["groesse"] == "volatilitaet" and ziel_vola > 0:  # ruhige Aktien größer, wilde kleiner
+                return math.floor(platz_wert * min(1.5, max(0.5, ziel_vola / m.vola[t, j])) / kurs)
+            if g["groesse"] == "atr_risiko":  # Turtle: 1 ATR Bewegung kostet 1 % des Kontos
+                return math.floor(min(g["hebel"] * TURTLE_RISIKO * wert / m.atr[t, j], 1.5 * platz_wert / kurs))
+            return math.floor(platz_wert / kurs)
+
         brutto = sum(p["stueck"] * schluss[j] for j, p in positionen.items() if j not in auftraege_aus)
         offen = {r: sum(1 for j, p in positionen.items() if p["r"] == r and j not in auftraege_aus) for r in (1, -1)}
         for r, erlaubt, maske, maximal in ((1, long_ok[t], long_ein[t], g["max_long"]),
@@ -320,7 +363,7 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
             kandidaten = [j for j in np.flatnonzero(maske) if j not in positionen]
             kandidaten.sort(key=lambda j: -r * rang[t, j])
             for j in kandidaten[: maximal - offen[r]]:
-                stueck = math.floor(platz_wert / m.c[t, j])
+                stueck = stueckzahl(j)
                 if stueck < 1 or brutto + stueck * m.c[t, j] > g["hebel"] * wert * 1.01:
                     continue
                 auftraege_ein.append((j, r, stueck))
@@ -351,12 +394,15 @@ def kennzahlen(werte, trades=()):
     spitze = np.maximum.accumulate(werte) if len(werte) else np.array([1.0])
     rueckgang = float(np.max(1 - werte / spitze) * 100) if len(werte) else 0.0
     gewinner = sum(t["ergebnis"] > 0 for t in trades)
+    taeglich = np.diff(werte) / werte[:-1] if len(werte) > 2 and np.all(werte[:-1] > 0) else np.zeros(1)
+    sharpe = float(taeglich.mean() / taeglich.std() * math.sqrt(252)) if taeglich.std() > 0 else 0.0
     return {
-        "rendite": round(rendite, 2), "rueckgang": round(rueckgang, 2), "trades": len(trades),
+        "rendite": round(float(rendite), 2), "rueckgang": round(rueckgang, 2), "sharpe": round(sharpe, 3),
+        "trades": len(trades),
         "quote": round(100 * gewinner / len(trades), 1) if trades else None,
         "long": round(sum(t["ergebnis"] for t in trades if t["richtung"] == "long"), 2),
         "short": round(sum(t["ergebnis"] for t in trades if t["richtung"] == "short"), 2),
-        "short_trades": sum(t["richtung"] == "short" for t in trades),
+        "short_trades": int(sum(t["richtung"] == "short" for t in trades)),
     }
 
 
@@ -405,7 +451,7 @@ def suche(m, start, ende, rng, gewichte, budget, startwerte=()):
             gesehen[s] = {"genom": g, "kennzahlen": k, "fitness": fitness(k)}
         return gesehen[s]
 
-    for g in list(startwerte) + [zufalls_bauplan(rng, gewichte) for _ in range(n_zufall)]:
+    for g in [vollstaendig(g) for g in startwerte] + [zufalls_bauplan(rng, gewichte) for _ in range(n_zufall)]:
         bewerte(g)
     for _ in range(generationen):
         beste = sorted(gesehen.values(), key=lambda e: -e["fitness"])[:5]
@@ -467,6 +513,8 @@ def walk_forward(m, rng, budget, protokoll=print):
         startwerte = [vorheriger] if vorheriger else []
         rangliste = suche(m, train_start, train_ende, rng, gewichte, budget, startwerte)
         sieger = rangliste[0]
+        dsr = deflated_sharpe(simuliere(m, sieger["genom"], train_start, train_ende)["werte"],
+                              [e["kennzahlen"]["sharpe"] for e in rangliste])
         oos = simuliere(m, sieger["genom"], test[0], test[1])
         k = kennzahlen(oos["werte"], oos["trades"])
         q = kennzahlen(nasdaq(m, *test))
@@ -485,14 +533,16 @@ def walk_forward(m, rng, budget, protokoll=print):
                            "qqq": q["rendite"], "ueberschuss": round(nach["rendite"] - q["rendite"], 2)})
         schritte.append({"jahr": int(jahr), "bis": str(m.tage[test[1]].date()), "genom": sieger["genom"],
                          "training": sieger["kennzahlen"], "test": k, "qqq": q, "tech_halten": tech,
-                         "kosten": oos["kosten"], "geprueft": len(rangliste)})
+                         "kosten": oos["kosten"], "geprueft": len(rangliste), "deflated_sharpe": dsr,
+                         "top": [e["genom"] for e in rangliste[:3]]})
         kette.append(oos["werte"] / START_KAPITAL)
         kette_qqq.append(nasdaq(m, *test) / START_KAPITAL)
         kette_tech.append(halten(m, *test) / START_KAPITAL)
         vorheriger = sieger["genom"]
         protokoll(f"  {jahr}: Test {k['rendite']:+.1f} % (Rückgang {k['rueckgang']:.1f} %) · Training "
                   f"{sieger['kennzahlen']['rendite']:+.1f} % · Nasdaq-100 {q['rendite']:+.1f} % · "
-                  f"{FAMILIEN_NAME[sieger['genom']['familie']]} · {len(rangliste)} Baupläne")
+                  f"{FAMILIEN_NAME[sieger['genom']['familie']]} · {len(rangliste)} Baupläne · Deflated Sharpe "
+                  f"{dsr['dsr']:.0f} %")
 
     def verkette(teile):
         if not teile:
@@ -515,6 +565,146 @@ def walk_forward(m, rng, budget, protokoll=print):
             "verlauf": verkette(kette), "verlauf_qqq": verkette(kette_qqq)}
 
 
+def deflated_sharpe(werte, sharpes):
+    """Bailey & López de Prado (2014): Wahrscheinlichkeit, dass der Sieger aus len(sharpes) Versuchen wirklich mehr
+    kann als null, nach Abzug des Auswahl-Glücks und mit Schiefe und Wölbung seiner Tagesrenditen. Ähnliche Baupläne
+    zählen hier voll, die echte Zahl unabhängiger Versuche ist kleiner: die Schwelle ist eher etwas zu streng."""
+    werte = np.asarray(werte, dtype=float)
+    r = np.diff(werte) / werte[:-1] if len(werte) > 2 and np.all(werte[:-1] > 0) else np.zeros(1)
+    n, T = len(sharpes), len(r)
+    if T < 3 or r.std() == 0:
+        return {"dsr": 0.0, "sharpe": 0.0, "schwelle": None, "versuche": n}
+    z = statistics.NormalDist()
+    sr = r.mean() / r.std()
+    sr0 = 0.0
+    if n > 1:
+        euler = 0.5772156649
+        streuung = statistics.stdev(x / math.sqrt(252) for x in sharpes)
+        sr0 = streuung * ((1 - euler) * z.inv_cdf(1 - 1 / n) + euler * z.inv_cdf(1 - 1 / (n * math.e)))
+    abw = r - r.mean()
+    schiefe = (abw ** 3).mean() / r.std() ** 3
+    woelbung = (abw ** 4).mean() / r.std() ** 4
+    nenner = math.sqrt(max(1e-12, 1 - schiefe * sr + (woelbung - 1) / 4 * sr ** 2))
+    return {"dsr": round(z.cdf((sr - sr0) * math.sqrt(T - 1) / nenner) * 100, 1),
+            "sharpe": round(sr * math.sqrt(252), 2), "schwelle": round(sr0 * math.sqrt(252), 2), "versuche": n}
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Bibliothek: Lehren aus Büchern und Studien selbst prüfen
+# ---------------------------------------------------------------------------------------------------------------
+
+URTEIL_NAME = {"bestaetigt": "bestätigt", "tendenz": "Tendenz", "verworfen": "verworfen", "unklar": "unklar"}
+URTEIL_GEWICHT = {"bestaetigt": (1.5, 0.8), "tendenz": (1.2, 0.9), "verworfen": (0.6, 1.1), "unklar": (1.0, 1.0)}
+
+
+def lade_bibliothek(pfad):
+    """Liest labor/bibliothek.json und prüft, dass jede Hypothese ein bekanntes Gen mit erlaubten Werten nutzt."""
+    bib = json.loads(pathlib.Path(pfad).read_text(encoding="utf-8"))
+    quellen = {q["id"] for q in bib["quellen"]}
+    for h in bib["hypothesen"]:
+        if h["quelle"] not in quellen:
+            raise ValueError(f"{h['id']}: Quelle {h['quelle']} fehlt in der Bibliothek.")
+        for gen, wert in [(h["gen"], h["kontrolle"]), (h["gen"], h["test"]), *h["bedingung"].items()]:
+            if gen not in GENE or wert not in GENE[gen]:
+                raise ValueError(f"{h['id']}: {gen} = {wert!r} gibt es im Bauplan nicht (erlaubt: {GENE.get(gen)}).")
+    return bib
+
+
+def t_wert(werte):
+    werte = list(werte)
+    if len(werte) < 2:
+        return 0.0
+    sd = statistics.stdev(werte)
+    return mittel(werte) / (sd / math.sqrt(len(werte))) if sd > 0 else 0.0
+
+
+def urteil_fuer(rendite, rueckgang, t_rendite, t_rueckgang):
+    """Hilft eine Lehre? Mehr Rendite ohne deutlich mehr Rückgang, oder kleinerer Rückgang ohne Renditeverlust.
+    Bestätigt erst ab t-Wert 3 (Harvey, Liu & Zhu), Tendenz ab 2. Verworfen, wenn sie deutlich Rendite kostet, ohne
+    den Rückgang mindestens ebenso deutlich zu senken (oder umgekehrt)."""
+    def hilft(grenze):
+        return (t_rendite >= grenze and rueckgang <= 2) or (t_rueckgang <= -grenze and rendite >= -0.5)
+    if hilft(T_BESTAETIGT):
+        return "bestaetigt"
+    kostet_rendite = t_rendite <= -2 and not (t_rueckgang <= -2 and rueckgang <= rendite)
+    kostet_ruhe = t_rueckgang >= 2 and not (t_rendite >= 2 and rendite >= rueckgang)
+    if kostet_rendite or kostet_ruhe:
+        return "verworfen"
+    if hilft(2):
+        return "tendenz"
+    return "unklar"
+
+
+def pruefe_wissen(m, wf, bibliothek, rng, protokoll=print):
+    """Jede Lehre als fairer Vergleich: dieselben Baupläne einmal ohne die Lehre (Kontrolle) und einmal mit ihr, in
+    jedem Testjahr. Basis je Jahr: die 3 besten Baupläne aus dem Training davor und 2 zufällige."""
+    quellen = {q["id"]: q for q in bibliothek["quellen"]}
+    basen = {s["jahr"]: [vollstaendig(g) for g in s["top"]] + [zufalls_bauplan(rng, {}) for _ in range(2)]
+             for s in wf["schritte"]}
+
+    def lauf(g, bereich):
+        e = simuliere(m, g, *bereich)
+        return kennzahlen(e["werte"], e["trades"])
+
+    urteile = []
+    for h in bibliothek["hypothesen"]:
+        d_rendite, d_rueckgang, je_jahr = [], [], {}
+        for s in wf["schritte"]:
+            bereich = m.jahr_bereich(s["jahr"])
+            for basis in basen[s["jahr"]]:
+                ohne = {**basis, **h["bedingung"], h["gen"]: h["kontrolle"]}
+                mit = {**ohne, h["gen"]: h["test"]}
+                a, b = lauf(ohne, bereich), lauf(mit, bereich)
+                d_rendite.append(b["rendite"] - a["rendite"])
+                d_rueckgang.append(b["rueckgang"] - a["rueckgang"])
+                je_jahr.setdefault(s["jahr"], []).append(b["rendite"] - a["rendite"])
+        n = len(d_rendite)
+        if not n:
+            continue
+        # Vergleiche ohne jede Wirkung (z. B. kein Short-Trade im Jahr) zählen nicht als Beleg
+        wirkt = [(a, b) for a, b in zip(d_rendite, d_rueckgang) if abs(a) > 1e-9 or abs(b) > 1e-9]
+        gleich = n - len(wirkt)
+        dr, dd = (mittel(x[i] for x in wirkt) if wirkt else 0.0 for i in (0, 1))
+        tr, td = (t_wert(x[i] for x in wirkt) for i in (0, 1))
+        urteil = "unklar" if len(wirkt) < MIN_VERGLEICHE else urteil_fuer(dr, dd, tr, td)
+        q = quellen[h["quelle"]]
+        grund = (f"Rendite {de(dr, 1, True)} Pkt. pro Jahr (t = {de(tr, 1)}), größter Rückgang {de(dd, 1, True)} Pkt. "
+                 f"(t = {de(td, 1)}), besser in {int(sum(x > 0 for x in d_rendite))} von {n} Vergleichen")
+        if gleich:
+            grund += f", {gleich}× ohne Wirkung"
+        if len(wirkt) < MIN_VERGLEICHE:
+            grund += f" – zu wenige Vergleiche mit Wirkung (unter {MIN_VERGLEICHE})"
+        urteile.append({
+            "id": h["id"], "titel": h["titel"], "quelle": h["quelle"], "quelle_titel": q["titel"],
+            "autoren": q["autoren"], "jahr": q["jahr"], "gen": h["gen"], "kontrolle": h["kontrolle"],
+            "test": h["test"], "vergleiche": n, "rendite_diff": round(dr, 2), "rueckgang_diff": round(dd, 2),
+            "t_rendite": round(tr, 2), "t_rueckgang": round(td, 2), "besser": int(sum(x > 0 for x in d_rendite)),
+            "ohne_wirkung": gleich, "urteil": urteil, "grund": grund,
+            "je_jahr": {str(j): round(mittel(v), 2) for j, v in je_jahr.items()}})
+        protokoll(f"  📚 {h['id']} {h['titel']}: {URTEIL_NAME[urteil]} · {grund}")
+    return urteile
+
+
+def wissen_gewichte(urteile):
+    """Was das Labor aus der Bibliothek bestätigt hat, zieht es öfter; was es verworfen hat, seltener."""
+    gewichte = {}
+    for u in urteile:
+        f_test, f_kontrolle = URTEIL_GEWICHT[u["urteil"]]
+        for wert, f in ((u["test"], f_test), (u["kontrolle"], f_kontrolle)):
+            je_wert = gewichte.setdefault(u["gen"], {})
+            je_wert[json.dumps(wert)] = round(je_wert.get(json.dumps(wert), 1.0) * f, 3)
+    return gewichte
+
+
+def kombiniere(*gewichte):
+    aus = {}
+    for gw in gewichte:
+        for gen, werte in gw.items():
+            for wert, f in werte.items():
+                aus.setdefault(gen, {})[wert] = round(min(4.0, max(0.2, aus.get(gen, {}).get(wert, 1.0) * f)), 3)
+    return aus
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # Lehren aus Fehlern
 # ---------------------------------------------------------------------------------------------------------------
@@ -529,10 +719,26 @@ def mittel(werte):
     return sum(werte) / len(werte) if werte else None
 
 
-def lehren(wf, belege):
+def lehren(wf, belege, urteile=()):
     """Lehren in einfachen Sätzen, jede mit Zahlen. 'bestaetigt' erst ab VERDACHT_UNTER Belegen."""
     aus = []
     schritte = wf["schritte"]
+    if urteile:
+        zaehl = {k: sum(u["urteil"] == k for u in urteile) for k in URTEIL_NAME}
+        aus.append({"titel": "Bücherwissen",
+                    "text": f"Von {len(urteile)} Lehren aus Büchern und Studien hat das Labor {zaehl['bestaetigt']} "
+                            f"bestätigt (t-Wert ab 3), {zaehl['tendenz']} als Tendenz gesehen, {zaehl['verworfen']} "
+                            f"verworfen und {zaehl['unklar']} offen gelassen. Details: WISSEN.md.",
+                    "belege": sum(u["vergleiche"] for u in urteile),
+                    "status": "bestaetigt" if zaehl["bestaetigt"] else "zweifel"})
+    if schritte and all(s.get("deflated_sharpe") for s in schritte):
+        echt = sum(s["deflated_sharpe"]["dsr"] >= 95 for s in schritte)
+        aus.append({"titel": "Glück oder Können (Deflated Sharpe)",
+                    "text": f"In {echt} von {len(schritte)} Jahren war der Trainings-Sieger nach Abzug des "
+                            f"Auswahl-Glücks mit mindestens 95 % Wahrscheinlichkeit besser als null. Bei rund "
+                            f"{mittel(s['deflated_sharpe']['versuche'] for s in schritte):.0f} Bauplänen je Jahr sieht "
+                            f"der beste auch ohne Können gut aus.",
+                    "belege": len(schritte), "status": "bestaetigt" if echt == len(schritte) else "zweifel"})
     if schritte:
         abstand = mittel(s["training"]["rendite"] - s["test"]["rendite"] for s in schritte)
         aus.append({"titel": "Überanpassung",
@@ -662,6 +868,15 @@ def bauplan_text(g):
     if g["familie"] == "ruecksetzer":
         teile.append(f"RSI(2) unter {g['rsi_grenze']}")
     teile.append(f"Hebel {de(g['hebel'], 2)}")
+    g = vollstaendig(g)
+    if g["ueberspringen"]:
+        teile.append("letzten Monat auslassen")
+    if g["rangfolge"] == "hoch_52w":
+        teile.append("Rang nach 52-Wochen-Hoch")
+    if g["groesse"] != "gleich":
+        teile.append({"volatilitaet": "Größe nach Schwankung", "atr_risiko": "Turtle-Größe"}[g["groesse"]])
+    if g["saison"] != "immer":
+        teile.append("long nur Nov–Apr")
     return " · ".join(teile)
 
 
@@ -690,13 +905,26 @@ def bericht(erg):
         f"Abstand zum Ziel: **{de(g['rendite'] - ZIEL_RENDITE, 1, True)} Prozentpunkte**. "
         f"Long brachte {de(g['long'], 0)} $, Short {de(g['short'], 0)} $ (über alle Testjahre, je mit 10.000 $ Start).",
         "",
-        "| Jahr | Test | Training | Nasdaq-100 | Rückgang | Trades | Bauplan |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "„Deflated Sharpe“ (Bailey & López de Prado): Wahrscheinlichkeit, dass der Sieger aus allen geprüften "
+        "Bauplänen des Jahres mehr kann als Glück.",
+        "",
+        "| Jahr | Test | Training | Nasdaq-100 | Rückgang | Trades | Deflated Sharpe | Bauplan |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for s in wf["schritte"]:
         z.append(f"| {s['jahr']} | {de(s['test']['rendite'], 1, True)} % | {de(s['training']['rendite'], 1, True)} % | "
                  f"{de(s['qqq']['rendite'], 1, True)} % | {de(s['test']['rueckgang'])} % | {s['test']['trades']} | "
-                 f"{bauplan_text(s['genom'])} |")
+                 f"{de(s['deflated_sharpe']['dsr'], 0)} % | {bauplan_text(s['genom'])} |")
+    if erg.get("wissen"):
+        z += ["", "## Aus Büchern gelernt", "",
+              f"Jede Lehre der Bibliothek ({len(erg['wissen'])} Stück) wurde mit denselben Bauplänen einmal ohne und "
+              "einmal mit ihr gehandelt, in jedem Testjahr. Bestätigt erst ab t-Wert 3 (Harvey, Liu & Zhu). "
+              "Mehr in WISSEN.md.", "",
+              "| Lehre | Quelle | Rendite | Rückgang | t-Werte | Urteil |", "| --- | --- | --- | --- | --- | --- |"]
+        for u in erg["wissen"]:
+            z.append(f"| {u['titel']} | {u['autoren'].split(',')[0]} {u['jahr']} | {de(u['rendite_diff'], 1, True)} Pkt. | "
+                     f"{de(u['rueckgang_diff'], 1, True)} Pkt. | {de(u['t_rendite'], 1)} / {de(u['t_rueckgang'], 1)} | "
+                     f"{URTEIL_NAME[u['urteil']]} |")
     z += ["", "## Lehren aus Fehlern", ""]
     for l in erg["lehren"]:
         marke = "✅ bestätigt" if l["status"] == "bestaetigt" else "🤔 Verdacht"
@@ -738,19 +966,65 @@ def bericht(erg):
 # Ablauf
 # ---------------------------------------------------------------------------------------------------------------
 
+def wissen_text(urteile, bibliothek, gedaechtnis, stand):
+    """labor/WISSEN.md: was das Labor gelesen hat, was es daraus geprüft hat und was es übernimmt."""
+    je_quelle = {}
+    for u in urteile:
+        je_quelle.setdefault(u["quelle"], []).append(u)
+    marke = {"bestaetigt": "✅ bestätigt", "tendenz": "🟡 Tendenz", "verworfen": "❌ verworfen", "unklar": "🤔 unklar"}
+    z = ["# 📚 Was das Labor aus Büchern gelernt hat", "",
+         f"Stand: Kurse bis {stand} · Simulation mit Spielgeld, keine Anlageberatung.", "",
+         "Das Labor liest seine Bibliothek (`labor/bibliothek.json`), macht aus jeder Lehre einen fairen Vergleich und "
+         "prüft ihn jede Nacht selbst: dieselben Baupläne einmal ohne und einmal mit der Lehre, in jedem Testjahr, mit "
+         "Kosten. **Bestätigt** heißt: t-Wert ab 3 (Harvey, Liu & Zhu), also sehr wahrscheinlich kein Zufall. "
+         "**Tendenz**: t-Wert 2 bis 3. **Verworfen**: schadet deutlich. Was bestätigt ist, zieht das Labor bei der "
+         "Suche öfter, was verworfen ist, seltener.", "",
+         "t-Werte: Rendite / Rückgang. Ein negativer t-Wert beim Rückgang heißt: kleinerer Rückgang.", "",
+         "| Lehre | Rendite | Rückgang | t-Werte | Urteil | letzte Nächte |", "| --- | --- | --- | --- | --- | --- |"]
+    verlauf = gedaechtnis.get("wissen", {})
+    for u in urteile:
+        alt = [v["urteil"] for v in verlauf.get(u["id"], [])][-7:]
+        kurz = " ".join({"bestaetigt": "✅", "tendenz": "🟡", "verworfen": "❌", "unklar": "·"}[x] for x in alt)
+        z.append(f"| {u['titel']} | {de(u['rendite_diff'], 1, True)} Pkt. | {de(u['rueckgang_diff'], 1, True)} Pkt. | "
+                 f"{de(u['t_rendite'], 1)} / {de(u['t_rueckgang'], 1)} | {marke[u['urteil']]} | {kurz} |")
+    z += ["", "## Bibliothek", ""]
+    for q in bibliothek["quellen"]:
+        z += [f"### {q['titel']}", "", f"{q['autoren']} · {q['jahr']} · {q['art']} · {q['zugang']} · [Link]({q['link']})",
+              ""]
+        z += [f"- {k}" for k in q["kernaussagen"]]
+        z.append(f"- *Vorsicht:* {q['vorsicht']}")
+        if q.get("umsetzung"):
+            z.append(f"- *Im Labor:* {q['umsetzung']}")
+        for u in je_quelle.get(q["id"], []):
+            z.append(f"- **Geprüft – {u['titel']}:** {marke[u['urteil']]}. {u['grund']}.")
+        z.append("")
+    z += ["## Vorsicht", "",
+          "- Die Kernaussagen sind eigene kurze Zusammenfassungen frei zugänglicher Quellen, keine Zitate.",
+          "- Das Labor prüft eine Lehre nur so, wie sie in seinen Bauplan passt. Ein Urteil gilt für Tech-Aktien mit "
+          "diesen Regeln, nicht allgemein für das Buch.",
+          "- Die Aktienliste ist von heute (Überlebende). Wenige Testjahre heißen: viele Lehren bleiben unklar.", ""]
+    return "\n".join(z)
+
+
 def gedaechtnis_lesen(pfad):
     if pfad.exists():
         return json.loads(pfad.read_text(encoding="utf-8"))
     return {"version": 1, "belege": [], "naechte": []}
 
 
-def gedaechtnis_merken(alt, neue_belege, nacht, maximal=4000):
-    """Neue Belege dazu; gleicher Bauplan im gleichen Jahr wird ersetzt statt doppelt gezählt."""
+def gedaechtnis_merken(alt, neue_belege, nacht, urteile=(), maximal=4000):
+    """Neue Belege dazu; gleicher Bauplan im gleichen Jahr wird ersetzt statt doppelt gezählt. Dazu je Lehre der
+    Verlauf der Urteile über die Nächte (zeigt, ob ein Urteil stabil ist oder vom Zufall der Nacht abhängt)."""
     belege = {(b["jahr"], schluessel(b["genom"])): b for b in alt["belege"]}
     for b in neue_belege:
         belege[(b["jahr"], schluessel(b["genom"]))] = b
     naechte = [n for n in alt["naechte"] if n["datum"] != nacht["datum"]] + [nacht]
-    return {"version": 1, "belege": list(belege.values())[-maximal:], "naechte": naechte[-120:]}
+    wissen = {k: list(v) for k, v in alt.get("wissen", {}).items()}
+    for u in urteile:
+        eintrag = {"datum": nacht["datum"], "urteil": u["urteil"], "rendite_diff": u["rendite_diff"],
+                   "rueckgang_diff": u["rueckgang_diff"], "t_rendite": u["t_rendite"], "vergleiche": u["vergleiche"]}
+        wissen[u["id"]] = [v for v in wissen.get(u["id"], []) if v["datum"] != nacht["datum"]][-59:] + [eintrag]
+    return {"version": 1, "belege": list(belege.values())[-maximal:], "naechte": naechte[-120:], "wissen": wissen}
 
 
 def swing_bot_vergleich(quelle):
@@ -773,6 +1047,7 @@ def main(argv=None):
     p.add_argument("--seed", type=int, help="Zufallsstart (Standard: Datum, jede Nacht anders)")
     p.add_argument("--ausgabe", default=str(LABOR), help="Ordner für Bericht, Ergebnis, Gedächtnis und Depot")
     p.add_argument("--neuer-champion", action="store_true", help="Übungsdepot mit dem heutigen Vorschlag neu starten")
+    p.add_argument("--bibliothek", default=str(LABOR / "bibliothek.json"), help="Lehren aus Büchern und Studien")
     a = p.parse_args(argv)
 
     beginn = time.time()
@@ -787,27 +1062,32 @@ def main(argv=None):
         print(f"🧪 Lade Kurse ab 2010 für {len(ticker)} Ticker von Yahoo …")
         daten, quelle = lade_yahoo(ticker), "Yahoo Finance (Tageskerzen ab 2010)"
     m = Markt(daten, sw.BRANCHE)
+    bibliothek = lade_bibliothek(a.bibliothek)
     seed = a.seed if a.seed is not None else int(dt.date.today().strftime("%Y%m%d"))
     rng = random.Random(seed)
     print(f"🧪 {len(m.ticker)} Aktien ({int(m.tech.sum())} Tech), {m.tage[0].date()} bis {m.tage[-1].date()}, "
           f"Budget {a.budget}, Zufallsstart {seed}")
 
     wf = walk_forward(m, rng, a.budget)
+    print(f"📚 Prüfe {len(bibliothek['hypothesen'])} Lehren aus {len(bibliothek['quellen'])} Büchern und Studien …")
+    urteile = pruefe_wissen(m, wf, bibliothek, rng)
     gd_pfad = aus / "gedaechtnis.json"
     gedaechtnis = gedaechtnis_lesen(gd_pfad)
     alle_belege = gedaechtnis["belege"] + wf["belege"]
-    # Vorschlag für heute: Suche in den letzten TRAIN_JAHRE Jahren, mit allem, was das Gedächtnis weiß
+    # Vorschlag für heute: Suche in den letzten TRAIN_JAHRE Jahren mit allem, was Gedächtnis und Bibliothek wissen.
+    # (Der Walk-Forward oben startet bewusst neutral: Er darf nicht wissen, was in späteren Testjahren geschah.)
     ende = len(m.tage) - 1
     start = max(VORLAUF_TAGE, int(np.searchsorted(m.tage, m.tage[ende] - pd.DateOffset(years=TRAIN_JAHRE))))
     startwerte = [s["genom"] for s in wf["schritte"][-3:]]
-    rangliste = suche(m, start, ende, rng, gewichte_aus(alle_belege), a.budget, startwerte)
+    rangliste = suche(m, start, ende, rng, kombiniere(gewichte_aus(alle_belege), wissen_gewichte(urteile)),
+                      a.budget, startwerte)
     vorschlag = {"genom": rangliste[0]["genom"], "kennzahlen": rangliste[0]["kennzahlen"],
                  "zeitraum": f"{m.tage[start].date()} bis {m.tage[ende].date()}", "geprueft": len(rangliste)}
     depot = uebungsdepot(m, aus / "labor_depot.json", vorschlag["genom"], a.neuer_champion)
     nacht = {"datum": str(dt.date.today()), "daten_bis": str(m.tage[ende].date()), "seed": seed,
              "test_rendite": wf["gesamt"]["rendite"], "test_rueckgang": wf["gesamt"]["rueckgang"],
              "baupläne": sum(s["geprueft"] for s in wf["schritte"]) + len(rangliste)}
-    gedaechtnis = gedaechtnis_merken(gedaechtnis, wf["belege"], nacht)
+    gedaechtnis = gedaechtnis_merken(gedaechtnis, wf["belege"], nacht, urteile)
 
     erg = {
         "version": 1, "erstellt": dt.datetime.now().astimezone().isoformat(timespec="seconds"), "quelle": quelle,
@@ -820,14 +1100,19 @@ def main(argv=None):
         "swing_bot": swing_bot_vergleich(quelle),
         "vorschlag": vorschlag,
         "depot": depot,
-        "lehren": lehren(wf, gedaechtnis["belege"]),
-        "gewichte": gewichte_aus(gedaechtnis["belege"]),
+        "lehren": lehren(wf, gedaechtnis["belege"], urteile),
+        "wissen": urteile,
+        "bibliothek": [{k: q[k] for k in ("id", "titel", "autoren", "jahr", "art", "zugang", "link")}
+                       for q in bibliothek["quellen"]],
+        "gewichte": kombiniere(gewichte_aus(gedaechtnis["belege"]), wissen_gewichte(urteile)),
         "gedaechtnis": {"belege": len(gedaechtnis["belege"]), "naechte": len(gedaechtnis["naechte"])},
         "dauer_sekunden": round(time.time() - beginn, 1),
     }
     (aus / "ergebnis.json").write_text(json.dumps(erg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     gd_pfad.write_text(json.dumps(gedaechtnis, ensure_ascii=False) + "\n", encoding="utf-8")
     (aus / "BERICHT.md").write_text(bericht(erg), encoding="utf-8")
+    (aus / "WISSEN.md").write_text(wissen_text(urteile, bibliothek, gedaechtnis, str(m.tage[ende].date())),
+                                   encoding="utf-8")
     g = wf["gesamt"]
     print(f"🧪 Testjahre: {de(g['rendite'])} % pro Jahr, Rückgang {de(g['rueckgang'])} % · Nasdaq-100 "
           f"{de(wf['qqq']['rendite'])} % · Ziel {de(ZIEL_RENDITE, 0)} % · {erg['dauer_sekunden']} s")

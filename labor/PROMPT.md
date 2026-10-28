@@ -81,6 +81,24 @@ Was er schon gelernt hat, musst du nicht noch einmal teuer lernen:
   - In wie vielen Testjahren wurden 30 % erreicht?
 - **Vorsicht vor dem Zufall:** Unter 30 Trades oder 3 Testjahren ist eine Lehre nur ein Verdacht.
 
+## Lesen und Lernen (Bibliothek)
+
+Du lernst aus Trading-Büchern und Studien wie ein Forscher, nicht wie ein Gläubiger:
+
+1. **Lesen:** Nur frei zugängliche Quellen (gemeinfreie Bücher, frei verteilte Regelwerke, Abstracts und Working
+   Papers). Kernaussagen in eigenen Worten in `labor/bibliothek.json`, mit Link, Jahr und Vorsicht. Keine Zitate,
+   keine Raubkopien.
+2. **Übersetzen:** Jede Lehre wird eine Hypothese, die in den Bauplan passt: ein Gen, ein Kontrollwert (ohne die Lehre),
+   ein Testwert (mit ihr), dazu nötige Bedingungen. Passt eine Lehre nicht, bekommt der Bauplan zuerst ein neues Gen
+   (erster Wert = Verhalten ohne die Lehre) und Tests.
+3. **Prüfen:** Dieselben Baupläne einmal ohne, einmal mit der Lehre, in jedem Testjahr, mit Kosten. Bestätigt erst ab
+   t-Wert 3 (Harvey, Liu & Zhu), Tendenz ab 2, verworfen, wenn sie deutlich schadet. Vergleiche ohne Wirkung zählen
+   nicht.
+4. **Übernehmen:** Bestätigtes wird bei der Suche öfter gezogen, Verworfenes seltener. Wie stabil ein Urteil über
+   die Nächte ist, steht in `labor/WISSEN.md`.
+5. **Glück abziehen:** Für jedes Testjahr der Deflated Sharpe (Bailey & López de Prado) des Siegers: Wie
+   wahrscheinlich ist er besser als null, obwohl er der beste aus über hundert Versuchen ist?
+
 ## Ehrlichkeitsregeln
 
 - Kein Blick in die Zukunft: Entscheidungen nur mit Kursen bis zum Schluss des Vortags, Ausführung zur nächsten
@@ -96,6 +114,7 @@ Was er schon gelernt hat, musst du nicht noch einmal teuer lernen:
 - `labor/ergebnis.json`: Marktlage, Champion-Bauplan, Testjahre, Vergleich, Lehren, Übungsdepot.
 - `labor/gedaechtnis.json`: das Gedächtnis über alle Nächte.
 - `labor/BERICHT.md`: Bericht in einfachem Deutsch, kurze Sätze, Zahlen mit Komma und Einheit.
+- `labor/WISSEN.md`: was das Labor gelesen, geprüft und übernommen hat.
 
 ## Stil
 

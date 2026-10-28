@@ -1,0 +1,212 @@
+{
+ "hinweis": "Bibliothek des Strategie-Labors. Kernaussagen sind eigene Zusammenfassungen (keine Zitate) aus frei zugänglichen Quellen: gemeinfreie Bücher, frei verteilte Regelwerke und Abstracts bzw. Working Papers. Jede Hypothese prüft das Labor jede Nacht selbst an Kursen. Neue Quelle: Eintrag unter quellen, prüfbare Lehre unter hypothesen (gen, kontrolle und test müssen in GENE von labor/strategie_labor.py stehen).",
+ "stand": "2026-10-28",
+ "quellen": [
+  {
+   "id": "lefevre1923",
+   "titel": "Reminiscences of a Stock Operator",
+   "autoren": "Edwin Lefèvre",
+   "jahr": 1923,
+   "art": "Buch",
+   "zugang": "gemeinfrei in den USA (Project Gutenberg Nr. 60979)",
+   "link": "https://gutenberg.org/ebooks/60979",
+   "kernaussagen": [
+    "Verluste früh begrenzen und nie bei einem Verlierer nachkaufen.",
+    "Das große Geld kommt vom Sitzenbleiben in Gewinnern, nicht vom vielen Hin und Her.",
+    "Mit dem großen Trend des Marktes handeln, nicht dagegen."
+   ],
+   "vorsicht": "Roman nach dem Leben von Jesse Livermore. Erfahrungen eines Händlers, keine Statistik."
+  },
+  {
+   "id": "faith2003",
+   "titel": "The Original Turtle Trading Rules",
+   "autoren": "Curtis Faith",
+   "jahr": 2003,
+   "art": "Regelwerk",
+   "zugang": "vom Autor frei verteiltes PDF",
+   "link": "https://www.mql5.com/en/articles/23448",
+   "kernaussagen": [
+    "Einstieg beim Ausbruch über das 20- bzw. 55-Tage-Hoch, Short beim Bruch des Tiefs.",
+    "N = Ø Schwankung (ATR) der letzten 20 Tage. Eine Einheit ist so groß, dass 1 N Bewegung etwa 1 % des Kontos kostet.",
+    "Stop 2 N vom Einstieg. Ausstieg beim 10- bzw. 20-Tage-Gegenextrem."
+   ],
+   "vorsicht": "Für Futures in den 1980ern entwickelt. Die Angaben zum Nachkaufen (Pyramide) unterscheiden sich je nach Quelle."
+  },
+  {
+   "id": "jegadeesh1993",
+   "titel": "Returns to Buying Winners and Selling Losers: Implications for Stock Market Efficiency",
+   "autoren": "Narasimhan Jegadeesh, Sheridan Titman",
+   "jahr": 1993,
+   "art": "Studie (Journal of Finance 48(1))",
+   "zugang": "Abstract frei",
+   "link": "https://ideas.repec.org/a/bla/jfinan/v48y1993i1p65-91.html",
+   "kernaussagen": [
+    "Aktien mit den besten Renditen der letzten 3 bis 12 Monate laufen in den nächsten 3 bis 12 Monaten weiter besser (NYSE und AMEX, 1965–1989).",
+    "Üblich ist, den letzten Monat auszulassen (12-1), weil sehr kurzfristig eher eine Umkehr kommt.",
+    "Der Vorsprung verschwindet nach ein bis zwei Jahren wieder."
+   ],
+   "vorsicht": "Alte US-Daten. Gewinner und Verlierer gemischt, nicht nur Tech."
+  },
+  {
+   "id": "moskowitz2012",
+   "titel": "Time Series Momentum",
+   "autoren": "Tobias Moskowitz, Yao Hua Ooi, Lasse Heje Pedersen",
+   "jahr": 2012,
+   "art": "Studie (Journal of Financial Economics 104(2))",
+   "zugang": "Working Paper frei bei SSRN",
+   "link": "https://papers.ssrn.com/abstract=2089463",
+   "kernaussagen": [
+    "Die eigene Rendite der letzten 12 Monate sagt die Rendite der nächsten Monate voraus.",
+    "Das gilt über Aktienindex-, Währungs-, Rohstoff- und Anleihe-Futures hinweg.",
+    "Long bei positivem, short bei negativem 12-Monats-Trend."
+   ],
+   "vorsicht": "Futures auf ganze Märkte, nicht einzelne Aktien."
+  },
+  {
+   "id": "george2004",
+   "titel": "The 52-Week High and Momentum Investing",
+   "autoren": "Thomas J. George, Chuan-Yang Hwang",
+   "jahr": 2004,
+   "art": "Studie (Journal of Finance 59(5))",
+   "zugang": "Abstract frei",
+   "link": "https://www.cxoadvisory.com/1284/technical-trading/the-52-week-high-as-a-momentum-indicator-for-individual-stocks/",
+   "kernaussagen": [
+    "Wie nah eine Aktie an ihrem 52-Wochen-Hoch steht, sagt künftige Renditen besser voraus als ihre vergangene Rendite.",
+    "Diese Vorhersage kehrt sich später nicht um.",
+    "Erklärung: Nahe am Hoch kam meist gerade gute Nachricht, auf die Händler zu langsam reagieren."
+   ],
+   "vorsicht": "US-Aktien 1963–2001."
+  },
+  {
+   "id": "daniel2016",
+   "titel": "Momentum Crashes",
+   "autoren": "Kent Daniel, Tobias Moskowitz",
+   "jahr": 2016,
+   "art": "Studie (Journal of Financial Economics 122)",
+   "zugang": "Working Paper frei bei NBER",
+   "link": "https://www.nber.org/papers/w20439",
+   "kernaussagen": [
+    "Momentum stürzt vor allem ab, wenn ein Bärenmarkt plötzlich endet und die Kurse stark steigen.",
+    "Der Absturz kommt aus der Short-Seite: Die leerverkauften Verlierer steigen dann am stärksten.",
+    "Nur long (ohne Shorts) sind die Abstürze deutlich weniger tief. Weniger Einsatz bei hoher Schwankung hilft."
+   ],
+   "vorsicht": "US-Aktien 1927–2013, Portfolios aus vielen Aktien."
+  },
+  {
+   "id": "barroso2015",
+   "titel": "Momentum Has Its Moments",
+   "autoren": "Pedro Barroso, Pedro Santa-Clara",
+   "jahr": 2015,
+   "art": "Studie (Journal of Financial Economics 116(1))",
+   "zugang": "Zusammenfassungen und Nachrechnungen frei",
+   "link": "https://alphaarchitect.com/avoiding-momentum-crashes/",
+   "kernaussagen": [
+    "Das Risiko von Momentum schwankt und lässt sich aus der Schwankung der letzten Monate vorhersagen.",
+    "Wer den Einsatz so anpasst, dass die Schwankung etwa gleich bleibt, vermeidet fast alle Abstürze.",
+    "Das Verhältnis von Rendite zu Risiko (Sharpe) hat sich dabei etwa verdoppelt (1927–2011)."
+   ],
+   "vorsicht": "Ob die Nachrechnung ohne Blick in die Zukunft auskommt, ist in späteren Studien umstritten."
+  },
+  {
+   "id": "moreira2017",
+   "titel": "Volatility-Managed Portfolios",
+   "autoren": "Alan Moreira, Tyler Muir",
+   "jahr": 2017,
+   "art": "Studie (Journal of Finance 72(4))",
+   "zugang": "Working Paper frei bei NBER",
+   "link": "https://www.nber.org/papers/w22208",
+   "kernaussagen": [
+    "Weniger Einsatz, wenn die Schwankung hoch ist, und mehr, wenn sie niedrig ist.",
+    "Das hob das Verhältnis von Rendite zu Risiko bei vielen Faktoren um 50 bis 100 %, beim Gesamtmarkt um etwa 25 % (Working Paper).",
+    "Hohe Schwankung bringt nicht im gleichen Maß mehr Rendite."
+   ],
+   "vorsicht": "Monatlich umgeschichtet, ganze Faktoren statt einzelner Aktien."
+  },
+  {
+   "id": "faber2007",
+   "titel": "A Quantitative Approach to Tactical Asset Allocation",
+   "autoren": "Mebane Faber",
+   "jahr": 2007,
+   "art": "Studie (Journal of Wealth Management)",
+   "zugang": "frei bei SSRN (Nr. 962461)",
+   "link": "https://papers.ssrn.com/abstract=962461",
+   "kernaussagen": [
+    "Nur investiert sein, wenn der Monatskurs über der 10-Monats-Linie liegt, sonst Bargeld.",
+    "Ähnliche Rendite wie Aktien, aber deutlich kleinere Rückgänge.",
+    "Auch in anderen Märkten geprüft, um Zufallsfunde auszuschließen."
+   ],
+   "vorsicht": "Ganze Anlageklassen, keine Einzelaktien. Die 10-Monats-Linie entspricht etwa der 200-Tage-Linie."
+  },
+  {
+   "id": "bouman2002",
+   "titel": "The Halloween Indicator, \"Sell in May and Go Away\": Another Puzzle",
+   "autoren": "Sven Bouman, Ben Jacobsen",
+   "jahr": 2002,
+   "art": "Studie (American Economic Review 92(5))",
+   "zugang": "Working Paper frei",
+   "link": "https://www.tias.edu/docs/default-source/Kennisartikelen/ssrn-id76248.pdf",
+   "kernaussagen": [
+    "Von November bis April sind die Renditen deutlich höher als von Mai bis Oktober.",
+    "Gefunden in 36 von 37 Ländern (1970–1998), besonders stark in Europa.",
+    "Spätere Studien bestätigen es international, für die USA ist es umstritten."
+   ],
+   "vorsicht": "In den USA teils nur durch Ausreißer wie 1987 und 1998 getragen."
+  },
+  {
+   "id": "bailey2014",
+   "titel": "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality",
+   "autoren": "David H. Bailey, Marcos López de Prado",
+   "jahr": 2014,
+   "art": "Studie (Journal of Portfolio Management 40(5))",
+   "zugang": "frei bei SSRN",
+   "link": "https://papers.ssrn.com/abstract=2460551",
+   "kernaussagen": [
+    "Wer viele Backtests rechnet und nur den besten zeigt, überschätzt ihn: Der beste von vielen sieht auch ohne Können gut aus.",
+    "Die Hürde steigt mit der Zahl der Versuche. Dazu werden Schiefe und Ausreißer der Renditen berücksichtigt.",
+    "Die Zahl der Versuche muss man mitschreiben, man kann sie hinterher nicht rekonstruieren."
+   ],
+   "vorsicht": "Ähnliche Versuche zählen nicht voll, die echte Zahl unabhängiger Versuche ist kleiner.",
+   "umsetzung": "Das Labor zählt jeden geprüften Bauplan mit und rechnet für jedes Testjahr den Deflated Sharpe des Siegers."
+  },
+  {
+   "id": "harvey2016",
+   "titel": "... and the Cross-Section of Expected Returns",
+   "autoren": "Campbell R. Harvey, Yan Liu, Heqing Zhu",
+   "jahr": 2016,
+   "art": "Studie (Review of Financial Studies 29(1))",
+   "zugang": "Working Paper frei bei NBER",
+   "link": "https://www.nber.org/papers/w20592",
+   "kernaussagen": [
+    "Weil so viele Forscher dieselben Daten durchsuchen, reicht der übliche t-Wert von 2 nicht.",
+    "Ein neuer Faktor braucht einen t-Wert über 3.",
+    "Die meisten veröffentlichten Funde sind wahrscheinlich falsch."
+   ],
+   "vorsicht": "Gemacht für Faktoren in Aktienrenditen, als Faustregel aber allgemein nützlich.",
+   "umsetzung": "Das Labor nennt eine Lehre erst ab t-Wert 3 bestätigt, zwischen 2 und 3 nur Tendenz."
+  }
+ ],
+ "hypothesen": [
+  {"id": "H01", "quelle": "moskowitz2012", "titel": "12-Monats-Trend statt 3-Monats-Trend",
+   "bedingung": {"familie": "momentum"}, "gen": "rueckblick", "kontrolle": 60, "test": 250},
+  {"id": "H02", "quelle": "jegadeesh1993", "titel": "Letzten Monat auslassen (12-1)",
+   "bedingung": {"familie": "momentum", "rueckblick": 250}, "gen": "ueberspringen", "kontrolle": 0, "test": 21},
+  {"id": "H03", "quelle": "george2004", "titel": "Rangfolge nach Nähe zum 52-Wochen-Hoch",
+   "bedingung": {"familie": "momentum"}, "gen": "rangfolge", "kontrolle": "momentum", "test": "hoch_52w"},
+  {"id": "H04", "quelle": "barroso2015", "titel": "Positionsgröße nach Schwankung",
+   "bedingung": {}, "gen": "groesse", "kontrolle": "gleich", "test": "volatilitaet"},
+  {"id": "H05", "quelle": "faith2003", "titel": "Turtle-Größe: 1 ATR kostet 1 % des Kontos",
+   "bedingung": {"familie": "ausbruch"}, "gen": "groesse", "kontrolle": "gleich", "test": "atr_risiko"},
+  {"id": "H06", "quelle": "faith2003", "titel": "Ausbruch über rund 55 statt 20 Tage (getestet: 60)",
+   "bedingung": {"familie": "ausbruch"}, "gen": "rueckblick", "kontrolle": 20, "test": 60},
+  {"id": "H07", "quelle": "faber2007", "titel": "Nur kaufen, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt",
+   "bedingung": {}, "gen": "marktfilter", "kontrolle": "aus", "test": "qqq"},
+  {"id": "H08", "quelle": "bouman2002", "titel": "Nur von November bis April long",
+   "bedingung": {}, "gen": "saison", "kontrolle": "immer", "test": "nov_bis_apr"},
+  {"id": "H09", "quelle": "daniel2016", "titel": "Keine Shorts (Momentum-Abstürze kommen von der Short-Seite)",
+   "bedingung": {}, "gen": "short", "kontrolle": "immer", "test": "aus"},
+  {"id": "H10", "quelle": "lefevre1923", "titel": "Verluste begrenzen: Stop 3 ATR statt keinem",
+   "bedingung": {}, "gen": "stop_atr", "kontrolle": null, "test": 3.0},
+  {"id": "H11", "quelle": "lefevre1923", "titel": "Gewinner laufen lassen: kein Zeitstopp statt 20 Tage",
+   "bedingung": {}, "gen": "zeitstopp", "kontrolle": 20, "test": null}
+ ]
+}
