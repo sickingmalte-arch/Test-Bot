@@ -617,5 +617,132 @@
     "besser_anzahl": 3
    }
   ]
+ },
+ {
+  "erstellt": "28.10.2026 14:52 UTC",
+  "versuch": "Versuch 5: Verlustbremse als Gen, Kurse ab 2005 (Finanzkrise im Training)",
+  "budget": "normal",
+  "seed": "3 Starts",
+  "besser": false,
+  "zeitraeume": [
+   {
+    "name": "2015–2021",
+    "labor": {
+     "rendite": 7.0,
+     "rueckgang": 23.79,
+     "sharpe": 0.52,
+     "je_rueckgang": 0.294,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "labor_alle": [
+     {
+      "rendite": 7.0,
+      "rueckgang": 23.79,
+      "sharpe": 0.52,
+      "je_rueckgang": 0.294,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     },
+     {
+      "rendite": 0.44,
+      "rueckgang": 21.83,
+      "sharpe": 0.1,
+      "je_rueckgang": 0.02,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     },
+     {
+      "rendite": 17.81,
+      "rueckgang": 18.19,
+      "sharpe": 0.99,
+      "je_rueckgang": 0.979,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     }
+    ],
+    "swing": {
+     "rendite": 10.758,
+     "rueckgang": 16.387,
+     "sharpe": 0.951,
+     "je_rueckgang": 0.657,
+     "spanne_rendite": [
+      9.39,
+      12.96
+     ],
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "qqq": {
+     "rendite": 22.26,
+     "rueckgang": 28.56,
+     "sharpe": 1.06,
+     "je_rueckgang": 0.78,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "besser": false,
+    "besser_anzahl": 1
+   },
+   {
+    "name": "2022–2026",
+    "labor": {
+     "rendite": 14.28,
+     "rueckgang": 20.0,
+     "sharpe": 0.84,
+     "je_rueckgang": 0.714,
+     "von": "2022-01-03",
+     "bis": "2026-10-27"
+    },
+    "labor_alle": [
+     {
+      "rendite": 16.4,
+      "rueckgang": 17.9,
+      "sharpe": 0.98,
+      "je_rueckgang": 0.916,
+      "von": "2022-01-03",
+      "bis": "2026-10-27"
+     },
+     {
+      "rendite": 14.28,
+      "rueckgang": 20.0,
+      "sharpe": 0.84,
+      "je_rueckgang": 0.714,
+      "von": "2022-01-03",
+      "bis": "2026-10-27"
+     },
+     {
+      "rendite": 11.7,
+      "rueckgang": 25.75,
+      "sharpe": 0.69,
+      "je_rueckgang": 0.454,
+      "von": "2022-01-03",
+      "bis": "2026-10-27"
+     }
+    ],
+    "swing": {
+     "rendite": 6.595,
+     "rueckgang": 12.93,
+     "sharpe": 0.694,
+     "je_rueckgang": 0.51,
+     "spanne_rendite": [
+      5.67,
+      8.25
+     ],
+     "von": "2022-01-03",
+     "bis": "2026-10-27"
+    },
+    "qqq": {
+     "rendite": 13.88,
+     "rueckgang": 34.83,
+     "sharpe": 0.68,
+     "je_rueckgang": 0.398,
+     "von": "2022-01-03",
+     "bis": "2026-10-27"
+    },
+    "besser": false,
+    "besser_anzahl": 2
+   }
+  ]
  }
 ]
