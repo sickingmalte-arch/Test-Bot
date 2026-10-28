@@ -188,3 +188,12 @@ def test_verlustbremse_begrenzt_den_absturz():
     assert labor.kennzahlen(ohne["werte"])["rueckgang"] > 20
     assert labor.kennzahlen(mit["werte"])["rueckgang"] < 12
     assert any(t["grund"] == "Verlustbremse" for t in mit["trades"])
+
+
+def test_kernraster_aus_der_bibliothek_ist_gueltig():
+    """Das Kernraster nutzt nur erlaubte Gen-Werte, ohne Shorts und Hebel, und deckt alle drei Familien ab."""
+    assert len(labor.KERNRASTER) >= 60
+    for g in labor.KERNRASTER:
+        assert set(g) == set(labor.GENE) and all(g[k] in labor.GENE[k] for k in g)
+        assert g["short"] == "aus" and g["hebel"] == 1.0 and g["marktfilter"] == "qqq"
+    assert {g["familie"] for g in labor.KERNRASTER} == set(labor.GENE["familie"])

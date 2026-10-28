@@ -78,8 +78,8 @@ STANDARD = {gen: werte[0] for gen, werte in GENE.items()}  # fehlt ein Gen (alte
 T_BESTAETIGT = 3.0           # Harvey, Liu & Zhu: eine Lehre gilt erst ab t-Wert 3 als bestätigt (2–3: Tendenz)
 TURTLE_RISIKO = 0.01         # Turtle-Regel: 1 ATR Bewegung kostet 1 % des Kontos
 MIN_VERGLEICHE = 8           # so viele Vergleiche mit Wirkung braucht eine Lehre mindestens für ein Urteil
-KOMITEE = 5                  # im Testjahr handeln 5 Baupläne zu gleichen Teilen: der beste jeder Familie, dann die
-                             # nächstbesten (verschiedene Stile federn sich gegenseitig ab)
+KOMITEE = 3                  # im Testjahr handelt der beste Bauplan jeder Familie, zu gleichen Teilen (verschiedene
+                             # Stile federn sich ab; mehr Mitglieder hießen mehr Orders und mehr Gebühren)
 MIN_RENDITE = 10.0           # die Suche will mindestens so viel Rendite pro Jahr, darunter gibt es Abzug
 
 FAMILIEN_NAME = {"momentum": "Momentum-Rotation", "ausbruch": "Ausbruch", "ruecksetzer": "Rücksetzer"}
@@ -490,6 +490,38 @@ def mutiere(rng, g, gewichte):
     return kind
 
 
+def kernraster():
+    """Feste Baupläne aus der Bibliothek, die jede Suche vollständig prüft (Vorwissen statt Zufall): Momentum nach
+    Moskowitz/Jegadeesh, Ausbruch nach den Turtle-Regeln, Rücksetzer im Trend – jeweils mit Faber-Marktfilter, ohne
+    Shorts und ohne Hebel. Danach sucht der Zufall weiter."""
+    basis = {**STANDARD, "trendlinie": 200, "marktfilter": "qqq", "short": "aus", "hebel": 1.0}
+    raster = []
+    for rueckblick in (120, 250):
+        for auslassen in (0, 21):
+            for plaetze in (5, 8, 10):
+                for groesse in ("gleich", "volatilitaet"):
+                    for bremse in (None, 12):
+                        raster.append({**basis, "familie": "momentum", "rueckblick": rueckblick, "ueberspringen": auslassen,
+                                       "max_long": plaetze, "groesse": groesse, "bremse": bremse,
+                                       "markt_ausstieg": True, "stop_atr": None, "zeitstopp": None, "umschichten": 20})
+    for rueckblick in (60, 120):
+        for plaetze in (5, 8):
+            for groesse in ("gleich", "atr_risiko"):
+                for stop in (2.0, 4.0):
+                    raster.append({**basis, "familie": "ausbruch", "rueckblick": rueckblick, "max_long": plaetze,
+                                   "groesse": groesse, "stop_atr": stop, "markt_ausstieg": True, "zeitstopp": None})
+    for grenze in (5, 10):
+        for plaetze in (5, 8):
+            for zeit in (10, 20):
+                for stop in (None, 3.0):
+                    raster.append({**basis, "familie": "ruecksetzer", "rueckblick": 120, "rsi_grenze": grenze,
+                                   "max_long": plaetze, "zeitstopp": zeit, "stop_atr": stop, "markt_ausstieg": False})
+    return raster
+
+
+KERNRASTER = kernraster()
+
+
 def suche(m, start, ende, rng, gewichte, budget, startwerte=()):
     """Sucht im Zeitraum [start, ende] die besten Baupläne. Gibt sie sortiert nach Zielfunktion zurück."""
     n_zufall, generationen, kinder = BUDGETS[budget]
@@ -503,7 +535,8 @@ def suche(m, start, ende, rng, gewichte, budget, startwerte=()):
             gesehen[s] = {"genom": g, "kennzahlen": k, "fitness": fitness(k)}
         return gesehen[s]
 
-    for g in [vollstaendig(g) for g in startwerte] + [zufalls_bauplan(rng, gewichte) for _ in range(n_zufall)]:
+    for g in ([vollstaendig(g) for g in startwerte] + KERNRASTER
+              + [zufalls_bauplan(rng, gewichte) for _ in range(n_zufall)]):
         bewerte(g)
     for _ in range(generationen):
         beste = sorted(gesehen.values(), key=lambda e: -e["fitness"])[:5]
