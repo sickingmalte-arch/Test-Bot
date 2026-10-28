@@ -54,7 +54,7 @@ GENE = {
     "marktfilter": ["qqq", "breite", "beides", "aus"],
     "markt_ausstieg": [True, False],           # Positionen schließen, wenn die Marktampel umspringt
     "short": ["aus", "nur_baerenmarkt", "immer"],
-    "max_long": [2, 3, 4, 5, 6],
+    "max_long": [2, 3, 4, 5, 6, 8, 10],
     "max_short": [1, 2, 3],
     "stop_atr": [2.0, 3.0, 4.0, 6.0, None],
     "zeitstopp": [10, 20, 40, 60, None],
@@ -66,12 +66,14 @@ GENE = {
     "rangfolge": ["momentum", "hoch_52w"],     # George & Hwang: Nähe zum 52-Wochen-Hoch statt vergangener Rendite
     "groesse": ["gleich", "volatilitaet", "atr_risiko"],  # Barroso/Moreira: nach Schwankung · Turtle: 1 ATR = 1 %
     "saison": ["immer", "nov_bis_apr"],        # Bouman & Jacobsen: nur November bis April long
+    "volaziel": [None, 12, 18],                # Moreira & Muir: neue Positionen kleiner, wenn das Depot zu stark schwankt
 }
 STANDARD = {gen: werte[0] for gen, werte in GENE.items()}  # fehlt ein Gen (alter Bauplan), gilt der erste Wert
 
 T_BESTAETIGT = 3.0           # Harvey, Liu & Zhu: eine Lehre gilt erst ab t-Wert 3 als bestätigt (2–3: Tendenz)
 TURTLE_RISIKO = 0.01         # Turtle-Regel: 1 ATR Bewegung kostet 1 % des Kontos
 MIN_VERGLEICHE = 8           # so viele Vergleiche mit Wirkung braucht eine Lehre mindestens für ein Urteil
+KOMITEE = 5                  # im Testjahr handeln die 5 besten Baupläne aus dem Training zu gleichen Teilen
 
 FAMILIEN_NAME = {"momentum": "Momentum-Rotation", "ausbruch": "Ausbruch", "ruecksetzer": "Rücksetzer"}
 
@@ -344,6 +346,10 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
         if not umschichten:
             continue
         platz_wert = g["hebel"] * wert / plaetze
+        if g["volaziel"] and len(werte) > 20:  # Schwankung des eigenen Depots der letzten 20 Tage, aufs Jahr gerechnet
+            letzte = np.asarray(werte[-21:])
+            vola = float(np.std(np.diff(letzte) / letzte[:-1]) * math.sqrt(252) * 100)
+            platz_wert *= min(1.0, g["volaziel"] / vola) if vola > 0 else 1.0
         ziel_vola = np.nanmedian(m.vola[t, m.tech]) if g["groesse"] == "volatilitaet" else np.nan
 
         def stueckzahl(j):
@@ -407,10 +413,21 @@ def kennzahlen(werte, trades=()):
 
 
 def fitness(k):
-    """Zielfunktion der Suche: Rendite (gedeckelt, damit kein Glückstreffer alles dominiert) minus Strafe für zu
-    tiefe Rückgänge. Unter MIN_TRADES Trades ist es eher Halten mit Glück als eine Strategie: fällt praktisch raus."""
+    """Zielfunktion der Suche: Rendite minus größter Rückgang (beides zählt, wie im Wettkampf), Rendite gedeckelt,
+    damit kein Glückstreffer alles dominiert, Strafe für Rückgänge über MAX_RUECKGANG. Unter MIN_TRADES Trades ist
+    es eher Halten mit Glück als eine Strategie: fällt praktisch raus."""
     strafe = 2 * max(0.0, k["rueckgang"] - MAX_RUECKGANG) + (100 if k["trades"] < MIN_TRADES else 0)
-    return min(k["rendite"], 80.0) - strafe
+    return min(k["rendite"], 80.0) - k["rueckgang"] - strafe
+
+
+def komitee_lauf(m, genome, start, ende):
+    """Mehrere Baupläne zu gleichen Teilen: Jeder bekommt 1/K des Geldes. Gerechnet wird jeder mit 10.000 $ und
+    K-facher Gebühr (das entspricht 1/K des Geldes mit einfacher Gebühr), dann gemittelt."""
+    gebuehr, spread = KOSTEN
+    laeufe = [simuliere(m, g, start, ende, kosten=(gebuehr * len(genome), spread)) for g in genome]
+    return {"werte": np.mean([lauf["werte"] for lauf in laeufe], axis=0),
+            "trades": [dict(t, ergebnis=t["ergebnis"] / len(genome)) for lauf in laeufe for t in lauf["trades"]],
+            "kosten": round(sum(lauf["kosten"] for lauf in laeufe) / len(genome), 2)}
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -515,17 +532,15 @@ def walk_forward(m, rng, budget, protokoll=print):
         sieger = rangliste[0]
         dsr = deflated_sharpe(simuliere(m, sieger["genom"], train_start, train_ende)["werte"],
                               [e["kennzahlen"]["sharpe"] for e in rangliste])
-        oos = simuliere(m, sieger["genom"], test[0], test[1])
+        komitee = [e["genom"] for e in rangliste[:KOMITEE]]
+        oos = komitee_lauf(m, komitee, test[0], test[1])
         k = kennzahlen(oos["werte"], oos["trades"])
         q = kennzahlen(nasdaq(m, *test))
         tech = kennzahlen(halten(m, *test))
         # Belege für das Gedächtnis: die 5 besten Baupläne aus dem Training, alle im Testjahr nachgeprüft
         for platz, e in enumerate(rangliste[:5]):
-            if platz == 0:
-                nach = k
-            else:
-                r = simuliere(m, e["genom"], test[0], test[1])
-                nach = kennzahlen(r["werte"], r["trades"])
+            r = simuliere(m, e["genom"], test[0], test[1])
+            nach = kennzahlen(r["werte"], r["trades"])
             belege.append({"jahr": int(jahr), "genom": e["genom"], "platz": platz + 1,
                            "train_rendite": e["kennzahlen"]["rendite"], "oos_rendite": nach["rendite"],
                            "oos_rueckgang": nach["rueckgang"], "short": nach["short"], "long": nach["long"],
@@ -534,6 +549,7 @@ def walk_forward(m, rng, budget, protokoll=print):
         schritte.append({"jahr": int(jahr), "bis": str(m.tage[test[1]].date()), "genom": sieger["genom"],
                          "training": sieger["kennzahlen"], "test": k, "qqq": q, "tech_halten": tech,
                          "kosten": oos["kosten"], "geprueft": len(rangliste), "deflated_sharpe": dsr,
+                         "komitee": komitee,
                          "top": [e["genom"] for e in rangliste[:3]]})
         kette.append(oos["werte"] / START_KAPITAL)
         kette_qqq.append(nasdaq(m, *test) / START_KAPITAL)
@@ -877,6 +893,8 @@ def bauplan_text(g):
         teile.append({"volatilitaet": "Größe nach Schwankung", "atr_risiko": "Turtle-Größe"}[g["groesse"]])
     if g["saison"] != "immer":
         teile.append("long nur Nov–Apr")
+    if g["volaziel"]:
+        teile.append(f"Depot-Schwankung höchstens {g['volaziel']} %")
     return " · ".join(teile)
 
 
