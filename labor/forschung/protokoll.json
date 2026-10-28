@@ -117,5 +117,124 @@
     "besser_anzahl": 0
    }
   ]
+ },
+ {
+  "erstellt": "28.10.2026 14:12 UTC",
+  "versuch": "Versuch 2: Rückgang zählt bei der Suche mit, Komitee der 5 besten, Depot-Schwankung begrenzbar",
+  "budget": "normal",
+  "seed": "3 Starts",
+  "besser": false,
+  "zeitraeume": [
+   {
+    "name": "2015–2021",
+    "labor": {
+     "rendite": 17.15,
+     "rueckgang": 29.8,
+     "sharpe": 0.81,
+     "je_rueckgang": 0.575,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "labor_alle": [
+     {
+      "rendite": 25.75,
+      "rueckgang": 36.96,
+      "sharpe": 0.96,
+      "je_rueckgang": 0.697,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     },
+     {
+      "rendite": 13.35,
+      "rueckgang": 27.33,
+      "sharpe": 0.65,
+      "je_rueckgang": 0.488,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     },
+     {
+      "rendite": 17.15,
+      "rueckgang": 29.8,
+      "sharpe": 0.81,
+      "je_rueckgang": 0.575,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     }
+    ],
+    "swing": {
+     "rendite": 12.07,
+     "rueckgang": 11.69,
+     "sharpe": 1.04,
+     "je_rueckgang": 1.033,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "qqq": {
+     "rendite": 22.26,
+     "rueckgang": 28.56,
+     "sharpe": 1.06,
+     "je_rueckgang": 0.78,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "besser": false,
+    "besser_anzahl": 0
+   },
+   {
+    "name": "2022–2026",
+    "labor": {
+     "rendite": 11.14,
+     "rueckgang": 41.2,
+     "sharpe": 0.49,
+     "je_rueckgang": 0.27,
+     "von": "2022-01-03",
+     "bis": "2026-10-28"
+    },
+    "labor_alle": [
+     {
+      "rendite": 11.14,
+      "rueckgang": 41.2,
+      "sharpe": 0.49,
+      "je_rueckgang": 0.27,
+      "von": "2022-01-03",
+      "bis": "2026-10-28"
+     },
+     {
+      "rendite": 26.35,
+      "rueckgang": 31.05,
+      "sharpe": 0.89,
+      "je_rueckgang": 0.849,
+      "von": "2022-01-03",
+      "bis": "2026-10-28"
+     },
+     {
+      "rendite": 7.5,
+      "rueckgang": 42.75,
+      "sharpe": 0.41,
+      "je_rueckgang": 0.176,
+      "von": "2022-01-03",
+      "bis": "2026-10-28"
+     }
+    ],
+    "swing": {
+     "rendite": 6.69,
+     "rueckgang": 13.12,
+     "sharpe": 0.72,
+     "je_rueckgang": 0.51,
+     "von": "2022-01-03",
+     "bis": "2026-10-27"
+    },
+    "qqq": {
+     "rendite": 13.88,
+     "rueckgang": 34.83,
+     "sharpe": 0.68,
+     "je_rueckgang": 0.399,
+     "von": "2022-01-03",
+     "bis": "2026-10-28"
+    },
+    "besser": false,
+    "besser_anzahl": 1
+   }
+  ]
  }
 ]
