@@ -21,6 +21,19 @@ geprüft, die du beim Bauen nicht gesehen hast, und jedes Ergebnis wird mit dem 
 - Zum Vergleich gilt immer: Was hätte einfaches Halten des Nasdaq-100 (QQQ) im selben Zeitraum gebracht, und was
   bringt der bestehende Swing-Bot?
 
+## Wann ist das Labor besser als der Swing-Bot?
+
+Vorher festgelegt, damit niemand die Messlatte nachträglich verschiebt (`labor/wettkampf.py`):
+
+- Beide auf **denselben echten Kursen** (Yahoo ab 2010), in US-Dollar, mit Kosten, 10.000 $ Start.
+- Beim Labor zählen nur Testjahre, die es beim Suchen nicht kannte. Der Swing-Bot rechnet mit seinen eingefrorenen
+  Regeln über dieselben Jahre.
+- **Besser** heißt: in **jedem** der Zeiträume 2015–2021 und 2022–2026 mehr Rendite pro Jahr **und** mehr Rendite je
+  Prozent größtem Rückgang als der Swing-Bot, und zwar bei **allen** Zufallsstarts (3).
+- Jede Änderung am Labor ist ein Versuch und steht im Forschungsprotokoll (`labor/forschung/protokoll.json`), auch
+  wenn sie nichts bringt. Je mehr Versuche, desto skeptischer das Ergebnis: Die wahre Probe ist danach das
+  Übungsdepot des Labors mit Kursen, die es noch nicht gibt.
+
 ## Markt
 
 - **Ganzen Markt beobachten:** alle Aktien aus `BRANCHEN` in `swing_scanner.py` (rund 120 US-Werte aus 8 Branchen)

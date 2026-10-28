@@ -1,0 +1,63 @@
+# Labor-Forschung: Wettkampf Strategie-Labor gegen Swing-Bot mit echten Kursen ab 2010 (labor/wettkampf.py).
+# Läuft bei jeder Änderung am Labor auf dem Entwicklungs-Branch und von Hand. Ergebnis: labor/forschung/
+# (WETTKAMPF.md, wettkampf.json und das Forschungsprotokoll mit allen Versuchen, auch den erfolglosen).
+# Nur Simulation mit Spielgeld. Swing-Bot, Übungsdepot und die eingefrorenen Kaufregeln bleiben unberührt.
+name: Labor-Forschung
+
+on:
+  push:
+    branches: [claude/artifact-webpage-creation-yzi4qa]
+    paths:
+      - labor/strategie_labor.py
+      - labor/wettkampf.py
+      - .github/workflows/labor-forschung.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write # Ergebnis in labor/forschung/ speichern
+
+concurrency:
+  group: labor-forschung
+  cancel-in-progress: true
+
+jobs:
+  wettkampf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-bot.txt
+
+      - name: Pakete installieren
+        run: pip install -r requirements-bot.txt
+
+      - name: Wettkampf rechnen
+        env:
+          NACHRICHT: ${{ github.event.head_commit.message || 'von Hand gestartet' }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          versuch="$(printf '%s' "$NACHRICHT" | head -n 1)"
+          python labor/wettkampf.py --versuch "$versuch" --ausgabe labor/forschung
+          cat labor/forschung/WETTKAMPF.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Ergebnis speichern
+        run: |
+          git config user.name "labor-forschung"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A labor/forschung
+          git diff --cached --quiet && exit 0
+          git commit -m "Labor-Forschung: Wettkampf $(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M') [skip ci]"
+          for versuch in 1 2 3 4; do
+            if git pull --rebase --quiet origin "$GITHUB_REF_NAME"; then
+              git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $((versuch * 5))
+          done
+          exit 1
