@@ -9,12 +9,6 @@ Der Bot liest diese Seite bei jedem Lauf. **Haken setzen = Regel gilt.** Er vers
 > - Damit der Bot den Haken sieht, muss die Seite bei GitHub ankommen: in Obsidian danach **Git: Commit-and-sync** (braucht den Zugangs-Token aus der Anleitung) – oder gleich auf GitHub abhaken. Ob es angekommen ist, steht nach dem nächsten Lauf auf der Startseite unter „Deine Regeln“.
 > - Ab dem nächsten Lauf gilt die Regel für Signale und Papier-Depot; offene Aufträge dafür werden gestrichen, offene Positionen laufen bis Stop, Ziel, Zeitstopp oder vor Quartalszahlen weiter. Im Rückblick (Simulation der letzten Monate) gilt sie auch rückwirkend.
 
-> [!info] 🧊 Die Kaufregeln des Bots sind bis Ende Januar 2027 eingefroren
-> - Das Übungsdepot läuft seit dem 20.10.2026 als echter Test mit virtuellem Geld. Ehrlich messen kann es nur, wenn sich die Regeln des Bots dabei nicht ändern: keine neuen oder geänderten Strategien, Stops, Ziele, Limits, Lernregel, Positionsgrößen oder Grenzen bis zum 31.01.2027.
-> - Webseite, Nachrichten und Handy dürfen weiter verbessert werden.
-> - Ein automatischer Sicherheits-Check bei GitHub prüft das bei jeder Änderung am Bot (siehe README, „Sicherheits-Check“).
-> - Deine Haken unten bleiben deine Entscheidung. Aber jeder neue Haken ändert, was das Übungsdepot kauft – dann misst es nicht mehr nur den Bot.
-
 ## Aktien sperren (der Bot kauft oder shortet sie nicht)
 
 - [ ] SE

@@ -2827,8 +2827,8 @@ def ehrliche_bilanz(stand, vergleich, waehrung, rueckblick=None):
         drin = q_von <= b["quote"] <= q_bis and r_von <= b["schnitt_r"] <= r_bis
         unter = b["quote"] < q_von or b["schnitt_r"] < r_von
         urteil = ("Das Übungsdepot liegt innerhalb – also so, wie man es nach dem Test erwarten kann." if drin else
-                  "Das Übungsdepot liegt darunter – auffällig, aber noch kein Beweis. Genauer hinschauen, die Regeln "
-                  "trotzdem nicht ändern (eingefroren bis Ende Januar 2027)." if unter else
+                  "Das Übungsdepot liegt darunter – auffällig, aber noch kein Beweis. Genauer hinschauen, eine Regel "
+                  "aber nur nach einem ehrlichen Test ändern." if unter else
                   "Das Übungsdepot liegt darüber – meist ist das Glück, das sich später wieder ausgleicht.")
         zeilen.append(f"Spielraum des Zufalls: Bei {b['n']} {'Trade' if b['n'] == 1 else 'Trades'} liegt die "
                       f"Trefferquote auch mit genau diesen Regeln meistens irgendwo zwischen {de(q_von, 0)} % und "
@@ -3857,15 +3857,6 @@ def meine_regeln_vorlage(ticker_liste):
               "> - Ab dem nächsten Lauf gilt die Regel für Signale und Papier-Depot; offene Aufträge dafür werden "
               "gestrichen, offene Positionen laufen bis Stop, Ziel, Zeitstopp oder vor Quartalszahlen weiter. Im "
               "Rückblick (Simulation der letzten Monate) gilt sie auch rückwirkend.", "",
-              "> [!info] 🧊 Die Kaufregeln des Bots sind bis Ende Januar 2027 eingefroren",
-              "> - Das Übungsdepot läuft seit dem 20.10.2026 als echter Test mit virtuellem Geld. Ehrlich messen kann es "
-              "nur, wenn sich die Regeln des Bots dabei nicht ändern: keine neuen oder geänderten Strategien, Stops, Ziele, "
-              "Limits, Lernregel, Positionsgrößen oder Grenzen bis zum 31.01.2027.",
-              "> - Webseite, Nachrichten und Handy dürfen weiter verbessert werden.",
-              "> - Ein automatischer Sicherheits-Check bei GitHub prüft das bei jeder Änderung am Bot (siehe README, "
-              "„Sicherheits-Check“).",
-              "> - Deine Haken unten bleiben deine Entscheidung. Aber jeder neue Haken ändert, was das Übungsdepot kauft – "
-              "dann misst es nicht mehr nur den Bot.", "",
               "## Aktien sperren (der Bot kauft oder shortet sie nicht)", ""]
     zeilen += [f"- [ ] {t}" for t in ticker_liste]
     zeilen += ["", "## Strategien ausschalten (zusätzlich zur Lernregel des Bots)", ""]

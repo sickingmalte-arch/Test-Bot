@@ -33,7 +33,7 @@ Diese Notiz ändert der Bot nie. Sie hält zwei Ideen fest, die getestet und **n
 - **Der Vorsprung ist noch nicht bewiesen.** Laut Test sind es etwa +0,12 R je Trade, im Übungsdepot noch nicht bestätigt. Ist er kleiner, vervielfacht ein Hebel vor allem Kosten und Verluste.
 - **Echte Hebel** (CFDs mit höchstens 5-fach bei Einzelaktien, Knock-out-Scheine, Wertpapierkredit) kosten Zinsen und Aufschläge. Eine Kurslücke kann einen Knock-out-Schein ganz wertlos machen.
 
-**Ergebnis:** nicht übernommen. Frühestens nach dem 31.01.2027 und nur, wenn das Übungsdepot ungefähr die Erwartung trifft: als erster Schritt **1,5 % Risiko mit eigenem Geld** prüfen, einen echten Hebel erst danach, wenn überhaupt.
+**Ergebnis:** nicht übernommen. Wenn überhaupt, dann erst, wenn das Übungsdepot über etwa 30 Trades ungefähr die Erwartung trifft: als erster Schritt **1,5 % Risiko mit eigenem Geld** prüfen, einen echten Hebel erst danach, wenn überhaupt.
 
 ## 2. 4-Stunden-Kerzen statt Tageskerzen
 

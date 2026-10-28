@@ -1,17 +1,16 @@
 """Sicherheits-Check: Rechnet der Bot mit den festen Testdaten genauso wie im gespeicherten Fingerabdruck?
 
 Schlägt dieser Test fehl, hat eine Änderung die Kaufregeln verändert (Signale, Stop, Ziel, Limit, Lernregel,
-Positionsgröße, Grenzen, Kosten …). Bis Ende Januar 2027 sind die Kaufregeln eingefroren. Ist die Änderung trotzdem
-absichtlich: python tests/fingerabdruck_neu.py ausführen und das im Pull Request deutlich vermerken."""
+Positionsgröße, Grenzen, Kosten …). Ist die Änderung absichtlich (nach einem ehrlichen Test):
+python tests/fingerabdruck_neu.py ausführen und das im Pull Request deutlich vermerken."""
 import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import hilfe  # noqa: E402
 
-HINWEIS = ("Die Kaufregeln rechnen anders als im gespeicherten Fingerabdruck. Bis Ende Januar 2027 sind sie "
-           "eingefroren. Nur wenn die Änderung absichtlich ist: python tests/fingerabdruck_neu.py und im Pull Request "
-           "deutlich vermerken.")
+HINWEIS = ("Die Kaufregeln rechnen anders als im gespeicherten Fingerabdruck. Nur wenn die Änderung absichtlich ist "
+           "(nach einem ehrlichen Test): python tests/fingerabdruck_neu.py und im Pull Request deutlich vermerken.")
 
 
 def unterschiede(alt, neu, pfad="", n=8):
