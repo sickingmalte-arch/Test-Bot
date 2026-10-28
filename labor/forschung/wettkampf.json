@@ -1,42 +1,42 @@
 {
- "erstellt": "28.10.2026 14:22 UTC",
+ "erstellt": "28.10.2026 14:34 UTC",
  "daten_bis": "2026-10-27",
- "versuch": "Versuch 3: Suche nach Rendite je Rückgang, Komitee aus allen drei Familien",
+ "versuch": "Versuch 4: Training mit allen Jahren davor statt nur den letzten 3",
  "budget": "normal",
  "seed": "3 Starts",
  "zeitraeume": [
   {
    "name": "2015–2021",
    "labor": {
-    "rendite": 6.09,
-    "rueckgang": 36.99,
-    "sharpe": 0.41,
-    "je_rueckgang": 0.165,
+    "rendite": 8.76,
+    "rueckgang": 29.81,
+    "sharpe": 0.56,
+    "je_rueckgang": 0.294,
     "von": "2015-01-02",
     "bis": "2021-12-31"
    },
    "labor_alle": [
     {
-     "rendite": 6.09,
-     "rueckgang": 36.99,
-     "sharpe": 0.41,
-     "je_rueckgang": 0.165,
+     "rendite": 8.76,
+     "rueckgang": 29.81,
+     "sharpe": 0.56,
+     "je_rueckgang": 0.294,
      "von": "2015-01-02",
      "bis": "2021-12-31"
     },
     {
-     "rendite": 4.95,
-     "rueckgang": 33.94,
-     "sharpe": 0.37,
-     "je_rueckgang": 0.146,
+     "rendite": 7.96,
+     "rueckgang": 28.61,
+     "sharpe": 0.51,
+     "je_rueckgang": 0.278,
      "von": "2015-01-02",
      "bis": "2021-12-31"
     },
     {
-     "rendite": 11.47,
-     "rueckgang": 31.46,
-     "sharpe": 0.63,
-     "je_rueckgang": 0.365,
+     "rendite": 19.32,
+     "rueckgang": 25.33,
+     "sharpe": 1.01,
+     "je_rueckgang": 0.763,
      "von": "2015-01-02",
      "bis": "2021-12-31"
     }
@@ -67,35 +67,35 @@
   {
    "name": "2022–2026",
    "labor": {
-    "rendite": 18.56,
-    "rueckgang": 28.13,
-    "sharpe": 0.9,
-    "je_rueckgang": 0.66,
+    "rendite": 27.43,
+    "rueckgang": 23.17,
+    "sharpe": 1.19,
+    "je_rueckgang": 1.184,
     "von": "2022-01-03",
     "bis": "2026-10-27"
    },
    "labor_alle": [
     {
-     "rendite": 18.56,
-     "rueckgang": 28.13,
-     "sharpe": 0.9,
-     "je_rueckgang": 0.66,
+     "rendite": 30.61,
+     "rueckgang": 16.63,
+     "sharpe": 1.31,
+     "je_rueckgang": 1.84,
      "von": "2022-01-03",
      "bis": "2026-10-27"
     },
     {
-     "rendite": 16.75,
-     "rueckgang": 42.27,
-     "sharpe": 0.74,
-     "je_rueckgang": 0.396,
+     "rendite": 27.43,
+     "rueckgang": 23.17,
+     "sharpe": 1.19,
+     "je_rueckgang": 1.184,
      "von": "2022-01-03",
      "bis": "2026-10-27"
     },
     {
-     "rendite": 24.45,
-     "rueckgang": 23.94,
-     "sharpe": 1.26,
-     "je_rueckgang": 1.022,
+     "rendite": 17.67,
+     "rueckgang": 29.53,
+     "sharpe": 0.88,
+     "je_rueckgang": 0.598,
      "von": "2022-01-03",
      "bis": "2026-10-27"
     }
@@ -120,15 +120,15 @@
     "von": "2022-01-03",
     "bis": "2026-10-27"
    },
-   "besser": false,
-   "besser_anzahl": 2
+   "besser": true,
+   "besser_anzahl": 3
   }
  ],
  "besser": false,
  "labor_info": {
   "aktien": 110,
   "tech": 49,
-  "bauplaene": 4421
+  "bauplaene": 4393
  },
  "swing_info": {
   "aktien": 24,
@@ -148,99 +148,99 @@
    },
    {
     "jahr": 2015,
-    "labor": -1.15,
-    "rueckgang": 9.81,
+    "labor": -1.74,
+    "rueckgang": 9.0,
     "qqq": 9.77,
     "familie": "ruecksetzer",
-    "dsr": 65.2
+    "dsr": 51.7
    },
    {
     "jahr": 2016,
-    "labor": 18.71,
-    "rueckgang": 9.48,
+    "labor": 19.46,
+    "rueckgang": 3.98,
     "qqq": 9.41,
     "familie": "ruecksetzer",
-    "dsr": 60.4
+    "dsr": 50.0
    },
    {
     "jahr": 2017,
-    "labor": 9.9,
-    "rueckgang": 7.5,
+    "labor": 0.82,
+    "rueckgang": 9.25,
     "qqq": 31.63,
-    "familie": "momentum",
-    "dsr": 35.4
+    "familie": "ruecksetzer",
+    "dsr": 22.8
    },
    {
     "jahr": 2018,
-    "labor": -11.84,
-    "rueckgang": 34.64,
+    "labor": -9.63,
+    "rueckgang": 11.84,
     "qqq": -1.85,
-    "familie": "momentum",
-    "dsr": 37.6
+    "familie": "ruecksetzer",
+    "dsr": 63.0
    },
    {
     "jahr": 2019,
-    "labor": 17.88,
-    "rueckgang": 8.25,
+    "labor": 13.39,
+    "rueckgang": 5.01,
     "qqq": 38.41,
-    "familie": "ausbruch",
-    "dsr": 42.7
+    "familie": "momentum",
+    "dsr": 32.9
    },
    {
     "jahr": 2020,
-    "labor": -5.52,
-    "rueckgang": 18.19,
+    "labor": 24.57,
+    "rueckgang": 26.49,
     "qqq": 45.75,
-    "familie": "ausbruch",
-    "dsr": 60.8
+    "familie": "momentum",
+    "dsr": 55.5
    },
    {
     "jahr": 2021,
-    "labor": 19.49,
-    "rueckgang": 25.69,
+    "labor": 18.98,
+    "rueckgang": 29.81,
     "qqq": 29.24,
     "familie": "momentum",
-    "dsr": 44.3
+    "dsr": 61.1
    },
    {
     "jahr": 2022,
-    "labor": -15.79,
-    "rueckgang": 16.74,
+    "labor": -8.26,
+    "rueckgang": 11.72,
     "qqq": -33.33,
-    "familie": "momentum",
-    "dsr": 78.6
+    "familie": "ausbruch",
+    "dsr": 32.7
    },
    {
     "jahr": 2023,
-    "labor": 35.08,
-    "rueckgang": 19.65,
+    "labor": 24.7,
+    "rueckgang": 11.45,
     "qqq": 56.46,
-    "familie": "momentum",
-    "dsr": 72.0
+    "familie": "ausbruch",
+    "dsr": 58.7
    },
    {
     "jahr": 2024,
-    "labor": 59.59,
-    "rueckgang": 9.98,
+    "labor": 80.51,
+    "rueckgang": 9.75,
     "qqq": 27.74,
-    "familie": "ruecksetzer",
-    "dsr": 47.3
+    "familie": "ausbruch",
+    "dsr": 48.8
    },
    {
     "jahr": 2025,
-    "labor": -1.01,
-    "rueckgang": 23.78,
+    "labor": 39.48,
+    "rueckgang": 15.6,
     "qqq": 21.19,
     "familie": "ausbruch",
-    "dsr": 65.1
+    "dsr": 48.1
    },
    {
     "jahr": 2026,
-    "labor": 32.83,
-    "rueckgang": 17.51,
+    "labor": 32.08,
+    "rueckgang": 15.06,
     "qqq": 22.49,
-    "familie": "momentum",
-    "dsr": 46.5
+    "familie": "ausbruch",
+    "dsr": 59.9
    }
   ],
   [
@@ -254,99 +254,99 @@
    },
    {
     "jahr": 2015,
-    "labor": -8.79,
-    "rueckgang": 14.9,
+    "labor": 0.44,
+    "rueckgang": 12.25,
     "qqq": 9.77,
     "familie": "ruecksetzer",
-    "dsr": 41.2
+    "dsr": 37.0
    },
    {
     "jahr": 2016,
-    "labor": 3.62,
-    "rueckgang": 5.75,
+    "labor": 4.39,
+    "rueckgang": 5.87,
     "qqq": 9.41,
     "familie": "ruecksetzer",
-    "dsr": 37.5
+    "dsr": 27.7
    },
    {
     "jahr": 2017,
-    "labor": 21.09,
-    "rueckgang": 7.3,
+    "labor": 2.48,
+    "rueckgang": 7.55,
     "qqq": 31.63,
-    "familie": "momentum",
-    "dsr": 32.5
+    "familie": "ruecksetzer",
+    "dsr": 40.7
    },
    {
     "jahr": 2018,
-    "labor": -13.22,
-    "rueckgang": 19.63,
+    "labor": -11.47,
+    "rueckgang": 16.11,
     "qqq": -1.85,
-    "familie": "momentum",
-    "dsr": 51.1
+    "familie": "ruecksetzer",
+    "dsr": 67.7
    },
    {
     "jahr": 2019,
-    "labor": -7.5,
-    "rueckgang": 15.04,
+    "labor": 18.58,
+    "rueckgang": 6.77,
     "qqq": 38.41,
-    "familie": "momentum",
+    "familie": "ausbruch",
     "dsr": 46.7
    },
    {
     "jahr": 2020,
-    "labor": 22.3,
-    "rueckgang": 22.33,
+    "labor": 20.32,
+    "rueckgang": 28.61,
     "qqq": 45.75,
     "familie": "ausbruch",
-    "dsr": 33.9
+    "dsr": 36.8
    },
    {
     "jahr": 2021,
-    "labor": 24.75,
-    "rueckgang": 17.1,
+    "labor": 25.74,
+    "rueckgang": 19.55,
     "qqq": 29.24,
     "familie": "ausbruch",
-    "dsr": 31.6
+    "dsr": 37.1
    },
    {
     "jahr": 2022,
-    "labor": -31.96,
-    "rueckgang": 34.88,
+    "labor": -18.47,
+    "rueckgang": 18.98,
     "qqq": -33.33,
     "familie": "ausbruch",
-    "dsr": 26.8
+    "dsr": 48.8
    },
    {
     "jahr": 2023,
-    "labor": -2.05,
-    "rueckgang": 16.21,
+    "labor": 14.87,
+    "rueckgang": 16.99,
     "qqq": 56.46,
-    "familie": "momentum",
-    "dsr": 60.1
+    "familie": "ausbruch",
+    "dsr": 41.0
    },
    {
     "jahr": 2024,
-    "labor": 66.83,
-    "rueckgang": 10.79,
+    "labor": 74.45,
+    "rueckgang": 6.56,
     "qqq": 27.74,
     "familie": "ausbruch",
-    "dsr": 54.1
+    "dsr": 46.3
    },
    {
     "jahr": 2025,
-    "labor": 22.75,
-    "rueckgang": 27.79,
+    "labor": 30.9,
+    "rueckgang": 18.45,
     "qqq": 21.19,
     "familie": "ausbruch",
-    "dsr": 74.3
+    "dsr": 50.3
    },
    {
     "jahr": 2026,
-    "labor": 69.64,
-    "rueckgang": 19.08,
+    "labor": 64.2,
+    "rueckgang": 21.3,
     "qqq": 22.49,
     "familie": "ausbruch",
-    "dsr": 29.9
+    "dsr": 82.4
    }
   ],
   [
@@ -360,101 +360,101 @@
    },
    {
     "jahr": 2015,
-    "labor": -4.08,
-    "rueckgang": 9.91,
+    "labor": 8.66,
+    "rueckgang": 5.3,
     "qqq": 9.77,
     "familie": "ruecksetzer",
-    "dsr": 40.7
+    "dsr": 43.4
    },
    {
     "jahr": 2016,
-    "labor": 2.64,
-    "rueckgang": 6.5,
+    "labor": 21.01,
+    "rueckgang": 5.82,
     "qqq": 9.41,
     "familie": "ruecksetzer",
-    "dsr": 30.1
+    "dsr": 33.0
    },
    {
     "jahr": 2017,
-    "labor": 14.13,
-    "rueckgang": 10.7,
+    "labor": 29.75,
+    "rueckgang": 10.82,
     "qqq": 31.63,
-    "familie": "momentum",
-    "dsr": 48.6
+    "familie": "ruecksetzer",
+    "dsr": 87.1
    },
    {
     "jahr": 2018,
-    "labor": -4.45,
-    "rueckgang": 25.21,
+    "labor": -1.87,
+    "rueckgang": 14.39,
     "qqq": -1.85,
-    "familie": "momentum",
-    "dsr": 56.7
+    "familie": "ruecksetzer",
+    "dsr": 82.0
    },
    {
     "jahr": 2019,
-    "labor": 5.82,
-    "rueckgang": 12.09,
+    "labor": 12.65,
+    "rueckgang": 14.03,
     "qqq": 38.41,
-    "familie": "ausbruch",
-    "dsr": 35.6
+    "familie": "ruecksetzer",
+    "dsr": 37.5
    },
    {
     "jahr": 2020,
-    "labor": 29.04,
-    "rueckgang": 20.86,
+    "labor": 47.12,
+    "rueckgang": 22.53,
     "qqq": 45.75,
-    "familie": "ausbruch",
-    "dsr": 46.5
+    "familie": "momentum",
+    "dsr": 79.2
    },
    {
     "jahr": 2021,
-    "labor": 45.73,
-    "rueckgang": 22.36,
+    "labor": 23.99,
+    "rueckgang": 25.33,
     "qqq": 29.24,
-    "familie": "ausbruch",
-    "dsr": 42.6
+    "familie": "momentum",
+    "dsr": 82.0
    },
    {
     "jahr": 2022,
-    "labor": -17.08,
-    "rueckgang": 17.64,
+    "labor": -26.41,
+    "rueckgang": 26.99,
     "qqq": -33.33,
-    "familie": "ausbruch",
-    "dsr": 54.9
+    "familie": "momentum",
+    "dsr": 74.1
    },
    {
     "jahr": 2023,
-    "labor": 30.2,
-    "rueckgang": 15.69,
+    "labor": 38.26,
+    "rueckgang": 13.25,
     "qqq": 56.46,
     "familie": "momentum",
-    "dsr": 53.2
+    "dsr": 47.9
    },
    {
     "jahr": 2024,
-    "labor": 74.87,
-    "rueckgang": 6.83,
+    "labor": 52.75,
+    "rueckgang": 9.22,
     "qqq": 27.74,
-    "familie": "ausbruch",
-    "dsr": 78.1
+    "familie": "momentum",
+    "dsr": 82.5
    },
    {
     "jahr": 2025,
-    "labor": 13.82,
-    "rueckgang": 14.74,
+    "labor": 1.94,
+    "rueckgang": 24.54,
     "qqq": 21.19,
-    "familie": "ausbruch",
-    "dsr": 78.5
+    "familie": "momentum",
+    "dsr": 93.1
    },
    {
     "jahr": 2026,
-    "labor": 42.04,
-    "rueckgang": 14.44,
+    "labor": 48.28,
+    "rueckgang": 11.91,
     "qqq": 22.49,
-    "familie": "ausbruch",
-    "dsr": 69.8
+    "familie": "momentum",
+    "dsr": 77.1
    }
   ]
  ],
- "dauer_sekunden": 222
+ "dauer_sekunden": 583
 }
