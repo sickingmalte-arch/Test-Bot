@@ -3532,6 +3532,35 @@ def live_tabellen(ticker_liste):
                           progress=False, threads=True)
     return {t: df for t in ticker_liste if (df := tabelle_fuer(roh, t)) is not None and len(df) >= 2}
 
+def nicht_gekauft_gruende(stand, daten, nicht):
+    """Warum Aufträge zur Eröffnung nicht ausgeführt wurden – nur für die Anzeige, in derselben Reihenfolge wie die
+    Prüfung in simuliere_depot. Ein voller Platz zählt so, wie er zur Eröffnung war: Verkäufe kommen erst danach."""
+    _, verfallen, nachruecker = ausfuehrbare_auftraege(stand)
+    gruende = {t: f"zur Eröffnung {g}" for g, liste in verfallen.items() for t in liste}
+    nach = {a["ticker"] for a in nachruecker}
+    auftraege = {a["ticker"]: a for a in stand["auftraege"]}
+    for t in nicht:
+        if t in gruende or t not in auftraege or t not in daten:
+            continue
+        a, d = auftraege[t], daten[t]
+        i = next((j for j, tag in enumerate(d["idx"][:d["n_fertig"]]) if iso(tag) > stand["bis"]), None)
+        if i is None:
+            continue
+        r, _ = anpassungsfaktor(d, stand.get("anker", {}).get(t))  # wie in papier_fortschreiben nach einem Split
+        o, rate, stop, limit = d["O"][i], d["FX"][i], a["stop"] * r, a["limit"] * r
+        if not pd.notna(o):
+            gruende[t] = "kein Eröffnungskurs"
+        elif a["richtung"] * (o - stop) <= 0:
+            gruende[t] = f"Eröffnung bei {de(o / rate)} € schon hinter dem Stop von {de(stop / rate)} €"
+        elif a["richtung"] * (limit - o) < 0:
+            gruende[t] = (f"Eröffnung bei {de(o / rate)} € {'über' if a['richtung'] > 0 else 'unter'} dem Limit "
+                          f"von {de(limit / rate)} €")
+        elif t in nach:
+            gruende[t] = "die Käufe davor haben die freien Plätze belegt"
+        else:
+            gruende[t] = "zu wenig freies Geld oder Risiko-Spielraum"
+    return {t: gruende[t] for t in nicht if t in gruende}
+
 def live_vorschau(stand, tabellen, fx, einst, veto=None):
     """Ein Papier-Depot nach denselben Regeln wie am Morgen weiterrechnen – nur zählt die heutige, noch laufende
     Kerze schon: Käufe zur Eröffnung bis zum Limit, Stop und Ziel nach dem bisherigen Tageshoch und -tief, Zeitstopp
@@ -3574,6 +3603,7 @@ def live_vorschau(stand, tabellen, fx, einst, veto=None):
     return {"bis": bis, "wert_schluss": json_zahl(stand["depotwert"]), "wert": json_zahl(erg["depotwert"]),
             "aenderung": json_zahl(erg["depotwert"] - stand["depotwert"]), "positionen": positionen,
             "gekauft": gekauft, "verkauft": verkauft, "nicht_gekauft": bericht["nicht_ausgefuehrt"],
+            "nicht_gekauft_grund": nicht_gekauft_gruende(stand, daten, bericht["nicht_ausgefuehrt"]),
             "ausgelassen": bericht["ausgelassen"]}
 
 def live_daten(einst):

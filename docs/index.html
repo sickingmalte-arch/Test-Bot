@@ -307,6 +307,8 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .live-zeile .status.warnung { color: var(--warnung); }
 .live-zeile .status.gut { color: var(--gut-text); }
 .neu-heute { font: 600 10px/1 var(--mono); color: var(--s1); letter-spacing: .06em; }
+.live-zeile .status .zusatz { display: block; margin-top: 4px; color: var(--text-3); }
+.live-verkauf { font-size: 12px; color: var(--warnung); margin: 0 0 4px; }
 .live-wartet { font-size: 13.5px; color: var(--text-2); line-height: 1.5; }
 .live-wartet b { color: var(--text); }
 .live-kopf { display: inline-flex; align-items: center; gap: 8px; }
@@ -2073,9 +2075,10 @@ function aufbauen(D) {
       const proz = p.wert && p.ergebnis !== null ? (p.ergebnis / (p.wert - p.ergebnis)) * 100 : null;
       const chart = kursChart(D, p.ticker, { stop: p.stop, ziel: p.ziel, kauf_tag: p.kauf_tag,
         einstieg: p.stop !== null && p.einstieg_lage !== null ? p.stop + p.einstieg_lage * (p.ziel - p.stop) : null });
-      pos.append(el("div", { class: `position${chart ? " mit-chart" : ""}` },
+      pos.append(el("div", { class: `position${chart ? " mit-chart" : ""}`, "data-ticker": p.ticker },
         el("div", { class: "p-kopf" }, el("div", { class: "t" }, el("a", { href: tvLink(p.ticker), target: "_blank", rel: "noopener", style: "text-decoration:none" }, p.ticker)), el("div", { class: "klein" }, `seit ${datum(p.kauf_tag, false)}`)),
-        el("div", { class: "p-bahn" }, el("div", { class: "klein", style: "margin:0 0 2px" }, p.strategie),
+        el("div", { class: "p-bahn" }, el("div", { class: "live-verkauf", hidden: true }),
+          el("div", { class: "klein", style: "margin:0 0 2px" }, p.strategie),
           p.stop !== null && p.kurs !== null ? bahn({ stop: p.stop, ziel: p.ziel, kurs: p.kurs, einstieg: p.stop + (p.einstieg_lage ?? 0) * (p.ziel - p.stop) }) : null,
           el("div", { class: "bahn-text" }, el("span", {}, `Stop ${euro(p.stop, 2)}`), el("span", {}, `Ziel ${euro(p.ziel, 2)}`)),
           zahlenZeile(p.zahlen_tag || zahlenVon.get(p.ticker), null)),
@@ -2477,8 +2480,16 @@ function liveBauen(D, L) {
       el("span", { class: richtung(v.ergebnis) }, `${vz(v.ergebnis)}${euro(v.ergebnis, 2)}`),
       v.zum_schluss ? el("span", { class: "status" }, "gilt zum Schlusskurs – bis dahin mit dem aktuellen Kurs gerechnet") : null));
   }
-  if (ok(P) && P.nicht_gekauft.length) heute.append(el("div", { class: "live-zeile" }, el("span", { class: "status", style: "grid-column:1/-1" },
-    `Nicht gekauft: ${P.nicht_gekauft.join(", ")} – Eröffnung über dem Limit oder hinter dem Stop, kein Platz, kein Geld oder schon 2 aus derselben Branche.`)));
+  // Grund je Auftrag (ältere live.json ohne Gründe: alle möglichen Gründe aufzählen)
+  const nichtGrund = ok(P) ? P.nicht_gekauft_grund || {} : {};
+  if (ok(P) && P.nicht_gekauft.length) {
+    const mitGrund = P.nicht_gekauft.every(t => nichtGrund[t]);
+    const platz = P.nicht_gekauft.some(t => (nichtGrund[t] || "").startsWith("zur Eröffnung") || (nichtGrund[t] || "").includes("Plätze"));
+    heute.append(el("div", { class: "live-zeile" }, el("span", { class: "status", style: "grid-column:1/-1" },
+      mitGrund ? `Nicht gekauft: ${P.nicht_gekauft.map(t => `${t} – ${nichtGrund[t]}`).join("; ")}.`
+        : `Nicht gekauft: ${P.nicht_gekauft.join(", ")} – Eröffnung über dem Limit oder hinter dem Stop, kein Platz, kein Geld oder schon 2 aus derselben Branche.`,
+      platz ? el("span", { class: "zusatz" }, "Gekauft wird nur zur Eröffnung. Wird ein Platz erst später am Tag frei, kauft der Bot frühestens zur nächsten Eröffnung – mit einem neuen Signal vom Abend.") : null)));
+  }
   if (ok(C) && C.ausgelassen.length) heute.append(el("div", { class: "live-zeile" }, el("span", { class: "status", style: "grid-column:1/-1" },
     `Claude-Depot lässt aus: ${C.ausgelassen.join(", ")}.`)));
   if (!gekauft.length && !verkauft.length && !(ok(P) && P.nicht_gekauft.length)) heute.append(el("div", { class: "leer" }, "Heute noch kein Kauf und kein Verkauf."));
@@ -2495,8 +2506,11 @@ function liveBauen(D, L) {
     el("div", { class: "label" }, "Kauf-Signale · Kurs jetzt gegen Limit"), el("div", { class: "label" }, "Kurs · heute")));
   for (const s of kauf) {
     const a = L.aktien[s.ticker], drunter = a.kurs <= s.limit, imDepot = gekauft.some(g => g.ticker === s.ticker);
+    // Hat das Übungsdepot den Auftrag zur Eröffnung nicht ausgeführt, verfällt das Signal – egal, wo der Kurs jetzt steht
+    const nicht = ok(P) && P.nicht_gekauft.includes(s.ticker) ? nichtGrund[s.ticker] || "Auftrag zur Eröffnung nicht ausgeführt" : null;
     sig.append(zeile(s.ticker, el("span", { class: "mono" }, euro(a.kurs, 2)), el("span", { class: richtung(a.heute) }, prozent(a.heute)), el("span", {}, ""),
-      el("span", { class: `status ${imDepot || drunter ? "gut" : "warnung"}` }, imDepot ? `✓ Übungsdepot hat heute zur Eröffnung gekauft (Limit ${euro(s.limit, 2)})`
+      el("span", { class: `status ${imDepot || (drunter && !nicht) ? "gut" : "warnung"}` }, imDepot ? `✓ Übungsdepot hat heute zur Eröffnung gekauft (Limit ${euro(s.limit, 2)})`
+        : nicht ? `✗ Übungsdepot kauft heute nicht – ${nicht}. Das Signal ist damit verfallen.`
         : drunter ? `✓ unter dem Limit von ${euro(s.limit, 2)} – eine Kauf-Order mit diesem Limit könnte ausgeführt werden`
         : `über dem Limit von ${euro(s.limit, 2)} – eine Kauf-Order mit diesem Limit wird erst ausgeführt, wenn der Kurs fällt`)));
   }
@@ -2529,6 +2543,17 @@ function liveWartet(L) {
     el("b", {}, `Die US-Börse öffnet heute um ${boersenstart()} Uhr.`),
     ` Ab dann rechnet der Bot hier alle 15 Minuten Käufe und Verkäufe neu. Bis dahin gelten die Schlusskurse vom ${datum((L && L.kurse_vom) || geladeneDaten.daten_bis)}`), { erkl: "live" });
 }
+// Positionen vom Morgen-Lauf: markieren, was die Live-Vorschau heute schon verkauft (endgültig bucht es der nächste Morgen-Lauf)
+function positionenLive(L) {
+  const verkauft = new Map((L && L.papier && !L.papier.fehlt ? L.papier.verkauft || [] : []).map(v => [v.ticker, v]));
+  for (const box of document.querySelectorAll("#positionen .position[data-ticker]")) {
+    const v = verkauft.get(box.dataset.ticker), marke = box.querySelector(".live-verkauf");
+    if (!marke) continue;
+    marke.hidden = !v;
+    marke.textContent = !v ? "" : v.zum_schluss ? `⏳ Wird heute zum Schluss verkauft · ${v.grund} (Live-Vorschau)`
+      : `⏳ Heute verkauft · ${v.grund} (Live-Vorschau, endgültig beim nächsten Morgen-Lauf)`;
+  }
+}
 function liveZeigen(L) {
   const alt = document.getElementById("live"), nav = document.getElementById("nav-live");
   // Kopfzeile: „STAND hh:mm“ vom Morgen-Lauf oder „LIVE hh:mm“
@@ -2553,6 +2578,7 @@ function liveZeigen(L) {
     nav.hidden = false;
     stand.textContent = stand.dataset.morgen;
     standBox.title = standBox.dataset.titel;
+    positionenLive(null);
     return;
   }
   if (!neuer) {
@@ -2560,6 +2586,7 @@ function liveZeigen(L) {
     nav.hidden = true;
     stand.textContent = stand.dataset.morgen;
     standBox.title = standBox.dataset.titel;
+    positionenLive(null);
     return;
   }
   const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
@@ -2574,6 +2601,7 @@ function liveZeigen(L) {
   }
   nav.hidden = false;
   chartsLive(L);
+  positionenLive(L);
 }
 function liveLaden() {
   fetch(`live.json?${Date.now()}`, { cache: "no-store" })

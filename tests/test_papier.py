@@ -49,3 +49,29 @@ def test_kaputte_oder_fremde_datei_bleibt_unangetastet(tmp_path):
     assert stand is None and "nicht lesbar" in fehler
     assert json.loads(datei.read_text(encoding="utf-8")) == {"version": 99}
     assert sw.lade_papier(str(tmp_path / "gibt_es_nicht.json"), False) == (None, None)
+
+
+def test_grund_fuer_nicht_gekaufte_auftraege():
+    """Live-Vorschau: Warum ein Auftrag zur Eröffnung nicht gekauft wurde (Anzeige auf der Seite)."""
+    import numpy as np
+    import pandas as pd
+
+    idx = pd.to_datetime(["2026-10-27", "2026-10-28"])
+
+    def kurse(eroeffnung):
+        return {"idx": idx, "n_fertig": 2, "O": np.array([100.0, eroeffnung]), "FX": np.array([1.0, 1.0])}
+
+    def auftrag(t):
+        return {"ticker": t, "richtung": 1, "stop": 90.0, "limit": 105.0, "strategie": "test"}
+
+    daten = {"HOCH": kurse(110.0), "TIEF": kurse(85.0), "PASST": kurse(100.0)}
+    leer = {"bis": "2026-10-27", "positionen": [], "auftraege": [auftrag(t) for t in daten]}
+    gruende = sw.nicht_gekauft_gruende(leer, daten, list(daten))
+    assert "über dem Limit von 105,00 €" in gruende["HOCH"]
+    assert "hinter dem Stop von 90,00 €" in gruende["TIEF"]
+    assert gruende["PASST"] == "zu wenig freies Geld oder Risiko-Spielraum"
+
+    voll = dict(leer, positionen=[{"ticker": f"P{i}", "richtung": 1} for i in range(sw.MAX_POSITIONEN)],
+                auftraege=[auftrag("PASST")])
+    assert sw.nicht_gekauft_gruende(voll, daten, ["PASST"]) == {
+        "PASST": f"zur Eröffnung Depot voll, {sw.MAX_POSITIONEN}/{sw.MAX_POSITIONEN} Positionen"}
