@@ -118,7 +118,7 @@ def lade_ordner(ordner):
     return daten
 
 
-def lade_yahoo(ticker, ab="2010-01-01"):
+def lade_yahoo(ticker, ab="2005-01-01"):
     """Tageskerzen von Yahoo (um Splits und Dividenden bereinigt) in einem Rutsch."""
     import yfinance as yf
 
@@ -909,23 +909,41 @@ def marktlage(m):
     }
 
 
-def uebungsdepot(m, pfad, vorschlag, neuer_champion):
-    """Der Champion handelt ab seinem Starttag vorwärts mit Spielgeld. Er wird nur auf ausdrücklichen Wunsch
-    ausgetauscht, damit das Depot ehrlich misst (wie das eingefrorene Übungsdepot des Swing-Bots)."""
+def komitee_vorwaerts(m, komitee, start, ende):
+    """Das Komitee vorwärts: jedes Mitglied mit 1/K des Geldes (gerechnet mit 10.000 $ und K-facher Gebühr, Stück
+    und Beträge dann durch K – Bruchteile von Aktien), offene Positionen und Aufträge für morgen je Mitglied."""
+    k = len(komitee)
+    gebuehr, spread = KOSTEN
+    laeufe = [simuliere(m, g, start, ende, glattstellen=False, kosten=(gebuehr * k, spread)) for g in komitee]
+    anteil = lambda x: round(x / k, 4)  # noqa: E731
+    offen = [dict(p, mitglied=i + 1, stueck=anteil(p["stueck"]), ergebnis=round(p["ergebnis"] / k, 2))
+             for i, lauf in enumerate(laeufe) for p in lauf["offen"]]
+    morgen = [dict(a, mitglied=i + 1, **({"stueck": anteil(a["stueck"])} if "stueck" in a else {}))
+              for i, lauf in enumerate(laeufe) for a in lauf["morgen"]]
+    trades = sorted((dict(t, mitglied=i + 1, ergebnis=round(t["ergebnis"] / k, 2))
+                     for i, lauf in enumerate(laeufe) for t in lauf["trades"]), key=lambda t: t["verkauf"])
+    return {"werte": np.mean([lauf["werte"] for lauf in laeufe], axis=0), "offen": offen, "morgen": morgen,
+            "trades": trades, "kosten": round(sum(lauf["kosten"] for lauf in laeufe) / k, 2)}
+
+
+def uebungsdepot(m, pfad, komitee, neuer_champion):
+    """Das Komitee (bester Bauplan je Familie) handelt ab seinem Starttag vorwärts mit Spielgeld. Es wird nur auf
+    ausdrücklichen Wunsch ausgetauscht, damit das Depot ehrlich misst (wie das Übungsdepot des Swing-Bots)."""
     letzter = len(m.tage) - 1
     stand = json.loads(pfad.read_text(encoding="utf-8")) if pfad.exists() else None
     if stand is None or neuer_champion:
-        stand = {"start": str(m.tage[letzter].date()), "genom": vorschlag,
-                 "hinweis": "Champion eingefroren – Austausch nur mit --neuer-champion."}
+        stand = {"start": str(m.tage[letzter].date()), "komitee": komitee,
+                 "hinweis": "Komitee eingefroren – Austausch nur mit --neuer-champion."}
         pfad.write_text(json.dumps(stand, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    start_tag = pd.Timestamp(stand["start"])
-    folgende = np.flatnonzero(m.tage > start_tag)
+    if "komitee" not in stand:  # alter Stand mit nur einem Champion
+        stand["komitee"] = [stand.pop("genom")]
+    folgende = np.flatnonzero(m.tage > pd.Timestamp(stand["start"]))
     if not len(folgende):
-        erg = simuliere(m, stand["genom"], letzter, letzter, glattstellen=False)
+        erg = komitee_vorwaerts(m, stand["komitee"], letzter, letzter)
         return {**stand, "tage": 0, "wert": START_KAPITAL, "rendite": 0.0, "qqq": 0.0, "offen": [],
                 "trades": [], "morgen": erg["morgen"], "verlauf": []}
     start = int(folgende[0])
-    erg = simuliere(m, stand["genom"], start, letzter, glattstellen=False)
+    erg = komitee_vorwaerts(m, stand["komitee"], start, letzter)
     werte = erg["werte"]
     q = nasdaq(m, start, letzter)
     return {**stand, "tage": len(werte), "wert": round(float(werte[-1]), 2),
@@ -1030,11 +1048,12 @@ def bericht(erg):
           "- Schwächste Tech-Aktien (6 Monate): " + ", ".join(f"{t['ticker']} {de(t['rendite_6_monate'], 1, True)} %"
                                                               for t in lage["tech_schwaechste"]),
           "", "## Vorschlag für heute (nur Training, noch nicht geprüft)", "",
-          f"- {bauplan_text(erg['vorschlag']['genom'])}",
+          *[f"- Komitee {i + 1}: {bauplan_text(g)}" for i, g in enumerate(erg["vorschlag"]["komitee"])],
           f"- im Training ({erg['vorschlag']['zeitraum']}): {de(erg['vorschlag']['kennzahlen']['rendite'])} % pro Jahr, "
           f"Rückgang {de(erg['vorschlag']['kennzahlen']['rueckgang'])} %",
           "", "## Übungsdepot des Labors", "",
-          f"- Champion seit {depot['start']}: {bauplan_text(depot['genom'])}",
+          f"- Komitee seit {depot['start']} (je 1/{len(depot['komitee'])} des Geldes):",
+          *[f"  - {i + 1}: {bauplan_text(g)}" for i, g in enumerate(depot["komitee"])],
           f"- Wert {de(depot['wert'], 2)} $ ({de(depot['rendite'], 2, True)} %) · Nasdaq-100 im selben Zeitraum "
           f"{de(depot['qqq'], 2, True)} % · {depot['tage']} Handelstage"]
     for p in depot["offen"]:
@@ -1167,13 +1186,16 @@ def main(argv=None):
     # Vorschlag für heute: Suche in den letzten TRAIN_JAHRE Jahren mit allem, was Gedächtnis und Bibliothek wissen.
     # (Der Walk-Forward oben startet bewusst neutral: Er darf nicht wissen, was in späteren Testjahren geschah.)
     ende = len(m.tage) - 1
-    start = max(VORLAUF_TAGE, int(np.searchsorted(m.tage, m.tage[ende] - pd.DateOffset(years=TRAIN_JAHRE))))
-    startwerte = [s["genom"] for s in wf["schritte"][-3:]]
+    erstes = next((j for j in sorted(set(m.tage.year)) if m.jahr_bereich(j)[0] >= VORLAUF_TAGE), m.tage[-1].year)
+    start = (m.jahr_bereich(erstes)[0] if WACHSEND else
+             max(VORLAUF_TAGE, int(np.searchsorted(m.tage, m.tage[ende] - pd.DateOffset(years=TRAIN_JAHRE)))))
+    startwerte = [g for s in wf["schritte"][-3:] for g in s.get("komitee", [s["genom"]])]
     rangliste = suche(m, start, ende, rng, kombiniere(gewichte_aus(alle_belege), wissen_gewichte(urteile)),
                       a.budget, startwerte)
-    vorschlag = {"genom": rangliste[0]["genom"], "kennzahlen": rangliste[0]["kennzahlen"],
+    vorschlag = {"genom": rangliste[0]["genom"], "komitee": waehle_komitee(rangliste),
+                 "kennzahlen": rangliste[0]["kennzahlen"],
                  "zeitraum": f"{m.tage[start].date()} bis {m.tage[ende].date()}", "geprueft": len(rangliste)}
-    depot = uebungsdepot(m, aus / "labor_depot.json", vorschlag["genom"], a.neuer_champion)
+    depot = uebungsdepot(m, aus / "labor_depot.json", vorschlag["komitee"], a.neuer_champion)
     nacht = {"datum": str(dt.date.today()), "daten_bis": str(m.tage[ende].date()), "seed": seed,
              "test_rendite": wf["gesamt"]["rendite"], "test_rueckgang": wf["gesamt"]["rueckgang"],
              "baupläne": sum(s["geprueft"] for s in wf["schritte"]) + len(rangliste)}

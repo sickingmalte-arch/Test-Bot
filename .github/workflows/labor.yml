@@ -27,7 +27,7 @@ concurrency:
 jobs:
   nachtschicht:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
         with:
@@ -48,7 +48,7 @@ jobs:
           NEU: ${{ inputs.neuer_champion }}
           PYTHONUNBUFFERED: "1"
         run: |
-          set -- --budget gross
+          set -- --budget normal  # wie im Wettkampf gegen den Swing-Bot geprüft
           if [ "$NEU" = "true" ]; then set -- "$@" --neuer-champion; fi
           python labor/strategie_labor.py "$@"
 
