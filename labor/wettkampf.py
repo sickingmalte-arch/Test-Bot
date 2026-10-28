@@ -20,7 +20,9 @@ import io
 import json
 import math
 import pathlib
+import pickle
 import random
+import statistics
 import sys
 import time
 
@@ -71,8 +73,29 @@ def lade_termine(ticker):
     return termine
 
 
-def swing_lauf(sw, kurse, termine, ab):
-    """Das Depot des Swing-Bots ab 'ab' mit seinen eigenen Regeln, in US-Dollar. Gibt eine Wert-Reihe zurück."""
+def lade_stand(pfad, bis):
+    """Fester Datenstand für alle Versuche: einmal laden, bis 'bis' abschneiden, zwischenspeichern. So rechnet jeder
+    Versuch mit genau denselben Kursen und Quartalszahlen (sonst verschieben laufende Kerzen, neue Dividenden oder
+    fehlende Termine die Messlatte)."""
+    pfad = pathlib.Path(pfad)
+    if pfad.exists():
+        with pfad.open("rb") as f:
+            stand = pickle.load(f)
+        if stand.get("bis") == bis:
+            return stand["kurse"], stand["termine"]
+    return None
+
+
+def speichere_stand(pfad, bis, kurse, termine):
+    pfad = pathlib.Path(pfad)
+    pfad.parent.mkdir(parents=True, exist_ok=True)
+    with pfad.open("wb") as f:
+        pickle.dump({"bis": bis, "kurse": kurse, "termine": termine}, f)
+
+
+def swing_lauf(sw, kurse, termine, ab, reihenfolge=None):
+    """Das Depot des Swing-Bots ab 'ab' mit seinen eigenen Regeln, in US-Dollar. Gibt eine Wert-Reihe zurück.
+    reihenfolge: Ticker-Reihenfolge (sie entscheidet bei gleich guten Signalen, wie im Test der README)."""
     alt = sys.argv
     sys.argv = ["swing_scanner.py", "--konto", "10000", "--risiko", "1", "--ohne-news"]
     try:
@@ -86,7 +109,7 @@ def swing_lauf(sw, kurse, termine, ab):
     trend = sw.markt_trend(qqq)
     fx = pd.Series(1.0, index=qqq.index)  # in Dollar rechnen wie das Labor
     daten = {}
-    for t in sw.TICKER_LISTE:
+    for t in reihenfolge or sw.TICKER_LISTE:
         if t in kurse:
             daten[t] = sw.bereite_vor(t, kurse[t], fx, termine.get(t), einst, trend)
     alle_tage = sorted(set().union(*(set(d["idx"][:d["n_fertig"]]) for d in daten.values())))
@@ -145,8 +168,9 @@ def bericht(erg):
     z += ["", f"**Gesamturteil: {'Das Strategie-Labor ist besser als der Swing-Bot.' if erg['besser'] else 'Noch nicht besser.'}**",
           "", f"Labor: {erg['labor_info']['aktien']} Aktien (davon {erg['labor_info']['tech']} Tech), Budget "
           f"{erg['budget']}, Zufallsstart {erg['seed']}, {erg['labor_info']['bauplaene']} Baupläne geprüft. "
-          f"Swing-Bot: {erg['swing_info']['aktien']} Aktien seiner Watchlist, {erg['swing_info']['trades']} Trades, "
-          f"Quartalszahlen für {erg['swing_info']['termine']} Aktien.", "",
+          f"Swing-Bot: {erg['swing_info']['aktien']} Aktien seiner Watchlist, Mittel aus "
+          f"{erg['swing_info'].get('laeufe', 1)} Ticker-Reihenfolgen, Quartalszahlen für "
+          f"{erg['swing_info']['termine']} Aktien. Fester Datenstand bis {erg['daten_bis']}.", "",
           "Vorsicht: Beide Aktienlisten sind von heute (Überlebende). Das hilft Kauf-Strategien und Halten, dem "
           "Tech-Labor vermutlich mehr als dem Swing-Bot mit seinen 8 Branchen.", ""]
     return "\n".join(z)
@@ -158,6 +182,9 @@ def main(argv=None):
     p.add_argument("--budget", default="normal")
     p.add_argument("--seeds", type=int, default=3, help="so viele Zufallsstarts – besser nur, wenn alle besser sind")
     p.add_argument("--ausgabe", default=str(WURZEL / "labor" / "forschung"))
+    p.add_argument("--bis", default="2026-10-27", help="fester letzter Kurstag für alle Versuche")
+    p.add_argument("--zwischenspeicher", default=str(WURZEL / "labor" / "forschung" / ".kurse.pkl"))
+    p.add_argument("--swing-laeufe", type=int, default=8, help="Swing-Bot mit so vielen Ticker-Reihenfolgen (Mittel)")
     a = p.parse_args(argv)
     beginn = time.time()
     labor = lade_modul("strategie_labor", WURZEL / "labor" / "strategie_labor.py")
@@ -165,9 +192,15 @@ def main(argv=None):
     labor.KOSTEN = (float(sw.GEBUEHR), float(sw.SPREAD_PROZENT) / 100)
 
     ticker = sorted(set(sw.BRANCHE) | set(sw.TICKER_LISTE) | {sw.MARKT_TICKER})
-    print(f"🏁 Lade Kurse ab 2010 für {len(ticker)} Ticker …", flush=True)
-    kurse = lade_kurse(ticker)
-    termine = lade_termine(sw.TICKER_LISTE)
+    gespeichert = lade_stand(a.zwischenspeicher, a.bis)
+    if gespeichert:
+        kurse, termine = gespeichert
+        print(f"🏁 Fester Datenstand bis {a.bis} aus dem Zwischenspeicher: {len(kurse)} Ticker", flush=True)
+    else:
+        print(f"🏁 Lade Kurse ab 2010 für {len(ticker)} Ticker (fester Stand bis {a.bis}) …", flush=True)
+        kurse = {t: df[df.index <= pd.Timestamp(a.bis)] for t, df in lade_kurse(ticker).items()}
+        termine = lade_termine(sw.TICKER_LISTE)
+        speichere_stand(a.zwischenspeicher, a.bis, kurse, termine)
 
     # Labor: Walk-Forward, nur Testjahre – mehrmals mit anderem Zufallsstart
     lab_daten = {t: df[["Open", "High", "Low", "Close"]] for t, df in kurse.items() if len(df) > labor.VORLAUF_TAGE}
@@ -181,13 +214,28 @@ def main(argv=None):
     qqq = pd.Series(laeufe[0][1]["verlauf_qqq"], index=laeufe[0][2].index)
     ab = pd.Timestamp(laeufe[0][2].index[0])
 
-    # Swing-Bot: dieselben Jahre, eigene Regeln
-    print("🏁 Swing-Bot rechnet …", flush=True)
-    swing, swing_info = swing_lauf(sw, kurse, termine, ab)
+    # Swing-Bot: dieselben Jahre, eigene Regeln, mehrere Ticker-Reihenfolgen (Mittel wie im Test der README)
+    swings = []
+    for i in range(a.swing_laeufe):
+        folge = list(sw.TICKER_LISTE)
+        if i:
+            random.Random(i).shuffle(folge)
+        print(f"🏁 Swing-Bot, Reihenfolge {i + 1} von {a.swing_laeufe} …", flush=True)
+        swings.append(swing_lauf(sw, kurse, termine, ab, folge))
+    swing_info = swings[0][1] | {"laeufe": len(swings)}
+
+    def swing_mittel(von, bis):
+        alle = [kennzahlen(reihe, von, bis) for reihe, _ in swings]
+        if not all(alle):
+            return None
+        mitte = {k: round(statistics.mean(x[k] for x in alle), 3) for k in ("rendite", "rueckgang", "sharpe")}
+        mitte["je_rueckgang"] = round(statistics.mean(x["je_rueckgang"] for x in alle), 3)
+        mitte["spanne_rendite"] = [min(x["rendite"] for x in alle), max(x["rendite"] for x in alle)]
+        return mitte | {"von": alle[0]["von"], "bis": alle[0]["bis"]}
 
     zeitraeume = []
     for name, von, bis in ZEITRAEUME:
-        ks, kq = kennzahlen(swing, von, bis), kennzahlen(qqq, von, bis)
+        ks, kq = swing_mittel(von, bis), kennzahlen(qqq, von, bis)
         je_seed = [kennzahlen(lab, von, bis) for _, _, lab in laeufe]
         if ks and kq and all(je_seed):
             mitte = sorted(je_seed, key=lambda k: k["je_rueckgang"])[len(je_seed) // 2]  # Median-Lauf

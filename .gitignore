@@ -193,3 +193,6 @@ Thumbs.db
 
 # Live-Kurse (nur in der veröffentlichten Seite, nie im Repository)
 docs/live.json
+
+# Fester Kurs-Stand der Labor-Forschung (nur im Zwischenspeicher von GitHub Actions)
+labor/forschung/.kurse.pkl

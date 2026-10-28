@@ -36,6 +36,13 @@ jobs:
       - name: Pakete installieren
         run: pip install -r requirements-bot.txt
 
+      - name: Fester Kurs-Stand aus dem Zwischenspeicher
+        # alle Versuche rechnen mit denselben Kursen (bis 27.10.2026); nur beim ersten Lauf wird geladen
+        uses: actions/cache@v4
+        with:
+          path: labor/forschung/.kurse.pkl
+          key: labor-kurse-bis-2026-10-27-v1
+
       - name: Wettkampf rechnen
         env:
           NACHRICHT: ${{ github.event.head_commit.message || 'von Hand gestartet' }}
