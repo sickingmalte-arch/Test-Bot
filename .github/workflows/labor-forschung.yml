@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: labor/forschung/.kurse.pkl
-          key: labor-kurse-bis-2026-10-27-v1
+          key: labor-kurse-2005-bis-2026-10-27-v2
 
       - name: Wettkampf rechnen
         env:

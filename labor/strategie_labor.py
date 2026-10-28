@@ -69,7 +69,10 @@ GENE = {
     "groesse": ["gleich", "volatilitaet", "atr_risiko"],  # Barroso/Moreira: nach Schwankung · Turtle: 1 ATR = 1 %
     "saison": ["immer", "nov_bis_apr"],        # Bouman & Jacobsen: nur November bis April long
     "volaziel": [None, 12, 18],                # Moreira & Muir: neue Positionen kleiner, wenn das Depot zu stark schwankt
+    "bremse": [None, 8, 12, 16],               # Verlustbremse: X % unter dem Höchststand alles schließen, Pause
 }
+BREMSE_PAUSE = 10            # nach der Verlustbremse mindestens so viele Handelstage keine neuen Käufe, und erst wenn
+                             # der Nasdaq-100 wieder über seiner 50-Tage-Linie schließt
 STANDARD = {gen: werte[0] for gen, werte in GENE.items()}  # fehlt ein Gen (alter Bauplan), gilt der erste Wert
 
 T_BESTAETIGT = 3.0           # Harvey, Liu & Zhu: eine Lehre gilt erst ab t-Wert 3 als bestätigt (2–3: Tendenz)
@@ -165,6 +168,7 @@ class Markt:
         qqq = self.markt["Close"]
         self.qqq = qqq.to_numpy()
         self.qqq_ok = (qqq > qqq.rolling(200).mean()).to_numpy()
+        self.qqq_ueber_50 = (qqq > qqq.rolling(50).mean()).to_numpy()
         sma200 = self.C.rolling(200).mean()
         gueltig = sma200.notna()
         ueber = (self.C > sma200) & gueltig
@@ -276,6 +280,7 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
     bargeld, positionen, trades = kapital, {}, []
     auftraege_aus, auftraege_ein = set(), []
     werte, zinsen, leihe, gebuehren = [], 0.0, 0.0, 0.0
+    spitze, gebremst_seit = kapital, None  # Verlustbremse: Höchststand seit Start bzw. seit dem letzten Lösen
 
     def schliessen(j, kurs_roh, tag, grund):
         nonlocal bargeld, gebuehren
@@ -333,9 +338,18 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
         if t == ende:
             break
         # 4. Entscheidung für morgen
+        if g["bremse"]:
+            if gebremst_seit is None and wert < spitze * (1 - g["bremse"] / 100):
+                gebremst_seit = t  # zu tief unter dem Höchststand: alles schließen, Pause
+            elif gebremst_seit is not None and t - gebremst_seit >= BREMSE_PAUSE and m.qqq_ueber_50[t]:
+                gebremst_seit, spitze = None, wert  # Markt erholt: weiter, neuer Maßstab
+            if gebremst_seit is None:
+                spitze = max(spitze, wert)
         umschichten = g["familie"] != "momentum" or (t - start) % g["umschichten"] == 0
         for j, p in positionen.items():
             gruende = []
+            if gebremst_seit is not None:
+                gruende.append("Verlustbremse")
             if g["zeitstopp"] and t - p["tag"] + 1 >= g["zeitstopp"]:
                 gruende.append("Zeitstopp")
             if g["markt_ausstieg"] and not (long_ok[t] if p["r"] > 0 else short_ok[t]):
@@ -347,7 +361,7 @@ def simuliere(m, g, start, ende, kapital=START_KAPITAL, glattstellen=True, koste
             if gruende:
                 p["grund_aus"] = gruende[0]
                 auftraege_aus.add(j)
-        if not umschichten:
+        if not umschichten or gebremst_seit is not None:
             continue
         platz_wert = g["hebel"] * wert / plaetze
         if g["volaziel"] and len(werte) > 20:  # Schwankung des eigenen Depots der letzten 20 Tage, aufs Jahr gerechnet
@@ -917,6 +931,8 @@ def bauplan_text(g):
         teile.append("long nur Nov–Apr")
     if g["volaziel"]:
         teile.append(f"Depot-Schwankung höchstens {g['volaziel']} %")
+    if g["bremse"]:
+        teile.append(f"Verlustbremse bei {g['bremse']} %")
     return " · ".join(teile)
 
 

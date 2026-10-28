@@ -47,7 +47,7 @@ def test_kein_blick_in_die_zukunft():
     g = dict(GRUND, familie="ausbruch", short="immer", max_long=3, max_short=2, stop_atr=3.0, zeitstopp=20,
              marktfilter="beides", markt_ausstieg=True, hebel=1.5)
     buecher = dict(GRUND, short="immer", max_long=3, max_short=2, ueberspringen=21, rangfolge="hoch_52w",
-                   groesse="volatilitaet", saison="nov_bis_apr", rueckblick=60)
+                   groesse="volatilitaet", saison="nov_bis_apr", rueckblick=60, volaziel=12, bremse=8)
     for genom in (g, buecher, dict(g, groesse="atr_risiko")):
         a = labor.simuliere(labor.Markt(daten, BRANCHE), genom, 300, x, glattstellen=False)
         b = labor.simuliere(labor.Markt(zukunft, BRANCHE), genom, 300, x, glattstellen=False)
@@ -175,3 +175,16 @@ def test_deflated_sharpe_wird_mit_mehr_versuchen_strenger():
     viele = labor.deflated_sharpe(werte, sharpes)
     assert einer["schwelle"] == 0.0
     assert viele["schwelle"] > 1.0 and viele["dsr"] < einer["dsr"]
+
+
+def test_verlustbremse_begrenzt_den_absturz():
+    """Fällt das Depot 8 % unter seinen Höchststand, schließt es alles und kauft erst nach der Pause wieder."""
+    steigend = 50 * 1.004 ** np.arange(320)
+    schluss = np.r_[steigend, steigend[-1] * 0.985 ** np.arange(1, 41), np.full(40, steigend[-1] * 0.985 ** 40)]
+    m = markt(AAPL=kerzen(schluss, spanne=0.002))
+    langsam = dict(GRUND, rueckblick=250, trendlinie=200, umschichten=20)  # steigt selbst erst spät aus
+    ohne = labor.simuliere(m, langsam, 300, 399)
+    mit = labor.simuliere(m, dict(langsam, bremse=8), 300, 399)
+    assert labor.kennzahlen(ohne["werte"])["rueckgang"] > 20
+    assert labor.kennzahlen(mit["werte"])["rueckgang"] < 12
+    assert any(t["grund"] == "Verlustbremse" for t in mit["trades"])

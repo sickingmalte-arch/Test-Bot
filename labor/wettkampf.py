@@ -30,6 +30,7 @@ import numpy as np
 import pandas as pd
 
 WURZEL = pathlib.Path(__file__).resolve().parents[1]
+AB = "2005-01-01"  # Kurse ab hier: das Labor lernt auch aus der Finanzkrise 2008
 ZEITRAEUME = [("2015–2021", "2015-01-01", "2021-12-31"), ("2022–2026", "2022-01-01", "2099-12-31")]
 
 
@@ -40,7 +41,7 @@ def lade_modul(name, datei):
     return modul
 
 
-def lade_kurse(ticker, ab="2010-01-01"):
+def lade_kurse(ticker, ab="2005-01-01"):
     """Tageskerzen mit Volumen (der Swing-Bot braucht es für den Ausbruch), um Splits und Dividenden bereinigt."""
     import yfinance as yf
 
@@ -81,7 +82,7 @@ def lade_stand(pfad, bis):
     if pfad.exists():
         with pfad.open("rb") as f:
             stand = pickle.load(f)
-        if stand.get("bis") == bis:
+        if stand.get("bis") == bis and stand.get("ab") == AB:
             return stand["kurse"], stand["termine"]
     return None
 
@@ -90,7 +91,7 @@ def speichere_stand(pfad, bis, kurse, termine):
     pfad = pathlib.Path(pfad)
     pfad.parent.mkdir(parents=True, exist_ok=True)
     with pfad.open("wb") as f:
-        pickle.dump({"bis": bis, "kurse": kurse, "termine": termine}, f)
+        pickle.dump({"bis": bis, "ab": AB, "kurse": kurse, "termine": termine}, f)
 
 
 def swing_lauf(sw, kurse, termine, ab, reihenfolge=None):
@@ -152,7 +153,7 @@ def bericht(erg):
     z = ["# 🏁 Wettkampf: Strategie-Labor gegen Swing-Bot", "",
          f"Stand: {erg['erstellt']} · Kurse bis {erg['daten_bis']} · Versuch: **{erg['versuch']}** · "
          "Simulation mit Spielgeld, keine Anlageberatung.", "",
-         "Beide auf denselben Kursen (Yahoo, ab 2010), in US-Dollar, mit Kosten, 10.000 $ Start. Das Labor zählt nur "
+         "Beide auf denselben Kursen (Yahoo, ab 2005), in US-Dollar, mit Kosten, 10.000 $ Start. Das Labor zählt nur "
          "Testjahre, die es beim Suchen nicht kannte. **Besser** heißt: in jedem Zeitraum mehr Rendite pro Jahr und "
          "mehr Rendite je Prozent größtem Rückgang.", "",
          "Beim Labor steht der mittlere von mehreren Zufallsstarts. Besser zählt nur, wenn **alle** Starts besser sind.",
@@ -197,8 +198,8 @@ def main(argv=None):
         kurse, termine = gespeichert
         print(f"🏁 Fester Datenstand bis {a.bis} aus dem Zwischenspeicher: {len(kurse)} Ticker", flush=True)
     else:
-        print(f"🏁 Lade Kurse ab 2010 für {len(ticker)} Ticker (fester Stand bis {a.bis}) …", flush=True)
-        kurse = {t: df[df.index <= pd.Timestamp(a.bis)] for t, df in lade_kurse(ticker).items()}
+        print(f"🏁 Lade Kurse ab 2005 für {len(ticker)} Ticker (fester Stand bis {a.bis}) …", flush=True)
+        kurse = {t: df[df.index <= pd.Timestamp(a.bis)] for t, df in lade_kurse(ticker, AB).items()}
         termine = lade_termine(sw.TICKER_LISTE)
         speichere_stand(a.zwischenspeicher, a.bis, kurse, termine)
 
