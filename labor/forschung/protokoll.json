@@ -1,0 +1,121 @@
+[
+ {
+  "erstellt": "28.10.2026 11:55 UTC",
+  "versuch": "Versuch 1 (Ausgangslage): Labor wie bisher, Wettkampf gegen Swing-Bot mit echten Kursen",
+  "budget": "normal",
+  "seed": "3 Starts",
+  "besser": false,
+  "zeitraeume": [
+   {
+    "name": "2015–2021",
+    "labor": {
+     "rendite": 24.57,
+     "rueckgang": 49.57,
+     "sharpe": 0.79,
+     "je_rueckgang": 0.496,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "labor_alle": [
+     {
+      "rendite": 40.78,
+      "rueckgang": 61.39,
+      "sharpe": 1.02,
+      "je_rueckgang": 0.664,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     },
+     {
+      "rendite": 24.57,
+      "rueckgang": 49.57,
+      "sharpe": 0.79,
+      "je_rueckgang": 0.496,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     },
+     {
+      "rendite": 21.84,
+      "rueckgang": 48.84,
+      "sharpe": 0.72,
+      "je_rueckgang": 0.447,
+      "von": "2015-01-02",
+      "bis": "2021-12-31"
+     }
+    ],
+    "swing": {
+     "rendite": 10.91,
+     "rueckgang": 15.09,
+     "sharpe": 0.96,
+     "je_rueckgang": 0.723,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "qqq": {
+     "rendite": 22.26,
+     "rueckgang": 28.56,
+     "sharpe": 1.06,
+     "je_rueckgang": 0.78,
+     "von": "2015-01-02",
+     "bis": "2021-12-31"
+    },
+    "besser": false,
+    "besser_anzahl": 0
+   },
+   {
+    "name": "2022–2026",
+    "labor": {
+     "rendite": 4.32,
+     "rueckgang": 45.49,
+     "sharpe": 0.3,
+     "je_rueckgang": 0.095,
+     "von": "2022-01-03",
+     "bis": "2026-10-27"
+    },
+    "labor_alle": [
+     {
+      "rendite": 1.9,
+      "rueckgang": 67.02,
+      "sharpe": 0.26,
+      "je_rueckgang": 0.028,
+      "von": "2022-01-03",
+      "bis": "2026-10-27"
+     },
+     {
+      "rendite": 4.32,
+      "rueckgang": 45.49,
+      "sharpe": 0.3,
+      "je_rueckgang": 0.095,
+      "von": "2022-01-03",
+      "bis": "2026-10-27"
+     },
+     {
+      "rendite": 12.6,
+      "rueckgang": 50.36,
+      "sharpe": 0.55,
+      "je_rueckgang": 0.25,
+      "von": "2022-01-03",
+      "bis": "2026-10-27"
+     }
+    ],
+    "swing": {
+     "rendite": 5.29,
+     "rueckgang": 13.13,
+     "sharpe": 0.58,
+     "je_rueckgang": 0.403,
+     "von": "2022-01-03",
+     "bis": "2026-10-27"
+    },
+    "qqq": {
+     "rendite": 13.88,
+     "rueckgang": 34.83,
+     "sharpe": 0.68,
+     "je_rueckgang": 0.398,
+     "von": "2022-01-03",
+     "bis": "2026-10-27"
+    },
+    "besser": false,
+    "besser_anzahl": 0
+   }
+  ]
+ }
+]
