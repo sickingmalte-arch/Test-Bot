@@ -156,7 +156,9 @@ def bericht(erg):
          "Beide auf denselben Kursen (Yahoo, ab 2005), in US-Dollar, mit Kosten, 10.000 $ Start. Das Labor zählt nur "
          "Testjahre, die es beim Suchen nicht kannte. **Besser** heißt: in jedem Zeitraum mehr Rendite pro Jahr und "
          "mehr Rendite je Prozent größtem Rückgang.", "",
-         "Beim Labor steht der mittlere von mehreren Zufallsstarts. Besser zählt nur, wenn **alle** Starts besser sind.",
+         "Beim Labor steht der mittlere von mehreren Zufallsstarts. Besser zählt nur, wenn **alle** Starts besser sind. "
+         "Beim Swing-Bot steht je Kennzahl die stärkere von zwei Messungen: durchgehend ab dem ersten Testjahr und "
+         "frisch gestartet zum Beginn des Zeitraums (je Mittel aus mehreren Ticker-Reihenfolgen).",
          "",
          "| Zeitraum | Bot | Rendite pro Jahr | größter Rückgang | Rendite je % Rückgang | Sharpe |",
          "| --- | --- | --- | --- | --- | --- |"]
@@ -181,7 +183,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description="Wettkampf Strategie-Labor gegen Swing-Bot")
     p.add_argument("--versuch", default="ohne Namen", help="kurze Beschreibung der Labor-Version")
     p.add_argument("--budget", default="normal")
-    p.add_argument("--seeds", type=int, default=3, help="so viele Zufallsstarts – besser nur, wenn alle besser sind")
+    p.add_argument("--seeds", type=int, default=5, help="so viele Zufallsstarts – besser nur, wenn alle besser sind")
     p.add_argument("--ausgabe", default=str(WURZEL / "labor" / "forschung"))
     p.add_argument("--bis", default="2026-10-27", help="fester letzter Kurstag für alle Versuche")
     p.add_argument("--zwischenspeicher", default=str(WURZEL / "labor" / "forschung" / ".kurse.pkl"))
@@ -216,16 +218,22 @@ def main(argv=None):
     ab = pd.Timestamp(laeufe[0][2].index[0])
 
     # Swing-Bot: dieselben Jahre, eigene Regeln, mehrere Ticker-Reihenfolgen (Mittel wie im Test der README)
-    swings = []
-    for i in range(a.swing_laeufe):
-        folge = list(sw.TICKER_LISTE)
-        if i:
-            random.Random(i).shuffle(folge)
-        print(f"🏁 Swing-Bot, Reihenfolge {i + 1} von {a.swing_laeufe} …", flush=True)
-        swings.append(swing_lauf(sw, kurse, termine, ab, folge))
-    swing_info = swings[0][1] | {"laeufe": len(swings)}
+    # Zwei Messungen: durchgehend ab dem ersten Testjahr und frisch zum Beginn jedes Zeitraums (das Depot des
+    # Swing-Bots hängt vom Startzeitpunkt ab). Das Labor muss jeweils die stärkere schlagen.
+    def swing_reihen(start):
+        reihen = []
+        for i in range(a.swing_laeufe):
+            folge = list(sw.TICKER_LISTE)
+            if i:
+                random.Random(i).shuffle(folge)
+            print(f"🏁 Swing-Bot ab {start.date()}, Reihenfolge {i + 1} von {a.swing_laeufe} …", flush=True)
+            reihen.append(swing_lauf(sw, kurse, termine, start, folge))
+        return reihen
 
-    def swing_mittel(von, bis):
+    durchgehend = swing_reihen(ab)
+    swing_info = durchgehend[0][1] | {"laeufe": len(durchgehend)}
+
+    def swing_mittel(swings, von, bis):
         alle = [kennzahlen(reihe, von, bis) for reihe, _ in swings]
         if not all(alle):
             return None
@@ -236,7 +244,15 @@ def main(argv=None):
 
     zeitraeume = []
     for name, von, bis in ZEITRAEUME:
-        ks, kq = swing_mittel(von, bis), kennzahlen(qqq, von, bis)
+        frisch_start = qqq.index[qqq.index >= pd.Timestamp(von)][0]
+        k_durch, k_frisch = swing_mittel(durchgehend, von, bis), swing_mittel(swing_reihen(frisch_start), von, bis)
+        ks = None
+        if k_durch and k_frisch:  # die jeweils stärkere Messung des Swing-Bots
+            ks = max((k_durch, k_frisch), key=lambda k: (k["je_rueckgang"], k["rendite"]))
+            ks = ks | {"rendite": max(k_durch["rendite"], k_frisch["rendite"]),
+                       "je_rueckgang": max(k_durch["je_rueckgang"], k_frisch["je_rueckgang"]),
+                       "durchgehend": k_durch, "frisch": k_frisch}
+        kq = kennzahlen(qqq, von, bis)
         je_seed = [kennzahlen(lab, von, bis) for _, _, lab in laeufe]
         if ks and kq and all(je_seed):
             mitte = sorted(je_seed, key=lambda k: k["je_rueckgang"])[len(je_seed) // 2]  # Median-Lauf
