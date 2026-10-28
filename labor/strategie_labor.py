@@ -441,7 +441,10 @@ def fitness(k):
 
 
 def waehle_komitee(rangliste, groesse=KOMITEE):
-    """Der beste Bauplan jeder Familie, dann die nächstbesten, bis das Komitee voll ist."""
+    """Der beste Bauplan jeder Familie, dann die nächstbesten, bis das Komitee voll ist. Gehandelt wird nur aus dem
+    Kernraster der Bibliothek: Zufallsfunde der Suche sind Forschung (Gedächtnis, Lehren), bis sie bewiesen sind –
+    neue Funde brauchen eine höhere Hürde (Harvey, Liu & Zhu)."""
+    rangliste = [e for e in rangliste if json.dumps(e["genom"], sort_keys=True) in KERN] or rangliste
     komitee, familien = [], set()
     for e in rangliste:
         if e["genom"]["familie"] not in familien:
@@ -520,6 +523,7 @@ def kernraster():
 
 
 KERNRASTER = kernraster()
+KERN = {json.dumps(g, sort_keys=True) for g in KERNRASTER}
 
 
 def suche(m, start, ende, rng, gewichte, budget, startwerte=()):
