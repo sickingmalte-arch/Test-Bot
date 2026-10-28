@@ -73,7 +73,9 @@ STANDARD = {gen: werte[0] for gen, werte in GENE.items()}  # fehlt ein Gen (alte
 T_BESTAETIGT = 3.0           # Harvey, Liu & Zhu: eine Lehre gilt erst ab t-Wert 3 als bestätigt (2–3: Tendenz)
 TURTLE_RISIKO = 0.01         # Turtle-Regel: 1 ATR Bewegung kostet 1 % des Kontos
 MIN_VERGLEICHE = 8           # so viele Vergleiche mit Wirkung braucht eine Lehre mindestens für ein Urteil
-KOMITEE = 5                  # im Testjahr handeln die 5 besten Baupläne aus dem Training zu gleichen Teilen
+KOMITEE = 5                  # im Testjahr handeln 5 Baupläne zu gleichen Teilen: der beste jeder Familie, dann die
+                             # nächstbesten (verschiedene Stile federn sich gegenseitig ab)
+MIN_RENDITE = 10.0           # die Suche will mindestens so viel Rendite pro Jahr, darunter gibt es Abzug
 
 FAMILIEN_NAME = {"momentum": "Momentum-Rotation", "ausbruch": "Ausbruch", "ruecksetzer": "Rücksetzer"}
 
@@ -413,11 +415,28 @@ def kennzahlen(werte, trades=()):
 
 
 def fitness(k):
-    """Zielfunktion der Suche: Rendite minus größter Rückgang (beides zählt, wie im Wettkampf), Rendite gedeckelt,
-    damit kein Glückstreffer alles dominiert, Strafe für Rückgänge über MAX_RUECKGANG. Unter MIN_TRADES Trades ist
-    es eher Halten mit Glück als eine Strategie: fällt praktisch raus."""
-    strafe = 2 * max(0.0, k["rueckgang"] - MAX_RUECKGANG) + (100 if k["trades"] < MIN_TRADES else 0)
-    return min(k["rendite"], 80.0) - k["rueckgang"] - strafe
+    """Zielfunktion der Suche: Rendite je Prozent größtem Rückgang (wie im Wettkampf gegen den Swing-Bot), Rendite
+    gedeckelt, damit kein Glückstreffer alles dominiert, Rückgang mindestens 5 % (sonst zählt Nichtstun als genial).
+    Abzug unter MIN_RENDITE und für Rückgänge über MAX_RUECKGANG. Unter MIN_TRADES Trades ist es eher Halten mit
+    Glück als eine Strategie: fällt praktisch raus."""
+    strafe = (0.05 * max(0.0, MIN_RENDITE - k["rendite"]) + 0.05 * max(0.0, k["rueckgang"] - MAX_RUECKGANG)
+              + (100 if k["trades"] < MIN_TRADES else 0))
+    return min(k["rendite"], 80.0) / max(k["rueckgang"], 5.0) - strafe
+
+
+def waehle_komitee(rangliste, groesse=KOMITEE):
+    """Der beste Bauplan jeder Familie, dann die nächstbesten, bis das Komitee voll ist."""
+    komitee, familien = [], set()
+    for e in rangliste:
+        if e["genom"]["familie"] not in familien:
+            komitee.append(e["genom"])
+            familien.add(e["genom"]["familie"])
+    for e in rangliste:
+        if len(komitee) >= groesse:
+            break
+        if e["genom"] not in komitee:
+            komitee.append(e["genom"])
+    return komitee[:groesse]
 
 
 def komitee_lauf(m, genome, start, ende):
@@ -532,7 +551,7 @@ def walk_forward(m, rng, budget, protokoll=print):
         sieger = rangliste[0]
         dsr = deflated_sharpe(simuliere(m, sieger["genom"], train_start, train_ende)["werte"],
                               [e["kennzahlen"]["sharpe"] for e in rangliste])
-        komitee = [e["genom"] for e in rangliste[:KOMITEE]]
+        komitee = waehle_komitee(rangliste)
         oos = komitee_lauf(m, komitee, test[0], test[1])
         k = kennzahlen(oos["werte"], oos["trades"])
         q = kennzahlen(nasdaq(m, *test))
