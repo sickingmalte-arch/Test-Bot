@@ -25,7 +25,7 @@ py -3 Automatisches_trading_system.py --candles 180
 
 ## Swing-Scanner für die Aktien-Watchlist
 
-> 🧊 **Die Kaufregeln sind bis Ende Januar 2027 (31.01.2027) eingefroren.** Das Übungsdepot läuft seit dem 20.10.2026 als echter Vorwärtstest. Ehrlich messen kann es nur, wenn sich die Regeln dabei nicht ändern – also keine neuen oder geänderten Strategien, Stops, Ziele, Limits, Lernregel, Positionsgrößen, Grenzen oder Kosten. Webseite, Nachrichten und Handy dürfen weiter verbessert werden. Dass das wirklich eingehalten wird, prüft der **Sicherheits-Check** (siehe unten) bei jedem Pull Request automatisch.
+> 🛡️ **Kaufregeln ändern sich nur geprüft.** Neue oder geänderte Strategien, Stops, Ziele, Limits, Lernregel, Positionsgrößen, Grenzen oder Kosten kommen erst nach einem ehrlichen Test und deinem „Ja“ zum Pull Request in den Bot. Der **Sicherheits-Check** (siehe unten) zeigt jede solche Änderung bei jedem Pull Request automatisch an. Gut zu wissen: Jede Regeländerung verändert auch, was das Übungsdepot seit dem 20.10.2026 misst.
 
 ### In Google Colab (ohne Installation)
 
@@ -285,7 +285,7 @@ Bei jedem Pull Request und jeder Änderung in `main` startet GitHub den Ablauf `
 - **Fingerabdruck der Kaufregeln:** Mit diesen Daten rechnet der Test Strategie-Tagebuch, Lernregel und virtuelles Depot (2022–2024) durch und vergleicht das Ergebnis mit `tests/fingerabdruck.json`: die Zahlen der Regeln (Risiko, Stop- und Zielabstände, Grenzen, Lernregel …), jeder gedachte Trade des Tagebuchs, jede Pause der Lernregel und jeder Trade des Depots (Aktie, Strategie, Tage, Grund, Ergebnis in R) samt Endwert. Ändert eine Änderung auch nur einen Trade, zeigt der Test, welcher es ist.
 - **Kleine Tests:** Positionsgröße, Stop, Ziel und Limit, Quartalszahlen-Sperre, Marktfilter, höchstens 5 Positionen und 2 je Branche, Laden und Speichern des Papier-Depots (auch eine alte Datei vom ersten Tag muss lesbar bleiben).
 - **Selbst ausführen:** `python -m pip install -r tests/requirements.txt`, dann `python -m pytest tests` (dauert wenige Sekunden).
-- **Absichtliche Regeländerung** (erst nach dem 31.01.2027): Den Fingerabdruck darf nur der eigene Befehl `python tests/fingerabdruck_neu.py` neu erzeugen, nie die Hand. Im Pull Request muss dann deutlich stehen: „Regeländerung: Fingerabdruck neu erzeugt“, mit Grund und Testergebnis.
+- **Absichtliche Regeländerung:** Den Fingerabdruck darf nur der eigene Befehl `python tests/fingerabdruck_neu.py` neu erzeugen, nie die Hand. Im Pull Request muss dann deutlich stehen: „Regeländerung: Fingerabdruck neu erzeugt“, mit Grund und Testergebnis.
 
 ### Optionen
 
@@ -315,6 +315,6 @@ Bei jedem Pull Request und jeder Änderung in `main` startet GitHub den Ablauf `
 | `--csv signale.csv` | Scanner-Tabelle als CSV für Excel speichern, alle Depot-Trades in `signale_trades.csv` |
 | `--debug` | Original-Meldungen von yfinance anzeigen |
 
-Die festen Regeln (Positionsgrenzen, Lernregel, Zeitstopp …) stehen als Konstanten oben im Skript. Sie sind bewusst vorab festgelegt: Wer sie so lange verstellt, bis der Rückblick gut aussieht, passt sie nur an den Zufall der Vergangenheit an. Bis Ende Januar 2027 bleiben sie ganz unverändert (siehe oben, Sicherheits-Check).
+Die festen Regeln (Positionsgrenzen, Lernregel, Zeitstopp …) stehen als Konstanten oben im Skript. Sie sind bewusst vorab festgelegt: Wer sie so lange verstellt, bis der Rückblick gut aussieht, passt sie nur an den Zufall der Vergangenheit an. Jede Änderung daran zeigt der Sicherheits-Check an (siehe oben).
 
 Daten: 5 Jahre Tageskerzen, Quartalszahlen-Termine und Schlagzeilen von Yahoo Finance. Mit `--mit-short`: Short-Positionen (z. B. per CFD oder Turbo-Schein) haben nach oben offene Verluste; Leih- und Finanzierungskosten sind im Rückblick nicht berücksichtigt. Der Rückblick nutzt die heutige Watchlist und sieht deshalb für Kauf-Strategien tendenziell zu gut aus. Vergangene Ergebnisse sind keine Garantie für die Zukunft; die Ausgabe ist keine Anlageberatung.

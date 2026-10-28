@@ -1,8 +1,8 @@
 # Sicherheits-Check: rechnet die Kaufregeln mit festen Kursdaten (tests/daten) und vergleicht mit dem gespeicherten
 # Fingerabdruck (tests/fingerabdruck.json), dazu kleine Tests für Positionsgröße, Stop/Ziel/Limit, Quartalszahlen,
 # Marktfilter, Branchen-Grenze und das Papier-Depot. Läuft bei jedem Pull Request und jedem Push auf main; schlägt
-# ein Test fehl, ist der Pull Request rot. Die Kaufregeln sind bis Ende Januar 2027 eingefroren – eine absichtliche
-# Regeländerung nur mit „python tests/fingerabdruck_neu.py“ und deutlichem Hinweis im Pull Request.
+# ein Test fehl, ist der Pull Request rot. Eine absichtliche Regeländerung nur mit „python tests/fingerabdruck_neu.py“
+# und deutlichem Hinweis im Pull Request.
 name: Sicherheits-Check
 
 on:

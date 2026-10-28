@@ -13,8 +13,8 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 > - **Übernommen wird nur, was überall hilft oder zumindest nirgends erkennbar schadet.**
 > - **Pkt** = Prozentpunkte Rendite pro Jahr im Vergleich zum Bot ohne die Idee.
 
-> [!info] 🧊 Eingefroren bis 31.01.2027
-> Bis dahin bleiben die Kaufregeln unverändert, damit das Übungsdepot ehrlich misst. Tests dürfen weiterlaufen, übernommen wird frühestens danach.
+> [!info] 🛡️ Neue Regeln nur geprüft
+> Eine Idee kommt erst nach diesem Test und deinem „Ja“ zum Pull Request in den Bot. Der Sicherheits-Check bei GitHub zeigt jede Änderung an den Kaufregeln an.
 
 ```mermaid
 pie showData

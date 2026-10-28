@@ -2,8 +2,8 @@
 
 Aufruf (im Ordner des Repositorys):  python tests/fingerabdruck_neu.py
 
-Die Kaufregeln sind bis Ende Januar 2027 eingefroren, damit das Übungsdepot ehrlich messen kann. Wer den
-Fingerabdruck trotzdem neu erzeugt, muss das im Pull Request deutlich schreiben („Regeländerung: Fingerabdruck neu
+Kaufregeln ändern sich nur nach einem ehrlichen Test und dem „Ja“ des Besitzers. Wer den Fingerabdruck neu
+erzeugt, muss das im Pull Request deutlich schreiben („Regeländerung: Fingerabdruck neu
 erzeugt“) und begründen. Der Test tests/test_fingerabdruck.py vergleicht danach mit der neuen Datei."""
 import pathlib
 import sys
