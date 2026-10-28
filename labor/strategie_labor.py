@@ -39,7 +39,9 @@ MAX_RUECKGANG = 25.0         # ... bei höchstens so viel % größtem Rückgang
 START_KAPITAL = 10_000.0     # Spielgeld in US-Dollar
 LEIH_ZINS = 0.06             # Zinsen im Jahr auf geliehenes Geld (Hebel), wie im Hebel-Test des Swing-Bots
 SHORT_GEBUEHR = 0.01         # Leihgebühr im Jahr für leerverkaufte Aktien
-TRAIN_JAHRE = 3              # Walk-Forward: so viele Jahre suchen, dann 1 unbekanntes Jahr handeln
+TRAIN_JAHRE = 3              # Walk-Forward: mindestens so viele Jahre suchen, dann 1 unbekanntes Jahr handeln
+WACHSEND = True              # Training mit allen Jahren davor (statt nur den letzten TRAIN_JAHRE): mehr Einbrüche,
+                             # weniger Glückstreffer
 VORLAUF_TAGE = 250           # so viele Tage brauchen die Indikatoren (200-Tage-Linie, 250-Tage-Momentum)
 TECH_BRANCHEN = ("Technologie", "Kommunikation")
 MARKT_TICKER = "QQQ"
@@ -532,7 +534,8 @@ def nasdaq(m, start, ende):
 
 
 def walk_forward(m, rng, budget, protokoll=print):
-    """Für jedes Testjahr: Suche nur mit den TRAIN_JAHRE Jahren davor, dann das unbekannte Jahr handeln.
+    """Für jedes Testjahr: Suche nur mit den Jahren davor (alle seit Beginn oder die letzten TRAIN_JAHRE), dann das
+    unbekannte Jahr handeln.
     Gelernt wird nur aus Testjahren, die schon vorbei sind (die Gewichte starten neutral)."""
     jahre = sorted(set(m.tage.year))
     # erstes Trainingsjahr: das erste ganze Jahr, in dem alle Indikatoren schon rechnen
@@ -543,7 +546,7 @@ def walk_forward(m, rng, budget, protokoll=print):
         if erstes is None or jahr < erstes + TRAIN_JAHRE:
             continue
         test = m.jahr_bereich(jahr)
-        train_start = m.jahr_bereich(jahr - TRAIN_JAHRE)[0]
+        train_start = m.jahr_bereich(erstes if WACHSEND else jahr - TRAIN_JAHRE)[0]
         train_ende = test[0] - 1
         gewichte = gewichte_aus(belege)
         startwerte = [vorheriger] if vorheriger else []
@@ -929,7 +932,8 @@ def bericht(erg):
         "",
         "## Ergebnis der Testjahre (Walk-Forward)",
         "",
-        f"Jedes Jahr wurde nur mit den {TRAIN_JAHRE} Jahren davor gesucht und dann unbekannt gehandelt.",
+        ("Jedes Jahr wurde nur mit allen Jahren davor gesucht und dann unbekannt gehandelt." if WACHSEND else
+         f"Jedes Jahr wurde nur mit den {TRAIN_JAHRE} Jahren davor gesucht und dann unbekannt gehandelt."),
         "",
         "| | Rendite pro Jahr | größter Rückgang |",
         "| --- | --- | --- |",
