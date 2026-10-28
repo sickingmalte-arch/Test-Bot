@@ -10,8 +10,8 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=CRWV)
 
-**Stand Mo 26.10. 2026:** BEOBACHTEN
-**Nächste Quartalszahlen:** Mi 11.11.
+**Stand Di 27.10. 2026:** BEOBACHTEN
+**Nächste Quartalszahlen:** Di 10.11.
 
 ## Übungsdepot
 

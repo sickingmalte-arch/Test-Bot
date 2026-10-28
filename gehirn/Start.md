@@ -4,22 +4,73 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Mo 26.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Di 27.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
-> [!info] So funktioniert das Gehirn
+```mermaid
+flowchart TB
+  kurse["📈 Kurse<br/>24 Aktien"]
+  termine["📅 Quartalszahlen<br/>24 Termine"]
+  markt["🟢 Markt<br/>Nasdaq-100 über der<br/>200-Tage-Linie"]
+  regeln["📝 Meine Regeln<br/>nichts gesperrt"]
+  subgraph KERN["🧠 8 Strategien · 7 aktiv"]
+    direction TB
+    s0["✅ Ausbruch ↑<br/>Ø -0,05 R"]
+    s1["✅ RSI-2-Rücksetzer ↑<br/>Ø +0,06 R"]
+    s2["✅ Gegenbewegung ↑<br/>Ø +0,08 R"]
+    s3["⏸ MACD-Wende ↑<br/>Ø -0,06 R"]
+    s4["✅ Rücksetzer ↑<br/>Ø -0,02 R"]
+    s5["✅ Squeeze-Ausbruch ↑<br/>Ø +0,17 R"]
+    s6["✅ EMA-Kreuz ↑<br/>Ø -0,04 R"]
+    s7["✅ ATR-Ausbruch ↑<br/>Ø +0,03 R"]
+    s0 ~~~ s4
+    s1 ~~~ s5
+    s2 ~~~ s6
+    s3 ~~~ s7
+  end
+  tb["📓 Tagebuch<br/>2.843 gedachte Trades"]
+  sig["🎯 Signale heute<br/>1 kaufen · 2 warten"]
+  depot["📒 Übungsdepot<br/>10.055 € (+0,6 %)<br/>5 offen"]
+  lehren["🎓 Lehren<br/>0 abgeschlossene Trades"]
+  kurse --> KERN
+  termine -->|Sperre| KERN
+  markt -->|Filter| KERN
+  regeln --> KERN
+  KERN -->|denkt mit| tb
+  tb -->|Lernregel: 1 pausiert| KERN
+  KERN --> sig
+  sig -->|kauft zur Eröffnung| depot
+  depot --> lehren
+  classDef ein fill:#0f2742,stroke:#3987e5,color:#e6edf3
+  classDef rot fill:#3d1414,stroke:#f47067,color:#e6edf3
+  classDef aktiv fill:#0d3320,stroke:#3fb950,color:#e6edf3
+  classDef pausiert fill:#3b2e0a,stroke:#fab219,color:#e6edf3
+  classDef aus fill:#22272e,stroke:#6e7681,color:#9ba7b4
+  classDef aus2 fill:#2a1846,stroke:#a371f7,color:#e6edf3
+  class kurse,termine,regeln ein
+  class markt ein
+  class tb,sig,depot,lehren aus2
+  class s0,s1,s2,s4,s5,s6,s7 aktiv
+  class s3 pausiert
+  style KERN fill:#0b1016,stroke:#3987e5,color:#e6edf3
+```
+
+> [!example] 🔬 [[Notizen/Was der Bot schon weiß|Was der Bot schon weiß]]
+> Alle geprüften Ideen auf einen Blick: was übernommen wurde, was nicht und warum.
+
+> [!info]- So funktioniert das Gehirn (antippen zum Aufklappen)
 > - Der Bot schreibt nach jedem Lauf: die **Tagesnotiz**, den **Wochenrückblick**, eine Notiz zu **jedem abgeschlossenen Trade** mit dem, was er daraus lernt, und je eine Seite pro **Strategie** und **Aktie**.
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-10-26]] · Diese Woche: [[Wochen/2026-W44|Woche 44]]
+## Heute: [[Tage/2026-10-27]] · Diese Woche: [[Wochen/2026-W44|Woche 44]]
 
-- Signale: [[Aktien/HIMS|HIMS]] (🟢 KAUFEN)
-- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Fr 23.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
+- Signale: [[Aktien/PLTR|PLTR]] (🟢 KAUFEN)
+- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mo 26.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
 
 ## Übungsdepot
 
-- 10.058,03 € (+0,6 % seit 2026-10-20) · 5 offen · noch keine Trades
-- Rückblick 12 Monate: -9,5 % (alle Aktien kaufen und halten: -2,1 %)
+- 10.055,38 € (+0,6 % seit 2026-10-20) · 5 offen · noch keine Trades
+- Rückblick 12 Monate: -4,1 % (alle Aktien kaufen und halten: -0,8 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
@@ -38,5 +89,5 @@ Stand: Kurse bis Mo 26.10.2026 · Simulation mit Spielgeld, keine Anlageberatung
 
 ## Notizen
 
-[[Notizen/Gelernt aus dem Optionsskript|Gelernt aus dem Optionsskript]] · [[Notizen/Gelernt – Muster und Lehrbücher|Gelernt – Muster und Lehrbücher]] · [[Notizen/Gelernt – Stop nachziehen und absichern|Gelernt – Stop nachziehen und absichern]] · [[Notizen/Wissen – Kerzen- und Chartmuster|Wissen – Kerzen- und Chartmuster]] · [[Notizen/Wissen – Optionen|Wissen – Optionen]] · [[Notizen/Wissen – Traden lernen (Lehrbücher)|Wissen – Traden lernen (Lehrbücher)]]
+[[Notizen/Gelernt aus dem Optionsskript|Gelernt aus dem Optionsskript]] · [[Notizen/Gelernt – Hebel und 4-Stunden-Kerzen|Gelernt – Hebel und 4-Stunden-Kerzen]] · [[Notizen/Gelernt – Muster und Lehrbücher|Gelernt – Muster und Lehrbücher]] · [[Notizen/Gelernt – Stop nachziehen und absichern|Gelernt – Stop nachziehen und absichern]] · [[Notizen/Was der Bot schon weiß|Was der Bot schon weiß]] · [[Notizen/Wissen – Kerzen- und Chartmuster|Wissen – Kerzen- und Chartmuster]] · [[Notizen/Wissen – Optionen|Wissen – Optionen]] · [[Notizen/Wissen – Traden lernen (Lehrbücher)|Wissen – Traden lernen (Lehrbücher)]]
 %% BOT-ENDE %%

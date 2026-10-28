@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AMZN)
 
-**Stand Mo 26.10. 2026:** BEOBACHTEN
+**Stand Di 27.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 29.10.
 
 ## Übungsdepot
@@ -27,7 +27,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 29 Trades · Ø +0,04 R · Treffer 52 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 15 Trades · Ø -0,10 R · Treffer 53 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 10 Trades · Ø +0,39 R · Treffer 70 %
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 22 Trades · Ø -0,05 R · Treffer 45 %
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 22 Trades · Ø -0,07 R · Treffer 45 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

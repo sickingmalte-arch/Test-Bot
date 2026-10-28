@@ -10,7 +10,7 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=XOM)
 
-**Stand Mo 26.10. 2026:** ⚠️ ÜBERHITZT – überhitzt – nur Info, Depot verkauft nicht
+**Stand Di 27.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Fr 30.10.
 
 ## Übungsdepot

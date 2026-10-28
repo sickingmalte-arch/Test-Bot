@@ -14,13 +14,13 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø +0,17 R · Treffer 57 % · ± Zufall 0,21 R
-- Ganze Geschichte: 205 Trades · Ø +0,19 R · Treffer 62 %
+- Ganze Geschichte: 204 Trades · Ø +0,20 R · Treffer 62 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 70× (34 %), Ø +0,94 R
-- Zeitstopp: 53× (26 %), Ø +0,08 R
+- Zeitstopp: 52× (25 %), Ø +0,10 R
 - Stop: 35× (17 %), Ø -1,00 R
 - vor Quartalszahlen: 30× (15 %), Ø +0,06 R
 - Ziel (Kurslücke): 9× (4 %), Ø +1,29 R
@@ -28,7 +28,7 @@ tags:
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 
-1. [[Aktien/AMD|AMD]]: 9 Trades · Ø +0,79 R · Treffer 78 %
+1. [[Aktien/AMD|AMD]]: 8 Trades · Ø +0,96 R · Treffer 88 %
 2. [[Aktien/JPM|JPM]]: 8 Trades · Ø +0,55 R · Treffer 75 %
 3. [[Aktien/IREN|IREN]]: 7 Trades · Ø +0,53 R · Treffer 86 %
 …

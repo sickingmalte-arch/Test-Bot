@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MSFT)
 
-**Stand Mo 26.10. 2026:** BEOBACHTEN
+**Stand Di 27.10. 2026:** ⏸ WARTEN – Quartalszahlen Mi 28.10.
 **Nächste Quartalszahlen:** Mi 28.10.
 
 ## Übungsdepot

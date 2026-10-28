@@ -5,5 +5,19 @@
   "strategie": "rsi2_long",
   "gut": 0,
   "schlecht": 0
+ },
+ {
+  "tag": "2026-10-27",
+  "ticker": "PLTR",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-27",
+  "ticker": "TSLA",
+  "strategie": "atr_ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
  }
 ]

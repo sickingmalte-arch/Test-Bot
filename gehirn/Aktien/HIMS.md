@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=HIMS)
 
-**Stand Mo 26.10. 2026:** 🟢 KAUFEN – RSI-2-Rücksetzer ↑ · Limit 25,38 · Stop 20,69 · Ziel 27,72 €
+**Stand Di 27.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 09.11.
 
 ## Übungsdepot
