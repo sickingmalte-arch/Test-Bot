@@ -1,0 +1,41 @@
+{
+ "schwelle": 0.7232,
+ "punkte": {
+  "2018-12-21": {
+   "AMT": 0.742,
+   "PG": 0.7703
+  },
+  "2018-12-24": {
+   "AMT": 0.7971,
+   "NEE": 0.9256,
+   "PG": 0.8764
+  },
+  "2018-12-26": {},
+  "2018-12-27": {
+   "CAT": 0.8335,
+   "PG": 0.7732
+  },
+  "2018-12-28": {
+   "CAT": 0.8407
+  }
+ },
+ "gesperrt": 340,
+ "fehler": {
+  "AAPL": [
+   "markt",
+   "zahlen"
+  ],
+  "XOM": [],
+  "JPM": [
+   "markt"
+  ]
+ },
+ "gelernt": [
+  "gewinnrendite",
+  "gelaufen10",
+  "vix",
+  "umsatz_wachstum",
+  "abst_hoch52"
+ ],
+ "auc": 0.4031
+}

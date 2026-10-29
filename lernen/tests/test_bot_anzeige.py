@@ -93,7 +93,8 @@ def _einst(ordner, *optionen):
     return einst
 
 
-def test_nur_signale_mit_guter_punktzahl_werden_gekauft(tmp_path):
+def test_nur_signale_mit_guter_punktzahl_werden_gekauft(tmp_path, monkeypatch):
+    monkeypatch.setattr(sw, "LERNMODELL_KAUFEN", True)  # im Bot zurzeit aus (Rückblick), hier die Funktion prüfen
     (tmp_path / "punkte.json").write_text(json.dumps(dict(PUNKTE, sperre={"2026-09-01": ["AAPL"]})), encoding="utf-8")
     (tmp_path / "lernstand.json").write_text(json.dumps(LERNSTAND), encoding="utf-8")
     zeilen, einst = _zeilen(), _einst(tmp_path)
@@ -110,7 +111,8 @@ def test_nur_signale_mit_guter_punktzahl_werden_gekauft(tmp_path):
     assert all(z["Signal"] == sw.KAUFEN for z in zeilen) and einst.lern_sperre == {}
 
 
-def test_ohne_punktzahlen_von_heute_gelten_die_alten_regeln(tmp_path):
+def test_ohne_punktzahlen_von_heute_gelten_die_alten_regeln(tmp_path, monkeypatch):
+    monkeypatch.setattr(sw, "LERNMODELL_KAUFEN", True)
     alt = dict(PUNKTE, tag="2026-10-27", tage={"2026-10-27": {"NOW": dict(PUNKTE["tage"]["2026-10-28"]["SOFI"])}})
     (tmp_path / "punkte.json").write_text(json.dumps(alt), encoding="utf-8")
     zeilen, einst = _zeilen(), _einst(tmp_path)
@@ -153,3 +155,12 @@ def test_beste_punktzahl_wird_zuerst_gekauft():
     einst.lern_rang = {t: {a: 0.5 + 0.01 * n for n, a in enumerate(hilfe.AKTIEN)} for t in alle_tage}
     mit = sw.simuliere_depot(daten, pausen, einst, einst.lernen)
     assert [x["ticker"] for x in mit["trades"]] != [x["ticker"] for x in ohne["trades"]]
+
+
+def test_im_bot_zurzeit_nur_anzeige(tmp_path):
+    """Laut Rückblick (lernen/RUECKBLICK.md) hilft das Lernmodell beim Kaufen noch nicht: der Bot zeigt nur an."""
+    assert sw.LERNMODELL_KAUFEN is False and sw.LERNMODELL_REIHENFOLGE is False
+    (tmp_path / "punkte.json").write_text(json.dumps(PUNKTE), encoding="utf-8")
+    zeilen, einst = _zeilen(), _einst(tmp_path)
+    sw.lernmodell_anwenden(einst, zeilen)
+    assert all(z["Signal"] == sw.KAUFEN for z in zeilen) and einst.lern_sperre == {} and einst.lern_rang == {}

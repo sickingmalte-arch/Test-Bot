@@ -61,8 +61,10 @@ MAX_POSITIONEN = 5               # höchstens so viele Positionen gleichzeitig
 MAX_SHORTS = 2                   # davon höchstens so viele Shorts
 MAX_GESAMTRISIKO_PROZENT = 5     # alle offenen Positionen zusammen höchstens so viel % Risiko bis zum Stop
 MAX_JE_BRANCHE = 2              # höchstens so viele Positionen aus derselben Branche (nicht alles auf eine Karte)
-LERNMODELL_KAUFEN = True         # mit --lernmodell: nur Kauf-Signale unter den besten 30 % der Punktzahlen kaufen
-LERNMODELL_REIHENFOLGE = True    # mit --lernmodell: bei mehr Signalen als Plätzen die beste Punktzahl zuerst
+# Lernmodell (--lernmodell): Beides ist AUS, weil es im Rückblick 2010–2026 nicht in allen Zeiträumen besser war
+# (lernen/RUECKBLICK.md). Der Bot zeigt die Punktzahl und die Fehler-Analyse nur an; einschalten erst nach neuem Test.
+LERNMODELL_KAUFEN = False        # nur Kauf-Signale unter den besten 30 % der Punktzahlen kaufen
+LERNMODELL_REIHENFOLGE = False   # bei mehr Signalen als Plätzen die beste Punktzahl zuerst kaufen
 # Branche je Ticker (grob nach GICS-Sektoren). Ticker, die hier fehlen, zählen als eigene Branche (keine Grenze).
 BRANCHEN = {
     "Technologie": "NOW INTU CRWV NBIS IREN AAPL NVDA MSFT AMD PLTR ADBE CRM ORCL AVGO QCOM TXN INTC CSCO IBM SNOW "

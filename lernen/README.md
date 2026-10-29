@@ -4,9 +4,25 @@ Hier lernt der Bot **aus jedem einzelnen Trade** – nicht nur, indem er schwach
 gehört zum Swing-Bot: Er rechnet abends nach dem US-Schluss (und noch einmal früh vor dem Morgen-Lauf), der Bot zeigt
 das Ergebnis in seinem Bericht (`bericht/README.md`, Abschnitt „🧠 Lernmodell“) und im Gehirn (Seite „Lehren“).
 
-> **Die Kaufregeln ändern sich dadurch noch nicht.** Der Bot zeigt die Punktzahl je Signal nur an. Nach der
-> Punktzahl kauft er erst, wenn der ehrliche Rückblick ([RUECKBLICK.md](RUECKBLICK.md)) zeigt, dass es besser ist,
-> und du im Pull Request Ja sagst. Das Übungsdepot misst bis dahin weiter die heutigen Regeln.
+> **Die Kaufregeln ändern sich dadurch noch nicht.** Der Bot zeigt die Punktzahl je Signal nur an. Kaufen nach der
+> Punktzahl ist eingebaut, bleibt aber aus, bis ein ehrlicher Rückblick ([RUECKBLICK.md](RUECKBLICK.md)) zeigt, dass
+> es besser ist, und du Ja sagst. Das Übungsdepot misst bis dahin weiter die heutigen Regeln.
+
+## Ergebnis des Rückblicks (Oktober 2026)
+
+Rund 490.000 Kauf-Signale von 518 Aktien seit 2008, Walk-forward mit Bilanzdaten, je Zeitraum 16 Läufe
+(alle Zahlen: [RUECKBLICK.md](RUECKBLICK.md)):
+
+- **Das Modell trennt gute und schlechte Signale kaum** (Trennschärfe 0,51; 0,50 wäre Münzwurf). Am meisten achtet es
+  auf die Marktlage (Markt 3 Monate, Anteil der Aktien über der 50-Tage-Linie), kaum auf die einzelne Aktie.
+- **Kaufen nach Punktzahl war nicht in allen Zeiträumen besser** als der jetzige Bot. „Beste Punktzahl zuerst“: 2010–2014
+  +6,1 % statt +9,2 % im Jahr, 2015–2021 +14,6 % statt +10,5 %, 2022–2026 +10,1 % statt +7,0 %. Nur die besten 30 % oder
+  50 % kaufen war meist deutlich schlechter.
+- **Die Verkaufs-Regeln** (Stop erst zum Schluss, Panik-Regel, starke Aktien halten) waren schlechter als heute.
+
+Deshalb sind im Bot beide Schalter aus (`LERNMODELL_KAUFEN`, `LERNMODELL_REIHENFOLGE` in `swing_scanner.py`): Er zeigt
+die Punktzahl und die Fehler-Analyse an, kauft und verkauft aber wie bisher. Der Lern-Lauf lernt jeden Monat weiter;
+wird das Modell besser, lässt sich das mit `python lernen/rueckblick.py` neu prüfen und dann einschalten.
 
 ## So lernt der Bot
 
