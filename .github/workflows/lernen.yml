@@ -1,0 +1,100 @@
+# Swing-Bot: Lern-Lauf. Hier lernt der Bot aus seinen Fehlern (siehe lernen/README.md): Er spielt jedes Kauf-Signal
+# aller Aktien aus S&P 500 und Nasdaq-100 (und der Watchlist) als gedachten Trade durch, analysiert jeden Verlust,
+# lernt einmal im Monat neu, welche Signale gut laufen, und gibt jedem neuen Signal eine Punktzahl. Die Daten liegen
+# im Zwischenspeicher von GitHub, damit nur die neuen Tage geladen werden.
+# Ergebnis: lernen/punkte.json, lernen/lernstand.json und lernen/LERNEN.md. Der Morgen-Lauf des Bots (swing-bot.yml)
+# zeigt daraus die Punktzahl je Signal, die Fehler-Analyse und was gelernt wurde – an den Käufen ändert das nichts.
+name: Swing-Bot – Lernen
+
+on:
+  schedule:
+    # 23:23 UTC Mo–Fr: nach dem US-Schluss (21 Uhr UTC im Winter, 20 Uhr im Sommer) plus Zeit, bis Yahoo die
+    # Tageskerze hat. 4:13 UTC Di–Sa: noch einmal vor dem Morgen-Lauf des Bots (6:47 UTC) – fehlten am Abend noch
+    # Kurse oder ist der Lauf ausgefallen, sind die Punktzahlen dann trotzdem rechtzeitig da.
+    - cron: "23 23 * * 1-5"
+    - cron: "13 4 * * 2-6"
+  workflow_dispatch: # Knopf "Run workflow" im Tab Actions
+
+permissions:
+  contents: write # Ergebnis des Lern-Laufs zurück ins Repository schreiben
+
+concurrency:
+  group: swing-bot-lernen # nie zwei Lern-Läufe gleichzeitig
+  cancel-in-progress: false
+
+jobs:
+  lernen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150 # der allererste Lauf holt alle Daten seit 2007 (rund eine Stunde)
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: lernen/requirements.txt
+
+      - name: Pakete installieren
+        run: pip install -r lernen/requirements.txt
+
+      - name: Zwischenspeicher holen
+        # Kurse, Termine, Bilanzen und die Lernmodelle der letzten Monate (nicht im Repository – zu groß)
+        uses: actions/cache/restore@v4
+        with:
+          path: lern_cache
+          key: lernen-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: lernen-
+
+      - name: Lernen
+        id: lernen
+        env:
+          PYTHONUNBUFFERED: "1"
+          TICKER: ${{ vars.TICKER }} # dieselbe Watchlist wie der Bot
+          # Kennung für die SEC (Name und E-Mail; Settings -> Secrets and variables -> Actions -> Secrets). Ohne
+          # dieses Secret lehnt die SEC ab, dann fehlen Bewertung, Wachstum und Qualität (Hinweis im Bericht).
+          LERNEN_SEC_KONTAKT: ${{ secrets.LERNEN_SEC_KONTAKT }}
+        run: python lernen/lernlauf.py --cache lern_cache
+
+      - name: Zwischenspeicher sichern
+        # auch nach einem Abbruch: dann muss der nächste Lauf nicht wieder alles holen
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: lern_cache
+          key: lernen-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Ergebnis in der Zusammenfassung
+        if: always()
+        env:
+          ERGEBNIS: ${{ steps.lernen.outcome }}
+        run: |
+          if [ "$ERGEBNIS" != "success" ]; then
+            echo "> ❌ Der Lern-Lauf ist nicht fertig geworden – Details im Schritt „Lernen“. Der Bot zeigt dann die Punktzahlen vom letzten erfolgreichen Lauf (mit Hinweis)." >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f lernen/LERNEN.md ]; then
+            cat lernen/LERNEN.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Ergebnis speichern
+        if: steps.lernen.outcome == 'success'
+        run: |
+          git config user.name "swing-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lernen/punkte.json lernen/lernstand.json lernen/LERNEN.md
+          if git diff --cached --quiet; then
+            echo "Nichts Neues zu speichern."
+            exit 0
+          fi
+          git commit -m "Swing-Bot: Lern-Lauf $(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M')"
+          for versuch in 1 2 3 4; do
+            if git pull --rebase --quiet origin "$GITHUB_REF_NAME"; then
+              git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $((versuch * 5))
+          done
+          echo "::error::Nicht gespeichert – der Grund steht im Protokoll darüber. Der nächste Lern-Lauf rechnet neu."
+          exit 1

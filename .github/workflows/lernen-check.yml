@@ -1,0 +1,44 @@
+# Sicherheits-Check des Lernmodells: rechnet den Lern-Teil des Bots mit festen, gespeicherten Daten (lernen/tests/daten)
+# und prüft, dass nichts in die Zukunft schaut, das Risiko je Trade im Rückblick nie über 1 % steigt und der Bot das
+# Ergebnis richtig anzeigt. Läuft bei jedem Pull Request und Push auf main, der lernen/ oder den Bot ändert (nicht bei
+# den täglichen Ergebnissen des Lern-Laufs selbst). Die Kaufregeln des Bots prüft weiter tests.yml.
+name: Sicherheits-Check – Lernen
+
+on:
+  pull_request:
+    paths:
+      - "lernen/**"
+      - "swing_scanner.py"
+      - ".github/workflows/lernen*.yml"
+  push:
+    branches: [main]
+    paths:
+      - "lernen/**"
+      - "!lernen/punkte.json"
+      - "!lernen/lernstand.json"
+      - "!lernen/LERNEN.md"
+      - "swing_scanner.py"
+      - ".github/workflows/lernen*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: lernen/requirements.txt
+
+      - name: Pakete installieren
+        run: pip install -r lernen/requirements.txt
+
+      - name: Tests
+        run: python -m pytest -q lernen/tests

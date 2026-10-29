@@ -1,7 +1,8 @@
 # Swing-Bot automatisch: am Morgen nach jedem US-Börsentag in der Cloud bei GitHub.
 # Ergebnis: bericht/README.md (Signale, Papier-Depot, Rückblick), papier/papier_depot.json, das Gehirn für
 # Obsidian in gehirn/ (Tagesnotiz, Trade-Tagebuch mit Lehren; der Bot liest gehirn/Meine Regeln.md) und die Daten der
-# Übersichtsseite in docs/daten.json (veröffentlicht vom Ablauf uebersicht.yml).
+# Übersichtsseite in docs/daten.json (veröffentlicht vom Ablauf uebersicht.yml). Dazu zeigt der Bot das Ergebnis des
+# Lern-Laufs (lernen.yml, Ordner lernen/): Punktzahl je Signal, Fehler-Analyse der Trades, was gelernt wurde.
 # Einstellungen ohne Code ändern: Repository -> Settings -> Secrets and variables -> Actions ->
 # Tab "Variables": KONTO (z. B. 10000), RISIKO (z. B. 1), TICKER (z. B. "AAPL, NFLX, SOFI"),
 # OPTIONEN (nur Schalter wie "--ohne-short --ohne-news", siehe README).
@@ -121,7 +122,7 @@ jobs:
                  --papier papier/papier_depot.json --bericht bericht/README.md --gehirn gehirn \
                  --nachricht "$RUNNER_TEMP/nachricht.md" \
                  --claude-depot papier/claude_depot.json --claude-entscheidungen "$RUNNER_TEMP/claude_entscheidungen.json" \
-                 --uebersicht docs/daten.json
+                 --uebersicht docs/daten.json --lernmodell lernen
           if [ -n "$TICKER" ]; then set -- "$@" --ticker "$TICKER"; fi
           # OPTIONEN absichtlich ohne Anführungszeichen: mehrere Angaben durch Leerzeichen getrennt
           # shellcheck disable=SC2086
