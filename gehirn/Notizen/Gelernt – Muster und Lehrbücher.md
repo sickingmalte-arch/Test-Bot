@@ -3,7 +3,7 @@ tags: [lernen, forschung]
 ---
 # 🧪 Gelernt: Muster, Lehrbücher und weitere Ideen
 
-Stand: 27.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 29.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Diese Notiz ändert der Bot nie. Sie hält fest, was aus dem Poster „Candlestick Patterns & Chart Patterns“, dem Blatt „Chart Pattern“ von Finanzradar, den beiden Lehrbüchern, Volumen-Regeln und weiteren Ideen vom Oktober 2026 getestet wurde. So werden dieselben Ideen nicht noch einmal ungeprüft eingebaut. Zurück zur [[Start|Startseite]] · siehe auch [[Notizen/Wissen – Kerzen- und Chartmuster]], [[Notizen/Wissen – Traden lernen (Lehrbücher)]] und [[Lehren]].
 
@@ -127,6 +127,54 @@ Ergebnis: **Nicht übernommen.** Das Volumen zählt weiter nur beim „Ausbruch�
   Bis die Abwärtsphase erkennbar ist, ist der Rückgang meist vorbei. Danach erholen sich Aktien oft schnell.
 - **Absicherung mit einem Nasdaq-100-Short** (unter der 200-Tage-Linie, 25–100 % des Depots): überall weniger Rendite und größere Rückgänge. Der Short brachte nur 2022 Geld (+12 %) und verlor sonst in jedem Jahr mit Short-Phasen.
 - **Insider-Käufe als Zusatzinformation:** Der Datendienst (Quiver) braucht ein bezahltes Abo, deshalb nicht getestet.
+
+## TradingView-Strategie „Chart-Muster (Volumen)“
+
+**Idee:** Eine fertige Pine-Strategie aus TradingView handelt Chartmuster mit Volumen-Bestätigung auf 5-Minuten-Kerzen, long und short, mit kleinem Ziel (ein Gewinner bringt etwa 0,5 R). Ihre Einstellungen waren auf TSLA abgestimmt.
+
+**Test (Oktober 2026):** Das Skript wurde eins zu eins in Python nachgebaut, wie TradingView rechnet. Bei TSLA kam der Nachbau auf 31 Trades, 80,6 % Treffer und Gewinnfaktor 2,4 (das Skript selbst: 33 Trades, 81,8 %, 2,05). Danach lief er mit allen 24 Aktien der Watchlist: 60 Tage 5-Minuten-Kerzen, 5.000 $ Budget, Einstellungen wie im Skript, 904 Trades.
+
+| | ohne Gebühren (wie im Skript) | mit 1 € je Kauf und Verkauf |
+| --- | --- | --- |
+| Trefferquote | 65,9 % | 64,5 % |
+| Gewinnfaktor | 0,89 | 0,61 |
+| Ergebnis | −672 $ | −2.769 $ (über die Hälfte des Budgets in 60 Tagen) |
+| Aktien im Plus | 12 von 24 | nur TSLA |
+| nur TSLA | +133 $ | +59 $ |
+
+- **Auf TSLA zugeschnitten:** Schon bei NVDA, META, HIMS oder IREN gibt es klare Verluste.
+- **Die Trefferquote reicht nicht:** Bei Gewinnern von nur 0,5 R braucht man über 67 % Treffer, um auf null zu kommen.
+- **Gebühren entscheiden:** Bei so kleinen Gewinnen je Trade frisst die Gebühr fast alles, selbst bei TSLA mehr als die Hälfte.
+- **Kein Zeitraum und keine Richtung rettet es:** Die ersten 40 und die letzten 20 Tage sind beide im Minus, Long und Short ebenfalls.
+
+Ergebnis: **Nicht übernommen.**
+
+## Muster-Gedächtnis: ähnliche Charts aus der Vergangenheit
+
+**Idee (aus einem TikTok-Video, dort „Recreation · Sample Data“, also nachgestellt):** Eine KI schneidet Chart-Ausschnitte heraus, vergleicht sie mit früheren Mustern und lernt, was danach meistens passiert ist.
+
+**Nachbau (Oktober 2026):**
+- Für jedes Kauf-Signal des Bots die letzten 20 Tageskerzen als Ausschnitt nehmen, in ATR gemessen. So sind teure und billige Aktien vergleichbar.
+- Die 50 ähnlichsten Ausschnitte aus der Vergangenheit suchen: aus allen Aktien der Gruppe, aber nur solche, deren Ausgang damals schon feststand (kein Blick in die Zukunft).
+- Zählen, was danach kam: zuerst +3 ATR (wie das Ziel des Bots), zuerst −3 ATR (wie der Stop) oder nach 20 Tagen dazwischen.
+- Prüfen, ob Signale mit „gutem Gedächtnis“ besser laufen als Signale mit „schlechtem Gedächtnis“.
+
+**Test:** alle 31.178 gedachten Kauf-Trades 2010–2026 (Watchlist und 60 andere Aktien, 6 Fälle), dazu Ausschnitte mit 10, 20 und 40 Kerzen und 50 oder 200 Nachbarn.
+
+| Das Muster-Gedächtnis sagt … (20 Kerzen, 50 Nachbarn) | Ø Ergebnis je Trade | Trefferquote |
+| --- | --- | --- |
+| sehr gut (bestes Fünftel) | +0,07 R | 56,5 % |
+| gut | +0,07 R | 56,3 % |
+| mittel | +0,07 R | 55,7 % |
+| schlecht | +0,08 R | 57,2 % |
+| sehr schlecht (schlechtestes Fünftel) | +0,10 R | 57,8 % |
+
+- **Kein Zusammenhang:** In allen 24 Einstellungen lag der Zusammenhang zwischen Vorhersage und Ergebnis nahe null (Rangkorrelation −0,05 bis +0,04). Das „beste Fünftel“ war nirgends verlässlich besser, eher etwas schlechter.
+- **Die Kerzenform allein verrät nichts Neues.** Trend, Rücksetzer und Ausbruch prüfen die Strategien schon. Die genaue Form der letzten Kerzen bringt darüber hinaus nichts.
+- **Das Gedächtnis lernt nur den Markt-Schnitt.** Ähnliche Ausschnitte gingen früher fast immer leicht positiv aus, weil Aktien langfristig steigen. Das gilt für alle Signale gleich.
+- **Kein Depot-Test nötig:** Ohne Zusammenhang wäre ein Filter damit wie ein zufälliges Aussortieren von Käufen.
+
+Ergebnis: **Nicht übernommen.**
 
 ## Was der Bot jetzt stattdessen macht
 
