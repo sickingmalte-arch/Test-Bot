@@ -1,0 +1,69 @@
+{
+ "version": 1,
+ "startkapital": 10000.0,
+ "angelegt": "2018-01-02",
+ "bis": "2018-12-31",
+ "bargeld": 10000.0,
+ "depotwert": 10000.0,
+ "positionen": [],
+ "auftraege": [],
+ "trades": [
+  {
+   "ticker": "AAPL",
+   "richtung": 1,
+   "strategie": "ausbruch_long",
+   "stueck": 10,
+   "einstieg_usd": 40.7579,
+   "einsatz_je_stueck": 33.96491666666667,
+   "stop": 39.127584,
+   "ziel": 44.018532,
+   "kauf_tag": "2018-01-25",
+   "kosten": 340.6491666666667,
+   "erloes": 325.06320000000005,
+   "risiko_eur": 13.585966666666671,
+   "verkauf_tag": "2018-02-05",
+   "verkauf_preis": 32.606320000000004,
+   "grund": "Stop"
+  },
+  {
+   "ticker": "XOM",
+   "richtung": 1,
+   "strategie": "ausbruch_long",
+   "stueck": 10,
+   "einstieg_usd": 53.0655,
+   "einsatz_je_stueck": 44.221250000000005,
+   "stop": 50.942879999999995,
+   "ziel": 57.31074,
+   "kauf_tag": "2018-05-01",
+   "kosten": 443.2125,
+   "erloes": 471.0191666666667,
+   "risiko_eur": 17.68850000000004,
+   "verkauf_tag": "2018-05-22",
+   "verkauf_preis": 47.20191666666667,
+   "grund": "Zeitstopp"
+  },
+  {
+   "ticker": "JPM",
+   "richtung": 1,
+   "strategie": "ausbruch_long",
+   "stueck": 10,
+   "einstieg_usd": 91.5522,
+   "einsatz_je_stueck": 76.29350000000001,
+   "stop": 88.805634,
+   "ziel": 97.045332,
+   "kauf_tag": "2018-09-04",
+   "kosten": 763.935,
+   "erloes": 739.04695,
+   "risiko_eur": 22.888050000000014,
+   "verkauf_tag": "2018-10-10",
+   "verkauf_preis": 74.004695,
+   "grund": "Stop"
+  }
+ ],
+ "verlauf": [
+  [
+   "2018-01-02",
+   10000.0
+  ]
+ ]
+}

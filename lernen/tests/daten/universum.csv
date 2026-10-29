@@ -1,0 +1,13 @@
+ticker,name,sektor,branche,cik,index
+GOOGL,Alphabet Inc. (Class A),Communication Services,Interactive Media & Services,1652044,"S&P 500, Nasdaq-100, Watchlist"
+AMT,American Tower,Real Estate,Telecom Tower REITs,1053507,S&P 500
+AAPL,Apple Inc.,Information Technology,"Technology Hardware, Storage & Peripherals",320193,"S&P 500, Nasdaq-100, Watchlist"
+CAT,Caterpillar Inc.,Industrials,Construction Machinery & Heavy Transportation Equipment,18230,S&P 500
+XOM,ExxonMobil,Energy,Integrated Oil & Gas,2115436,"S&P 500, Watchlist"
+HD,Home Depot (The),Consumer Discretionary,Home Improvement Retail,354950,S&P 500
+JNJ,Johnson & Johnson,Health Care,Pharmaceuticals,200406,S&P 500
+JPM,JPMorgan Chase,Financials,Diversified Banks,19617,"S&P 500, Watchlist"
+LIN,Linde plc,Materials,Industrial Gases,1707925,"S&P 500, Nasdaq-100"
+MSFT,Microsoft,Information Technology,Systems Software,789019,"S&P 500, Nasdaq-100, Watchlist"
+NEE,NextEra Energy,Utilities,Multi-Utilities,753308,S&P 500
+PG,Procter & Gamble,Consumer Staples,Personal Care Products,80424,S&P 500
