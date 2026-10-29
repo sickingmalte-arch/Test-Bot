@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 28.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 29.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -20,7 +20,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 22
+    "nicht übernommen" : 23
 ```
 
 ## ✅ Steckt im Bot
@@ -58,6 +58,7 @@ pie showData
 | Nachkaufen bei Rückgang, 80 % des Depots für neue Käufe | −0,3 bis −0,5 Pkt, Rückgang in bis zu 4 von 6 Fällen größer | [[Notizen/Gelernt – Nachkaufen, Teilverkauf und 15-Minuten-Chart]] |
 | Teil verkaufen beim Markt-Rücksetzer, am Boden zurückkaufen | −0,4 bis +0,1 Pkt, 2022–2026 immer schlechter | [[Notizen/Gelernt – Nachkaufen, Teilverkauf und 15-Minuten-Chart]] |
 | 15-Minuten-Wächter beim Verkauf (früher raus beim Drehen, am Ziel laufen lassen) | nirgends verlässlich besser, 2025 bis −3,6 Pkt | [[Notizen/Gelernt – Nachkaufen, Teilverkauf und 15-Minuten-Chart]] |
+| Muster-Gedächtnis: ähnliche Charts aus der Vergangenheit (TikTok-Idee) | sagt nichts voraus, bestes Fünftel +0,07 R, schlechtestes +0,10 R | [[Notizen/Gelernt – Muster und Lehrbücher]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
