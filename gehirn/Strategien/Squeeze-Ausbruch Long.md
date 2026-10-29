@@ -14,7 +14,7 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø +0,17 R · Treffer 57 % · ± Zufall 0,21 R
-- Ganze Geschichte: 204 Trades · Ø +0,20 R · Treffer 62 %
+- Ganze Geschichte: 206 Trades · Ø +0,20 R · Treffer 62 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
@@ -22,7 +22,7 @@ tags:
 - Ziel: 70× (34 %), Ø +0,94 R
 - Zeitstopp: 52× (25 %), Ø +0,10 R
 - Stop: 35× (17 %), Ø -1,00 R
-- vor Quartalszahlen: 30× (15 %), Ø +0,06 R
+- vor Quartalszahlen: 32× (16 %), Ø +0,06 R
 - Ziel (Kurslücke): 9× (4 %), Ø +1,29 R
 - Stop (Kurslücke): 8× (4 %), Ø -1,13 R
 
@@ -43,7 +43,8 @@ tags:
 
 ## Trades im Übungsdepot (Papier-Depot)
 
-- noch keine
+- [[Trades/2026-10-21 NOW Squeeze-Ausbruch Long|NOW +0,1 R]] (vor Quartalszahlen, 2026-10-28)
+- [[Trades/2026-10-21 LLY Squeeze-Ausbruch Long|LLY +0,5 R]] (vor Quartalszahlen, 2026-10-28)
 
 Übersicht: [[Start]] · [[Lehren]] · [[Meine Regeln]]
 %% BOT-ENDE %%

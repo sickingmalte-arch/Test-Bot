@@ -7,14 +7,14 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # ATR-Ausbruch ↑
 
-**Status:** ✅ aktiv (Ø +0,03 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø +0,02 R über die letzten 60 Trades)
 
 **Regel:** Schluss erstmals mehr als 2 ATR über der EMA 20 (Keltner-Kanal – Bewegung größer als das normale Schwanken), über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø +0,03 R · Treffer 53 % · ± Zufall 0,21 R
-- Ganze Geschichte: 453 Trades · Ø +0,09 R · Treffer 55 %
+- Letzte 60 Trades: Ø +0,02 R · Treffer 53 % · ± Zufall 0,21 R
+- Ganze Geschichte: 456 Trades · Ø +0,09 R · Treffer 55 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
@@ -22,7 +22,7 @@ tags:
 - Ziel: 137× (30 %), Ø +0,95 R
 - Zeitstopp: 113× (25 %), Ø +0,03 R
 - Stop: 88× (19 %), Ø -1,00 R
-- vor Quartalszahlen: 75× (17 %), Ø -0,04 R
+- vor Quartalszahlen: 78× (17 %), Ø -0,04 R
 - Ziel (Kurslücke): 21× (5 %), Ø +1,09 R
 - Stop (Kurslücke): 19× (4 %), Ø -1,16 R
 

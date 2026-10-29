@@ -19,5 +19,26 @@
   "strategie": "atr_ausbruch_long",
   "gut": 0,
   "schlecht": 0
+ },
+ {
+  "tag": "2026-10-28",
+  "ticker": "COST",
+  "strategie": "rsi2_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-28",
+  "ticker": "HIMS",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-28",
+  "ticker": "SOFI",
+  "strategie": "ausbruch_long",
+  "gut": 1,
+  "schlecht": 0
  }
 ]

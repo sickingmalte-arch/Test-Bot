@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AMD)
 
-**Stand Di 27.10. 2026:** BEOBACHTEN
+**Stand Mi 28.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Di 03.11.
 
 ## Übungsdepot

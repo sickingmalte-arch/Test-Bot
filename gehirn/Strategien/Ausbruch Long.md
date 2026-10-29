@@ -7,14 +7,14 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Ausbruch ↑
 
-**Status:** ✅ aktiv (Ø -0,05 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø -0,02 R über die letzten 60 Trades)
 
 **Regel:** Schluss über dem 20-Tage-Hoch mit 1,5-fachem Volumen, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,05 R · Treffer 43 % · ± Zufall 0,21 R
-- Ganze Geschichte: 316 Trades · Ø +0,19 R · Treffer 58 %
+- Letzte 60 Trades: Ø -0,02 R · Treffer 45 % · ± Zufall 0,21 R
+- Ganze Geschichte: 317 Trades · Ø +0,19 R · Treffer 58 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
@@ -22,7 +22,7 @@ tags:
 - Ziel: 115× (36 %), Ø +0,97 R
 - Zeitstopp: 79× (25 %), Ø +0,03 R
 - Stop: 66× (21 %), Ø -0,97 R
-- vor Quartalszahlen: 31× (10 %), Ø +0,07 R
+- vor Quartalszahlen: 32× (10 %), Ø +0,08 R
 - Ziel (Kurslücke): 16× (5 %), Ø +1,08 R
 - Stop (Kurslücke): 9× (3 %), Ø -1,12 R
 
@@ -33,7 +33,7 @@ tags:
 3. [[Aktien/INTU|INTU]]: 5 Trades · Ø +0,47 R · Treffer 80 %
 …
 21. [[Aktien/AMZN|AMZN]]: 13 Trades · Ø -0,01 R · Treffer 46 %
-22. [[Aktien/LLY|LLY]]: 14 Trades · Ø -0,10 R · Treffer 43 %
+22. [[Aktien/LLY|LLY]]: 15 Trades · Ø -0,07 R · Treffer 47 %
 23. [[Aktien/MELI|MELI]]: 11 Trades · Ø -0,10 R · Treffer 36 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 

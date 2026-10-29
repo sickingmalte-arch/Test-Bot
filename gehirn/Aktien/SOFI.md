@@ -10,8 +10,8 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=SOFI)
 
-**Stand Di 27.10. 2026:** BEOBACHTEN
-**Nächste Quartalszahlen:** –
+**Stand Mi 28.10. 2026:** 🟢 KAUFEN – Ausbruch ↑ · Limit 15,74 · Stop 13,39 · Ziel 17,42 €
+**Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot
 
