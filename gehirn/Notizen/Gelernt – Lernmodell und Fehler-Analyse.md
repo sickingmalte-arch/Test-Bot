@@ -12,6 +12,7 @@ Diese Notiz ändert der Bot nie. Sie hält fest, was der große Test des Lernmod
 > - **Es trennt gute und schlechte Signale kaum.** Die Trennschärfe liegt bei 0,51 (0,50 wäre ein Münzwurf). Erkennen kann es vor allem die Marktlage, kaum die einzelne Aktie.
 > - **Kaufen nach Punktzahl war nicht überall besser.** „Beste Punktzahl zuerst“ war 2015–2021 und 2022–2026 besser, 2010–2014 aber 3 Punkte schlechter. Nur die besten 30 % oder 50 % zu kaufen, war fast überall schlechter.
 > - **Nicht bei jedem Schreck verkaufen half nicht.** Stop erst zum Tagesschluss, die Panik-Regel und starke Aktien halten: Alle drei waren schlechter als heute.
+> - **Auch eine Markt-Ampel aus dem Modell und der Vergleich der Signale am selben Tag** waren nicht überall besser.
 
 ## So wurde getestet
 
@@ -73,6 +74,24 @@ Bewertung, Wachstum und Qualität aus den Bilanzen spielen kaum eine Rolle. Ohne
 - Es lernt **jeden Monat weiter**. Werden die Punktzahlen besser, zeigt das die Trennschärfe im Bericht.
 - Die **Fehler-Analyse** jedes Trades im Übungsdepot zeigt dir, warum ein Trade verloren hat.
 - **Kaufen nach Punktzahl ist eingebaut, aber aus.** Einschalten erst nach einem neuen Test, der überall besser ist.
+
+## Nachtest: Markt-Ampel und Signale am selben Tag vergleichen
+
+Weil das Modell vor allem die Marktlage erkennt, wurden zwei weitere Ideen geprüft, beide im echten Bot auf der Watchlist:
+
+- **Markt-Ampel:** An Tagen, an denen das Modell den Markt so schlecht sieht wie an den schlechtesten 20 % bzw. 30 % der Tage des Jahres davor, kauft der Bot nichts Neues.
+- **Signale am selben Tag vergleichen:** Das Modell lernt nicht „Gewinn oder Verlust“, sondern „besser als die anderen Signale desselben Tages“. So fällt die Marktlage heraus.
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +9,2 % / −17 % | +10,5 % / −17 % | +7,0 % / −16 % |
+| Markt-Ampel (schlechteste 20 % der Tage) | +9,4 % / −18 % | +9,3 % / −14 % | +6,9 % / −18 % |
+| Markt-Ampel (schlechteste 30 % der Tage) | +10,2 % / −16 % | +9,7 % / −16 % | +6,6 % / −15 % |
+| Am selben Tag verglichen, beste zuerst | +9,0 % / −18 % | +10,8 % / −18 % | +7,3 % / −16 % |
+| Am selben Tag verglichen, nur beste 30 % | +4,7 % / −12 % | +6,9 % / −15 % | +5,1 % / −11 % |
+
+- Die **Markt-Ampel mit 30 %** machte die Rückgänge überall etwas kleiner (rund 1 Punkt), kostete aber 2015–2021 und 2022–2026 Rendite. Nicht übernommen.
+- **Am selben Tag vergleichen** trennt nur ganz wenig besser (Trennschärfe 0,515). Das beste Fünftel bringt +0,06 R, das schlechteste +0,04 R. Beim Kaufen änderte es fast nichts (±0,3 Punkte), die Rückgänge wurden etwas größer. Nicht übernommen.
 
 ## Auch geprüft: 7 statt 5 Positionen
 
