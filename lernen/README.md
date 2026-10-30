@@ -22,6 +22,12 @@ Rund 490.000 Kauf-Signale von 518 Aktien seit 2008, Walk-forward mit Bilanzdaten
 - **Nachtest:** Eine Markt-Ampel aus dem Modell (keine Käufe an den schlechtesten 20 % bzw. 30 % der Markttage) und ein
   Modell, das die Signale desselben Tages vergleicht (ohne Marktlage), waren ebenfalls nicht überall besser
   (−0,8 bis +1,0 bzw. −0,2 bis +0,3 Prozentpunkte).
+- **Zweiter Nachtest** (Oktober 2026, Details im Gehirn: „Gelernt – Lernmodell und Fehler-Analyse“):
+  - früher verkaufen, wenn ein Trade nach 5–12 Tagen keinen Schwung hat: überall schlechter (−0,6 bis −5,7);
+  - Insider-Käufe (SEC, Formular 4): als Merkmal nicht besser (Trennschärfe 0,503); „Insider-Käufe zuerst“ +1,2 bis
+    +1,3, aber zufällig gewählte Signale schafften in der Gegenprobe dasselbe;
+  - auch aus Aktien lernen, die aus dem S&P 500 geflogen sind: nicht überall besser.
+  - Allein die Reihenfolge gleich guter Signale verschiebt die Rendite zufällig um bis zu ±2 Prozentpunkte im Jahr.
 
 Deshalb sind im Bot beide Schalter aus (`LERNMODELL_KAUFEN`, `LERNMODELL_REIHENFOLGE` in `swing_scanner.py`): Er zeigt
 die Punktzahl und die Fehler-Analyse an, kauft und verkauft aber wie bisher. Der Lern-Lauf lernt jeden Monat weiter;
@@ -89,6 +95,10 @@ wird das Modell besser, lässt sich das mit `python lernen/rueckblick.py` neu pr
   Absturz-Tagen der letzten Wochen lernen.
 - **Überlebens-Verzerrung.** Die Aktienliste ist die von heute. Firmen, die seit 2010 herausgefallen oder pleite
   gegangen sind, fehlen. Der Rückblick sieht dadurch für alle Varianten zu gut aus, auch für den jetzigen Bot.
+  Nachgemessen (Oktober 2026): Von 249 Aktien, die seit 2008 aus dem S&P 500 genommen wurden, hatte Yahoo nur für 46
+  noch genug Kurse (ohne die 19, die heute wieder dabei sind). Ihre Signale liefen deutlich schlechter (2010–2014
+  +0,03 statt +0,10 R, 2015–2021 −0,13 statt +0,06 R). Im Depot „alle Aktien“ änderte das wenig (2010–2014 +8,7 statt
+  +8,8 %), weil die meisten Verlierer bei Yahoo ganz fehlen; die echte Verzerrung ist größer.
 
 ## Dateien
 
