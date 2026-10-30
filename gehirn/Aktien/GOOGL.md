@@ -10,8 +10,8 @@ Branche: Kommunikation (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=GOOGL)
 
-**Stand Mi 28.10. 2026:** BEOBACHTEN
-**Nächste Quartalszahlen:** Mi 28.10.
+**Stand Do 29.10. 2026:** BEOBACHTEN
+**Nächste Quartalszahlen:** Mi 03.02.
 
 ## Übungsdepot
 

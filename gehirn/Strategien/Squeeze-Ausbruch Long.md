@@ -14,15 +14,15 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø +0,17 R · Treffer 57 % · ± Zufall 0,21 R
-- Ganze Geschichte: 206 Trades · Ø +0,20 R · Treffer 62 %
+- Ganze Geschichte: 207 Trades · Ø +0,19 R · Treffer 62 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 70× (34 %), Ø +0,94 R
 - Zeitstopp: 52× (25 %), Ø +0,10 R
-- Stop: 35× (17 %), Ø -1,00 R
-- vor Quartalszahlen: 32× (16 %), Ø +0,06 R
+- Stop: 36× (17 %), Ø -1,01 R
+- vor Quartalszahlen: 32× (15 %), Ø +0,06 R
 - Ziel (Kurslücke): 9× (4 %), Ø +1,29 R
 - Stop (Kurslücke): 8× (4 %), Ø -1,13 R
 
@@ -32,8 +32,8 @@ tags:
 2. [[Aktien/JPM|JPM]]: 8 Trades · Ø +0,55 R · Treffer 75 %
 3. [[Aktien/IREN|IREN]]: 7 Trades · Ø +0,53 R · Treffer 86 %
 …
-20. [[Aktien/AMZN|AMZN]]: 15 Trades · Ø -0,10 R · Treffer 53 %
-21. [[Aktien/SOFI|SOFI]]: 7 Trades · Ø -0,14 R · Treffer 43 %
+20. [[Aktien/SOFI|SOFI]]: 7 Trades · Ø -0,14 R · Treffer 43 %
+21. [[Aktien/AMZN|AMZN]]: 16 Trades · Ø -0,16 R · Treffer 50 %
 22. [[Aktien/ASTS|ASTS]]: 7 Trades · Ø -0,38 R · Treffer 43 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 

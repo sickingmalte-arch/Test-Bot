@@ -30,7 +30,7 @@ tags:
 
 1. [[Aktien/ASTS|ASTS]]: 9 Trades · Ø +0,48 R · Treffer 67 %
 2. [[Aktien/PLTR|PLTR]]: 13 Trades · Ø +0,39 R · Treffer 77 %
-3. [[Aktien/AMZN|AMZN]]: 10 Trades · Ø +0,39 R · Treffer 70 %
+3. [[Aktien/IREN|IREN]]: 11 Trades · Ø +0,37 R · Treffer 73 %
 …
 22. [[Aktien/NOW|NOW]]: 14 Trades · Ø -0,28 R · Treffer 29 %
 23. [[Aktien/NBIS|NBIS]]: 5 Trades · Ø -0,38 R · Treffer 20 %

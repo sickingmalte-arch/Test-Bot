@@ -40,5 +40,40 @@
   "strategie": "ausbruch_long",
   "gut": 1,
   "schlecht": 0
+ },
+ {
+  "tag": "2026-10-29",
+  "ticker": "HIMS",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-29",
+  "ticker": "JPM",
+  "strategie": "squeeze_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-29",
+  "ticker": "LLY",
+  "strategie": "ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-29",
+  "ticker": "MSFT",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-29",
+  "ticker": "SOFI",
+  "strategie": "ema_kreuz_long",
+  "gut": 1,
+  "schlecht": 0
  }
 ]

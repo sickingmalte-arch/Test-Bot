@@ -10,7 +10,7 @@ Branche: Basiskonsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=COST)
 
-**Stand Mi 28.10. 2026:** 🟢 KAUFEN – RSI-2-Rücksetzer ↑ · Limit 890,10 · Stop 847,40 · Ziel 911,45 €
+**Stand Do 29.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 10.12.
 
 ## Übungsdepot

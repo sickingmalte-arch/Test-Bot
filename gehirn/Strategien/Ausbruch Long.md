@@ -14,14 +14,14 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø -0,02 R · Treffer 45 % · ± Zufall 0,21 R
-- Ganze Geschichte: 317 Trades · Ø +0,19 R · Treffer 58 %
+- Ganze Geschichte: 316 Trades · Ø +0,19 R · Treffer 58 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 115× (36 %), Ø +0,97 R
 - Zeitstopp: 79× (25 %), Ø +0,03 R
-- Stop: 66× (21 %), Ø -0,97 R
+- Stop: 65× (21 %), Ø -0,97 R
 - vor Quartalszahlen: 32× (10 %), Ø +0,08 R
 - Ziel (Kurslücke): 16× (5 %), Ø +1,08 R
 - Stop (Kurslücke): 9× (3 %), Ø -1,12 R
@@ -30,7 +30,7 @@ tags:
 
 1. [[Aktien/NFLX|NFLX]]: 11 Trades · Ø +0,55 R · Treffer 73 %
 2. [[Aktien/NBIS|NBIS]]: 8 Trades · Ø +0,53 R · Treffer 88 %
-3. [[Aktien/INTU|INTU]]: 5 Trades · Ø +0,47 R · Treffer 80 %
+3. [[Aktien/NVDA|NVDA]]: 9 Trades · Ø +0,48 R · Treffer 67 %
 …
 21. [[Aktien/AMZN|AMZN]]: 13 Trades · Ø -0,01 R · Treffer 46 %
 22. [[Aktien/LLY|LLY]]: 15 Trades · Ø -0,07 R · Treffer 47 %

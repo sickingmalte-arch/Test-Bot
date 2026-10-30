@@ -10,12 +10,12 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=SOFI)
 
-**Stand Mi 28.10. 2026:** 🟢 KAUFEN – Ausbruch ↑ · Limit 15,74 · Stop 13,39 · Ziel 17,42 €
+**Stand Do 29.10. 2026:** 🟢 KAUFEN – EMA-Kreuz ↑ · Limit 16,12 · Stop 13,77 · Ziel 17,80 €
 **Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot
 
-- noch keine Trades
+- Offen: Long mit [[Strategien/Ausbruch Long|Ausbruch ↑]] seit 2026-10-29
 
 ## Strategie-Tagebuch auf dieser Aktie
 
