@@ -1,0 +1,567 @@
+{
+ "stand": "30.10.2026 07:10 Uhr",
+ "tag": "2026-10-29",
+ "monat": "2026-10",
+ "aktien": 523,
+ "anteil": 0.3,
+ "schwelle": 0.5746071888481631,
+ "warnungen": [],
+ "gelernt": [
+  {
+   "merkmal": "spy_ret63",
+   "name": "Markt 3 Monate",
+   "wichtigkeit": 0.011047849529712295,
+   "streuung": 0.0014397767685349484,
+   "richtung": -0.02193513549300351
+  },
+  {
+   "merkmal": "crv",
+   "name": "Chance/Risiko",
+   "wichtigkeit": 0.006927008994963036,
+   "streuung": 0.0007828951910975394,
+   "richtung": -0.27637307486943197
+  },
+  {
+   "merkmal": "breite50",
+   "name": "Anteil Aktien über 50-Tage-Linie",
+   "wichtigkeit": 0.004335865539691319,
+   "streuung": 0.001416683013924693,
+   "richtung": -0.23616270826107238
+  },
+  {
+   "merkmal": "tage_bis_zahlen",
+   "name": "Tage bis zu den Quartalszahlen",
+   "wichtigkeit": 0.004091287362440865,
+   "streuung": 0.0007528387029194015,
+   "richtung": 0.1170088062881918
+  },
+  {
+   "merkmal": "branche_ret20",
+   "name": "Stärke der Branche (1 Monat)",
+   "wichtigkeit": 0.00394085694175057,
+   "streuung": 0.0015722812964555348,
+   "richtung": -0.03259323099810492
+  },
+  {
+   "merkmal": "branche_breite",
+   "name": "Branche über 50-Tage-Linie",
+   "wichtigkeit": 0.002698349287525992,
+   "streuung": 0.0008759900066892743,
+   "richtung": -0.19569076930083598
+  },
+  {
+   "merkmal": "mom12_1",
+   "name": "Momentum 12 Monate ohne letzten Monat",
+   "wichtigkeit": 0.0021593604693513234,
+   "streuung": 0.0005442735793950483,
+   "richtung": -0.004069841316450635
+  },
+  {
+   "merkmal": "gelaufen10",
+   "name": "schon gelaufen (vom 10-Tage-Tief)",
+   "wichtigkeit": 0.0018688989307473758,
+   "streuung": 0.0004328171700035439,
+   "richtung": -0.2728126863088126
+  },
+  {
+   "merkmal": "spy_ret5",
+   "name": "Markt 1 Woche",
+   "wichtigkeit": 0.001842208495981623,
+   "streuung": 0.0004868819825438869,
+   "richtung": -0.24898849154392544
+  },
+  {
+   "merkmal": "rs63",
+   "name": "Stärke gegenüber dem S&P 500 (3 Monate)",
+   "wichtigkeit": 0.0012663946603103326,
+   "streuung": 0.00025488453867260466,
+   "richtung": -0.11504964368115142
+  },
+  {
+   "merkmal": "mom252",
+   "name": "Momentum 12 Monate",
+   "wichtigkeit": 0.0006324321011708101,
+   "streuung": 0.00032872680775571507,
+   "richtung": -0.056936535384058184
+  },
+  {
+   "merkmal": "ueberraschung",
+   "name": "letzte Gewinnüberraschung",
+   "wichtigkeit": 0.0006066096009809563,
+   "streuung": 0.00041468717800749314,
+   "richtung": 0.025966504870279284
+  },
+  {
+   "merkmal": "mom63",
+   "name": "Momentum 3 Monate",
+   "wichtigkeit": 0.0005149745150179408,
+   "streuung": 0.0004225076009095676,
+   "richtung": -0.1149610209734418
+  },
+  {
+   "merkmal": "nettomarge",
+   "name": "Gewinnmarge",
+   "wichtigkeit": 0.00047800339520103207,
+   "streuung": 0.00019044162317702757,
+   "richtung": -0.009174880353094331
+  },
+  {
+   "merkmal": "abst_hoch20",
+   "name": "Abstand zum 20-Tage-Hoch",
+   "wichtigkeit": 0.00045618062684833484,
+   "streuung": 9.639939908639061e-05,
+   "richtung": -0.24062176398688281
+  },
+  {
+   "merkmal": "abst_sma50",
+   "name": "Abstand zur 50-Tage-Linie",
+   "wichtigkeit": 0.00045136503650986535,
+   "streuung": 0.0002029784907650067,
+   "richtung": -0.2491486220467042
+  },
+  {
+   "merkmal": "qqq_ueber200",
+   "name": "Nasdaq-100 über 200-Tage-Linie",
+   "wichtigkeit": 0.0003701046618437953,
+   "streuung": 0.0007186423372806623,
+   "richtung": -0.00784347622842983
+  },
+  {
+   "merkmal": "gewinn_stabil",
+   "name": "stabile Gewinne",
+   "wichtigkeit": 0.00036705821148246275,
+   "streuung": 7.779243106615417e-05,
+   "richtung": 0.021450705215034522
+  },
+  {
+   "merkmal": "verschuldung",
+   "name": "Verschuldung",
+   "wichtigkeit": 0.0003433028421407913,
+   "streuung": 0.00029168695028794923,
+   "richtung": -0.009371226625695749
+  },
+  {
+   "merkmal": "luecken60",
+   "name": "Kurslücken zuletzt",
+   "wichtigkeit": 0.00030926100151742466,
+   "streuung": 0.00029043070769771927,
+   "richtung": -0.038002423503527276
+  },
+  {
+   "merkmal": "bruttomarge",
+   "name": "Bruttomarge",
+   "wichtigkeit": 0.0002808607356372672,
+   "streuung": 0.00010457235794438537,
+   "richtung": 0.025725368275922672
+  },
+  {
+   "merkmal": "macd_atr",
+   "name": "MACD-Schwung",
+   "wichtigkeit": 0.0002741226702132504,
+   "streuung": 0.00018213075375722763,
+   "richtung": -0.1829176296980112
+  },
+  {
+   "merkmal": "rsi2",
+   "name": "RSI (2 Tage)",
+   "wichtigkeit": 0.00021829856485076072,
+   "streuung": 4.657726656292958e-05,
+   "richtung": -0.27308706646065095
+  },
+  {
+   "merkmal": "ueberraschung4",
+   "name": "Gewinnüberraschung (letzte 4)",
+   "wichtigkeit": 0.00018184386610642367,
+   "streuung": 9.751263493594418e-05,
+   "richtung": 0.022001869486865284
+  },
+  {
+   "merkmal": "sektor_code",
+   "name": "Branche",
+   "wichtigkeit": 5.918590528646295e-05,
+   "streuung": 0.00046899694251196605,
+   "richtung": 0.06845698630932162
+  },
+  {
+   "merkmal": "abst_hoch52",
+   "name": "Abstand zum 52-Wochen-Hoch",
+   "wichtigkeit": 1.4835895017029089e-05,
+   "streuung": 0.0004157404938933748,
+   "richtung": -0.11186766494890912
+  },
+  {
+   "merkmal": "anzahl_signale",
+   "name": "Zahl der Strategien mit Signal",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": 0.04010050885714009
+  },
+  {
+   "merkmal": "sig_ausbruch_long",
+   "name": "Signal Ausbruch",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.10857608705939117
+  },
+  {
+   "merkmal": "sig_rsi2_long",
+   "name": "Signal RSI-2-Rücksetzer",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": 0.28331809340490277
+  },
+  {
+   "merkmal": "sig_gegenbewegung_long",
+   "name": "Signal Gegenbewegung",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": 0.17684335211791652
+  },
+  {
+   "merkmal": "sig_macd_long",
+   "name": "Signal MACD-Wende",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.09177617995245478
+  },
+  {
+   "merkmal": "sig_squeeze_long",
+   "name": "Signal Squeeze-Ausbruch",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.06148487720597399
+  },
+  {
+   "merkmal": "sig_ema_kreuz_long",
+   "name": "Signal EMA-Kreuz",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.01845126274549372
+  },
+  {
+   "merkmal": "sig_atr_ausbruch_long",
+   "name": "Signal ATR-Ausbruch",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.1382282732797005
+  },
+  {
+   "merkmal": "abst_ema20",
+   "name": "Abstand zur 20-Tage-Linie",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.27531738683438967
+  },
+  {
+   "merkmal": "ret20",
+   "name": "Anstieg 1 Monat",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.21038958764669297
+  },
+  {
+   "merkmal": "verlust",
+   "name": "Firma macht Verlust",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.00826162004626289
+  },
+  {
+   "merkmal": "bollinger_lage",
+   "name": "Lage im Bollinger-Band",
+   "wichtigkeit": -8.2887751988725e-07,
+   "streuung": 3.890596270653951e-06,
+   "richtung": -0.24980869316027657
+  },
+  {
+   "merkmal": "sig_ruecksetzer_long",
+   "name": "Signal Rücksetzer",
+   "wichtigkeit": -8.698151007768829e-06,
+   "streuung": 1.4660389175196e-05,
+   "richtung": -0.08714937591495857
+  },
+  {
+   "merkmal": "rsi14",
+   "name": "RSI (14 Tage)",
+   "wichtigkeit": -1.2123599467250834e-05,
+   "streuung": 9.372219288099653e-06,
+   "richtung": -0.26873442082114624
+  },
+  {
+   "merkmal": "abst_sma200",
+   "name": "Abstand zur 200-Tage-Linie",
+   "wichtigkeit": -3.19096146818465e-05,
+   "streuung": 0.00016280674925431274,
+   "richtung": -0.1393535813209722
+  },
+  {
+   "merkmal": "schocks60",
+   "name": "Absturz-Tage zuletzt",
+   "wichtigkeit": -3.3823410421707224e-05,
+   "streuung": 1.9377797643759048e-05,
+   "richtung": 0.01842556030299953
+  },
+  {
+   "merkmal": "gewinnrendite",
+   "name": "Gewinnrendite (1/KGV)",
+   "wichtigkeit": -6.257229668982234e-05,
+   "streuung": 0.0001978508940033554,
+   "richtung": 0.04866417601383499
+  },
+  {
+   "merkmal": "buchwertrendite",
+   "name": "Buchwert/Börsenwert (1/KBV)",
+   "wichtigkeit": -6.483181970236007e-05,
+   "streuung": 0.0003776496215698587,
+   "richtung": 0.07403471060722042
+  },
+  {
+   "merkmal": "treffer4",
+   "name": "Erwartung übertroffen (letzte 4)",
+   "wichtigkeit": -0.00010316125713050184,
+   "streuung": 3.445244831599218e-05,
+   "richtung": -0.01628056522867266
+  },
+  {
+   "merkmal": "operative_marge",
+   "name": "operative Marge",
+   "wichtigkeit": -0.00015395423506823214,
+   "streuung": 0.00029990141484474643,
+   "richtung": 0.0376447884891378
+  },
+  {
+   "merkmal": "eigenkapitalrendite",
+   "name": "Eigenkapitalrendite",
+   "wichtigkeit": -0.00016932101673405864,
+   "streuung": 0.00010259492942976616,
+   "richtung": -0.043573012777135
+  },
+  {
+   "merkmal": "volumen_faktor",
+   "name": "Volumen gegenüber normal",
+   "wichtigkeit": -0.00022828993837646915,
+   "streuung": 4.345219809712145e-05,
+   "richtung": -0.03638243414327154
+  },
+  {
+   "merkmal": "fcf_rendite",
+   "name": "Free-Cashflow-Rendite",
+   "wichtigkeit": -0.00024411600208871232,
+   "streuung": 0.0001051414568290961,
+   "richtung": 0.06074192926962024
+  },
+  {
+   "merkmal": "vix_ret5",
+   "name": "VIX-Anstieg 1 Woche",
+   "wichtigkeit": -0.000323292610493886,
+   "streuung": 0.0014704368022352618,
+   "richtung": 0.14003644863595321
+  },
+  {
+   "merkmal": "ret5",
+   "name": "Anstieg 1 Woche",
+   "wichtigkeit": -0.0005053201894188008,
+   "streuung": 5.713382964407062e-05,
+   "richtung": -0.2531116193663897
+  },
+  {
+   "merkmal": "mom126",
+   "name": "Momentum 6 Monate",
+   "wichtigkeit": -0.0005843506955037547,
+   "streuung": 0.0008945574052307779,
+   "richtung": -0.1305144389721178
+  },
+  {
+   "merkmal": "umsatz_wachstum",
+   "name": "Umsatzwachstum",
+   "wichtigkeit": -0.0008834590323198333,
+   "streuung": 0.0003643347487193718,
+   "richtung": -0.045177733982621086
+  },
+  {
+   "merkmal": "gewinn_wachstum",
+   "name": "Gewinnwachstum",
+   "wichtigkeit": -0.001149350789638448,
+   "streuung": 0.0004843154265388835,
+   "richtung": -0.04771275996273838
+  },
+  {
+   "merkmal": "spy_tag",
+   "name": "Markt heute",
+   "wichtigkeit": -0.0012081041741945687,
+   "streuung": 0.0009018805594785298,
+   "richtung": -0.2390443987228705
+  },
+  {
+   "merkmal": "bandbreite",
+   "name": "Bandbreite",
+   "wichtigkeit": -0.0012138137371461744,
+   "streuung": 0.00011463731696201354,
+   "richtung": -0.07940315035627118
+  },
+  {
+   "merkmal": "tage_seit_zahlen",
+   "name": "Tage seit den Quartalszahlen",
+   "wichtigkeit": -0.001429787683891104,
+   "streuung": 0.0005317575508989747,
+   "richtung": -0.08618300311886067
+  },
+  {
+   "merkmal": "spy_ueber200",
+   "name": "S&P 500 über 200-Tage-Linie",
+   "wichtigkeit": -0.002274039218303625,
+   "streuung": 0.0008230277948819136,
+   "richtung": -0.00784347622842983
+  },
+  {
+   "merkmal": "atr_prozent",
+   "name": "Schwankung (ATR in %)",
+   "wichtigkeit": -0.0030035302732577705,
+   "streuung": 0.0005552263932450619,
+   "richtung": -0.07617415171519147
+  },
+  {
+   "merkmal": "spy_ret20",
+   "name": "Markt 1 Monat",
+   "wichtigkeit": -0.004004522836005897,
+   "streuung": 0.0010228555645639184,
+   "richtung": -0.36398196119048276
+  },
+  {
+   "merkmal": "vix",
+   "name": "Angst-Index VIX",
+   "wichtigkeit": -0.00479836328369414,
+   "streuung": 0.0016781583451574759,
+   "richtung": 0.18395371061070817
+  }
+ ],
+ "gelernt_bis": "2025-10-01",
+ "training": 461444,
+ "training_bis": "2026-09-30",
+ "guete": {
+  "auc": 0.5262150717871023,
+  "fuenftel": [
+   {
+    "fuenftel": 1,
+    "R": -0.0034209202507017055,
+    "n": 4945,
+    "treffer": 0.4948432760364004
+   },
+   {
+    "fuenftel": 2,
+    "R": -0.003558998692601664,
+    "n": 4944,
+    "treffer": 0.504247572815534
+   },
+   {
+    "fuenftel": 3,
+    "R": -0.011773283956573621,
+    "n": 4944,
+    "treffer": 0.49797734627831713
+   },
+   {
+    "fuenftel": 4,
+    "R": -0.026635803176545566,
+    "n": 4944,
+    "treffer": 0.5066747572815534
+   },
+   {
+    "fuenftel": 5,
+    "R": 0.06260691406312688,
+    "n": 4944,
+    "treffer": 0.5649271844660194
+   }
+  ],
+  "auc_je_jahr": {
+   "2025": 0.5675604363054609,
+   "2026": 0.5122993594337466
+  },
+  "n": 24721
+ },
+ "fehler": {
+  "tabelle": [
+   {
+    "grund": "branche",
+    "text": "Branche schwach",
+    "alle": 0.14133732454188747,
+    "ausgewaehlt": 0.14830970556161396
+   },
+   {
+    "grund": "zeit",
+    "text": "Zeitstopp ohne Schwung",
+    "alle": 0.1333279398082602,
+    "ausgewaehlt": 0.1366114801229305
+   },
+   {
+    "grund": "zahlen",
+    "text": "Quartalszahlen",
+    "alle": 0.10925933416932972,
+    "ausgewaehlt": 0.06899970258748885
+   },
+   {
+    "grund": "normal",
+    "text": "Normales Auf und Ab (kein besonderer Grund)",
+    "alle": 0.09692164556449982,
+    "ausgewaehlt": 0.10131852879944483
+   },
+   {
+    "grund": "markt",
+    "text": "Absturz des Gesamtmarkts",
+    "alle": 0.07123498240362446,
+    "ausgewaehlt": 0.06424110240904134
+   },
+   {
+    "grund": "stop_eng",
+    "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
+    "alle": 0.04401116459690142,
+    "ausgewaehlt": 0.049767026866263504
+   },
+   {
+    "grund": "zu_spaet",
+    "text": "Signal zu spät (Aktie war schon weit gelaufen)",
+    "alle": 0.03745803163302455,
+    "ausgewaehlt": 0.02587488847030832
+   },
+   {
+    "grund": "kursluecke",
+    "text": "Kurslücke unter den Stop (über Nacht)",
+    "alle": 0.026738400550139558,
+    "ausgewaehlt": 0.030534351145038167
+   },
+   {
+    "grund": "nachricht",
+    "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
+    "alle": 0.010517373892641884,
+    "ausgewaehlt": 0.007732725289977199
+   }
+  ],
+  "n_alle": 24721,
+  "n_ausgewaehlt": 10087,
+  "verlust_alle": 0.4862667367824926,
+  "verlust_ausgewaehlt": 0.4683255675622088
+ },
+ "bot_trades": [
+  {
+   "ticker": "LLY",
+   "strategie": "squeeze_long",
+   "kauf_tag": "2026-10-21",
+   "verkauf_tag": "2026-10-28",
+   "grund": "vor Quartalszahlen",
+   "R": 0.46997581239026265,
+   "fehler": [],
+   "fertig": false,
+   "fehler_text": []
+  },
+  {
+   "ticker": "NOW",
+   "strategie": "squeeze_long",
+   "kauf_tag": "2026-10-21",
+   "verkauf_tag": "2026-10-28",
+   "grund": "vor Quartalszahlen",
+   "R": 0.09433945855358425,
+   "fehler": [],
+   "fertig": false,
+   "fehler_text": []
+  }
+ ]
+}
