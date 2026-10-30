@@ -282,6 +282,20 @@ Im Bericht (Abschnitt „⚖️ EHRLICHE BILANZ“) und in jedem Wochenrückblic
 - **Spielraum des Zufalls:** zwischen welchen Werten Trefferquote und Ø Ergebnis bei so wenigen Trades auch mit genau diesen Regeln meistens liegen. Unter etwa 30 Trades kann alles noch Zufall sein; bei etwa 90 Trades im Jahr sind 30 Trades nach rund 4 Monaten erreicht.
 - Zum Vergleich der Rückblick der letzten 12 Monate (sieht oft zu gut aus, weil die Aktien im Nachhinein ausgewählt sind).
 
+### 🧠 Lernmodell: aus jedem Trade lernen
+
+Der Bot lernt nicht nur, indem er schwache Strategien pausiert. Ein Lern-Lauf (`lernen.yml`, abends nach dem
+US-Schluss und früh vor dem Morgen-Lauf) geht so vor:
+1. Er spielt jedes Kauf-Signal aller Aktien aus S&P 500, Nasdaq-100 und der Watchlist als gedachten Trade durch.
+2. Er sammelt dazu Merkmale: Momentum, Bewertung, Wachstum, Qualität, Chart, Markt, Branche und VIX.
+3. Er analysiert jeden Verlust (warum verloren?), auch die Trades im Übungsdepot.
+4. Er lernt jeden Monat neu, welche Signale gut laufen.
+
+Der Bericht zeigt im Abschnitt „🧠 Lernmodell“ die Punktzahl je Kauf-Signal, die Fehler-Analyse und was das Modell
+gelernt hat; das Gehirn zeigt es auf der Seite „Lehren“. **An den Käufen ändert das noch nichts:** Nach der Punktzahl
+kauft der Bot erst, wenn der ehrliche Rückblick zeigt, dass es besser ist, und du Ja sagst. Alles Weitere:
+[lernen/README.md](lernen/README.md).
+
 ### Sicherheits-Check (automatischer Test)
 
 Bei jedem Pull Request und jeder Änderung in `main` startet GitHub den Ablauf `.github/workflows/tests.yml` („Sicherheits-Check“). Schlägt ein Test fehl, ist der Pull Request rot (❌) – dann bitte nicht übernehmen.

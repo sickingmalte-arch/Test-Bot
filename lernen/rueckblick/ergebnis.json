@@ -1,0 +1,1481 @@
+{
+ "stand": "2026-10-29T21:55+01:00",
+ "aktien": 518,
+ "signale": 490135,
+ "signale_fertig": 463420,
+ "guete": {
+  "auc": 0.5055110367654398,
+  "fuenftel": [
+   {
+    "fuenftel": 1,
+    "R": 0.08627592077676015,
+    "n": 82343,
+    "treffer": 0.5703217031198766
+   },
+   {
+    "fuenftel": 2,
+    "R": 0.030656731266289244,
+    "n": 82342,
+    "treffer": 0.5389716062276846
+   },
+   {
+    "fuenftel": 3,
+    "R": 0.028183688831364934,
+    "n": 82342,
+    "treffer": 0.5425785140025746
+   },
+   {
+    "fuenftel": 4,
+    "R": 0.04757588412293586,
+    "n": 82342,
+    "treffer": 0.561025964878191
+   },
+   {
+    "fuenftel": 5,
+    "R": 0.0624302985434367,
+    "n": 82343,
+    "treffer": 0.5785069769136417
+   }
+  ],
+  "auc_je_jahr": {
+   "2010": 0.4173692560430313,
+   "2011": 0.5082679661644816,
+   "2012": 0.5389857747702651,
+   "2013": 0.4954829554820695,
+   "2014": 0.4920009799685976,
+   "2015": 0.552628173172425,
+   "2016": 0.5838524943062489,
+   "2017": 0.5212013259940556,
+   "2018": 0.49445777514097683,
+   "2019": 0.5660710568948124,
+   "2020": 0.48299159028402916,
+   "2021": 0.5565851149739123,
+   "2022": 0.4600782323493195,
+   "2023": 0.44547567946212185,
+   "2024": 0.5658907149013125,
+   "2025": 0.5334797674647176,
+   "2026": 0.5079783377264097
+  },
+  "n": 411712
+ },
+ "guete_ohne_bilanz": {
+  "auc": 0.5048735921494496,
+  "fuenftel": [
+   {
+    "fuenftel": 1,
+    "R": 0.08080698329480045,
+    "n": 82343,
+    "treffer": 0.5695080334697545
+   },
+   {
+    "fuenftel": 2,
+    "R": 0.03143995732031762,
+    "n": 82342,
+    "treffer": 0.5393116514051153
+   },
+   {
+    "fuenftel": 3,
+    "R": 0.02909622384606359,
+    "n": 82342,
+    "treffer": 0.543695805299847
+   },
+   {
+    "fuenftel": 4,
+    "R": 0.05351281662984896,
+    "n": 82342,
+    "treffer": 0.5630540914721527
+   },
+   {
+    "fuenftel": 5,
+    "R": 0.060266635143653435,
+    "n": 82343,
+    "treffer": 0.5758352258236887
+   }
+  ],
+  "auc_je_jahr": {
+   "2010": 0.4302055266202307,
+   "2011": 0.4880235834940696,
+   "2012": 0.5183316385382015,
+   "2013": 0.4981227198162595,
+   "2014": 0.48985014427248913,
+   "2015": 0.5473864014213843,
+   "2016": 0.5573410988140958,
+   "2017": 0.5162580757607114,
+   "2018": 0.5130702527624378,
+   "2019": 0.5590643844706343,
+   "2020": 0.49189278629471234,
+   "2021": 0.5626758179220875,
+   "2022": 0.44845829860072906,
+   "2023": 0.4561680582294667,
+   "2024": 0.5549497741635225,
+   "2025": 0.5414141116882495,
+   "2026": 0.5101991678444158
+  },
+  "n": 411712
+ },
+ "bilanz_abdeckung": {
+  "2007": 0.0,
+  "2008": 0.0,
+  "2009": 0.00745524857473189,
+  "2010": 0.37204991968367723,
+  "2011": 0.7349070398997284,
+  "2012": 0.8790685366499074,
+  "2013": 0.877977127268912,
+  "2014": 0.9007126065236556,
+  "2015": 0.9057659932659933,
+  "2016": 0.9130648531279446,
+  "2017": 0.9035911602209945,
+  "2018": 0.9095599768843391,
+  "2019": 0.9202691912855024,
+  "2020": 0.9208102441216115,
+  "2021": 0.9315440190918304,
+  "2022": 0.9579840575983544,
+  "2023": 0.9492837148032274,
+  "2024": 0.9593046357615894,
+  "2025": 0.9668270547275359,
+  "2026": 0.976750713383543
+ },
+ "ueberraschung_abdeckung": {
+  "2007": 0.9696251615682895,
+  "2008": 0.968336483931947,
+  "2009": 0.966471315233425,
+  "2010": 0.9636723094031879,
+  "2011": 0.9721746396490495,
+  "2012": 0.9784145465542661,
+  "2013": 0.9707970482285874,
+  "2014": 0.974544519541581,
+  "2015": 0.9707070707070707,
+  "2016": 0.9788192879675529,
+  "2017": 0.9725483425414365,
+  "2018": 0.9776686204903823,
+  "2019": 0.9786319911790426,
+  "2020": 0.9848734461584544,
+  "2021": 0.982117754748439,
+  "2022": 0.9894574440730265,
+  "2023": 0.9873209287008069,
+  "2024": 0.9922847682119206,
+  "2025": 0.9955795485662872,
+  "2026": 0.9954624128736492
+ },
+ "watchlist": [
+  "SE",
+  "HIMS",
+  "NOW",
+  "INTU",
+  "CRWV",
+  "NBIS",
+  "MELI",
+  "IREN",
+  "NFLX",
+  "AAPL",
+  "ASTS",
+  "SOFI",
+  "NVDA",
+  "MSFT",
+  "AMZN",
+  "META",
+  "GOOGL",
+  "TSLA",
+  "AMD",
+  "PLTR",
+  "JPM",
+  "LLY",
+  "XOM",
+  "COST"
+ ],
+ "depot": {
+  "Watchlist: Signale wie heute, ohne Modell": {
+   "2010-01-01": {
+    "rendite": 12.665066657131344,
+    "rueckgang": 15.656080991104645,
+    "treffer": 58.088656616814006,
+    "schnitt_r": 0.1313420956583911,
+    "trades_jahr": 100.47131414654226,
+    "rendite_streuung": 1.5255397459599627
+   },
+   "2015-01-01": {
+    "rendite": 10.069320182656057,
+    "rueckgang": 20.56610929718036,
+    "treffer": 56.78745227595331,
+    "schnitt_r": 0.0936276372995247,
+    "trades_jahr": 106.9124633072407,
+    "rendite_streuung": 1.231723226497765
+   },
+   "2022-01-01": {
+    "rendite": 6.011526984659984,
+    "rueckgang": 15.49845869805568,
+    "treffer": 54.602079099291785,
+    "schnitt_r": 0.06175743921049551,
+    "trades_jahr": 103.36211825284092,
+    "rendite_streuung": 1.8391174364857903
+   }
+  },
+  "Watchlist: Lernmodell beste 50 %": {
+   "2010-01-01": {
+    "rendite": 9.589239909261593,
+    "rueckgang": 20.281879901020858,
+    "treffer": 58.95522388059702,
+    "schnitt_r": 0.16443438205894215,
+    "trades_jahr": 80.58754116355652,
+    "rendite_streuung": 0.0
+   },
+   "2015-01-01": {
+    "rendite": 13.427985887938455,
+    "rueckgang": 14.69047452692778,
+    "treffer": 61.79966044142614,
+    "schnitt_r": 0.17040970947703266,
+    "trades_jahr": 84.2004892367906,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 8.75529763275338,
+    "rueckgang": 12.679859744282076,
+    "treffer": 57.55395683453237,
+    "schnitt_r": 0.11733528091900726,
+    "trades_jahr": 86.53934659090909,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Watchlist: Lernmodell beste 30 %": {
+   "2010-01-01": {
+    "rendite": 5.66622561879313,
+    "rueckgang": 10.597961523032913,
+    "treffer": 57.92880258899677,
+    "schnitt_r": 0.0926780084427912,
+    "trades_jahr": 61.94415477497255,
+    "rendite_streuung": 0.0
+   },
+   "2015-01-01": {
+    "rendite": 9.74939922714142,
+    "rueckgang": 12.762296479857351,
+    "treffer": 61.39240506329114,
+    "schnitt_r": 0.1328174023774885,
+    "trades_jahr": 67.76066536203523,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 6.130653279007192,
+    "rueckgang": 12.496245313012954,
+    "treffer": 56.656346749226,
+    "schnitt_r": 0.10140155352811388,
+    "trades_jahr": 67.03167613636364,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Watchlist: ohne Modell · Stop zum Schluss": {
+   "2010-01-01": {
+    "rendite": 7.541688889474756,
+    "rueckgang": 10.291098302901755,
+    "treffer": 59.25185561683756,
+    "schnitt_r": 0.12234961146510087,
+    "trades_jahr": 95.17148051591657,
+    "rendite_streuung": 1.423764417020794
+   },
+   "2015-01-01": {
+    "rendite": 8.905974017419016,
+    "rueckgang": 13.022436694005098,
+    "treffer": 60.209667504356176,
+    "schnitt_r": 0.21408961875914073,
+    "trades_jahr": 99.56815068493151,
+    "rendite_streuung": 1.0245555964260329
+   },
+   "2022-01-01": {
+    "rendite": 3.1500398655913964,
+    "rueckgang": 9.571702618152493,
+    "treffer": 55.485567090111786,
+    "schnitt_r": 0.047682659628176784,
+    "trades_jahr": 99.38016690340909,
+    "rendite_streuung": 0.7806023516652675
+   }
+  },
+  "Watchlist: ohne Modell · Panik-Regel": {
+   "2010-01-01": {
+    "rendite": 7.634300713978357,
+    "rueckgang": 11.049644612439817,
+    "treffer": 58.12961918949128,
+    "schnitt_r": 0.11842810765892231,
+    "trades_jahr": 99.03046103183314,
+    "rendite_streuung": 1.1290348306629345
+   },
+   "2015-01-01": {
+    "rendite": 7.097912282838573,
+    "rueckgang": 12.160625005122064,
+    "treffer": 57.962664257794344,
+    "schnitt_r": 0.1792957292223825,
+    "trades_jahr": 104.58944471624267,
+    "rendite_streuung": 0.7254249667720125
+   },
+   "2022-01-01": {
+    "rendite": 2.825380257103448,
+    "rueckgang": 10.976948054368203,
+    "treffer": 53.63062388847486,
+    "schnitt_r": 0.03929911871093425,
+    "trades_jahr": 103.55667613636365,
+    "rendite_streuung": 0.6408489755103695
+   }
+  },
+  "Watchlist: ohne Modell · starke Aktien halten": {
+   "2010-01-01": {
+    "rendite": 9.946564395949155,
+    "rueckgang": 13.618758957793727,
+    "treffer": 59.21639254509297,
+    "schnitt_r": 0.11856833735953148,
+    "trades_jahr": 98.91769861416026,
+    "rendite_streuung": 1.9652643228010096
+   },
+   "2015-01-01": {
+    "rendite": 11.922288249786973,
+    "rueckgang": 14.61507050921266,
+    "treffer": 59.750437541673975,
+    "schnitt_r": 0.21040966154074864,
+    "trades_jahr": 103.40113136007828,
+    "rendite_streuung": 1.477451644967194
+   },
+   "2022-01-01": {
+    "rendite": 4.385155926420541,
+    "rueckgang": 12.484958170250728,
+    "treffer": 55.07413882740411,
+    "schnitt_r": 0.055248915988211855,
+    "trades_jahr": 101.0922762784091,
+    "rendite_streuung": 1.6256499274193243
+   }
+  },
+  "Watchlist: Lernmodell 30 % · Stop zum Schluss": {
+   "2010-01-01": {
+    "rendite": 3.2213707526161928,
+    "rueckgang": 9.848749387175243,
+    "treffer": 59.450171821305844,
+    "schnitt_r": 0.09220788835149232,
+    "trades_jahr": 58.33575740944017,
+    "rendite_streuung": 0.0
+   },
+   "2015-01-01": {
+    "rendite": 6.765641155976576,
+    "rueckgang": 8.695625140639526,
+    "treffer": 63.83928571428571,
+    "schnitt_r": 0.284908811394731,
+    "trades_jahr": 64.04383561643836,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 4.584170788734032,
+    "rueckgang": 6.645702884549512,
+    "treffer": 60.19736842105263,
+    "schnitt_r": 0.13372057465136986,
+    "trades_jahr": 63.08863636363637,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Watchlist: Lernmodell 30 % · Panik-Regel": {
+   "2010-01-01": {
+    "rendite": 3.2770980911126957,
+    "rueckgang": 8.38060260302381,
+    "treffer": 59.150326797385624,
+    "schnitt_r": 0.08605100208261969,
+    "trades_jahr": 61.34275521405049,
+    "rendite_streuung": 0.0
+   },
+   "2015-01-01": {
+    "rendite": 6.7834502699392285,
+    "rueckgang": 9.471007712793131,
+    "treffer": 62.121212121212125,
+    "schnitt_r": 0.27787975199458653,
+    "trades_jahr": 66.04520547945205,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 3.50840438625708,
+    "rueckgang": 8.448183992669346,
+    "treffer": 56.69781931464174,
+    "schnitt_r": 0.09554683983622336,
+    "trades_jahr": 66.61661931818182,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Watchlist: Lernmodell 30 % · starke Aktien halten": {
+   "2010-01-01": {
+    "rendite": 4.5229486213277825,
+    "rueckgang": 9.012213268221384,
+    "treffer": 58.415841584158414,
+    "schnitt_r": 0.09601437953201167,
+    "trades_jahr": 60.74135565312842,
+    "rendite_streuung": 0.0
+   },
+   "2015-01-01": {
+    "rendite": 9.53330880993921,
+    "rueckgang": 10.076934641463524,
+    "treffer": 63.26086956521739,
+    "schnitt_r": 0.29359366406139725,
+    "trades_jahr": 65.75929549902153,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 4.247121808323451,
+    "rueckgang": 11.806147899560814,
+    "treffer": 56.730769230769226,
+    "schnitt_r": 0.09833502505752317,
+    "trades_jahr": 64.74886363636364,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Alle Aktien: Signale wie heute, ohne Modell": {
+   "2010-01-01": {
+    "rendite": 8.329980047538918,
+    "rueckgang": 24.24590717165436,
+    "treffer": 56.921731773087046,
+    "schnitt_r": 0.08882353946375532,
+    "trades_jahr": 97.68984117727771,
+    "rendite_streuung": 1.868411810153004
+   },
+   "2015-01-01": {
+    "rendite": 5.701998477218331,
+    "rueckgang": 26.494249936849496,
+    "treffer": 54.66363370023326,
+    "schnitt_r": 0.026379021279233306,
+    "trades_jahr": 100.90835371819962,
+    "rendite_streuung": 1.795867214037167
+   },
+   "2022-01-01": {
+    "rendite": 0.3356654186380654,
+    "rueckgang": 20.483756561951562,
+    "treffer": 51.30998684491182,
+    "schnitt_r": 0.00458122347648575,
+    "trades_jahr": 96.33209339488637,
+    "rendite_streuung": 2.2097830281010586
+   }
+  },
+  "Alle Aktien: Lernmodell beste 30 %": {
+   "2010-01-01": {
+    "rendite": 11.583645307988423,
+    "rueckgang": 15.80711036129844,
+    "treffer": 61.48261562931296,
+    "schnitt_r": 0.1465445599423219,
+    "trades_jahr": 97.71489949231612,
+    "rendite_streuung": 0.35335187590564887
+   },
+   "2015-01-01": {
+    "rendite": 3.183253857379431,
+    "rueckgang": 18.477841900320573,
+    "treffer": 58.01749271137027,
+    "schnitt_r": 0.02641930807161497,
+    "trades_jahr": 98.06712328767124,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 3.9620290674103886,
+    "rueckgang": 22.72855397181289,
+    "treffer": 54.20944558521561,
+    "schnitt_r": 0.06320201771356278,
+    "trades_jahr": 101.06633522727273,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Alle Aktien: Lernmodell 30 % + Marktfilter": {
+   "2010-01-01": {
+    "rendite": 10.180244436679665,
+    "rueckgang": 18.06905233013875,
+    "treffer": 59.86842105263158,
+    "schnitt_r": 0.13461209544231262,
+    "trades_jahr": 91.41273326015367,
+    "rendite_streuung": 0.0
+   },
+   "2015-01-01": {
+    "rendite": 2.160625425933227,
+    "rueckgang": 16.660505031949786,
+    "treffer": 56.70926517571885,
+    "schnitt_r": 0.011105911378256996,
+    "trades_jahr": 89.48982387475539,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 3.217506700511019,
+    "rueckgang": 21.25168575693085,
+    "treffer": 55.55555555555556,
+    "schnitt_r": 0.06957331474968334,
+    "trades_jahr": 78.44573863636364,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Alle Aktien: Lernmodell 30 % · Panik-Regel": {
+   "2010-01-01": {
+    "rendite": 7.392844210862084,
+    "rueckgang": 12.017823788921318,
+    "treffer": 60.66199675160736,
+    "schnitt_r": 0.12702608783794514,
+    "trades_jahr": 97.71489949231612,
+    "rendite_streuung": 0.2909522186714276
+   },
+   "2015-01-01": {
+    "rendite": 1.918831212374572,
+    "rueckgang": 13.715027159816625,
+    "treffer": 58.29596412556054,
+    "schnitt_r": -0.004457640555358562,
+    "trades_jahr": 95.63688845401174,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 3.3437286562912227,
+    "rueckgang": 14.532030893180162,
+    "treffer": 54.63917525773196,
+    "schnitt_r": 0.07097390341916755,
+    "trades_jahr": 100.65127840909092,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Watchlist: Lernmodell 30 % ohne Bilanzdaten": {
+   "2010-01-01": {
+    "rendite": 7.86232876898576,
+    "rueckgang": 14.543048105862264,
+    "treffer": 59.36507936507937,
+    "schnitt_r": 0.1786722487494008,
+    "trades_jahr": 63.14695389681668,
+    "rendite_streuung": 0.0
+   },
+   "2015-01-01": {
+    "rendite": 10.551734984480987,
+    "rueckgang": 11.281060659686784,
+    "treffer": 60.93418259023354,
+    "schnitt_r": 0.15800645254522383,
+    "trades_jahr": 67.33180039138944,
+    "rendite_streuung": 0.0
+   },
+   "2022-01-01": {
+    "rendite": 6.521715393746663,
+    "rueckgang": 12.946133378483177,
+    "treffer": 55.00000000000001,
+    "schnitt_r": 0.6357532286679075,
+    "trades_jahr": 66.4090909090909,
+    "rendite_streuung": 0.0
+   }
+  },
+  "Alle Aktien: Lernmodell 30 % ohne Bilanzdaten": {
+   "2010-01-01": {
+    "rendite": 10.745935063569698,
+    "rueckgang": 16.661426698334047,
+    "treffer": 60.28513238289206,
+    "schnitt_r": 0.15617436410894092,
+    "trades_jahr": 98.42906147091108,
+    "rendite_streuung": 2.9426335747501184e-06
+   },
+   "2015-01-01": {
+    "rendite": 6.834320494618991,
+    "rueckgang": 23.196666023845076,
+    "treffer": 57.53228120516499,
+    "schnitt_r": 0.06336287369633231,
+    "trades_jahr": 99.63962818003914,
+    "rendite_streuung": 0.0005199205406596075
+   },
+   "2022-01-01": {
+    "rendite": 8.644272902832451,
+    "rueckgang": 24.751851492320522,
+    "treffer": 57.48502994011976,
+    "schnitt_r": 0.10690408366754386,
+    "trades_jahr": 103.97173295454546,
+    "rendite_streuung": 0.0
+   }
+  }
+ },
+ "halten": {
+  "S&P 500 kaufen und halten": {
+   "2010-01-01": {
+    "rendite": 19.168367258122853,
+    "rueckgang": 20.532871205492135
+   },
+   "2015-01-01": {
+    "rendite": 15.83006277117327,
+    "rueckgang": 33.09118958479718
+   },
+   "2022-01-01": {
+    "rendite": 12.26627023962723,
+    "rueckgang": 23.032515020288773
+   }
+  },
+  "Nasdaq-100 kaufen und halten": {
+   "2010-01-01": {
+    "rendite": 22.900918111416857,
+    "rueckgang": 19.636469403308883
+   },
+   "2015-01-01": {
+    "rendite": 23.30689576048437,
+    "rueckgang": 30.864583065547702
+   },
+   "2022-01-01": {
+    "rendite": 13.881356817598945,
+    "rueckgang": 30.254589478425874
+   }
+  }
+ },
+ "jetziger_bot": {
+  "2010-01-01": {
+   "rendite": 9.214112003463296,
+   "rueckgang": 17.164288175380335,
+   "treffer": 55.813820694506624,
+   "schnitt_r": 0.11094553038905289,
+   "trades_jahr": 91.63825809549945
+  },
+  "2015-01-01": {
+   "rendite": 10.530991606480416,
+   "rueckgang": 16.860092342146736,
+   "treffer": 57.5424379110477,
+   "schnitt_r": 0.10598632997827842,
+   "trades_jahr": 95.58328033268103
+  },
+  "2022-01-01": {
+   "rendite": 7.039117018936533,
+   "rueckgang": 16.103273723501218,
+   "treffer": 56.935322171654136,
+   "schnitt_r": 0.10622946865754493,
+   "trades_jahr": 81.73607568027211
+  }
+ },
+ "bot_rang": {
+  "2010-01-01": {
+   "rendite": 6.096932863112592,
+   "rueckgang": 19.417263877982982,
+   "treffer": 55.0321199143469,
+   "schnitt_r": 0.06728074587891325,
+   "trades_jahr": 93.61786498353457
+  },
+  "2015-01-01": {
+   "rendite": 14.592179467014832,
+   "rueckgang": 15.504818075959031,
+   "treffer": 61.53846153846154,
+   "schnitt_r": 0.15284361673638625,
+   "trades_jahr": 94.77915851272016
+  },
+  "2022-01-01": {
+   "rendite": 10.144293893798494,
+   "rueckgang": 17.516284814123058,
+   "treffer": 60.05089058524173,
+   "schnitt_r": 0.5732914123068106,
+   "trades_jahr": 81.37372448979592
+  }
+ },
+ "bot_mit_lernmodell": {
+  "2010-01-01": {
+   "rendite": 3.1700895259384243,
+   "rueckgang": 13.155393869795503,
+   "treffer": 55.0561797752809,
+   "schnitt_r": 0.06059346127751435,
+   "trades_jahr": 53.524560922063664
+  },
+  "2015-01-01": {
+   "rendite": 7.5793585984784695,
+   "rueckgang": 11.74004511543074,
+   "treffer": 59.693877551020414,
+   "schnitt_r": 0.11855449395046569,
+   "trades_jahr": 56.038356164383565
+  },
+  "2022-01-01": {
+   "rendite": 3.8623107598046325,
+   "rueckgang": 10.733073007533076,
+   "treffer": 57.49999999999999,
+   "schnitt_r": 0.09049605268610637,
+   "trades_jahr": 49.693877551020414
+  }
+ },
+ "bot_mit_lernmodell_50": {
+  "2010-01-01": {
+   "rendite": 2.7393296666767375,
+   "rueckgang": 20.55023954801645,
+   "treffer": 53.714285714285715,
+   "schnitt_r": 0.0955515585450828,
+   "trades_jahr": 70.16328210757409
+  },
+  "2015-01-01": {
+   "rendite": 11.695395355759164,
+   "rueckgang": 13.281084154380398,
+   "treffer": 60.314341846758346,
+   "schnitt_r": 0.16715321485608978,
+   "trades_jahr": 72.76409001956948
+  },
+  "2022-01-01": {
+   "rendite": 5.714267711168408,
+   "rueckgang": 13.295916156850332,
+   "treffer": 58.0441640378549,
+   "schnitt_r": 0.1047399925677578,
+   "trades_jahr": 65.6373299319728
+  }
+ },
+ "bot_nur_filter": {
+  "2010-01-01": {
+   "rendite": 3.8487387511799387,
+   "rueckgang": 13.576277111342606,
+   "treffer": 55.55219675491718,
+   "schnitt_r": 0.08144296410026206,
+   "trades_jahr": 53.27397777167947
+  },
+  "2015-01-01": {
+   "rendite": 6.200007159992274,
+   "rueckgang": 13.756352790925824,
+   "treffer": 58.07449275551784,
+   "schnitt_r": 0.10103550742637243,
+   "trades_jahr": 56.217049902152645
+  },
+  "2022-01-01": {
+   "rendite": 4.251286655453926,
+   "rueckgang": 13.301385517216088,
+   "treffer": 58.163080319014824,
+   "schnitt_r": 0.10417872075811938,
+   "trades_jahr": 49.12446853741497
+  }
+ },
+ "fehler_signale": {
+  "tabelle": [
+   {
+    "grund": "markt",
+    "text": "Absturz des Gesamtmarkts",
+    "alle": 0.1215024094512669,
+    "ausgewaehlt": 0.1437551177688936
+   },
+   {
+    "grund": "zeit",
+    "text": "Zeitstopp ohne Schwung",
+    "alle": 0.11483269858541893,
+    "ausgewaehlt": 0.10427403946502256
+   },
+   {
+    "grund": "zahlen",
+    "text": "Quartalszahlen",
+    "alle": 0.09332980335768692,
+    "ausgewaehlt": 0.06576433376683846
+   },
+   {
+    "grund": "normal",
+    "text": "Normales Auf und Ab (kein besonderer Grund)",
+    "alle": 0.07802784470697964,
+    "ausgewaehlt": 0.07913876980877607
+   },
+   {
+    "grund": "branche",
+    "text": "Branche schwach",
+    "alle": 0.05919914891963314,
+    "ausgewaehlt": 0.053690413114332966
+   },
+   {
+    "grund": "stop_eng",
+    "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
+    "alle": 0.05733376729364216,
+    "ausgewaehlt": 0.06834128092737986
+   },
+   {
+    "grund": "zu_spaet",
+    "text": "Signal zu spät (Aktie war schon weit gelaufen)",
+    "alle": 0.03454599331571584,
+    "ausgewaehlt": 0.019539842332578713
+   },
+   {
+    "grund": "kursluecke",
+    "text": "Kurslücke unter den Stop (über Nacht)",
+    "alle": 0.03063792165397171,
+    "ausgewaehlt": 0.030642390379397266
+   },
+   {
+    "grund": "nachricht",
+    "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
+    "alle": 0.008717258666252137,
+    "ausgewaehlt": 0.007417754443427581
+   }
+  ],
+  "n_alle": 411712,
+  "n_ausgewaehlt": 124566,
+  "verlust_alle": 0.4417189685994093,
+  "verlust_ausgewaehlt": 0.42510797488881397
+ },
+ "fehler": {
+  "Watchlist: Signale wie heute, ohne Modell": [
+   {
+    "grund": "markt",
+    "text": "Absturz des Gesamtmarkts",
+    "anzahl": 237,
+    "anteil": 0.316,
+    "R": -0.9283211803965512
+   },
+   {
+    "grund": "zahlen",
+    "text": "Quartalszahlen",
+    "anzahl": 204,
+    "anteil": 0.272,
+    "R": -0.4437793555284231
+   },
+   {
+    "grund": "zeit",
+    "text": "Zeitstopp ohne Schwung",
+    "anzahl": 188,
+    "anteil": 0.25066666666666665,
+    "R": -0.4114590849826583
+   },
+   {
+    "grund": "zu_spaet",
+    "text": "Signal zu spät (Aktie war schon weit gelaufen)",
+    "anzahl": 136,
+    "anteil": 0.18133333333333335,
+    "R": -0.7360017678085481
+   },
+   {
+    "grund": "stop_eng",
+    "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
+    "anzahl": 116,
+    "anteil": 0.15466666666666667,
+    "R": -1.0444763015849854
+   },
+   {
+    "grund": "normal",
+    "text": "Normales Auf und Ab (kein besonderer Grund)",
+    "anzahl": 87,
+    "anteil": 0.116,
+    "R": -0.9952661711802757
+   },
+   {
+    "grund": "branche",
+    "text": "Branche schwach",
+    "anzahl": 80,
+    "anteil": 0.10666666666666667,
+    "R": -0.7713461166211898
+   },
+   {
+    "grund": "kursluecke",
+    "text": "Kurslücke unter den Stop (über Nacht)",
+    "anzahl": 59,
+    "anteil": 0.07866666666666666,
+    "R": -1.1988777111172828
+   },
+   {
+    "grund": "nachricht",
+    "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
+    "anzahl": 5,
+    "anteil": 0.006666666666666667,
+    "R": -0.8327660612759835
+   }
+  ],
+  "Watchlist: Signale wie heute, ohne Modell (Trades)": 1740,
+  "Watchlist: Lernmodell beste 30 %": [
+   {
+    "grund": "markt",
+    "text": "Absturz des Gesamtmarkts",
+    "anzahl": 149,
+    "anteil": 0.32891832229580575,
+    "R": -0.9616757736819994
+   },
+   {
+    "grund": "zeit",
+    "text": "Zeitstopp ohne Schwung",
+    "anzahl": 110,
+    "anteil": 0.24282560706401765,
+    "R": -0.3925424280063481
+   },
+   {
+    "grund": "stop_eng",
+    "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
+    "anzahl": 89,
+    "anteil": 0.19646799116997793,
+    "R": -1.0569583395297895
+   },
+   {
+    "grund": "normal",
+    "text": "Normales Auf und Ab (kein besonderer Grund)",
+    "anzahl": 87,
+    "anteil": 0.19205298013245034,
+    "R": -0.99618926874073
+   },
+   {
+    "grund": "zahlen",
+    "text": "Quartalszahlen",
+    "anzahl": 75,
+    "anteil": 0.16556291390728478,
+    "R": -0.5179222243693156
+   },
+   {
+    "grund": "branche",
+    "text": "Branche schwach",
+    "anzahl": 61,
+    "anteil": 0.1346578366445916,
+    "R": -0.7851506439122584
+   },
+   {
+    "grund": "kursluecke",
+    "text": "Kurslücke unter den Stop (über Nacht)",
+    "anzahl": 39,
+    "anteil": 0.08609271523178808,
+    "R": -1.3416448558759917
+   },
+   {
+    "grund": "zu_spaet",
+    "text": "Signal zu spät (Aktie war schon weit gelaufen)",
+    "anzahl": 35,
+    "anteil": 0.0772626931567329,
+    "R": -0.8251267276586836
+   },
+   {
+    "grund": "nachricht",
+    "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
+    "anzahl": 8,
+    "anteil": 0.017660044150110375,
+    "R": -1.3679966169119773
+   }
+  ],
+  "Watchlist: Lernmodell beste 30 % (Trades)": 1106,
+  "Alle Aktien: Signale wie heute, ohne Modell": [
+   {
+    "grund": "markt",
+    "text": "Absturz des Gesamtmarkts",
+    "anzahl": 230,
+    "anteil": 0.3038309114927345,
+    "R": -0.8327358550803768
+   },
+   {
+    "grund": "zeit",
+    "text": "Zeitstopp ohne Schwung",
+    "anzahl": 206,
+    "anteil": 0.27212681638044917,
+    "R": -0.39483052315872186
+   },
+   {
+    "grund": "zahlen",
+    "text": "Quartalszahlen",
+    "anzahl": 200,
+    "anteil": 0.26420079260237783,
+    "R": -0.3777480353221485
+   },
+   {
+    "grund": "branche",
+    "text": "Branche schwach",
+    "anzahl": 110,
+    "anteil": 0.1453104359313078,
+    "R": -0.7093893159840174
+   },
+   {
+    "grund": "zu_spaet",
+    "text": "Signal zu spät (Aktie war schon weit gelaufen)",
+    "anzahl": 108,
+    "anteil": 0.142668428005284,
+    "R": -0.6775360624196033
+   },
+   {
+    "grund": "normal",
+    "text": "Normales Auf und Ab (kein besonderer Grund)",
+    "anzahl": 108,
+    "anteil": 0.142668428005284,
+    "R": -1.004187658144037
+   },
+   {
+    "grund": "stop_eng",
+    "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
+    "anzahl": 92,
+    "anteil": 0.1215323645970938,
+    "R": -1.0132874396372498
+   },
+   {
+    "grund": "kursluecke",
+    "text": "Kurslücke unter den Stop (über Nacht)",
+    "anzahl": 47,
+    "anteil": 0.062087186261558784,
+    "R": -1.8064235470048629
+   },
+   {
+    "grund": "nachricht",
+    "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
+    "anzahl": 9,
+    "anteil": 0.011889035667107,
+    "R": -4.459051952346913
+   }
+  ],
+  "Alle Aktien: Signale wie heute, ohne Modell (Trades)": 1661,
+  "Alle Aktien: Lernmodell beste 30 %": [
+   {
+    "grund": "markt",
+    "text": "Absturz des Gesamtmarkts",
+    "anzahl": 236,
+    "anteil": 0.33666191155492153,
+    "R": -0.913150064269682
+   },
+   {
+    "grund": "zeit",
+    "text": "Zeitstopp ohne Schwung",
+    "anzahl": 146,
+    "anteil": 0.20827389443651925,
+    "R": -0.45978104322482494
+   },
+   {
+    "grund": "normal",
+    "text": "Normales Auf und Ab (kein besonderer Grund)",
+    "anzahl": 145,
+    "anteil": 0.20684736091298145,
+    "R": -1.0326744739133462
+   },
+   {
+    "grund": "stop_eng",
+    "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
+    "anzahl": 127,
+    "anteil": 0.181169757489301,
+    "R": -1.0139869582838814
+   },
+   {
+    "grund": "branche",
+    "text": "Branche schwach",
+    "anzahl": 108,
+    "anteil": 0.15406562054208273,
+    "R": -0.8598328312789294
+   },
+   {
+    "grund": "zahlen",
+    "text": "Quartalszahlen",
+    "anzahl": 98,
+    "anteil": 0.1398002853067047,
+    "R": -0.44117914810262676
+   },
+   {
+    "grund": "kursluecke",
+    "text": "Kurslücke unter den Stop (über Nacht)",
+    "anzahl": 45,
+    "anteil": 0.06419400855920114,
+    "R": -1.3874555541796934
+   },
+   {
+    "grund": "zu_spaet",
+    "text": "Signal zu spät (Aktie war schon weit gelaufen)",
+    "anzahl": 15,
+    "anteil": 0.021398002853067047,
+    "R": -0.7521170159872629
+   },
+   {
+    "grund": "nachricht",
+    "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
+    "anzahl": 13,
+    "anteil": 0.018544935805991442,
+    "R": -1.2538871219380594
+   }
+  ],
+  "Alle Aktien: Lernmodell beste 30 % (Trades)": 1661
+ },
+ "gelernt": [
+  {
+   "merkmal": "spy_ret63",
+   "name": "Markt 3 Monate",
+   "wichtigkeit": 0.011539301337670093,
+   "streuung": 0.001465319835765737,
+   "richtung": -0.04155583641541238
+  },
+  {
+   "merkmal": "breite50",
+   "name": "Anteil Aktien über 50-Tage-Linie",
+   "wichtigkeit": 0.010747322353643441,
+   "streuung": 0.0018422020672563615,
+   "richtung": -0.3348909596785471
+  },
+  {
+   "merkmal": "spy_ret5",
+   "name": "Markt 1 Woche",
+   "wichtigkeit": 0.005571209989532311,
+   "streuung": 0.0012781911501799097,
+   "richtung": -0.1656784553693337
+  },
+  {
+   "merkmal": "crv",
+   "name": "Chance/Risiko",
+   "wichtigkeit": 0.004750214887279292,
+   "streuung": 0.0007986949319980153,
+   "richtung": -0.2998928417386618
+  },
+  {
+   "merkmal": "branche_breite",
+   "name": "Branche über 50-Tage-Linie",
+   "wichtigkeit": 0.002834494148459643,
+   "streuung": 0.0005218130113698109,
+   "richtung": -0.2845110334331162
+  },
+  {
+   "merkmal": "tage_bis_zahlen",
+   "name": "Tage bis zu den Quartalszahlen",
+   "wichtigkeit": 0.002600606122687288,
+   "streuung": 0.00036387756676484434,
+   "richtung": 0.0654455113540153
+  },
+  {
+   "merkmal": "vix_ret5",
+   "name": "VIX-Anstieg 1 Woche",
+   "wichtigkeit": 0.0020076149019828014,
+   "streuung": 0.0006907651854123167,
+   "richtung": 0.05849287256044439
+  },
+  {
+   "merkmal": "mom12_1",
+   "name": "Momentum 12 Monate ohne letzten Monat",
+   "wichtigkeit": 0.0017795225588699282,
+   "streuung": 0.0005337991649873408,
+   "richtung": 0.04885287460739957
+  },
+  {
+   "merkmal": "spy_ret20",
+   "name": "Markt 1 Monat",
+   "wichtigkeit": 0.0016504730884585373,
+   "streuung": 0.0006869441167741714,
+   "richtung": -0.32200159520170407
+  },
+  {
+   "merkmal": "ueberraschung",
+   "name": "letzte Gewinnüberraschung",
+   "wichtigkeit": 0.001375855038121343,
+   "streuung": 0.00035856090712649166,
+   "richtung": 0.05539736409673765
+  },
+  {
+   "merkmal": "branche_ret20",
+   "name": "Stärke der Branche (1 Monat)",
+   "wichtigkeit": 0.0010338901836543623,
+   "streuung": 0.0006332028481051173,
+   "richtung": -0.06346503575609541
+  },
+  {
+   "merkmal": "gelaufen10",
+   "name": "schon gelaufen (vom 10-Tage-Tief)",
+   "wichtigkeit": 0.0010089019669885513,
+   "streuung": 0.00042457551845337946,
+   "richtung": -0.2816831696711032
+  },
+  {
+   "merkmal": "rs63",
+   "name": "Stärke gegenüber dem S&P 500 (3 Monate)",
+   "wichtigkeit": 0.0008514157290882673,
+   "streuung": 0.00016681608598225013,
+   "richtung": -0.11733953208227682
+  },
+  {
+   "merkmal": "mom126",
+   "name": "Momentum 6 Monate",
+   "wichtigkeit": 0.0007355434063022858,
+   "streuung": 0.0007415562470431844,
+   "richtung": -0.08290037624369778
+  },
+  {
+   "merkmal": "gewinnrendite",
+   "name": "Gewinnrendite (1/KGV)",
+   "wichtigkeit": 0.000720384574614763,
+   "streuung": 0.00010962838690301076,
+   "richtung": 0.03891863045824139
+  },
+  {
+   "merkmal": "abst_sma50",
+   "name": "Abstand zur 50-Tage-Linie",
+   "wichtigkeit": 0.0006165560762968258,
+   "streuung": 0.00016355178380201925,
+   "richtung": -0.2940960261480279
+  },
+  {
+   "merkmal": "verschuldung",
+   "name": "Verschuldung",
+   "wichtigkeit": 0.0005935183646171404,
+   "streuung": 0.00047204390771355033,
+   "richtung": -0.007820421925288553
+  },
+  {
+   "merkmal": "fcf_rendite",
+   "name": "Free-Cashflow-Rendite",
+   "wichtigkeit": 0.0005406937589488514,
+   "streuung": 0.00019754690097676772,
+   "richtung": 0.05154148450228667
+  },
+  {
+   "merkmal": "bruttomarge",
+   "name": "Bruttomarge",
+   "wichtigkeit": 0.0004403094608852687,
+   "streuung": 9.588174964097339e-05,
+   "richtung": 0.03046408945369805
+  },
+  {
+   "merkmal": "macd_atr",
+   "name": "MACD-Schwung",
+   "wichtigkeit": 0.0004035971865538945,
+   "streuung": 0.00016950979062233153,
+   "richtung": -0.19158480821089716
+  },
+  {
+   "merkmal": "nettomarge",
+   "name": "Gewinnmarge",
+   "wichtigkeit": 0.00035974997948522435,
+   "streuung": 0.000323344618119739,
+   "richtung": -0.009269872366933652
+  },
+  {
+   "merkmal": "buchwertrendite",
+   "name": "Buchwert/Börsenwert (1/KBV)",
+   "wichtigkeit": 0.00033116384246956176,
+   "streuung": 0.0001379998002073766,
+   "richtung": 0.0512012307627858
+  },
+  {
+   "merkmal": "gewinn_wachstum",
+   "name": "Gewinnwachstum",
+   "wichtigkeit": 0.00031215403235034244,
+   "streuung": 0.0003451315087653327,
+   "richtung": -0.026056226783607184
+  },
+  {
+   "merkmal": "mom252",
+   "name": "Momentum 12 Monate",
+   "wichtigkeit": 0.0003088048195136084,
+   "streuung": 0.0005940912066238388,
+   "richtung": -0.011951467507912619
+  },
+  {
+   "merkmal": "ueberraschung4",
+   "name": "Gewinnüberraschung (letzte 4)",
+   "wichtigkeit": 0.0002549346271576658,
+   "streuung": 0.0002586715785726594,
+   "richtung": 0.05265043178261506
+  },
+  {
+   "merkmal": "umsatz_wachstum",
+   "name": "Umsatzwachstum",
+   "wichtigkeit": 0.00019466619837140708,
+   "streuung": 0.000210574127306065,
+   "richtung": -0.010835406265819462
+  },
+  {
+   "merkmal": "qqq_ueber200",
+   "name": "Nasdaq-100 über 200-Tage-Linie",
+   "wichtigkeit": 0.00019265478542294102,
+   "streuung": 0.0006025873452191777,
+   "richtung": -0.009351253284512428
+  },
+  {
+   "merkmal": "gewinn_stabil",
+   "name": "stabile Gewinne",
+   "wichtigkeit": 0.00018771688990049107,
+   "streuung": 9.105839111802107e-06,
+   "richtung": 0.009113138312856598
+  },
+  {
+   "merkmal": "abst_sma200",
+   "name": "Abstand zur 200-Tage-Linie",
+   "wichtigkeit": 7.691515498358115e-05,
+   "streuung": 0.00011427220451294016,
+   "richtung": -0.13273312468251386
+  },
+  {
+   "merkmal": "ret20",
+   "name": "Anstieg 1 Monat",
+   "wichtigkeit": 3.889698493475535e-05,
+   "streuung": 2.740539116877316e-05,
+   "richtung": -0.2422322267764588
+  },
+  {
+   "merkmal": "rsi2",
+   "name": "RSI (2 Tage)",
+   "wichtigkeit": 3.736993530620847e-05,
+   "streuung": 3.244733948796971e-05,
+   "richtung": -0.27957738257806347
+  },
+  {
+   "merkmal": "abst_hoch20",
+   "name": "Abstand zum 20-Tage-Hoch",
+   "wichtigkeit": 2.5798872641424886e-05,
+   "streuung": 2.2126493087042623e-05,
+   "richtung": -0.26709189275853423
+  },
+  {
+   "merkmal": "treffer4",
+   "name": "Erwartung übertroffen (letzte 4)",
+   "wichtigkeit": 7.126231599752231e-06,
+   "streuung": 2.324615602847572e-05,
+   "richtung": 0.006573936277520947
+  },
+  {
+   "merkmal": "volumen_faktor",
+   "name": "Volumen gegenüber normal",
+   "wichtigkeit": 5.496218510758765e-07,
+   "streuung": 4.260343897675487e-05,
+   "richtung": -0.018824791606131548
+  },
+  {
+   "merkmal": "anzahl_signale",
+   "name": "Zahl der Strategien mit Signal",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": 0.04941356746270335
+  },
+  {
+   "merkmal": "sig_ausbruch_long",
+   "name": "Signal Ausbruch",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.11378893100896045
+  },
+  {
+   "merkmal": "sig_rsi2_long",
+   "name": "Signal RSI-2-Rücksetzer",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": 0.3000978852761139
+  },
+  {
+   "merkmal": "sig_gegenbewegung_long",
+   "name": "Signal Gegenbewegung",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": 0.20110966765234994
+  },
+  {
+   "merkmal": "sig_macd_long",
+   "name": "Signal MACD-Wende",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.09614035899141389
+  },
+  {
+   "merkmal": "sig_ruecksetzer_long",
+   "name": "Signal Rücksetzer",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.11157312323105455
+  },
+  {
+   "merkmal": "sig_squeeze_long",
+   "name": "Signal Squeeze-Ausbruch",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.05857367090703032
+  },
+  {
+   "merkmal": "sig_ema_kreuz_long",
+   "name": "Signal EMA-Kreuz",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.011289021953372946
+  },
+  {
+   "merkmal": "sig_atr_ausbruch_long",
+   "name": "Signal ATR-Ausbruch",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.1419489431897297
+  },
+  {
+   "merkmal": "abst_ema20",
+   "name": "Abstand zur 20-Tage-Linie",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": -0.2981743299114834
+  },
+  {
+   "merkmal": "schocks60",
+   "name": "Absturz-Tage zuletzt",
+   "wichtigkeit": 0.0,
+   "streuung": 0.0,
+   "richtung": 0.0157647511540537
+  },
+  {
+   "merkmal": "verlust",
+   "name": "Firma macht Verlust",
+   "wichtigkeit": -1.2655804471184418e-05,
+   "streuung": 5.106785726992308e-06,
+   "richtung": -1.5046696652520993e-05
+  },
+  {
+   "merkmal": "rsi14",
+   "name": "RSI (14 Tage)",
+   "wichtigkeit": -2.68074794948836e-05,
+   "streuung": 1.1995383703991274e-05,
+   "richtung": -0.29840012757705847
+  },
+  {
+   "merkmal": "bollinger_lage",
+   "name": "Lage im Bollinger-Band",
+   "wichtigkeit": -4.7184818388745776e-05,
+   "streuung": 4.837538641906817e-05,
+   "richtung": -0.2711856265707505
+  },
+  {
+   "merkmal": "spy_tag",
+   "name": "Markt heute",
+   "wichtigkeit": -7.829573546451752e-05,
+   "streuung": 0.0009183036362633746,
+   "richtung": -0.19021049607078552
+  },
+  {
+   "merkmal": "mom63",
+   "name": "Momentum 3 Monate",
+   "wichtigkeit": -0.00010971916839488393,
+   "streuung": 0.0001613672400181575,
+   "richtung": -0.12271041258865739
+  },
+  {
+   "merkmal": "abst_hoch52",
+   "name": "Abstand zum 52-Wochen-Hoch",
+   "wichtigkeit": -0.0001422222674681617,
+   "streuung": 5.8951415408918024e-05,
+   "richtung": -0.13330223448422301
+  },
+  {
+   "merkmal": "operative_marge",
+   "name": "operative Marge",
+   "wichtigkeit": -0.00021033114622270865,
+   "streuung": 0.0003138243430286353,
+   "richtung": 0.01997162956419797
+  },
+  {
+   "merkmal": "ret5",
+   "name": "Anstieg 1 Woche",
+   "wichtigkeit": -0.00030670131952681423,
+   "streuung": 0.00014168846705824609,
+   "richtung": -0.25051994870999567
+  },
+  {
+   "merkmal": "eigenkapitalrendite",
+   "name": "Eigenkapitalrendite",
+   "wichtigkeit": -0.0004933878497301869,
+   "streuung": 0.00019424046554253273,
+   "richtung": -0.029202589711468798
+  },
+  {
+   "merkmal": "bandbreite",
+   "name": "Bandbreite",
+   "wichtigkeit": -0.0005081507796621976,
+   "streuung": 0.000271691559742007,
+   "richtung": -0.05174772844360208
+  },
+  {
+   "merkmal": "vix",
+   "name": "Angst-Index VIX",
+   "wichtigkeit": -0.0007671220095178732,
+   "streuung": 0.0011271688229561139,
+   "richtung": 0.11616418759314448
+  },
+  {
+   "merkmal": "luecken60",
+   "name": "Kurslücken zuletzt",
+   "wichtigkeit": -0.0010680167699633537,
+   "streuung": 0.00019854233344475356,
+   "richtung": 0.04055008634819908
+  },
+  {
+   "merkmal": "spy_ueber200",
+   "name": "S&P 500 über 200-Tage-Linie",
+   "wichtigkeit": -0.0013448884149089401,
+   "streuung": 0.0004884019678699874,
+   "richtung": -0.009351253284512428
+  },
+  {
+   "merkmal": "atr_prozent",
+   "name": "Schwankung (ATR in %)",
+   "wichtigkeit": -0.0016462776900014297,
+   "streuung": 0.0004115892209639935,
+   "richtung": -0.03775336249675631
+  },
+  {
+   "merkmal": "sektor_code",
+   "name": "Branche",
+   "wichtigkeit": -0.002077749695581654,
+   "streuung": 0.0006815999293537076,
+   "richtung": 0.06926915965760147
+  },
+  {
+   "merkmal": "tage_seit_zahlen",
+   "name": "Tage seit den Quartalszahlen",
+   "wichtigkeit": -0.004408859837531076,
+   "streuung": 0.0005598133481868898,
+   "richtung": -0.05562561259783845
+  }
+ ],
+ "sp500_entfernt_seit_2010": 0
+}

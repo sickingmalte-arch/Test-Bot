@@ -61,6 +61,10 @@ MAX_POSITIONEN = 5               # höchstens so viele Positionen gleichzeitig
 MAX_SHORTS = 2                   # davon höchstens so viele Shorts
 MAX_GESAMTRISIKO_PROZENT = 5     # alle offenen Positionen zusammen höchstens so viel % Risiko bis zum Stop
 MAX_JE_BRANCHE = 2              # höchstens so viele Positionen aus derselben Branche (nicht alles auf eine Karte)
+# Lernmodell (--lernmodell): Beides ist AUS, weil es im Rückblick 2010–2026 nicht in allen Zeiträumen besser war
+# (lernen/RUECKBLICK.md). Der Bot zeigt die Punktzahl und die Fehler-Analyse nur an; einschalten erst nach neuem Test.
+LERNMODELL_KAUFEN = False        # nur Kauf-Signale unter den besten 30 % der Punktzahlen kaufen
+LERNMODELL_REIHENFOLGE = False   # bei mehr Signalen als Plätzen die beste Punktzahl zuerst kaufen
 # Branche je Ticker (grob nach GICS-Sektoren). Ticker, die hier fehlen, zählen als eigene Branche (keine Grenze).
 BRANCHEN = {
     "Technologie": "NOW INTU CRWV NBIS IREN AAPL NVDA MSFT AMD PLTR ADBE CRM ORCL AVGO QCOM TXN INTC CSCO IBM SNOW "
@@ -291,6 +295,12 @@ def lies_einstellungen():
                    help="nur Live-Vorschau: aktuelle Kurse (etwa 15 Minuten verzögert) und --papier und --claude-depot "
                         "nach denselben Regeln bis jetzt weitergerechnet (Käufe, Stop, Ziel) als JSON in DATEI – "
                         "speichert nichts sonst, endgültig bucht der normale Lauf mit den Schlusskursen")
+    p.add_argument("--lernmodell", metavar="ORDNER",
+                   help="Ergebnis des Lern-Laufs (z. B. lernen) anwenden: Kauf-Signale mit zu niedriger Punktzahl "
+                        "werden nicht gekauft; dazu Punktzahl je Signal, Fehler-Analyse der Trades und was das Modell "
+                        "gelernt hat")
+    p.add_argument("--lernmodell-nur-anzeigen", action="store_true",
+                   help="Punktzahl nur anzeigen, nicht danach kaufen")
     p.add_argument("--csv", metavar="DATEI", help="Ergebnis zusätzlich als CSV speichern (für Excel)")
     p.add_argument("--bericht", metavar="DATEI",
                    help="alles zusätzlich als Markdown-Bericht speichern (z. B. bericht/README.md – GitHub zeigt ihn an)")
@@ -311,6 +321,8 @@ def lies_einstellungen():
     einst.sperre_ticker = frozenset()  # aus 'Meine Regeln' im Gehirn (--gehirn)
     einst.sperre_strategien = frozenset()
     einst.nachrichten_sperre, einst.nachrichten_tag = frozenset(), None  # Nachrichten-Regel (nur für den letzten Kurstag)
+    einst.lern_sperre = {}  # Lernmodell: Signaltag -> Ticker, deren Punktzahl unter der Kauf-Schwelle liegt
+    einst.lern_rang = {}  # Lernmodell: Signaltag -> {Ticker: Punktzahl} (beste Punktzahl wird zuerst gekauft)
     einst.marktfilter = not einst.ohne_marktfilter
     einst.bruchstuecke = BRUCHSTUECKE or einst.bruchstuecke
     einst.ticker_liste = ticker_aus_text(einst.ticker if einst.ticker else ",".join(TICKER_LISTE))
@@ -1464,6 +1476,13 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
             return None
 
     gebuehr = einst.gebuehr
+    lern_sperre = getattr(einst, "lern_sperre", None) or {}  # Lernmodell: Signale unter der Kauf-Schwelle
+    lern_rang = getattr(einst, "lern_rang", None) or {}  # Lernmodell: Punktzahl je Signaltag und Ticker
+
+    def lern_vorrang(auftrag):
+        """Mit Lernmodell: beste Punktzahl zuerst (ohne Punktzahl danach), sonst wie bisher bestes CRV zuerst."""
+        p = lern_rang.get(auftrag.get("signal_tag"), {}).get(auftrag["ticker"])
+        return -p if p is not None else 0.0
     bargeld = float(einst.konto)
     depotwert = float(einst.konto)  # zum letzten Schlusskurs – Grundlage für die Positionsgröße
     positionen, auftraege, trades, verlauf = {}, [], [], []
@@ -1563,7 +1582,8 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
                 continue
             letzter_kurs[t] = (d["C"][i], d["FX"][i])
             if (t in positionen or i < MIN_KERZEN - 1 or (signal_ticker is not None and t not in signal_ticker)
-                    or t in einst.sperre_ticker or (t in einst.nachrichten_sperre and tag == einst.nachrichten_tag)):
+                    or t in einst.sperre_ticker or (t in einst.nachrichten_sperre and tag == einst.nachrichten_tag)
+                    or t in lern_sperre.get(tag, ())):
                 continue
             wahl, _ = kandidaten(d, i, pausiert, einst.sperre_strategien)
             if wahl is None:
@@ -1576,7 +1596,7 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
                          "crv": r * (ziel - kurs) / (r * (kurs - stop)), "signal_tag": tag})
         ersetzt = {a["ticker"] for a in neue}
         auftraege = sorted([a for a in auftraege if a["ticker"] not in ersetzt] + neue,
-                           key=lambda a: (-a["crv"], VORRANG[a["strategie"]], reihenfolge[a["ticker"]]))
+                           key=lambda a: (lern_vorrang(a), -a["crv"], VORRANG[a["strategie"]], reihenfolge[a["ticker"]]))
 
         # 4) Depotwert zum Schlusskurs
         depotwert = bargeld + sum(positionswert(p, *letzter_kurs[t]) for t, p in positionen.items())
@@ -2189,6 +2209,202 @@ def zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
           + mitte_html + '<div style="margin-top: 8px;">' + fuss_html + "</div>",
           als_text(tabelle, titel, zusammenfassung, hinweise, fuss, formate, mitte=mitte))
 
+
+# --- Lernmodell (Ordner lernen/): Punktzahl je Signal, Fehler-Analyse, was gelernt wurde -------------------------
+# Der Lern-Lauf (lernen/lernlauf.py, Ablauf lernen.yml) lernt nach dem US-Schluss aus allen Kauf-Signalen aller Aktien
+# aus S&P 500 und Nasdaq-100 und analysiert jeden Verlust. Der Bot liest das Ergebnis (JSON, ohne scikit-learn),
+# zeigt es an und kauft nur Signale, deren Punktzahl unter den besten 30 % liegt (LERNMODELL_KAUFEN; nur anzeigen mit
+# --lernmodell-nur-anzeigen). Getestet im Rückblick lernen/RUECKBLICK.md.
+def lies_lernmodell(ordner):
+    """(punkte, lernstand) des Lern-Laufs; was fehlt oder kaputt ist, ist None."""
+    aus = []
+    for name in ("punkte.json", "lernstand.json"):
+        try:
+            with open(os.path.join(ordner, name), encoding="utf-8") as f:
+                aus.append(json.load(f))
+        except (OSError, ValueError):
+            aus.append(None)
+    return tuple(aus)
+
+def lern_richtung(r):
+    if r is None:
+        return "gemischt"
+    return "je höher, desto besser" if r >= 0.15 else "je niedriger, desto besser" if r <= -0.15 else "im Zusammenspiel"
+
+def lern_auswahl(lernstand, anzahl=5):
+    """Die wichtigsten Merkmale und die häufigsten Fehler in einfachen Worten."""
+    gelernt = [x for x in (lernstand or {}).get("gelernt") or [] if x.get("wichtigkeit", 0) > 0][:anzahl]
+    merkmale = ", ".join(f"{x['name']} ({lern_richtung(x.get('richtung'))})" for x in gelernt)
+    tab = ((lernstand or {}).get("fehler") or {}).get("tabelle") or []
+    fehler = ", ".join(f"{x['text']} {de(100 * x['alle'], 0)} %" for x in tab[:4] if x.get("alle"))
+    return merkmale, fehler
+
+def lernmodell_teil(punkte, lernstand, zeilen, ordner, kauft=False):
+    """Abschnitt für den Bericht: (Zeilen davor, Tabelle, Zeilen danach). kauft: Der Bot kauft nach der Punktzahl."""
+    vorne, hinten = [], []
+    if punkte is None or lernstand is None:
+        return [f"Noch kein Ergebnis des Lern-Laufs in {ordner}/ (Ablauf lernen.yml) – sobald er gelaufen ist, steht "
+                "hier die Punktzahl je Kauf-Signal."], None, []
+    ok = [z for z in zeilen if "_stand" in z]
+    tag = f"{max(z['_stand'] for z in ok):%Y-%m-%d}" if ok else punkte.get("tag")
+    heute = (punkte.get("tage") or {}).get(tag)
+    besten = f"{de(100 * punkte.get('anteil', 0.3), 0)} %"
+    vorne.append("Das Lernmodell gibt jedem Kauf-Signal eine Punktzahl (geschätzte Chance, dass der Trade im Plus "
+                 f"endet). ✅ = unter den besten {besten} der Signale der 12 Monate davor. "
+                 + ("Gekauft werden nur Signale mit ✅, die anderen stehen oben auf ⏸ WARTEN." if kauft else
+                    "Nur zur Anzeige – gekauft wird nach den Regeln ohne Lernmodell."))
+    tabelle = None
+    if heute is None:
+        vorne.append(f"⚠️ Für den {datum(pd.Timestamp(tag))} gibt es noch keine Punktzahlen (letzter Lern-Lauf: "
+                     f"Kurse bis {datum(pd.Timestamp(punkte.get('tag')))}).")
+    else:
+        reihen = []
+        for z in zeilen:
+            p = heute.get(z["Ticker"])
+            if p is None:
+                continue
+            bewertet = (f" (bewertet: {strategie_name(p['strategie'])})"
+                        if p.get("strategie") and p["strategie"] != z.get("_strategie") else "")
+            reihen.append({"Ticker": z["Ticker"], "Signal": z.get("Signal", ""),
+                           "Strategie": (strategie_name(z["_strategie"]) if z.get("_strategie") else "") + bewertet,
+                           "Punktzahl": p["punkte"], "Rang": p.get("rang"),
+                           "Lernmodell": "✅ unter den besten" if p.get("beste") else "–"})
+        if reihen:
+            tabelle = pd.DataFrame(reihen).sort_values("Punktzahl", ascending=False)
+        else:
+            vorne.append("Heute kein Kauf-Signal in der Watchlist, das das Lernmodell bewertet hat.")
+    g = lernstand.get("guete") or {}
+    merkmale, fehler = lern_auswahl(lernstand)
+    if g:
+        hinten.append(f"Trennschärfe der letzten 12 Monate: {de(g['auc'], 2)} (0,50 = Münzwurf) · Modell vom "
+                      f"{lernstand.get('monat')}, gelernt aus {de(lernstand.get('training') or 0, 0)} gedachten Trades")
+    if merkmale:
+        hinten.append(f"Worauf es am meisten achtet: {merkmale}.")
+    if fehler:
+        hinten.append(f"Häufigste Fehler (alle Signale, 12 Monate): {fehler}.")
+    verlust = [t for t in lernstand.get("bot_trades") or [] if t.get("R") is not None and t["R"] < 0
+               and t.get("fehler_text")]
+    if verlust:
+        hinten.append("Fehler-Analyse der letzten Verluste im Übungsdepot: " + " · ".join(
+            f"{t['ticker']} {r_text(t['R'])}: {', '.join(t['fehler_text'])}" + ("" if t.get("fertig") else " (vorläufig)")
+            for t in verlust[-3:]))
+    for w in (lernstand.get("warnungen") or [])[:3]:
+        hinten.append(f"⚠️ Daten des Lern-Laufs: {w}")
+    hinten.append(f"Alles dazu: {ordner}/LERNEN.md · ehrlicher Rückblick: {ordner}/RUECKBLICK.md")
+    return vorne, tabelle, hinten
+
+LERNMODELL_FORMATE = {"Punktzahl": lambda v: f"{de(100 * v, 0)} %", "Rang": lambda v: "–" if pd.isna(v) else de(v, 0)}
+
+def lern_sperre_aus(punkte):
+    """Signaltag -> Ticker, deren Kauf-Signal das Lernmodell unter der Kauf-Schwelle sieht (für das Übungsdepot und
+    den Rückblick der letzten 12 Monate; die Punktzahlen stammen jeweils vom Modell, das damals galt)."""
+    sperre = {pd.Timestamp(tag): frozenset(t) for tag, t in ((punkte or {}).get("sperre") or {}).items()}
+    for tag, liste in ((punkte or {}).get("tage") or {}).items():
+        sperre[pd.Timestamp(tag)] = frozenset(t for t, p in liste.items() if not p.get("beste"))
+    return sperre
+
+def lern_rang_aus(punkte):
+    """Signaltag -> {Ticker: Punktzahl} für die Reihenfolge der Käufe."""
+    rang = {pd.Timestamp(tag): dict(t) for tag, t in ((punkte or {}).get("verlauf") or {}).items()}
+    for tag, liste in ((punkte or {}).get("tage") or {}).items():
+        rang[pd.Timestamp(tag)] = {t: p["punkte"] for t, p in liste.items()}
+    return rang
+
+def lernmodell_anwenden(einst, zeilen):
+    """Liest das Ergebnis des Lern-Laufs. Kaufen nach dem Lernmodell: Kauf-Signale, deren Punktzahl unter der
+    Kauf-Schwelle liegt, werden zu ⏸ WARTEN, und das Übungsdepot kauft sie nicht. Fehlen die Punktzahlen für den
+    letzten Kurstag, gelten heute die Regeln ohne Lernmodell (mit Hinweis)."""
+    try:
+        einst.lern_punkte, einst.lern_stand = lies_lernmodell(einst.lernmodell)
+    except Exception:  # noqa: BLE001 – das Lernmodell darf den Lauf nie verhindern
+        einst.lern_punkte = einst.lern_stand = None
+    if getattr(einst, "lernmodell_nur_anzeigen", False):
+        return
+    if LERNMODELL_REIHENFOLGE:
+        einst.lern_rang = lern_rang_aus(einst.lern_punkte)
+    if not LERNMODELL_KAUFEN:
+        return
+    ok = [z for z in zeilen if "_stand" in z]
+    if not ok:
+        return
+    stand_tag = max(z["_stand"] for z in ok)
+    einst.lern_sperre = lern_sperre_aus(einst.lern_punkte)
+    heute = ((einst.lern_punkte or {}).get("tage") or {}).get(f"{stand_tag:%Y-%m-%d}")
+    if heute is None:
+        if any(z.get("Signal") == KAUFEN for z in zeilen):
+            BERICHT_HINWEISE.append(f"Lernmodell: Für den {datum(stand_tag)} fehlen die Punktzahlen (Lern-Lauf noch nicht "
+                                    "fertig) – heute kauft der Bot nach den Regeln ohne Lernmodell.")
+        return
+    for z in zeilen:
+        p = heute.get(z["Ticker"])
+        if z.get("Signal") == KAUFEN and p is not None and not p.get("beste"):
+            for feld in ("Limit", "Stop", "Ziel", "CRV", "Stück", "Einsatz", "Risiko", "_chance", "_chance_praxis"):
+                z.pop(feld, None)
+            z.update({"Signal": WARTEN, "Strategie": f"{strategie_name(z['_strategie'])} – Lernmodell: Punktzahl "
+                                                     f"{de(100 * p['punkte'], 0)} % (unter der Kauf-Schwelle)"})
+
+def zeige_lernmodell(einst, zeilen):
+    """Zeigt die Kurzfassung des Lern-Laufs im Bericht (die Daten hat lernmodell_anwenden schon gelesen)."""
+    if not hasattr(einst, "lern_punkte"):
+        einst.lern_punkte, einst.lern_stand = lies_lernmodell(einst.lernmodell)
+    kauft = LERNMODELL_KAUFEN and not getattr(einst, "lernmodell_nur_anzeigen", False)
+    vorne, tabelle, hinten = lernmodell_teil(einst.lern_punkte, einst.lern_stand, zeilen, einst.lernmodell, kauft)
+    titel = ("🧠 LERNMODELL – entscheidet mit, was gekauft wird" if kauft
+             else "🧠 LERNMODELL (nur Anzeige – entscheidet nicht über Käufe)")
+    berichte(titel, vorne, tabelle, LERNMODELL_FORMATE, True, hinten)
+    print(f"\n{titel}")
+    for z in vorne:
+        print(z)
+    if tabelle is not None:
+        print(tabelle.to_string(index=False, formatters=LERNMODELL_FORMATE))
+    for z in hinten:
+        print(z)
+
+def lernmodell_lehren(einst):
+    """Abschnitt der Lehren-Seite im Gehirn: Fehler-Analyse der Trades und was das Lernmodell gelernt hat."""
+    ls = getattr(einst, "lern_stand", None)
+    if not ls:
+        return []
+    text = ["", "## 🔎 Fehler-Analyse und Lernmodell", "",
+            "Der Lern-Lauf spielt jedes Kauf-Signal aller Aktien aus S&P 500 und Nasdaq-100 als gedachten Trade durch, "
+            "gibt jedem Verlust Gründe und lernt jeden Monat neu, welche Signale gut laufen. "
+            + ("Gekauft werden nur Signale, deren Punktzahl unter den besten 30 % liegt." if LERNMODELL_KAUFEN
+               and not getattr(einst, "lernmodell_nur_anzeigen", False) else
+               "Die Punktzahl wird nur angezeigt – gekauft wird nach den Regeln ohne Lernmodell."), ""]
+    verlust = [t for t in ls.get("bot_trades") or [] if t.get("R") is not None and t["R"] < 0]
+    if verlust:
+        text.append("### Warum Trades im Übungsdepot verloren haben")
+        text.append("")
+        for t in verlust[-10:]:
+            text.append(f"- {link_aktie(t['ticker'])} {t['kauf_tag']} → {t['verkauf_tag']}, {r_text(t['R'])} "
+                        f"({t['grund']}): {', '.join(t.get('fehler_text') or ['noch keine Kurse'])}"
+                        + ("" if t.get("fertig") else " (vorläufig)"))
+        zaehl = {}
+        for t in verlust:
+            for g in t.get("fehler_text") or []:
+                zaehl[g] = zaehl.get(g, 0) + 1
+        if zaehl:
+            text.append("- Zusammen: " + ", ".join(f"{g} {n}×" for g, n in sorted(zaehl.items(), key=lambda x: -x[1])))
+        text.append("")
+    tab = (ls.get("fehler") or {}).get("tabelle") or []
+    if tab:
+        fv = ls["fehler"]
+        text += ["### Häufigste Fehler aller Kauf-Signale (12 Monate)", "",
+                 f"Von {fv['n_alle']} gedachten Trades verloren {de(100 * fv['verlust_alle'], 0)} %; von den "
+                 f"{fv['n_ausgewaehlt']} mit der besten Punktzahl {de(100 * fv['verlust_ausgewaehlt'], 0)} %.", ""]
+        for x in tab:
+            if x.get("alle") and x["alle"] >= 0.005:
+                text.append(f"- {x['text']}: {de(100 * x['alle'], 0)} % aller Signale · bei den besten "
+                            f"{de(100 * x['ausgewaehlt'], 0)} %")
+        text.append("")
+    gelernt = [x for x in ls.get("gelernt") or [] if x.get("wichtigkeit", 0) > 0][:8]
+    if gelernt:
+        text += ["### Worauf das Lernmodell am meisten achtet", ""]
+        text += [f"- {x['name']}: {lern_richtung(x.get('richtung'))}" for x in gelernt]
+        g = ls.get("guete") or {}
+        if g:
+            text.append(f"- Trennschärfe der letzten 12 Monate: {de(g['auc'], 2)} (0,50 = Münzwurf)")
+    return text
 
 # --- Lern-Tabelle -------------------------------------------------------------
 LERN_FORMATE = {"Ø je Trade": lambda v: de(v, 2, True) + " R" if not pd.isna(v) else "–",
@@ -4401,6 +4617,7 @@ def schreibe_gehirn(ordner, einst, waehrung, zeilen, tagebuch, stand, pausen, al
         text.append(f"- Noch keine abgeschlossenen Trades – das Übungsdepot läuft seit {papier.get('angelegt')}.")
     else:
         text.append("- Noch kein Übungsdepot.")
+    text += lernmodell_lehren(einst)
     text += ["", "Übersicht: [[Start]] · [[Meine Regeln]]"]
     notiz(("Lehren.md",), "\n".join(text), {"typ": "lehren"})
 
@@ -4738,6 +4955,8 @@ def auswerten(einst):
             z["_stimmung"] = news[z["Ticker"]]["stimmung"]
     if news and getattr(einst, "nachrichten_log", None):
         nachrichten_log_schreiben(einst.nachrichten_log, zeilen)
+    if getattr(einst, "lernmodell", None):
+        lernmodell_anwenden(einst, zeilen)
 
     # Sortieren: Einstiegssignale nach CRV (wie im Depot), dann Warten, Hinweise, Beobachten, Fehler. Das CRV wird
     # gerundet: Bei gleichem CRV (z. B. 1,0) entschieden sonst winzige Rechenreste die Reihenfolge, und ein zweiter Lauf
@@ -4801,6 +5020,13 @@ def auswerten(einst):
     notebook = im_notebook()
     zeige_scanner(tabelle, titel, zusammenfassung, hinweise, plan, schlagzeilen,
                   fusszeilen(zeilen, einst, waehrung, news, zusatz), tabellen_formate(einst), notebook)
+    if getattr(einst, "lernmodell", None):
+        try:
+            zeige_lernmodell(einst, zeilen)
+        except Exception as fehler:  # das Lernmodell darf den Lauf nie verhindern
+            text = f"Lernmodell nicht angezeigt ({type(fehler).__name__}: {fehler})."
+            print(f"⚠️ {text}")
+            BERICHT_HINWEISE.append(text)
 
     # Lern-Tabelle, Papier-Depot (vorwärts) und virtuelles Depot (Rückblick)
     zeige_lernen(stand, einst, waehrung, notebook, RUECKSCHAU)

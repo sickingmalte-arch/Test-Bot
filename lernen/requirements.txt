@@ -1,0 +1,8 @@
+# Feste Versionen für den Lern-Teil des Bots (lernen.yml und lernen-check.yml). Das Lernmodell wird im Zwischenspeicher
+# gesichert – mit einer anderen scikit-learn-Version ließe es sich nicht wieder laden (dann lernt es einfach neu).
+pandas==3.0.6
+numpy==2.5.4
+scikit-learn==1.9.1
+yfinance==1.7.0
+lxml==6.1.3
+pytest==9.0.3
