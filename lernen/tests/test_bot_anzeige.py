@@ -164,3 +164,20 @@ def test_im_bot_zurzeit_nur_anzeige(tmp_path):
     zeilen, einst = _zeilen(), _einst(tmp_path)
     sw.lernmodell_anwenden(einst, zeilen)
     assert all(z["Signal"] == sw.KAUFEN for z in zeilen) and einst.lern_sperre == {} and einst.lern_rang == {}
+
+
+def test_export_fuer_die_webseite(tmp_path):
+    (tmp_path / "rueckblick").mkdir()
+    (tmp_path / "rueckblick" / "ergebnis.json").write_text(json.dumps(
+        {"jetziger_bot": {"2010-01-01": {"rendite": 9.2}}, "bot_rang": {"2010-01-01": {"rendite": 6.1}},
+         "halten": {"Nasdaq-100 kaufen und halten": {"2010-01-01": {"rendite": 22.9}}}}), encoding="utf-8")
+    einst = types.SimpleNamespace(lernmodell=str(tmp_path), lern_stand=LERNSTAND, lern_punkte=PUNKTE)
+    e = sw.lernmodell_export(einst, ZEILEN)
+    assert e["kauft"] is False and e["training"] == 412345 and e["tag"] == "2026-10-28"
+    assert [x["ticker"] for x in e["signale"]] == ["NOW", "SOFI"] and e["signale"][0]["beste"]
+    assert [x["name"] for x in e["gelernt"]] == ["Momentum 6 Monate", "Angst-Index VIX"]  # nur wichtige
+    assert e["fehler"][0] == {"text": "Absturz des Gesamtmarkts", "alle": 0.12, "auswahl": 0.08}
+    assert e["trades"][-1]["fehler"] == ["Absturz des Gesamtmarkts", "Stop zu eng"]
+    assert e["rueckblick"]["jetzt"]["2010-01-01"] == 9.2 and e["rueckblick"]["zuerst"]["2015-01-01"] is None
+    json.dumps(e)  # muss als JSON speicherbar sein
+    assert sw.lernmodell_export(types.SimpleNamespace(lernmodell=str(tmp_path)), ZEILEN) is None

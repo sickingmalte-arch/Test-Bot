@@ -19,6 +19,9 @@ Rund 490.000 Kauf-Signale von 518 Aktien seit 2008, Walk-forward mit Bilanzdaten
   +6,1 % statt +9,2 % im Jahr, 2015–2021 +14,6 % statt +10,5 %, 2022–2026 +10,1 % statt +7,0 %. Nur die besten 30 % oder
   50 % kaufen war meist deutlich schlechter.
 - **Die Verkaufs-Regeln** (Stop erst zum Schluss, Panik-Regel, starke Aktien halten) waren schlechter als heute.
+- **Nachtest:** Eine Markt-Ampel aus dem Modell (keine Käufe an den schlechtesten 20 % bzw. 30 % der Markttage) und ein
+  Modell, das die Signale desselben Tages vergleicht (ohne Marktlage), waren ebenfalls nicht überall besser
+  (−0,8 bis +1,0 bzw. −0,2 bis +0,3 Prozentpunkte).
 
 Deshalb sind im Bot beide Schalter aus (`LERNMODELL_KAUFEN`, `LERNMODELL_REIHENFOLGE` in `swing_scanner.py`): Er zeigt
 die Punktzahl und die Fehler-Analyse an, kauft und verkauft aber wie bisher. Der Lern-Lauf lernt jeden Monat weiter;
