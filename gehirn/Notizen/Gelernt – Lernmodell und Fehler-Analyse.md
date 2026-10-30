@@ -13,6 +13,7 @@ Diese Notiz ändert der Bot nie. Sie hält fest, was der große Test des Lernmod
 > - **Kaufen nach Punktzahl war nicht überall besser.** „Beste Punktzahl zuerst“ war 2015–2021 und 2022–2026 besser, 2010–2014 aber 3 Punkte schlechter. Nur die besten 30 % oder 50 % zu kaufen, war fast überall schlechter.
 > - **Nicht bei jedem Schreck verkaufen half nicht.** Stop erst zum Tagesschluss, die Panik-Regel und starke Aktien halten: Alle drei waren schlechter als heute.
 > - **Auch eine Markt-Ampel aus dem Modell und der Vergleich der Signale am selben Tag** waren nicht überall besser.
+> - **Früher verkaufen ohne Schwung, Insider-Käufe zuerst und eine ehrlichere Aktienliste** halfen ebenfalls nicht. Der Vorteil der Insider-Regel war nicht größer als der von zufällig gewählten Signalen.
 
 ## So wurde getestet
 
@@ -99,6 +100,49 @@ Weil das Modell vor allem die Marktlage erkennt, wurden zwei weitere Ideen gepr�
 - **7 Positionen mit 7 % Gesamtrisiko:** +9,4 % pro Jahr, aber der größte Rückgang war 17,9 % statt 14,2 %, und er war in allen 6 Fällen größer.
 
 Mehr Rendite gab es also nur mit mehr Risiko. Deshalb bleiben es 5 Positionen.
+
+## Auch geprüft: früher verkaufen, Insider-Käufe, frühere S&P-500-Aktien
+
+Alle drei im echten Bot auf der Watchlist, gleiche drei Zeiträume.
+
+### Früher verkaufen, wenn ein Trade keinen Schwung hat
+
+Der Bot verkauft spätestens nach 20 Handelstagen (Zeitstopp). Geprüft wurde, schon früher zum Schlusskurs zu verkaufen, wenn der Kurs bis dahin nicht genug gestiegen ist:
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +9,2 % / −17 % | +10,5 % / −17 % | +7,0 % / −16 % |
+| nach 5 Tagen raus, wenn unter dem Einstieg | +4,4 % / −24 % | +4,8 % / −26 % | +5,2 % / −15 % |
+| nach 8 Tagen raus, wenn unter dem Einstieg | +6,9 % / −21 % | +5,3 % / −26 % | +3,3 % / −18 % |
+| nach 10 Tagen raus, wenn weniger als 0,25 R im Plus | +4,2 % / −22 % | +9,9 % / −23 % | +4,6 % / −18 % |
+| nach 12 Tagen raus, wenn weniger als 0,5 R im Plus | +4,1 % / −22 % | +7,1 % / −22 % | +4,5 % / −19 % |
+
+Überall schlechter (−0,6 bis −5,7 Punkte), die Rückgänge meist größer. Viele Trades, die anfangs hängen, laufen später doch noch ins Ziel. Der Gewinn je Trade sank von 0,11 R auf 0,02 bis 0,07 R, dazu kamen mehr Gebühren. Nicht übernommen.
+
+### Insider-Käufe (SEC, Formular 4)
+
+Wenn Chefs und Vorstände eigene Aktien am Markt kaufen, müssen sie das melden. Getestet wurden alle Käufe und Verkäufe seit 2006 (bis März 2026), jeweils erst ab dem Tag nach der Meldung bekannt.
+
+- **Ohne Modell:** Signale nach Insider-Käufen in den 90 Tagen davor liefen praktisch gleich wie die anderen (+0,098 statt +0,095 R, +0,057 statt +0,054 R, 0,000 statt −0,003 R; gleiche Trefferquote).
+- **Lernmodell mit Insider-Merkmalen:** Trennschärfe 0,503 statt 0,506, also nicht besser.
+- **Regel „Aktien mit Insider-Käufen zuerst kaufen, sonst wie heute“:** +10,4 % / −17 %, +11,8 % / −16 %, +8,3 % / −15 %. Das sieht überall besser aus (+1,2 bis +1,3 Punkte).
+- **Gegenprobe mit Zufall:** Statt der Insider-Käufe kamen zufällig ausgewählte Signale zuerst dran, gleich viele je Jahr, 6-mal. Ergebnis: 2010–2014 +8,4 bis +10,1 %, 2015–2021 +9,7 bis +12,7 %, 2022–2026 +5,6 bis +9,0 %. Eine der Zufalls-Varianten war ebenfalls überall besser als der jetzige Bot. Mit 365 statt 90 Tagen war 2015–2021 schlechter (+10,0 %).
+
+Der Vorteil der Insider-Regel liegt also im Bereich des Zufalls. Nicht übernommen.
+
+### Ehrlichere Aktienliste: auch Aktien, die aus dem S&P 500 geflogen sind
+
+- 249 Aktien wurden seit 2008 aus dem S&P 500 genommen, 19 davon sind heute wieder dabei. Von den übrigen hatte Yahoo nur noch für 46 genug Kurse. Pleite gegangene oder übernommene Firmen fehlen dort meist ganz.
+- **Ihre Signale liefen deutlich schlechter:** 2010–2014 +0,03 statt +0,10 R (Trefferquote 54 % statt 59 %), 2015–2021 −0,13 statt +0,06 R (46 % statt 56 %).
+- **Das Modell erkennt diese späteren Verlierer nicht:** Bei ihnen lag die Trennschärfe bei 0,49, also nicht besser als ein Münzwurf.
+- **Im Depot „alle Aktien“** änderte es kaum etwas (2010–2014 +8,7 statt +8,8 %), weil die 46 Aktien nur rund 5 % der Signale ausmachen. Die echte Verzerrung ist größer, weil die meisten Verlierer bei Yahoo fehlen.
+- **Lernmodell, das auch aus ihnen lernt, beste zuerst:** +6,7 %, +17,2 % und +10,5 %. Das ist wieder nicht überall besser als der jetzige Bot (2010–2014 −2,5 Punkte).
+
+Nicht in den täglichen Lern-Lauf übernommen, weil es nichts verbessert und Yahoo die meisten früheren Aktien nicht mehr hat. Die Warnung zur Überlebens-Verzerrung hat jetzt Zahlen.
+
+### Was diese Tests zeigen
+
+- **Allein die Reihenfolge, in der der Bot gleich gute Signale kauft, verschiebt die Rendite um bis zu ±2 Punkte im Jahr.** Unterschiede in dieser Größe sind kein Beweis für eine bessere Regel. Deshalb gibt es bei neuen Regeln für die Reihenfolge ab jetzt immer eine Gegenprobe mit Zufall.
 
 ## Meine Gedanken
 
