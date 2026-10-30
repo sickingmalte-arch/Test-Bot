@@ -2360,6 +2360,46 @@ def zeige_lernmodell(einst, zeilen):
     for z in hinten:
         print(z)
 
+def lernmodell_export(einst, zeilen):
+    """Für die Übersichtsseite: was das Lernmodell gelernt hat, Punktzahl der heutigen Signale, häufigste Fehler,
+    Fehler-Analyse der Trades im Übungsdepot und der Rückblick 2010–2026."""
+    ls, pz = getattr(einst, "lern_stand", None), getattr(einst, "lern_punkte", None)
+    if not ls:
+        return None
+    ok = [z for z in zeilen if "_stand" in z]
+    tag = f"{max(z['_stand'] for z in ok):%Y-%m-%d}" if ok else None
+    heute = ((pz or {}).get("tage") or {}).get(tag) or {}
+    signale = sorted(({"ticker": z["Ticker"], "signal": z.get("Signal", ""), "punkte": json_zahl(heute[z["Ticker"]]["punkte"], 4),
+                       "rang": heute[z["Ticker"]].get("rang"), "beste": bool(heute[z["Ticker"]].get("beste"))}
+                      for z in zeilen if z["Ticker"] in heute), key=lambda x: -(x["punkte"] or 0))
+    g = ls.get("guete") or {}
+    fv = ls.get("fehler") or {}
+    rueckblick = None
+    try:
+        with open(os.path.join(einst.lernmodell, "rueckblick", "ergebnis.json"), encoding="utf-8") as f:
+            rb = json.load(f)
+        reihe = lambda je: {von: json_zahl((je or {}).get(von, {}).get("rendite"), 1) for von in ("2010-01-01", "2015-01-01", "2022-01-01")}  # noqa: E731
+        rueckblick = {"jetzt": reihe(rb.get("jetziger_bot")), "zuerst": reihe(rb.get("bot_rang")),
+                      "beste30": reihe(rb.get("bot_mit_lernmodell")),
+                      "nasdaq": reihe((rb.get("halten") or {}).get("Nasdaq-100 kaufen und halten"))}
+    except (OSError, ValueError, AttributeError, TypeError):
+        pass
+    return {"stand": ls.get("stand"), "monat": ls.get("monat"), "training": ls.get("training"),
+            "auc": json_zahl(g.get("auc"), 3), "n": g.get("n"),
+            "fuenftel": [{"q": int(x["fuenftel"]), "treffer": json_zahl(x["treffer"], 3), "R": json_zahl(x["R"], 3)}
+                         for x in g.get("fuenftel") or []],
+            "kauft": bool(LERNMODELL_KAUFEN and not getattr(einst, "lernmodell_nur_anzeigen", False)),
+            "gelernt": [{"name": x["name"], "wichtigkeit": json_zahl(x["wichtigkeit"], 4), "richtung": json_zahl(x.get("richtung"), 2)}
+                        for x in (ls.get("gelernt") or []) if x.get("wichtigkeit", 0) > 0][:8],
+            "fehler": [{"text": x["text"], "alle": json_zahl(x["alle"], 4), "auswahl": json_zahl(x["ausgewaehlt"], 4)}
+                       for x in fv.get("tabelle") or [] if x.get("alle")][:7],
+            "verlust_alle": json_zahl(fv.get("verlust_alle"), 3), "n_alle": fv.get("n_alle"),
+            "trades": [{"ticker": t["ticker"], "kauf_tag": t["kauf_tag"], "verkauf_tag": t["verkauf_tag"],
+                        "R": json_zahl(t["R"], 2), "grund": t.get("grund"), "fehler": t.get("fehler_text") or [],
+                        "fertig": bool(t.get("fertig"))} for t in (ls.get("bot_trades") or [])[-10:]],
+            "signale": signale, "tag": tag if heute else None, "warnungen": (ls.get("warnungen") or [])[:3],
+            "rueckblick": rueckblick}
+
 def lernmodell_lehren(einst):
     """Abschnitt der Lehren-Seite im Gehirn: Fehler-Analyse der Trades und was das Lernmodell gelernt hat."""
     ls = getattr(einst, "lern_stand", None)
@@ -3708,6 +3748,7 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
         "papier": depot_export(papier, daten, markt, fx), "claude": claude_teil, "rueckblick": rueckblick,
         "chance_pruefung": chance_export(chance_pruefung(tagebuch, daten)),
         "charts": charts_export(papier, claude, signale, daten),
+        "lernmodell": lernmodell_export(einst, zeilen) if getattr(einst, "lernmodell", None) else None,
     }
 
 def charts_export(papier, claude, signale, daten):
