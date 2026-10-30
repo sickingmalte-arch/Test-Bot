@@ -7,7 +7,7 @@
 #
 # Kette statt Zeitplan: GitHub lässt geplante Läufe oft aus (am 26.10.2026 kam von 48 geplanten Live-Läufen nur einer,
 # am 24.10. von drei Morgen-Terminen nur der letzte). Deshalb startet jeder Lauf am Ende selbst den nächsten (Job
-# „weiter“): Mo–Fr von 12 bis 22 Uhr etwa alle 15 Minuten, dazwischen wartet er – höchstens 5,5 Stunden am Stück, dann
+# „weiter“): Mo–Fr von 12 bis 22 Uhr etwa alle 15 Minuten, dazwischen wartet er – höchstens 4¾ Stunden am Stück, dann
 # startet ein neuer Lauf und wartet weiter. Di–Sa um 6:47 UTC stößt die Kette auch den Morgen-Lauf an (der rechnet nur,
 # wenn es heute noch keinen vollständigen Bericht gibt). Anhalten: Actions → Live-Kurse → „…“ → Disable workflow.
 name: Live-Kurse
@@ -129,7 +129,7 @@ jobs:
     needs: [zeit, live]
     if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 340
+    timeout-minutes: 355
     steps:
       - name: Nächsten Termin bestimmen
         id: termin
@@ -158,8 +158,8 @@ jobs:
                       return dt.datetime.combine(tag, dt.time(6, 47), U)
 
           ziel, art = min((live_termin(jetzt + dt.timedelta(minutes=13)), "live"), (morgen_termin(jetzt), "morgen"))
-          if ziel - jetzt > dt.timedelta(hours=5, minutes=30):
-              ziel, art = jetzt + dt.timedelta(hours=5, minutes=30), "warten"
+          if ziel - jetzt > dt.timedelta(hours=4, minutes=45):  # plus Wiederholen bei Störungen: unter dem Zeitlimit
+              ziel, art = jetzt + dt.timedelta(hours=4, minutes=45), "warten"
           print(f"Nächster Lauf: {ziel.astimezone(B):%a %d.%m. %H:%M} Uhr deutscher Zeit ({art})")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"sekunden={max(0, int((ziel - jetzt).total_seconds()))}\nart={art}\n")
@@ -177,8 +177,8 @@ jobs:
             echo "Ein neuerer Lauf führt die Kette weiter – hier ist Schluss."
             exit 0
           fi
-          starte() { # bei einer Störung bis zu dreimal versuchen
-            for warte in 0 10 30; do
+          starte() { # bei einer Störung von GitHub (z. B. HTTP 500 am 30.10.2026) gut eine halbe Stunde lang wiederholen
+            for warte in 0 10 30 60 120 300 600 900; do
               sleep "$warte"
               gh workflow run "$@" --repo "$GITHUB_REPOSITORY" --ref main && return 0
             done
