@@ -10,8 +10,8 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=XOM)
 
-**Stand Do 29.10. 2026:** BEOBACHTEN
-**Nächste Quartalszahlen:** Fr 30.10.
+**Stand Fr 30.10. 2026:** 🟢 KAUFEN – Ausbruch ↑ · Limit 169,22 · Stop 156,80 · Ziel 178,09 €
+**Nächste Quartalszahlen:** –
 
 ## Übungsdepot
 

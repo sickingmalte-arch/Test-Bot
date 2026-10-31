@@ -7,22 +7,22 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # MACD-Wende ↑
 
-**Status:** ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,06 R)
+**Status:** ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,08 R)
 
 **Regel:** MACD kreuzt heute seine Signallinie nach oben, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,06 R · Treffer 50 % · ± Zufall 0,20 R
-- Ganze Geschichte: 383 Trades · Ø +0,09 R · Treffer 55 %
+- Letzte 60 Trades: Ø -0,08 R · Treffer 48 % · ± Zufall 0,20 R
+- Ganze Geschichte: 384 Trades · Ø +0,09 R · Treffer 55 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 111× (29 %), Ø +0,95 R
 - Zeitstopp: 101× (26 %), Ø +0,02 R
-- vor Quartalszahlen: 74× (19 %), Ø -0,04 R
-- Stop: 71× (19 %), Ø -1,01 R
+- vor Quartalszahlen: 75× (20 %), Ø -0,04 R
+- Stop: 71× (18 %), Ø -1,01 R
 - Ziel (Kurslücke): 14× (4 %), Ø +1,03 R
 - Stop (Kurslücke): 12× (3 %), Ø -1,12 R
 

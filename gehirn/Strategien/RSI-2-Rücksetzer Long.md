@@ -7,28 +7,28 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # RSI-2-Rücksetzer ↑
 
-**Status:** ✅ aktiv (Ø +0,07 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø +0,02 R über die letzten 60 Trades)
 
 **Regel:** RSI(2) unter 10 über der 200-Tage-Linie (kurzer Rücksetzer im langen Aufwärtstrend). Stop −2,5 ATR, Ziel +2 ATR – braucht etwa 56 % Treffer
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø +0,07 R · Treffer 57 % · ± Zufall 0,21 R
-- Ganze Geschichte: 495 Trades · Ø +0,08 R · Treffer 58 %
+- Letzte 60 Trades: Ø +0,02 R · Treffer 55 % · ± Zufall 0,21 R
+- Ganze Geschichte: 497 Trades · Ø +0,07 R · Treffer 57 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 209× (42 %), Ø +0,76 R
-- Stop: 107× (22 %), Ø -1,03 R
+- Stop: 109× (22 %), Ø -1,03 R
 - Zeitstopp: 68× (14 %), Ø -0,07 R
-- vor Quartalszahlen: 67× (14 %), Ø -0,15 R
+- vor Quartalszahlen: 67× (13 %), Ø -0,15 R
 - Ziel (Kurslücke): 27× (5 %), Ø +0,97 R
 - Stop (Kurslücke): 17× (3 %), Ø -1,18 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
 
-1. [[Aktien/NVDA|NVDA]]: 27 Trades · Ø +0,40 R · Treffer 81 %
+1. [[Aktien/NVDA|NVDA]]: 28 Trades · Ø +0,35 R · Treffer 79 %
 2. [[Aktien/NBIS|NBIS]]: 11 Trades · Ø +0,33 R · Treffer 64 %
 3. [[Aktien/NOW|NOW]]: 17 Trades · Ø +0,29 R · Treffer 76 %
 …

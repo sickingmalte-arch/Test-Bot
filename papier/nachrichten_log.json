@@ -75,5 +75,33 @@
   "strategie": "ema_kreuz_long",
   "gut": 1,
   "schlecht": 0
+ },
+ {
+  "tag": "2026-10-30",
+  "ticker": "COST",
+  "strategie": "atr_ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-30",
+  "ticker": "LLY",
+  "strategie": "ausbruch_long",
+  "gut": 0,
+  "schlecht": 1
+ },
+ {
+  "tag": "2026-10-30",
+  "ticker": "NVDA",
+  "strategie": "rsi2_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-10-30",
+  "ticker": "XOM",
+  "strategie": "ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
  }
 ]

@@ -10,8 +10,8 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=LLY)
 
-**Stand Do 29.10. 2026:** 🟢 KAUFEN – Ausbruch ↑ (Konto zu klein) · Limit 1.250,44 · Stop 1.117,04 · Ziel 1.345,73 €
-**Nächste Quartalszahlen:** –
+**Stand Fr 30.10. 2026:** ⏸ WARTEN – Ausbruch ↑ – Nachricht: Prognose gesenkt
+**Nächste Quartalszahlen:** Mi 03.02.
 
 ## Übungsdepot
 

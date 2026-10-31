@@ -10,7 +10,7 @@ Branche: Basiskonsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=COST)
 
-**Stand Do 29.10. 2026:** BEOBACHTEN
+**Stand Fr 30.10. 2026:** 🟢 KAUFEN – ATR-Ausbruch ↑ · Limit 912,57 · Stop 861,07 · Ziel 949,35 €
 **Nächste Quartalszahlen:** Do 10.12.
 
 ## Übungsdepot

@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MSFT)
 
-**Stand Do 29.10. 2026:** 🟢 KAUFEN – Rücksetzer ↑ · Limit 480,41 · Stop 444,08 · Ziel 506,35 €
+**Stand Fr 30.10. 2026:** ⏸ WARTEN – Zahlen gerade erst – Gegenbewegung riskant
 **Nächste Quartalszahlen:** Mi 27.01.
 
 ## Übungsdepot

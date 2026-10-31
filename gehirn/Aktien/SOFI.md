@@ -10,7 +10,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=SOFI)
 
-**Stand Do 29.10. 2026:** 🟢 KAUFEN – EMA-Kreuz ↑ · Limit 16,12 · Stop 13,77 · Ziel 17,80 €
+**Stand Fr 30.10. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot
