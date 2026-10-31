@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 30.10.2026 07:10 Uhr · Kurse bis 29.10.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 31.10.2026 03:37 Uhr · Kurse bis 30.10.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -8,7 +8,7 @@ Stand: 30.10.2026 07:10 Uhr · Kurse bis 29.10.2026 · 523 Aktien (S&P 500, Nasd
 
 - ✅ Alle Kurse, Termine und Bilanzen sind da.
 
-## 📋 Kauf-Signale vom 29.10.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 30.10.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 57 %).
 
@@ -16,31 +16,30 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| SOFI | EMA-Kreuz | 52 % | 34 | – |
-| JPM | Squeeze-Ausbruch | 50 % | 24 | – |
-| LLY | Ausbruch | 50 % | 21 | – |
-| HIMS | MACD-Wende | 47 % | 7 | – |
-| MSFT | Rücksetzer | 45 % | 3 | – |
+| COST | ATR-Ausbruch | 53 % | 44 | – |
+| LLY | Ausbruch | 49 % | 15 | – |
+| XOM | Ausbruch | 48 % | 11 | – |
+| NVDA | RSI-2-Rücksetzer | 46 % | 5 | – |
 
-**Ganzer Markt – die 15 besten von 116 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 74 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| CASY | Rücksetzer | 58 % | 74 | ✅ |
-| KIM | ATR-Ausbruch | 58 % | 72 | ✅ |
-| HD | ATR-Ausbruch | 56 % | 61 | – |
-| TXT | Ausbruch | 55 % | 58 | – |
-| ROST | Rücksetzer | 55 % | 56 | – |
-| LOW | ATR-Ausbruch | 55 % | 55 | – |
-| HII | Ausbruch | 55 % | 54 | – |
-| XEL | ATR-Ausbruch | 55 % | 53 | – |
-| WEC | Ausbruch | 55 % | 53 | – |
-| DG | Rücksetzer | 55 % | 53 | – |
-| BF-B | Rücksetzer | 54 % | 51 | – |
-| HPQ | RSI-2-Rücksetzer | 54 % | 50 | – |
-| NCLH | Ausbruch | 54 % | 50 | – |
-| TROW | EMA-Kreuz | 54 % | 50 | – |
-| VLO | RSI-2-Rücksetzer | 54 % | 49 | – |
+| KIM | Ausbruch | 58 % | 72 | ✅ |
+| MRVL | RSI-2-Rücksetzer | 56 % | 63 | – |
+| LNT | Ausbruch | 55 % | 55 | – |
+| CASY | Rücksetzer | 55 % | 54 | – |
+| MDLZ | MACD-Wende | 54 % | 51 | – |
+| D | ATR-Ausbruch | 54 % | 48 | – |
+| FDX | Ausbruch | 54 % | 47 | – |
+| CNC | Rücksetzer | 53 % | 45 | – |
+| COST | ATR-Ausbruch | 53 % | 44 | – |
+| HPE | RSI-2-Rücksetzer | 53 % | 43 | – |
+| GD | Ausbruch | 53 % | 41 | – |
+| EXC | Ausbruch | 53 % | 40 | – |
+| TSN | ATR-Ausbruch | 52 % | 37 | – |
+| DELL | RSI-2-Rücksetzer | 52 % | 34 | – |
+| ACGL | ATR-Ausbruch | 52 % | 33 | – |
 
 ## 🧠 Was das Modell gelernt hat
 
