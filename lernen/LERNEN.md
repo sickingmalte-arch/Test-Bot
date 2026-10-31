@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 31.10.2026 03:37 Uhr · Kurse bis 30.10.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 31.10.2026 11:31 Uhr · Kurse bis 30.10.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -96,6 +96,7 @@ Anteil an allen Trades; ein Trade kann mehrere Gründe haben. ↓ = das Modell m
 
 | Aktie | Kauf | Verkauf | Ergebnis | Verkauft wegen | Warum verloren? |
 |---|---|---|---:|---|---|
+| AAPL | 21.10.26 | 30.10.26 | +0,57 R | vor Quartalszahlen | – |
 | NOW | 21.10.26 | 28.10.26 | +0,09 R | vor Quartalszahlen | – |
 | LLY | 21.10.26 | 28.10.26 | +0,47 R | vor Quartalszahlen | – |
 

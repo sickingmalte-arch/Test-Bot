@@ -1,5 +1,5 @@
 {
- "stand": "31.10.2026 03:37 Uhr",
+ "stand": "31.10.2026 11:31 Uhr",
  "tag": "2026-10-30",
  "monat": "2026-10",
  "aktien": 523,
@@ -443,19 +443,19 @@
   "fuenftel": [
    {
     "fuenftel": 1,
-    "R": -0.003420916102638461,
+    "R": -0.003420916102638473,
     "n": 4945,
     "treffer": 0.4948432760364004
    },
    {
     "fuenftel": 2,
-    "R": -0.0035589972796955453,
+    "R": -0.0035589972796955488,
     "n": 4944,
     "treffer": 0.504247572815534
    },
    {
     "fuenftel": 3,
-    "R": -0.011773283114379404,
+    "R": -0.011773283114379408,
     "n": 4944,
     "treffer": 0.49797734627831713
    },
@@ -559,6 +559,17 @@
    "verkauf_tag": "2026-10-28",
    "grund": "vor Quartalszahlen",
    "R": 0.09433945855358425,
+   "fehler": [],
+   "fertig": false,
+   "fehler_text": []
+  },
+  {
+   "ticker": "AAPL",
+   "strategie": "ruecksetzer_long",
+   "kauf_tag": "2026-10-21",
+   "verkauf_tag": "2026-10-30",
+   "grund": "vor Quartalszahlen",
+   "R": 0.5707214407587646,
    "fehler": [],
    "fertig": false,
    "fehler_text": []
