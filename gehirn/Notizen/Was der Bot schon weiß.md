@@ -5,7 +5,7 @@ tags: [lernen, forschung, uebersicht]
 
 Stand: 30.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
-Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
+Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
 > [!tip] So wird geprüft
 > - **3 Zeiträume** (2010–2014, 2015–2021, 2022–2026) × **2 Aktiengruppen** (Watchlist und 60 andere Aktien) = 6 Fälle.
@@ -20,7 +20,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 31
+    "nicht übernommen" : 32
 ```
 
 ## ✅ Steckt im Bot
@@ -67,6 +67,7 @@ pie showData
 | Früher verkaufen, wenn ein Trade nach 5–12 Tagen keinen Schwung hat | −0,6 bis −5,7 Pkt, Rückgänge meist größer | [[Notizen/Gelernt – Lernmodell und Fehler-Analyse]] |
 | Insider-Käufe (SEC) zuerst kaufen oder als Merkmal im Lernmodell | Regel +1,2 bis +1,3 Pkt, aber zufällig gewählte Signale schafften dasselbe; Modell nicht besser (0,503) | [[Notizen/Gelernt – Lernmodell und Fehler-Analyse]] |
 | Lernmodell auch aus Aktien lernen lassen, die aus dem S&P 500 geflogen sind | beste zuerst 2010–2014 −2,5 Pkt; deren Signale liefen schlechter, das Modell erkennt sie nicht | [[Notizen/Gelernt – Lernmodell und Fehler-Analyse]] |
+| Tagesbremse nach einem −2-%-Tag (Pause oder alles verkaufen) | −0,1 bis −1,9 Pkt, nur 3 Tage Pause 2015–2021 +1,2; weniger Risiko macht solche Tage seltener, kostet aber 2–3 Pkt | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
