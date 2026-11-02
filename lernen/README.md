@@ -28,6 +28,9 @@ Rund 490.000 Kauf-Signale von 518 Aktien seit 2008, Walk-forward mit Bilanzdaten
     +1,3, aber zufällig gewählte Signale schafften in der Gegenprobe dasselbe;
   - auch aus Aktien lernen, die aus dem S&P 500 geflogen sind: nicht überall besser.
   - Allein die Reihenfolge gleich guter Signale verschiebt die Rendite zufällig um bis zu ±2 Prozentpunkte im Jahr.
+- **Dritter Nachtest** (November 2026): Andere Fragen an das Modell („Höhe von R“, „Ziel vor Stop“) und ein Modell je
+  Strategie trennen ebenfalls kaum (Trennschärfe 0,50–0,52). „Höhe von R, beste zuerst“ war überall besser als der
+  jetzige Bot, aber nicht besser als eine zufällige Punktzahl (Gegenprobe). Nicht übernommen.
 
 Deshalb sind im Bot beide Schalter aus (`LERNMODELL_KAUFEN`, `LERNMODELL_REIHENFOLGE` in `swing_scanner.py`): Er zeigt
 die Punktzahl und die Fehler-Analyse an, kauft und verkauft aber wie bisher. Der Lern-Lauf lernt jeden Monat weiter;

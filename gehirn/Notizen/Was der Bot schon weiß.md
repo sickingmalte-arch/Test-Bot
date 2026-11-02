@@ -20,7 +20,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 32
+    "nicht übernommen" : 33
 ```
 
 ## ✅ Steckt im Bot
@@ -68,6 +68,7 @@ pie showData
 | Insider-Käufe (SEC) zuerst kaufen oder als Merkmal im Lernmodell | Regel +1,2 bis +1,3 Pkt, aber zufällig gewählte Signale schafften dasselbe; Modell nicht besser (0,503) | [[Notizen/Gelernt – Lernmodell und Fehler-Analyse]] |
 | Lernmodell auch aus Aktien lernen lassen, die aus dem S&P 500 geflogen sind | beste zuerst 2010–2014 −2,5 Pkt; deren Signale liefen schlechter, das Modell erkennt sie nicht | [[Notizen/Gelernt – Lernmodell und Fehler-Analyse]] |
 | Tagesbremse nach einem −2-%-Tag (Pause oder alles verkaufen) | −0,1 bis −1,9 Pkt, nur 3 Tage Pause 2015–2021 +1,2; weniger Risiko macht solche Tage seltener, kostet aber 2–3 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| Lernmodell mit klarerer Frage (Höhe von R, Ziel vor Stop) oder ein Modell je Strategie, beste zuerst | „Höhe von R“ +0,7 bis +4,3 Pkt und kleinere Rückgänge, aber zufällige Punktzahlen schafften teils dasselbe; Trennschärfe 0,50–0,52 | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
@@ -85,7 +86,7 @@ pie showData
 - Zwischendurch eingreifen (nachkaufen, Teile verkaufen, im 15-Minuten-Chart früher raus) kostet Gebühren und bringt im Schnitt nichts. Stop und Ziel, beim Kauf geplant, steuern am besten.
 - Einfaches Halten des Nasdaq-100 brachte in den meisten Zeiträumen mehr Rendite, aber mit größeren Rückgängen. Der Vorteil des Bots sind die kleineren Rückgänge.
 - Auch ein Lernmodell mit 490.000 gedachten Trades findet kaum Unterschiede zwischen den Signalen. Was es erkennt, ist die Marktlage – und Abstürze des ganzen Markts sind der häufigste Verlustgrund, den keine Regel verlässlich vermeidet.
-- Schon die Reihenfolge, in der gleich gute Signale gekauft werden, verschiebt die Rendite zufällig um bis zu ±2 Punkte im Jahr. Kleinere Vorteile einer neuen Regel sind deshalb kein Beweis.
+- Schon die Reihenfolge, in der gleich gute Signale gekauft werden, verschiebt die Rendite zufällig um mehrere Punkte im Jahr (bei einer ganz zufälligen Rangfolge bis zu 8 Punkte). Kleinere Vorteile einer neuen Regel sind deshalb kein Beweis. Kleinere Vorteile einer neuen Regel sind deshalb kein Beweis.
 - Ob der Bot in der Zukunft wirklich etwas taugt, zeigt erst das Übungsdepot: siehe die ehrliche Bilanz im Wochenrückblick.
 
 ## Meine Gedanken
