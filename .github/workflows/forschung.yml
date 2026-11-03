@@ -12,6 +12,7 @@ on:
     workflows: [Swing-Bot]
     types: [completed]
   push:
+    branches-ignore: [main] # auf main kommen Ideen nur per Pull Request – schon getestet
     paths: [forschung/ideen/**]
   workflow_dispatch:
     inputs:
@@ -102,7 +103,12 @@ jobs:
             ideen=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'forschung/ideen/*.py' | grep -v '/beispiel_' || true)
           fi
           if [ -z "$ideen" ]; then echo "Keine neue Idee."; exit 0; fi
-          for datei in $ideen; do python forschung/pruefstand.py "$datei" --cache lern_cache; done
+          for datei in $ideen; do
+            name=$(basename "$datei" .py)
+            # schon getestet (z. B. Branch nach dem Übernehmen neu von main): nicht noch einmal rechnen
+            if [ -z "$IDEE" ] && [ -f "forschung/ergebnisse/$name.json" ]; then echo "$name: schon getestet"; continue; fi
+            python forschung/pruefstand.py "$datei" --cache lern_cache
+          done
       - name: Ergebnis speichern
         run: |
           git config user.name "forschungs-bot"
