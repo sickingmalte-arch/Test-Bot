@@ -31,7 +31,7 @@ erst nach deinem „Ja“.**
 ## Experimentier-Depot
 
 - **Eigenes Übungsdepot mit 10.000 € Spielgeld** in `forschung/experiment_depot.json`, gleiche Grenzen wie das
-  Übungsdepot: 1 % Risiko je Trade, höchstens 5 Positionen, 5 % Gesamtrisiko.
+  Übungsdepot: 1 % Risiko je Trade, höchstens 7 Positionen, 5 % Gesamtrisiko.
 - **Es handelt die Idee aus [experiment.json](experiment.json).** Zum Start ist das „Lernmodell: beste Punktzahl
   zuerst“.
 - **Es läuft nach jedem Morgen-Lauf des Bots.** Bericht: [BERICHT.md](BERICHT.md). Auf der Webseite steht es im
