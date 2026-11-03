@@ -1,5 +1,5 @@
 {
- "stand": "03.11.2026 05:04 Uhr",
+ "stand": "03.11.2026 12:59 Uhr",
  "tag": "2026-11-02",
  "monat": "2026-11",
  "aktien": 523,
@@ -457,7 +457,7 @@
    },
    {
     "fuenftel": 3,
-    "R": 0.012522139155084492,
+    "R": 0.012522139155084494,
     "n": 4715,
     "treffer": 0.5145281018027572
    },
@@ -575,6 +575,21 @@
    "fehler": [],
    "fertig": false,
    "fehler_text": []
+  },
+  {
+   "ticker": "HIMS",
+   "strategie": "ruecksetzer_long",
+   "kauf_tag": "2026-10-21",
+   "verkauf_tag": "2026-11-02",
+   "grund": "Stop",
+   "R": -0.9755060336789514,
+   "fehler": [
+    "normal"
+   ],
+   "fertig": false,
+   "fehler_text": [
+    "Normales Auf und Ab (kein besonderer Grund)"
+   ]
   }
  ]
 }
