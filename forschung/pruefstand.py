@@ -39,6 +39,7 @@ def lade_idee(pfad):
 
 def lauf(cache, watch, sektor_von, laeufe, aendern=None):
     importlib.reload(R.sw)  # immer vom unveränderten Bot ausgehen
+    R.sw.GEBUEHR = float(os.environ.get("GEBUEHR", "0"))  # wie im echten Depot (Variable GEBUEHR)
     if aendern:
         aendern(R.sw)
     try:
