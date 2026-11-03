@@ -1,0 +1,34 @@
+{
+ "experiment": {
+  "name": "Lernmodell: beste Punktzahl zuerst",
+  "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
+  "seit": "2026-11-02",
+  "bis": "2026-11-02",
+  "experiment_prozent": 0.0,
+  "papier_prozent": 0.0,
+  "depotwert": 10000.0,
+  "positionen": 0,
+  "trades": 0,
+  "gewinner": 0,
+  "kurve": [
+   {
+    "tag": "2026-11-02",
+    "experiment": 0.0,
+    "papier": 0.0
+   }
+  ]
+ },
+ "ideen": [
+  {
+   "datum": "2026-10-30",
+   "datei": "beispiel_tagesbremse",
+   "name": "Tagesbremse: nach −2 % alles verkaufen",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -1.7,
+    -1.7,
+    -1.9
+   ]
+  }
+ ]
+}
