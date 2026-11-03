@@ -275,6 +275,8 @@ Ehrlich zusammengefasst: Die Trefferquote steigt überall deutlich, die Rückgä
 - *Früher verkaufen ohne Schwung* (Oktober 2026, nach 5, 8, 10 oder 12 Tagen raus, wenn der Kurs nicht genug gestiegen ist): −0,6 bis −5,7 Prozentpunkte, Rückgänge meist größer. Viele Trades, die anfangs hängen, laufen später noch ins Ziel.
 - *Insider-Käufe* (Oktober 2026, Meldungen an die SEC seit 2006, erst ab dem Tag nach der Meldung): Signale nach Insider-Käufen liefen praktisch gleich wie andere, als Merkmal im Lernmodell keine Verbesserung. „Aktien mit Insider-Käufen zuerst kaufen“ brachte +1,2 bis +1,3 Prozentpunkte, aber zufällig ausgewählte Signale schafften in der Gegenprobe dasselbe.
 - *Ehrlichere Aktienliste* (Oktober 2026, auch 46 Aktien, die seit 2008 aus dem S&P 500 geflogen sind): Ihre Signale liefen deutlich schlechter (2015–2021 −0,13 R statt +0,06 R), und das Lernmodell erkennt sie nicht. Lernt das Modell auch aus ihnen, ist „beste Punktzahl zuerst“ trotzdem nicht überall besser.
+- *Tagesbremse nach einem schlechten Tag* (Oktober 2026, nach einem Tag mit −2 % im Depot 1 oder 3 Tage nichts kaufen oder alles verkaufen): −0,1 bis −1,9 Prozentpunkte, nur 3 Tage Pause war 2015–2021 besser. Solche Tage kommen 2- bis 5-mal im Jahr vor; seltener werden sie nur mit weniger Risiko je Trade (0,75 % statt 1 %: 2 bis 3 Prozentpunkte weniger Rendite, einstellbar über die Variable `RISIKO`).
+- *Lernmodell mit klarerer Frage oder je Strategie* (November 2026, Höhe von R bzw. Ziel vor Stop statt nur Gewinn ja/nein, oder ein Modell je Kauf-Strategie; beste Punktzahl zuerst): „Höhe von R“ war in allen drei Zeiträumen besser (+0,7 bis +4,3 Prozentpunkte, kleinere Rückgänge), aber eine ganz zufällige Punktzahl schaffte in der Gegenprobe teils dasselbe, und die Trennschärfe blieb bei 0,50. Nicht übernommen; Details in `gehirn/Notizen/Forschung – Tagebuch.md`.
 - *Höchstens 2 Positionen je Branche* wurde übernommen: Rendite in 5 von 6 Fällen besser (im Schnitt +0,4 Prozentpunkte, im sechsten innerhalb des Zufalls), größter Rückgang nie schlechter, meist 1–2 Prozentpunkte kleiner.
 
 ### Ehrliche Bilanz des Übungsdepots
@@ -300,6 +302,17 @@ Der Bericht zeigt im Abschnitt „🧠 Lernmodell“ die Punktzahl je Kauf-Signa
 gelernt hat; das Gehirn zeigt es auf der Seite „Lehren“. **An den Käufen ändert das noch nichts:** Nach der Punktzahl
 kauft der Bot erst, wenn der ehrliche Rückblick zeigt, dass es besser ist, und du Ja sagst. Alles Weitere:
 [lernen/README.md](lernen/README.md).
+
+### 🔬 Forschungs-Bot: jeden Tag eine neue Idee testen
+
+Der Forschungs-Bot sucht jeden Tag eine neue Idee aus Fachartikeln, Forschungsarbeiten oder Trading-Büchern und testet
+sie ehrlich. Das Rechnen übernimmt GitHub (`forschung.yml`):
+- **Prüfstand:** Rückblick 2010–2026 mit dem echten Bot, mit Gegenprobe gegen Zufall.
+- **Experimentier-Depot:** ein eigenes Übungsdepot mit 10.000 € Spielgeld, das nach jedem Morgen-Lauf eine Idee live
+  ausprobiert (zum Start: „Lernmodell: beste Punktzahl zuerst“).
+
+Ergebnisse stehen im Gehirn (`Forschung – Tagebuch`) und auf der Webseite im Bereich „Forschung“. **In den Bot kommt
+eine Idee nur per Pull Request nach deinem „Ja“.** Mehr dazu in [forschung/README.md](forschung/README.md).
 
 ### Sicherheits-Check (automatischer Test)
 

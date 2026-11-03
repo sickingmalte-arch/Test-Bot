@@ -1,0 +1,7 @@
+{
+ "name": "Lernmodell: beste Punktzahl zuerst",
+ "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
+ "schalter": {
+  "LERNMODELL_REIHENFOLGE": true
+ }
+}
