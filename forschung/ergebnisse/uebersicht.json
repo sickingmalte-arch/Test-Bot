@@ -9,5 +9,27 @@
    -1.7,
    -1.9
   ]
+ },
+ {
+  "datum": "2026-11-03",
+  "datei": "kosten_filter_3",
+  "name": "Kosten-Filter: Ziel mindestens 3 % über dem Kurs",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -1.0,
+   0.5,
+   0.4
+  ]
+ },
+ {
+  "datum": "2026-11-03",
+  "datei": "kosten_filter_5",
+  "name": "Kosten-Filter: Ziel mindestens 5 % über dem Kurs",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -3.2,
+   -1.0,
+   -1.6
+  ]
  }
 ]
