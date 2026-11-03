@@ -70,8 +70,9 @@ Der Ablauf `.github/workflows/swing-bot.yml` startet den Bot am Morgen nach jede
 | --- | --- | --- |
 | `KONTO` | `10000` | Kontogröße / Startkapital in € (Standard 10000; auch `10.000 €` oder `10.000,00` geht). Fürs Papier-Depot zählt der Betrag nur beim Anlegen – also am besten **vor** dem ersten Lauf eintragen; später geändert: `papier/papier_depot.json` löschen, dann fängt es mit dem neuen Betrag an (der Bericht weist darauf hin). |
 | `RISIKO` | `1` | Risiko je Trade in % (Standard 1; auch `1,5 %` geht) |
+| `GEBUEHR` | `0` | Ordergebühr in € je Kauf und Verkauf (Standard bei GitHub 0, weil dein Broker seit November 2026 keine Gebühr nimmt; der Spread von 0,1 % je Order wird weiter abgezogen) |
 | `TICKER` | `AAPL, NFLX, SOFI` | eigene Watchlist (leer = Liste im Skript) |
-| `OPTIONEN` | `--bruchstuecke --gebuehr 0` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--gebuehr 0`, `--rueckblick 6` |
+| `OPTIONEN` | `--bruchstuecke` | nur diese Schalter, mit Leerzeichen getrennt: `--mit-short`, `--ohne-lernen`, `--ohne-marktfilter`, `--ohne-news`, `--ohne-zahlen`, `--bruchstuecke`, `--nur-schluss`, `--rueckblick 6` |
 
 Alles andere stellt der Ablauf selbst ein: `--papier`, `--papier-neu`, `--bericht`, `--gehirn`, `--nachricht`, `--claude-depot`, `--claude-entscheidungen`, `--uebersicht`, `--csv`, `--ticker`, `--konto` und `--risiko` bitte **nicht** in `OPTIONEN` eintragen (für Ticker, Konto und Risiko gibt es die eigenen Variablen). Verschriebene Angaben meldet der Bericht oben mit ⚠️. Zum Neuanfang des Papier-Depots einfach `papier/papier_depot.json` im Repository löschen (die Historie bei GitHub behält den alten Stand).
 

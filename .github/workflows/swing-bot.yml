@@ -114,11 +114,12 @@ jobs:
         env:
           KONTO: ${{ vars.KONTO || '10000' }}
           RISIKO: ${{ vars.RISIKO || '1' }}
+          GEBUEHR: ${{ vars.GEBUEHR || '0' }} # Ordergebühr in € je Kauf/Verkauf (seit 03.11.2026: 0 €)
           TICKER: ${{ vars.TICKER }}
           OPTIONEN: ${{ vars.OPTIONEN }}
           PYTHONUNBUFFERED: "1"
         run: |
-          set -- --konto "$KONTO" --risiko "$RISIKO" --rueckblick 12 \
+          set -- --konto "$KONTO" --risiko "$RISIKO" --gebuehr "$GEBUEHR" --rueckblick 12 \
                  --papier papier/papier_depot.json --bericht bericht/README.md --gehirn gehirn \
                  --nachricht "$RUNNER_TEMP/nachricht.md" \
                  --claude-depot papier/claude_depot.json --claude-entscheidungen "$RUNNER_TEMP/claude_entscheidungen.json" \

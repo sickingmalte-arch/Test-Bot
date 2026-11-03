@@ -55,6 +55,7 @@ def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("--konto", default="10000")
     p.add_argument("--risiko", default="1")
+    p.add_argument("--gebuehr", default="0")
     p.add_argument("--ticker")
     p.add_argument("--nur-vergleich", action="store_true", help="nur docs/forschung.json neu schreiben")
     a = p.parse_args(argv)
@@ -64,7 +65,7 @@ def main(argv=None):
         sys.path.insert(0, WURZEL)
         import swing_scanner as sw
         schalter_setzen(sw, idee.get("schalter"))
-        sys.argv = ["swing_scanner.py", "--konto", a.konto, "--risiko", a.risiko, "--rueckblick", "0",
+        sys.argv = ["swing_scanner.py", "--konto", a.konto, "--risiko", a.risiko, "--gebuehr", a.gebuehr, "--rueckblick", "0",
                     "--papier", depot, "--bericht", os.path.join(HIER, "BERICHT.md"),
                     "--lernmodell", os.path.join(WURZEL, "lernen")] + (["--ticker", a.ticker] if a.ticker else [])
         sw.main()
