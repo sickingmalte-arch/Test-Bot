@@ -1088,6 +1088,26 @@ def doppelboden(df, links=5, rechts=5, fenster=80):
             break
     return ok, ziel
 
+def boden_am_tag(d, i, links=5, rechts=5, fenster=126, zone=0.01):
+    """Wo ist der Boden? (nur Info, ändert keine Regel) Letztes Wendetief unter dem Kurs: ein Tief, das niedriger ist
+    als die 5 Tage davor und danach – erst 5 Tage später bekannt, also kein Blick in die Zukunft. Dazu, wie oft der Kurs
+    im letzten halben Jahr dort gedreht hat (Tiefs höchstens 1 % auseinander) und ob der Boden über der
+    200-Tage-Linie liegt. Kurse in $ wie d["C"]."""
+    l, c = np.asarray(d["L"], dtype=float), float(d["C"][i])
+    tiefs = [p for p in range(max(links, i - fenster), i - rechts + 1)
+             if np.isfinite(l[p]) and l[p] == np.nanmin(l[p - links:p + rechts + 1])]
+    unter = [p for p in tiefs if l[p] < c]
+    if not unter or not np.isfinite(c):
+        return None
+    p = unter[-1]
+    wert = float(l[p])
+    sma200 = float(np.nanmean(np.asarray(d["C"][i - 199:i + 1], dtype=float))) if i >= 199 else math.nan
+    atr = float(d["ATR"][i])
+    return {"kurs": wert, "tage": int(i - p), "abstand": (c / wert - 1) * 100,
+            "abstand_atr": (c - wert) / atr if atr > 0 else math.nan,
+            "gehalten": sum(1 for q in tiefs if abs(l[q] / wert - 1) <= zone),
+            "ueber_200": (wert >= sma200) if math.isfinite(sma200) else None}
+
 def muster_am_tag(d, i):
     """Erkannte Kerzenmuster an Tag i: bullische am Tag oder am Tag davor, bärische am Tag selbst (Namen)."""
     k = d.get("KERZEN")
@@ -1731,6 +1751,9 @@ def scanner_zeile(t, d, pausiert, einst):
         mz, mz_art = musterziel(d, i, wahl)
         if math.isfinite(mz) and r > 0:
             zeile.update({"_musterziel": mz / rate, "_musterziel_art": mz_art})
+        b = boden_am_tag(d, i) if r > 0 else None
+        if b:
+            zeile["_boden"] = {**b, "kurs": b["kurs"] / rate, "stop_darunter": stop < b["kurs"] / rate}
         if zeile["_offen"]:
             zeile["Strategie"] += " (vorläufig)"
     elif grund is not None:
@@ -1791,6 +1814,14 @@ def muster_satz(zeile, waehrung):
     stimmung = zeile.get("_stimmung")
     if stimmung and (stimmung["gut"] or stimmung["schlecht"]):
         teile.append(f"Nachrichten der letzten Tage: {stimmung['gut']} gut, {stimmung['schlecht']} schlecht")
+    b = zeile.get("_boden")
+    if b:
+        teile.append(f"Boden {de(b['kurs'])} {waehrung} ({de(b['abstand'], 1)} % unter dem Kurs"
+                     + (f", {de(b['abstand_atr'], 1)} ATR" if math.isfinite(b["abstand_atr"]) else "")
+                     + f", {'1-mal' if b['gehalten'] == 1 else str(b['gehalten']) + '-mal'} gedreht"
+                     + ("" if b["ueber_200"] is None else ", über der 200-Tage-Linie" if b["ueber_200"]
+                        else ", unter der 200-Tage-Linie")
+                     + f"; Stop {'darunter' if b['stop_darunter'] else 'darüber'})")
     return f" {'. '.join(teile)} (nur Info)." if teile else ""
 
 def handelsplan(zeile, nr, einst, waehrung):
@@ -3669,6 +3700,9 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                         "muster_praxis": json_zahl(z.get("_muster_praxis"), 0),
                         "musterziel": json_zahl(z.get("_musterziel")), "musterziel_art": z.get("_musterziel_art"),
                         "stimmung": z.get("_stimmung"),
+                        "boden": ({"kurs": json_zahl(z["_boden"]["kurs"]), "abstand": json_zahl(z["_boden"]["abstand"], 1),
+                                   "gehalten": z["_boden"]["gehalten"], "ueber_200": z["_boden"]["ueber_200"],
+                                   "stop_darunter": bool(z["_boden"]["stop_darunter"])} if z.get("_boden") else None),
                         "risiko": json_zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
                         "zahlen_tag": iso(z["_termin"].date()) if z.get("_termin") is not None else None,
                         "branche": BRANCHE.get(t), "im_plan": t in im_plan, "fehler": z.get("_fehler")})
