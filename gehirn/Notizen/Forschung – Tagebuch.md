@@ -10,6 +10,31 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 03.11.2026 · Kosten-Filter und „70–80 % Treffer“
+
+**Kosten-Filter** (Wunsch des Nutzers): nur Signale kaufen, deren Ziel mindestens 3 % bzw. 5 % über dem Kurs liegt. Dann frisst der Spread (zusammen etwa 0,2 % je Trade, Ordergebühr seit heute 0 €) höchstens rund 7 % bzw. 4 % des geplanten Gewinns. Gerechnet bei GitHub mit der Watchlist dort; Ergebnisse: `forschung/ergebnisse/kosten_filter_3.md` und `kosten_filter_5.md`.
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot (0 € Gebühr) | +13,2 % / −15 % | +13,3 % / −17 % | +8,0 % / −14 % |
+| Ziel mindestens 3 % | +12,3 % / −18 % | +13,8 % / −16 % | +8,4 % / −14 % |
+| Ziel mindestens 5 % | +10,1 % / −17 % | +12,2 % / −17 % | +6,4 % / −15 % |
+| Gegenprobe: gleich viele zufällig auslassen (3 %, 6-mal) | +11,5 bis +13,4 % | +12,3 bis +14,0 % | +6,2 bis +8,6 % |
+
+**Ergebnis:** nicht übernommen. Signale mit kleinem Ziel liefen nicht schlechter als die anderen; mit 0 € Gebühr ist der Spread zu klein, als dass ein Filter etwas bringt.
+
+**70–80 % Treffer** (Frage des Nutzers): Ziel näher an den Einstieg gelegt, echter Bot auf der Watchlist (mit 1 € Gebühr und 0,1 % Spread).
+
+| | Treffer | Rendite pro Jahr (2010–14 / 2015–21 / 2022–26) |
+|---|---:|---|
+| Bot wie heute | 56–58 % | +9,2 / +10,5 / +7,0 % |
+| Ziel halb so weit | 65–67 % | +5,6 / +5,1 / +3,5 % |
+| Ziel ein Drittel so weit | 71–73 % | +1,5 / −2,6 / +0,5 % |
+| Ziel ein Viertel so weit | 75–79 % | +4,0 / −1,5 / +2,2 % |
+| Ziel ein Drittel, ohne Kosten | 72–74 % | +10,3 / +10,3 / +8,6 % |
+
+**Lehre:** Die Trefferquote ist eine Einstellung, kein Können. Ein näheres Ziel wird öfter erreicht, bringt aber weniger – ohne Kosten bleibt es gleich, mit Kosten wird es schlechter. Es zählt der Gewinn je Trade nach Kosten, nicht wie oft der Bot gewinnt. Dazu: Ohne Gebühr und Spread brächte der Bot +16,2 / +15,1 / +10,3 % statt +9,2 / +10,5 / +7,0 % – deshalb rechnet er seit dem 03.11. mit 0 € Ordergebühr (wie beim Broker des Nutzers).
+
 ## 02.11.2026 · Lernmodell: klarere Frage und ein Modell je Strategie
 
 **Idee:** Das Lernmodell fragt bisher nur „Gewinn ja oder nein?“. Geprüft wurden drei andere Fragen, jeweils Walk-forward (jeden Monat neu gelernt, nur mit Trades, deren Ergebnis vorher feststand). Der Bot kauft dann bei mehr Signalen als Plätzen die beste Punktzahl zuerst:
