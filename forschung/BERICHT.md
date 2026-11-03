@@ -1,8 +1,8 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Di 03.11.2026 15:42 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Di 03.11.2026 18:07 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 03.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1189 $
+## 📈 SWING-SCANNER · Daten bis 03.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1197 $
 
 1× 🟢 KAUFEN · 2× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 20× BEOBACHTEN  
 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mo 02.11. über seiner 200-Tage-Linie – der Bot kauft nur (Long).  
@@ -11,32 +11,32 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | 🟢 KAUFEN | Rücksetzer ↑ (vorläufig) | 160,45 | 162,29 | 149,47 | 171,44 | 1,0 | 9 | 1.444 | 99 | Fr 29.01. | ? |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | Zahlen gerade erst – Gegenbewegung riskant | 293,84 | – | – | – | – | – | – | – | Do 28.01. | ? |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | ⏸ WARTEN | Zahlen gerade erst – Gegenbewegung riskant | 153,80 | – | – | – | – | – | – | – | Mo 01.02. | ? |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.280,41 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 68,13 | – | – | – | – | – | – | – | Di 10.11. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 23,33 | – | – | – | – | – | – | – | Mo 09.11. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 93,46 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 304,56 | – | – | – | – | – | – | – | Do 19.11. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 46,30 | – | – | – | – | – | – | – | Di 10.11. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 132,55 | – | – | – | – | – | – | – | Do 12.11. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.484,60 | – | – | – | – | – | – | – | Mi 04.11. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 20,91 | – | – | – | – | – | – | – | Do 05.11. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 55,53 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 33,54 | – | – | – | – | – | – | – | Mo 09.11. |  |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 14,80 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 186,46 | – | – | – | – | – | – | – | Di 17.11. |  |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 457,55 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 221,07 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 546,50 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 249,47 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 358,99 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 439,02 | – | – | – | – | – | – | – | Di 03.11. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 303,02 | – | – | – | – | – | – | – | Do 14.01. |  |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | BEOBACHTEN |  | 916,86 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | 🟢 KAUFEN | Rücksetzer ↑ (vorläufig) | 158,99 | 160,84 | 147,90 | 170,08 | 1,0 | 9 | 1.431 | 100 | Fr 29.01. | ? |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | Zahlen gerade erst – Gegenbewegung riskant | 295,94 | – | – | – | – | – | – | – | Do 28.01. | ? |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | ⏸ WARTEN | Zahlen gerade erst – Gegenbewegung riskant | 155,71 | – | – | – | – | – | – | – | Mo 01.02. | ? |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.270,10 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 68,16 | – | – | – | – | – | – | – | Di 10.11. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 23,05 | – | – | – | – | – | – | – | Mo 09.11. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 97,37 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 310,70 | – | – | – | – | – | – | – | Do 19.11. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 47,00 | – | – | – | – | – | – | – | Di 10.11. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 135,31 | – | – | – | – | – | – | – | Do 12.11. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.493,42 | – | – | – | – | – | – | – | Mi 04.11. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 21,40 | – | – | – | – | – | – | – | Do 05.11. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 55,75 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 33,76 | – | – | – | – | – | – | – | Mo 09.11. |  |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 14,92 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 186,04 | – | – | – | – | – | – | – | Di 17.11. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 461,55 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 221,59 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 556,22 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 249,24 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 355,41 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 439,07 | – | – | – | – | – | – | – | Di 03.11. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 300,09 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | BEOBACHTEN |  | 912,79 | – | – | – | – | – | – | – | Do 10.12. |  |
 
-🟢 1. XOM · Rücksetzer ↑ (vorläufig): Am Mi 04.11. ab 15:30 Uhr (US-Börsenstart) 9 Stück kaufen, Limit 162,29 € (höchster Kaufkurs). Sofort Stop 149,47 € setzen, Ziel 171,44 €. Greift der Stop, verlierst du ca. 99 € (bei Einstieg zum Limit bis 115 €, bei Kurslücken mehr). Spätestens Mi 02.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 38 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen).  
+🟢 1. XOM · Rücksetzer ↑ (vorläufig): Am Mi 04.11. ab 15:30 Uhr (US-Börsenstart) 9 Stück kaufen, Limit 160,84 € (höchster Kaufkurs). Sofort Stop 147,90 € setzen, Ziel 170,08 €. Greift der Stop, verlierst du ca. 100 € (bei Einstieg zum Limit bis 116 €, bei Kurslücken mehr). Spätestens Mi 02.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 38 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen).  
 📰 News „?“ = Schlagzeilen für AAPL, PLTR, XOM nicht geladen (nicht abrufbar (YFDataException)) – selbst prüfen.  
 Rücksetzer ↑: Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
@@ -77,7 +77,7 @@ Lernregel: Ab 20 Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr a
 
 Depotwert am 02.11.2026: 10.000,00 € (+0,0 %) · davon frei: 10.000,00 € · 0/7 Positionen, offenes Risiko 0,0 %  
 Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 02.11.2026).  
-Aufträge für Di 03.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 MSFT RSI-2-Rücksetzer ↑ Limit 458,93, Stop 424,63, Ziel 476,08 €  
+Aufträge für Di 03.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 MSFT RSI-2-Rücksetzer ↑ Limit 458,62, Stop 424,35, Ziel 475,76 €  
 Die Eröffnung am Di 03.11. ist schon gelaufen: Das Papier-Depot bucht einen Tag erst, wenn er für alle Werte fertig ist – also beim nächsten Lauf nach dem Handelstag (am besten am Morgen danach).  
 Die Aufträge stammen vom letzten fertigen Kurstag und berücksichtigen die offenen Positionen und das Geld des Papier-Depots – sie können deshalb vom Handelsplan oben (für ein leeres Konto) abweichen.  
 Gespeichert in: forschung/experiment\_depot.json im Repository (neu anfangen: die Datei im Repository löschen, die Historie bei GitHub behält den alten Stand). Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, 0,00 € Gebühr + 0,1 % Spread je Order.  
