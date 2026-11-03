@@ -10,22 +10,22 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=HIMS)
 
-**Stand Fr 30.10. 2026:** BEOBACHTEN
+**Stand Mo 02.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 09.11.
 
 ## Übungsdepot
 
-- Offen: Long mit [[Strategien/Rücksetzer Long|Rücksetzer ↑]] seit 2026-10-21
+- [[Trades/2026-10-21 HIMS Rücksetzer Long|HIMS -1,0 R]] mit [[Strategien/Rücksetzer Long|Rücksetzer ↑]] (Stop, 2026-11-02)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 124 Trades · Ø +0,09 R · Treffer 55 %
+- **Alle Strategien zusammen:** 126 Trades · Ø +0,07 R · Treffer 54 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 21 Trades · Ø +0,14 R · Treffer 57 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 22 Trades · Ø +0,07 R · Treffer 55 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 23 Trades · Ø +0,06 R · Treffer 52 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 6 Trades · Ø -0,25 R · Treffer 33 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 14 Trades · Ø +0,00 R · Treffer 50 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 21 Trades · Ø +0,23 R · Treffer 62 %
-- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 7 Trades · Ø -0,06 R · Treffer 57 %
+- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 8 Trades · Ø -0,18 R · Treffer 50 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 11 Trades · Ø +0,19 R · Treffer 55 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 22 Trades · Ø +0,05 R · Treffer 55 %
 

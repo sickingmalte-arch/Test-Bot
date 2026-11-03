@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=LLY)
 
-**Stand Fr 30.10. 2026:** ⏸ WARTEN – Ausbruch ↑ – Nachricht: Prognose gesenkt
+**Stand Mo 02.11. 2026:** ⚠️ ÜBERHITZT – überhitzt – nur Info, Depot verkauft nicht
 **Nächste Quartalszahlen:** Mi 03.02.
 
 ## Übungsdepot
@@ -19,13 +19,13 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 133 Trades · Ø +0,01 R · Treffer 49 %
+- **Alle Strategien zusammen:** 133 Trades · Ø +0,00 R · Treffer 48 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 15 Trades · Ø -0,07 R · Treffer 47 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 23 Trades · Ø -0,07 R · Treffer 43 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 5 Trades · Ø +0,01 R · Treffer 60 %
-- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 22 Trades · Ø -0,16 R · Treffer 36 %
+- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 23 Trades · Ø -0,17 R · Treffer 35 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 26 Trades · Ø +0,06 R · Treffer 50 %
-- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 7 Trades · Ø +0,11 R · Treffer 57 %
+- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 6 Trades · Ø +0,10 R · Treffer 50 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 17 Trades · Ø +0,03 R · Treffer 53 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 18 Trades · Ø +0,24 R · Treffer 61 %
 

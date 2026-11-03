@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AMD)
 
-**Stand Fr 30.10. 2026:** BEOBACHTEN
+**Stand Mo 02.11. 2026:** ⏸ WARTEN – Quartalszahlen Di 03.11.
 **Nächste Quartalszahlen:** Di 03.11.
 
 ## Übungsdepot
@@ -19,12 +19,12 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 114 Trades · Ø +0,24 R · Treffer 62 %
+- **Alle Strategien zusammen:** 116 Trades · Ø +0,23 R · Treffer 61 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 18 Trades · Ø +0,20 R · Treffer 61 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 22 Trades · Ø +0,03 R · Treffer 50 %
-- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 7 Trades · Ø +0,41 R · Treffer 86 %
+- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 8 Trades · Ø +0,24 R · Treffer 75 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 10 Trades · Ø +0,65 R · Treffer 80 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 20 Trades · Ø +0,14 R · Treffer 60 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 21 Trades · Ø +0,12 R · Treffer 57 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 8 Trades · Ø +0,96 R · Treffer 88 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 11 Trades · Ø +0,16 R · Treffer 64 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 18 Trades · Ø +0,11 R · Treffer 50 %

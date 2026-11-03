@@ -7,22 +7,22 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Rücksetzer ↑
 
-**Status:** ✅ aktiv (Ø -0,05 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø -0,02 R über die letzten 60 Trades)
 
 **Regel:** Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,05 R · Treffer 45 % · ± Zufall 0,21 R
-- Ganze Geschichte: 546 Trades · Ø +0,03 R · Treffer 52 %
+- Letzte 60 Trades: Ø -0,02 R · Treffer 47 % · ± Zufall 0,21 R
+- Ganze Geschichte: 551 Trades · Ø +0,03 R · Treffer 52 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
-- Ziel: 151× (28 %), Ø +0,94 R
-- Zeitstopp: 139× (25 %), Ø -0,06 R
-- vor Quartalszahlen: 110× (20 %), Ø -0,07 R
-- Stop: 107× (20 %), Ø -1,01 R
+- Ziel: 152× (28 %), Ø +0,94 R
+- Zeitstopp: 140× (25 %), Ø -0,06 R
+- vor Quartalszahlen: 111× (20 %), Ø -0,08 R
+- Stop: 109× (20 %), Ø -1,00 R
 - Ziel (Kurslücke): 20× (4 %), Ø +1,10 R
 - Stop (Kurslücke): 19× (3 %), Ø -1,16 R
 
@@ -32,7 +32,7 @@ tags:
 2. [[Aktien/HIMS|HIMS]]: 21 Trades · Ø +0,23 R · Treffer 62 %
 3. [[Aktien/XOM|XOM]]: 27 Trades · Ø +0,23 R · Treffer 67 %
 …
-22. [[Aktien/TSLA|TSLA]]: 28 Trades · Ø -0,15 R · Treffer 43 %
+22. [[Aktien/CRWV|CRWV]]: 7 Trades · Ø -0,14 R · Treffer 43 %
 23. [[Aktien/NVDA|NVDA]]: 28 Trades · Ø -0,16 R · Treffer 43 %
 24. [[Aktien/ASTS|ASTS]]: 22 Trades · Ø -0,19 R · Treffer 36 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
@@ -44,6 +44,7 @@ tags:
 
 ## Trades im Übungsdepot (Papier-Depot)
 
+- [[Trades/2026-10-21 HIMS Rücksetzer Long|HIMS -1,0 R]] (Stop, 2026-11-02)
 - [[Trades/2026-10-21 AAPL Rücksetzer Long|AAPL +0,6 R]] (vor Quartalszahlen, 2026-10-30)
 
 Übersicht: [[Start]] · [[Lehren]] · [[Meine Regeln]]

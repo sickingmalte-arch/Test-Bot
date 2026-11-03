@@ -14,15 +14,15 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø -0,02 R · Treffer 45 % · ± Zufall 0,21 R
-- Ganze Geschichte: 317 Trades · Ø +0,19 R · Treffer 58 %
+- Ganze Geschichte: 317 Trades · Ø +0,18 R · Treffer 58 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 115× (36 %), Ø +0,97 R
 - Zeitstopp: 79× (25 %), Ø +0,03 R
-- Stop: 65× (21 %), Ø -0,97 R
-- vor Quartalszahlen: 33× (10 %), Ø +0,04 R
+- Stop: 66× (21 %), Ø -0,97 R
+- vor Quartalszahlen: 32× (10 %), Ø +0,08 R
 - Ziel (Kurslücke): 16× (5 %), Ø +1,08 R
 - Stop (Kurslücke): 9× (3 %), Ø -1,12 R
 
