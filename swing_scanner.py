@@ -57,7 +57,7 @@ RUECKBLICK_MONATE = 6       # so viele Monate spielt der Bot das virtuelle Depot
 # dann passt man die Regeln nur an den Zufall der Vergangenheit an.
 # ============================================================================
 MAX_POSITION_PROZENT = 25        # eine einzelne Position höchstens so viel % des Kontos
-MAX_POSITIONEN = 5               # höchstens so viele Positionen gleichzeitig
+MAX_POSITIONEN = 7               # höchstens so viele Positionen gleichzeitig (seit 03.11.2026, vorher 5)
 MAX_SHORTS = 2                   # davon höchstens so viele Shorts
 MAX_GESAMTRISIKO_PROZENT = 5     # alle offenen Positionen zusammen höchstens so viel % Risiko bis zum Stop
 MAX_JE_BRANCHE = 2              # höchstens so viele Positionen aus derselben Branche (nicht alles auf eine Karte)
