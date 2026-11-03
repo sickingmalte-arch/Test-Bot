@@ -20,7 +20,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 33
+    "nicht übernommen" : 35
 ```
 
 ## ✅ Steckt im Bot
@@ -69,6 +69,8 @@ pie showData
 | Lernmodell auch aus Aktien lernen lassen, die aus dem S&P 500 geflogen sind | beste zuerst 2010–2014 −2,5 Pkt; deren Signale liefen schlechter, das Modell erkennt sie nicht | [[Notizen/Gelernt – Lernmodell und Fehler-Analyse]] |
 | Tagesbremse nach einem −2-%-Tag (Pause oder alles verkaufen) | −0,1 bis −1,9 Pkt, nur 3 Tage Pause 2015–2021 +1,2; weniger Risiko macht solche Tage seltener, kostet aber 2–3 Pkt | [[Notizen/Forschung – Tagebuch]] |
 | Lernmodell mit klarerer Frage (Höhe von R, Ziel vor Stop) oder ein Modell je Strategie, beste zuerst | „Höhe von R“ +0,7 bis +4,3 Pkt und kleinere Rückgänge, aber zufällige Punktzahlen schafften teils dasselbe; Trennschärfe 0,50–0,52 | [[Notizen/Forschung – Tagebuch]] |
+| Kosten-Filter: nur Ziele mindestens 3 % bzw. 5 % über dem Kurs | −1,0 bis +0,5 bzw. −3,2 bis −1,0 Pkt, im Bereich des Zufalls | [[Notizen/Forschung – Tagebuch]] |
+| Ziel näher für 70–80 % Treffer | Treffer 65–79 %, aber Rendite −2,6 bis +5,6 % statt +7 bis +10,5 % | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
