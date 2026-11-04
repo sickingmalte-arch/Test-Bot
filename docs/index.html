@@ -30,7 +30,9 @@
   --warnung: #fab219;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --radius: 10px;
+  --radius: 14px;
+  --zone: #2bb3a3;      /* Unterstützung U1 */
+  --zone-2: #6f8f8b;    /* Unterstützung U2, U3 */
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--kopf-h, 72px) + 24px); overflow-x: clip; }
@@ -627,7 +629,37 @@ button.kal-tag:hover { border-color: #3a4654; }
   .balken-zeile { grid-template-columns: 96px minmax(0, 1fr) 60px; }
   .karten { grid-template-columns: minmax(0, 1fr); }
 }
+/* ---------- Auffrischung: weichere Karten, sanftes Einblenden ---------- */
+body { background: radial-gradient(1200px 500px at 15% -10%, rgba(57, 135, 229, .10), transparent 60%),
+  radial-gradient(900px 420px at 95% 0%, rgba(25, 158, 112, .07), transparent 60%), var(--bg); background-attachment: fixed; }
+.panel { background: linear-gradient(180deg, rgba(255, 255, 255, .025), rgba(255, 255, 255, 0) 40%), var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 10px 30px rgba(0, 0, 0, .28); transition: border-color .2s ease; }
+.panel:hover { border-color: #26313d; }
+.pille { border-radius: 999px; padding: 5px 10px; }
+.kachel .wert { letter-spacing: -.01em; }
+.blick-stapel { display: flex; flex-direction: column; gap: 10px; }
+.kacheln.blick { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kacheln.blick .kachel .wert { font-size: 30px; }
+.kacheln.blick .kachel .unter { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.abschnitt { animation: einblenden .45s ease both; }
+@keyframes einblenden { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* Handy: größere Schrift und Tippflächen, Tabellen seitlich wischbar statt Seite zu breit */
+@media (max-width: 560px) {
+  body { font-size: 15px; }
+  main { padding: 12px 10px 32px; }
+  .panel-innen { padding: 12px; }
+  .heute { grid-template-columns: minmax(0, 1fr); }
+  .heute-links { border-right: 0; border-bottom: 1px solid var(--line-soft); }
+  .heute-punkte li { font-size: 14.5px; }
+  .kacheln.blick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kacheln.blick .kachel .wert { font-size: 24px; }
+  .kacheln.blick .kachel.held, .kacheln.blick .kachel:nth-child(even):last-child { grid-column: auto; }
+  .info { width: 22px; height: 22px; }
+  .pille { font-size: 11px; padding: 6px 10px; }
+  main table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
 @media (prefers-reduced-motion: reduce) {
+  .abschnitt { animation: none; }
   .punkt.pulsiert { animation: none; }
   .laufband-inhalt, .kern-linien path.fluss { animation: none; }
   html { scroll-behavior: auto; }
@@ -1298,14 +1330,14 @@ function chartUmschalten(art) {
   try { localStorage.setItem("swingbot-chart", art); } catch (e) { /* egal */ }
   for (const u of CHART_UMSCHALTER) u(art);
 }
-function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, hoehe = 170 } = {}) {
+function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, zonen = [], hoehe = 170 } = {}) {
   const C = D.charts && D.charts[ticker], LW = window.LightweightCharts;
   if (!C || !LW || !C.tage.length) return null;
   const f = C.faktor || 1;
   const kerzen = (zeiten, K) => zeiten.map((t, i) => ({ time: t, open: K.o[i] / f, high: K.h[i] / f, low: K.l[i] / f, close: K.c[i] / f }))
     .filter(k => [k.open, k.high, k.low, k.close].every(Number.isFinite));
   // Stop, Ziel, Kauf und Limit immer im Bild, auch wenn der Kurs noch weit davon entfernt ist
-  const preise = [stop, ziel, einstieg, limit].filter(Number.isFinite);
+  const preise = [stop, ziel, einstieg, limit, ...zonen.flatMap(z => [z.von, z.bis])].filter(Number.isFinite);
   const tagIso = t => new Date(t * 1000).toISOString().slice(0, 10); // 30-Min-Zeiten sind deutsche Uhrzeit „als UTC“
   function zeichne(daten, art) {
     const box = el("div", { class: "kurs-chart", style: `height:${hoehe}px` });
@@ -1343,6 +1375,12 @@ function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, hoehe = 1
     linie(stop, "Stop", css("--schlecht-text"), LW.LineStyle.Dashed);
     linie(einstieg, "Kauf", css("--text-2"), LW.LineStyle.Solid);
     linie(limit, "Limit", css("--text-2"), LW.LineStyle.Dotted);
+    // Unterstützungs-Zonen (nur Info): Oberkante mit Name, bei breiten Zonen auch die Unterkante
+    zonen.forEach((z, k) => {
+      const farbe = k === 0 ? css("--zone") : css("--zone-2");
+      linie(z.bis, `U${k + 1}`, farbe, LW.LineStyle.SparseDotted);
+      if (Number.isFinite(z.von) && z.von < z.bis * 0.995) serie.createPriceLine({ price: z.von, title: "", color: farbe, lineWidth: 1, lineStyle: LW.LineStyle.SparseDotted, axisLabelVisible: false });
+    });
     const kauf = kauf_tag && daten.find(k => (m30 ? tagIso(k.time) : k.time) === kauf_tag); // gekauft zur Eröffnung
     if (kauf) LW.createSeriesMarkers(serie, [{ time: kauf.time, position: "belowBar", color: css("--s1"), shape: "arrowUp", text: "Kauf" }]);
     // Ausschnitt: Tageskerzen ganz, 30 Minuten die letzten 5 Handelstage (älteres per Ziehen)
@@ -1836,7 +1874,19 @@ function heuteAbschnitt(D, P, kaufen, depotStatus) {
   if (D.markt.ueber_200 !== null) punkt(D.markt.ueber_200 ? "🟢" : "🔴",
     [el("b", {}, D.markt.ueber_200 ? "Markt: Käufe erlaubt" : "Markt: keine neuen Käufe"), D.markt.ueber_200 ? " – der Nasdaq-100 liegt über seiner 200-Tage-Linie." : " – der Nasdaq-100 liegt unter seiner 200-Tage-Linie."]);
   const inhalt = el("div", { class: "panel heute" }, links, el("ul", { class: "heute-punkte" }, ...punkte));
-  return abschnitt("heute", "Auf einen Blick", `Kurse bis ${datum(D.daten_bis)} · das Wichtigste in Sätzen`, inhalt);
+  // Die vier wichtigsten Zahlen groß ganz oben
+  let blick = null;
+  if (P) {
+    const seit = (P.wert / P.startkapital - 1) * 100;
+    const t = P.tage && P.tage.length > 1 ? P.tage[P.tage.length - 1] : null;
+    const pzTag = t && t.wert - t.aenderung ? (t.aenderung / (t.wert - t.aenderung)) * 100 : null;
+    blick = el("div", { class: "panel kacheln blick" },
+      kachel("Übungsdepot", euro(P.wert, 0), `${prozent(seit)} seit ${datum(P.angelegt, false)}`, { klasse: richtung(seit) }),
+      kachel("Letzter Tag", t ? `${vz(t.aenderung)}${euro(t.aenderung, 0)}` : "–", t ? `${prozent(pzTag)} am ${datum(t.tag)}` : "noch kein Vortag", { klasse: t ? richtung(t.aenderung) : "" }),
+      kachel("Positionen", `${P.positionen.length} / ${D.regeln.max_positionen}`, P.positionen.length ? P.positionen.map(p => p.ticker).join(" · ") : "keine offen"),
+      kachel("Kauf-Signale", String(kaufen.length), kaufen.length ? kaufen.map(k => k.ticker).join(" · ") : "heute keine"));
+  }
+  return abschnitt("heute", "Auf einen Blick", `Kurse bis ${datum(D.daten_bis)} · das Wichtigste in Sätzen`, el("div", { class: "blick-stapel" }, blick, inhalt));
 }
 
 // ---------------------------------------------------------------------------
@@ -2072,7 +2122,7 @@ function aufbauen(D) {
         el("div", {}, el("div", { class: "label" }, "Ziel"), el("div", { class: "wert" }, euro(s.ziel, 2)))),
       bahn({ stop: s.stop, ziel: s.ziel, kurs: s.kurs, limit: s.limit }),
       el("div", { class: "bahn-text" }, el("span", {}, "Stop"), el("span", {}, `Kurs ${euro(s.kurs, 2)}`), el("span", {}, "Ziel")),
-      kursChart(D, s.ticker, { stop: s.stop, ziel: s.ziel, limit: s.limit, hoehe: 140 }),
+      kursChart(D, s.ticker, { stop: s.stop, ziel: s.ziel, limit: s.limit, zonen: s.zonen || [], hoehe: 160 }),
       zahlenZeile(zahlenVon.get(s.ticker), s.zahlen),
       s.chance !== null && s.chance !== undefined ? el("div", { class: "zahlen-zeile chance-zeile" },
         el("span", {}, `Ziel-Chance: Formel ${zahl(s.chance)}\u00a0%` + (s.chance_praxis !== null && s.chance_praxis !== undefined ? ` · bisher erreicht ${zahl(s.chance_praxis)}\u00a0%` : "")), info("chance")) : null,
