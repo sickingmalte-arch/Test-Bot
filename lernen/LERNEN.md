@@ -1,14 +1,14 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 03.11.2026 12:59 Uhr · Kurse bis 02.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 04.11.2026 04:06 Uhr · Kurse bis 03.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
 ## ⚠️ Daten
 
-- ⚠️ Alte Kurse (nicht bis 02.11.2026) bei 1 Aktien: KVUE – sie werden heute nicht gehandelt.
+- ⚠️ Alte Kurse (nicht bis 03.11.2026) bei 2 Aktien: APA, KVUE – sie werden heute nicht gehandelt.
 
-## 📋 Kauf-Signale vom 02.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 03.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -16,33 +16,33 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| MSFT | RSI-2-Rücksetzer | 51 % | 26 | – |
+| XOM | Rücksetzer | 59 % | 76 | ✅ |
 
-**Ganzer Markt – die 15 besten von 104 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 52 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| DELL | RSI-2-Rücksetzer | 68 % | 95 | ✅ |
-| HPE | RSI-2-Rücksetzer | 66 % | 93 | ✅ |
-| NTAP | RSI-2-Rücksetzer | 64 % | 90 | ✅ |
-| CRM | RSI-2-Rücksetzer | 62 % | 86 | ✅ |
-| PANW | RSI-2-Rücksetzer | 61 % | 83 | ✅ |
-| MU | RSI-2-Rücksetzer | 61 % | 81 | ✅ |
-| CRWD | RSI-2-Rücksetzer | 60 % | 78 | ✅ |
-| P | RSI-2-Rücksetzer | 59 % | 77 | ✅ |
-| IQV | RSI-2-Rücksetzer | 59 % | 75 | ✅ |
-| VEEV | Rücksetzer | 57 % | 69 | – |
-| LEN | ATR-Ausbruch | 57 % | 68 | – |
-| CB | ATR-Ausbruch | 57 % | 67 | – |
-| PPL | ATR-Ausbruch | 56 % | 64 | – |
-| CPRT | ATR-Ausbruch | 55 % | 58 | – |
-| FE | ATR-Ausbruch | 54 % | 51 | – |
+| PANW | RSI-2-Rücksetzer | 66 % | 93 | ✅ |
+| AIG | Rücksetzer | 60 % | 79 | ✅ |
+| CRM | RSI-2-Rücksetzer | 59 % | 78 | ✅ |
+| CSX | RSI-2-Rücksetzer | 59 % | 77 | ✅ |
+| XOM | Rücksetzer | 59 % | 76 | ✅ |
+| ROST | Rücksetzer | 57 % | 69 | – |
+| CVX | Rücksetzer | 57 % | 67 | – |
+| SLB | RSI-2-Rücksetzer | 56 % | 61 | – |
+| EBAY | Rücksetzer | 56 % | 59 | – |
+| DG | Rücksetzer | 54 % | 48 | – |
+| ALGN | Rücksetzer | 54 % | 48 | – |
+| UNH | Rücksetzer | 54 % | 46 | – |
+| BAX | EMA-Kreuz | 54 % | 45 | – |
+| NDSN | MACD-Wende | 54 % | 45 | – |
+| FOXA | MACD-Wende | 53 % | 44 | – |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23577 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23655 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
@@ -73,7 +73,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 23577 Signale, davon verloren 47 %. Von den 9394 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 23655 Signale, davon verloren 47 %. Von den 9405 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
@@ -82,7 +82,7 @@ Alle gedachten Trades der letzten 12 Monate: 23577 Signale, davon verloren 47 %.
 | Normales Auf und Ab (kein besonderer Grund) | 10 % | 10 % |
 | Quartalszahlen | 10 % | 5 % ↓ |
 | Absturz des Gesamtmarkts | 5 % | 5 % |
-| Stop zu eng (Kurs war danach schnell wieder über dem Einstieg) | 4 % | 5 % |
+| Stop zu eng (Kurs war danach schnell wieder über dem Einstieg) | 4 % | 5 % ↑ |
 | Signal zu spät (Aktie war schon weit gelaufen) | 4 % | 2 % ↓ |
 | Kurslücke unter den Stop (über Nacht) | 3 % | 3 % ↑ |
 | Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht) | 1 % | 1 % ↓ |
