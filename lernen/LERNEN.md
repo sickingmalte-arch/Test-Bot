@@ -1,12 +1,12 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 04.11.2026 04:06 Uhr · Kurse bis 03.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 04.11.2026 13:12 Uhr · Kurse bis 03.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
 ## ⚠️ Daten
 
-- ⚠️ Alte Kurse (nicht bis 03.11.2026) bei 2 Aktien: APA, KVUE – sie werden heute nicht gehandelt.
+- ⚠️ Alte Kurse (nicht bis 03.11.2026) bei 1 Aktien: KVUE – sie werden heute nicht gehandelt.
 
 ## 📋 Kauf-Signale vom 03.11.2026 mit Punktzahl
 
@@ -42,7 +42,7 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23655 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23657 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
@@ -73,7 +73,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 23655 Signale, davon verloren 47 %. Von den 9405 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 23657 Signale, davon verloren 47 %. Von den 9406 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
