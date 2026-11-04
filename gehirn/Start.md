@@ -4,7 +4,7 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Mo 02.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Di 03.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
@@ -12,31 +12,31 @@ flowchart TB
   termine["📅 Quartalszahlen<br/>24 Termine"]
   markt["🟢 Markt<br/>Nasdaq-100 über der<br/>200-Tage-Linie"]
   regeln["📝 Meine Regeln<br/>nichts gesperrt"]
-  subgraph KERN["🧠 8 Strategien · 7 aktiv"]
+  subgraph KERN["🧠 8 Strategien · 8 aktiv"]
     direction TB
-    s0["✅ Ausbruch ↑<br/>Ø -0,02 R"]
-    s1["✅ RSI-2-Rücksetzer ↑<br/>Ø +0,02 R"]
-    s2["✅ Gegenbewegung ↑<br/>Ø +0,03 R"]
-    s3["⏸ MACD-Wende ↑<br/>Ø -0,08 R"]
-    s4["✅ Rücksetzer ↑<br/>Ø -0,02 R"]
-    s5["✅ Squeeze-Ausbruch ↑<br/>Ø +0,15 R"]
-    s6["✅ EMA-Kreuz ↑<br/>Ø -0,06 R"]
-    s7["✅ ATR-Ausbruch ↑<br/>Ø +0,01 R"]
+    s0["✅ Ausbruch ↑<br/>Ø -0,00 R"]
+    s1["✅ RSI-2-Rücksetzer ↑<br/>Ø +0,04 R"]
+    s2["✅ Gegenbewegung ↑<br/>Ø +0,05 R"]
+    s3["✅ MACD-Wende ↑<br/>Ø -0,06 R"]
+    s4["✅ Rücksetzer ↑<br/>Ø +0,00 R"]
+    s5["✅ Squeeze-Ausbruch ↑<br/>Ø +0,17 R"]
+    s6["✅ EMA-Kreuz ↑<br/>Ø -0,04 R"]
+    s7["✅ ATR-Ausbruch ↑<br/>Ø +0,03 R"]
     s0 ~~~ s4
     s1 ~~~ s5
     s2 ~~~ s6
     s3 ~~~ s7
   end
   tb["📓 Tagebuch<br/>2.871 gedachte Trades"]
-  sig["🎯 Signale heute<br/>1 kaufen · 2 warten<br/>2 überhitzt"]
-  depot["📒 Übungsdepot<br/>9.956 € (-0,4 %)<br/>4 offen"]
+  sig["🎯 Signale heute<br/>1 kaufen · 2 warten<br/>1 überhitzt"]
+  depot["📒 Übungsdepot<br/>9.916 € (-0,8 %)<br/>5 offen"]
   lehren["🎓 Lehren<br/>4 abgeschlossene Trades"]
   kurse --> KERN
   termine -->|Sperre| KERN
   markt -->|Filter| KERN
   regeln --> KERN
   KERN -->|denkt mit| tb
-  tb -->|Lernregel: 1 pausiert| KERN
+  tb -->|Lernregel| KERN
   KERN --> sig
   sig -->|kauft zur Eröffnung| depot
   depot --> lehren
@@ -49,8 +49,7 @@ flowchart TB
   class kurse,termine,regeln ein
   class markt ein
   class tb,sig,depot,lehren aus2
-  class s0,s1,s2,s4,s5,s6,s7 aktiv
-  class s3 pausiert
+  class s0,s1,s2,s3,s4,s5,s6,s7 aktiv
   style KERN fill:#0b1016,stroke:#3987e5,color:#e6edf3
 ```
 
@@ -62,21 +61,20 @@ flowchart TB
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-11-02]] · Diese Woche: [[Wochen/2026-W45|Woche 45]]
+## Heute: [[Tage/2026-11-03]] · Diese Woche: [[Wochen/2026-W45|Woche 45]]
 
-- Signale: [[Aktien/MSFT|MSFT]] (🟢 KAUFEN)
-- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Fr 30.10. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
+- Signale: [[Aktien/XOM|XOM]] (🟢 KAUFEN)
+- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mo 02.11. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
 
 ## Übungsdepot
 
-- 9.956,33 € (-0,4 % seit 2026-10-20) · 4 offen · 4 Trades · Ø +0,04 R · Treffer 75 %
+- 9.916,21 € (-0,8 % seit 2026-10-20) · 5 offen · 4 Trades · Ø +0,04 R · Treffer 75 %
 - Letzte Trades: [[Trades/2026-10-21 HIMS Rücksetzer Long|HIMS -1,0 R]], [[Trades/2026-10-21 AAPL Rücksetzer Long|AAPL +0,6 R]], [[Trades/2026-10-21 NOW Squeeze-Ausbruch Long|NOW +0,1 R]], [[Trades/2026-10-21 LLY Squeeze-Ausbruch Long|LLY +0,5 R]]
-- Rückblick 12 Monate: -6,3 % (alle Aktien kaufen und halten: -8,6 %)
+- Rückblick 12 Monate: +5,4 % (alle Aktien kaufen und halten: -4,8 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
-- ✅ aktiv: [[Strategien/Ausbruch Long|Ausbruch ↑]], [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]], [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]], [[Strategien/Rücksetzer Long|Rücksetzer ↑]], [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]], [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]], [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]
-- ⏸ pausiert: [[Strategien/MACD-Wende Long|MACD-Wende ↑]]
+- ✅ aktiv: [[Strategien/Ausbruch Long|Ausbruch ↑]], [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]], [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]], [[Strategien/MACD-Wende Long|MACD-Wende ↑]], [[Strategien/Rücksetzer Long|Rücksetzer ↑]], [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]], [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]], [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]
 - – Short ausgeschaltet: [[Strategien/Abbruch Short|Abbruch ↓]], [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]], [[Strategien/Rückfall Short|Rückfall ↓]], [[Strategien/MACD-Wende Short|MACD-Wende ↓]], [[Strategien/Erholung Short|Erholung ↓]], [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]], [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]], [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]
 
 ## Deine Regeln → [[Meine Regeln]]
@@ -90,5 +88,5 @@ flowchart TB
 
 ## Notizen
 
-[[Notizen/Gelernt aus dem Optionsskript|Gelernt aus dem Optionsskript]] · [[Notizen/Gelernt – Hebel und 4-Stunden-Kerzen|Gelernt – Hebel und 4-Stunden-Kerzen]] · [[Notizen/Gelernt – Lernmodell und Fehler-Analyse|Gelernt – Lernmodell und Fehler-Analyse]] · [[Notizen/Gelernt – Muster und Lehrbücher|Gelernt – Muster und Lehrbücher]] · [[Notizen/Gelernt – Nachkaufen, Teilverkauf und 15-Minuten-Chart|Gelernt – Nachkaufen, Teilverkauf und 15-Minuten-Chart]] · [[Notizen/Gelernt – Stop nachziehen und absichern|Gelernt – Stop nachziehen und absichern]] · [[Notizen/Was der Bot schon weiß|Was der Bot schon weiß]] · [[Notizen/Wissen – Kerzen- und Chartmuster|Wissen – Kerzen- und Chartmuster]] · [[Notizen/Wissen – Optionen|Wissen – Optionen]] · [[Notizen/Wissen – Traden lernen (Lehrbücher)|Wissen – Traden lernen (Lehrbücher)]]
+[[Notizen/Forschung – Tagebuch|Forschung – Tagebuch]] · [[Notizen/Gelernt aus dem Optionsskript|Gelernt aus dem Optionsskript]] · [[Notizen/Gelernt – Hebel und 4-Stunden-Kerzen|Gelernt – Hebel und 4-Stunden-Kerzen]] · [[Notizen/Gelernt – Lernmodell und Fehler-Analyse|Gelernt – Lernmodell und Fehler-Analyse]] · [[Notizen/Gelernt – Muster und Lehrbücher|Gelernt – Muster und Lehrbücher]] · [[Notizen/Gelernt – Nachkaufen, Teilverkauf und 15-Minuten-Chart|Gelernt – Nachkaufen, Teilverkauf und 15-Minuten-Chart]] · [[Notizen/Gelernt – Stop nachziehen und absichern|Gelernt – Stop nachziehen und absichern]] · [[Notizen/Was der Bot schon weiß|Was der Bot schon weiß]] · [[Notizen/Wissen – Kerzen- und Chartmuster|Wissen – Kerzen- und Chartmuster]] · [[Notizen/Wissen – Optionen|Wissen – Optionen]] · [[Notizen/Wissen – Traden lernen (Lehrbücher)|Wissen – Traden lernen (Lehrbücher)]]
 %% BOT-ENDE %%

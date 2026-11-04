@@ -10,7 +10,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=JPM)
 
-**Stand Mo 02.11. 2026:** BEOBACHTEN
+**Stand Di 03.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 14.01.
 
 ## Übungsdepot
@@ -19,15 +19,15 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 138 Trades · Ø +0,16 R · Treffer 62 %
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 7 Trades · Ø +0,27 R · Treffer 71 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 30 Trades · Ø +0,10 R · Treffer 53 %
-- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 10 Trades · Ø +0,18 R · Treffer 60 %
-- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 19 Trades · Ø +0,34 R · Treffer 79 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 28 Trades · Ø +0,15 R · Treffer 61 %
-- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 8 Trades · Ø +0,55 R · Treffer 75 %
-- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 11 Trades · Ø +0,25 R · Treffer 73 %
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 25 Trades · Ø -0,09 R · Treffer 48 %
+- **Alle Strategien zusammen:** 138 Trades · Ø +0,18 R · Treffer 62 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 7 Trades · Ø +0,29 R · Treffer 71 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 30 Trades · Ø +0,12 R · Treffer 53 %
+- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 10 Trades · Ø +0,20 R · Treffer 60 %
+- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 19 Trades · Ø +0,36 R · Treffer 79 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 28 Trades · Ø +0,17 R · Treffer 61 %
+- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 8 Trades · Ø +0,57 R · Treffer 75 %
+- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 11 Trades · Ø +0,27 R · Treffer 73 %
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 25 Trades · Ø -0,07 R · Treffer 48 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

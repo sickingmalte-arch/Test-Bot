@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MELI)
 
-**Stand Mo 02.11. 2026:** BEOBACHTEN
+**Stand Di 03.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 04.11.
 
 ## Übungsdepot
@@ -19,15 +19,15 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 115 Trades · Ø -0,05 R · Treffer 48 %
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 11 Trades · Ø -0,10 R · Treffer 36 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 22 Trades · Ø -0,24 R · Treffer 36 %
-- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 8 Trades · Ø +0,44 R · Treffer 75 %
-- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 13 Trades · Ø -0,25 R · Treffer 31 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 22 Trades · Ø +0,14 R · Treffer 64 %
-- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 9 Trades · Ø +0,01 R · Treffer 56 %
-- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 16 Trades · Ø -0,16 R · Treffer 38 %
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 14 Trades · Ø -0,01 R · Treffer 57 %
+- **Alle Strategien zusammen:** 115 Trades · Ø -0,03 R · Treffer 50 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 11 Trades · Ø -0,08 R · Treffer 36 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 22 Trades · Ø -0,22 R · Treffer 41 %
+- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 8 Trades · Ø +0,46 R · Treffer 75 %
+- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 13 Trades · Ø -0,23 R · Treffer 38 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 22 Trades · Ø +0,16 R · Treffer 64 %
+- [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 9 Trades · Ø +0,03 R · Treffer 56 %
+- [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 16 Trades · Ø -0,14 R · Treffer 38 %
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 14 Trades · Ø +0,01 R · Treffer 57 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

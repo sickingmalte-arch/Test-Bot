@@ -103,5 +103,12 @@
   "strategie": "ausbruch_long",
   "gut": 0,
   "schlecht": 0
+ },
+ {
+  "tag": "2026-11-03",
+  "ticker": "XOM",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
  }
 ]
