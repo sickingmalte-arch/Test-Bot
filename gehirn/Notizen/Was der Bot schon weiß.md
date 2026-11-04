@@ -20,7 +20,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 35
+    "nicht übernommen" : 39
 ```
 
 ## ✅ Steckt im Bot
@@ -71,6 +71,10 @@ pie showData
 | Lernmodell mit klarerer Frage (Höhe von R, Ziel vor Stop) oder ein Modell je Strategie, beste zuerst | „Höhe von R“ +0,7 bis +4,3 Pkt und kleinere Rückgänge, aber zufällige Punktzahlen schafften teils dasselbe; Trennschärfe 0,50–0,52 | [[Notizen/Forschung – Tagebuch]] |
 | Kosten-Filter: nur Ziele mindestens 3 % bzw. 5 % über dem Kurs | −1,0 bis +0,5 bzw. −3,2 bis −1,0 Pkt, im Bereich des Zufalls | [[Notizen/Forschung – Tagebuch]] |
 | Ziel näher für 70–80 % Treffer | Treffer 65–79 %, aber Rendite −2,6 bis +5,6 % statt +7 bis +10,5 % | [[Notizen/Forschung – Tagebuch]] |
+| Boden a: Stop 0,5 ATR unter den letzten Boden | −4,0 / +2,0 / +1,6 Pkt, 2010–2014 Rückgang −23 % statt −14 % | [[Notizen/Forschung – Tagebuch]] |
+| Boden b: nur kaufen nah am Boden (≤ 1,5 ATR) | −6,5 bis −3,0 Pkt, nicht besser als zufälliges Auslassen | [[Notizen/Forschung – Tagebuch]] |
+| Boden c: nicht kaufen nach gebrochenem Boden | −0,6 bis +1,4 Pkt, im Bereich des Zufalls | [[Notizen/Forschung – Tagebuch]] |
+| Boden d: Ziel am nächsten Widerstand | −6,6 / +1,4 / +4,2 Pkt, Rückgänge größer | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 

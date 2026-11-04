@@ -10,6 +10,27 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 04.11.2026 · Boden-Regeln
+
+**Idee** (Wunsch des Nutzers): Der Bot soll auf den Boden achten, also auf das letzte Wendetief unter dem Kurs (tiefer als je 5 Tage davor und danach, erst 5 Tage später bekannt). Vier Regeln, gerechnet bei GitHub (Watchlist dort, 0 € Gebühr, 7 Positionen):
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +13,3 % / −14 % | +11,9 % / −18 % | +7,9 % / −16 % |
+| a) Stop 0,5 ATR unter den Boden | +9,4 % / −23 % | +13,9 % / −14 % | +9,5 % / −18 % |
+| b) nur kaufen, wenn höchstens 1,5 ATR über dem Boden | +6,8 % / −10 % | +7,2 % / −16 % | +4,9 % / −10 % |
+| … Gegenprobe: gleich viele zufällig auslassen (6-mal) | +3,2 bis +8,9 % | +7,5 bis +12,1 % | +3,2 bis +7,3 % |
+| c) nicht kaufen, wenn der Boden gerade gebrochen ist | +13,2 % / −14 % | +13,3 % / −15 % | +7,3 % / −15 % |
+| … Gegenprobe (6-mal) | +10,4 bis +14,9 % | +12,6 bis +14,4 % | +4,9 bis +8,1 % |
+| d) Ziel am nächsten Widerstand | +6,7 % / −23 % | +13,3 % / −20 % | +12,1 % / −17 % |
+
+**Ergebnis:** keine Regel ist überall besser – nicht übernommen.
+- a) und d) helfen 2015–2026, kosten aber 2010–2014 4 bzw. 7 Punkte und machen dort den größten Rückgang deutlich größer (−23 % statt −14 %).
+- b) lässt viele gute Trades weg: Rückgänge kleiner, aber 3 bis 6,5 Punkte weniger Rendite – nicht besser als zufälliges Auslassen.
+- c) ändert kaum etwas und liegt im Bereich des Zufalls.
+
+**Lehre:** Der Boden ist eine gute Orientierung zum Anschauen, als feste Regel bringt er dem Bot nichts. Die Anzeige im Bericht und auf der Webseite bleibt (nur Info).
+
 ## 03.11.2026 · Kosten-Filter und „70–80 % Treffer“
 
 **Kosten-Filter** (Wunsch des Nutzers): nur Signale kaufen, deren Ziel mindestens 3 % bzw. 5 % über dem Kurs liegt. Dann frisst der Spread (zusammen etwa 0,2 % je Trade, Ordergebühr seit heute 0 €) höchstens rund 7 % bzw. 4 % des geplanten Gewinns. Gerechnet bei GitHub mit der Watchlist dort; Ergebnisse: `forschung/ergebnisse/kosten_filter_3.md` und `kosten_filter_5.md`.
