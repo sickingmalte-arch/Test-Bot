@@ -1108,6 +1108,68 @@ def boden_am_tag(d, i, links=5, rechts=5, fenster=126, zone=0.01):
             "gehalten": sum(1 for q in tiefs if abs(l[q] / wert - 1) <= zone),
             "ueber_200": (wert >= sma200) if math.isfinite(sma200) else None}
 
+def runde_stufe(kurs):
+    """Abstand runder Kurse, auf die viele Händler achten (z. B. 10 $ bei 150 $, 50 $ bei 500 $)."""
+    for grenze, stufe in ((20, 1), (50, 5), (200, 10), (1000, 50), (5000, 100)):
+        if kurs < grenze:
+            return stufe
+    return 500
+
+def unterstuetzungen(d, i, fenster=126, zonen=3):
+    """Bis zu 3 Unterstützungs-Zonen unter dem Kurs (nur Info, ändert keine Regel). Gesucht wird im letzten halben Jahr
+    nach: Wendetiefs (je 5 und je 10 Tage links und rechts höher), alten Hochs, über die der Kurs gestiegen ist
+    (Wendehochs, je 5 Tage), offenen Kurslücken nach oben, Kursen mit besonders viel Handel (Volumen je Kursbereich) und
+    der nächsten runden Zahl. Wendepunkte zählen erst, wenn sie bestätigt sind (5 bzw. 10 Tage später) – kein Blick in
+    die Zukunft. Gründe, die höchstens 1 % auseinanderliegen, werden zu einer Zone zusammengefasst; je mehr Gründe,
+    desto stärker. Kurse in $ wie d["C"]."""
+    h, l, c = (np.asarray(d[k], dtype=float) for k in ("H", "L", "C"))
+    jetzt = c[i]
+    if not np.isfinite(jetzt) or i < 30:
+        return []
+    a = max(0, i - fenster)
+    stellen = []  # (Kurs, Grund)
+    gross = set()
+    for w, name in ((10, "großes Wendetief"), (5, "Wendetief")):  # ein großes Wendetief zählt nur einmal
+        for p in range(max(a, w), i - w + 1):
+            if p not in gross and np.isfinite(l[p]) and l[p] == np.nanmin(l[p - w:p + w + 1]) and l[p] < jetzt:
+                stellen.append((l[p], name))
+                if w == 10:
+                    gross.add(p)
+    for p in range(max(a, 5), i - 4):
+        if np.isfinite(h[p]) and h[p] == np.nanmax(h[p - 5:p + 6]) and h[p] < jetzt:
+            stellen.append((h[p], "altes Hoch"))
+    for p in range(max(a, 1), i + 1):  # offene Kurslücke nach oben: Tief über dem Hoch des Vortags, seither nicht gefüllt
+        if l[p] > h[p - 1] and l[p] < jetzt and np.nanmin(l[p:i + 1]) > h[p - 1]:
+            stellen.append((l[p], "Kurslücke"))
+    v = np.asarray(d.get("V", np.full(len(c), np.nan)), dtype=float)[a:i + 1]
+    preise = c[a:i + 1]
+    ok = np.isfinite(v) & np.isfinite(preise) & (v > 0)
+    if ok.sum() > 30:
+        menge, kanten = np.histogram(preise[ok], bins=30, weights=v[ok])
+        for k in range(1, len(menge) - 1):
+            mitte = (kanten[k] + kanten[k + 1]) / 2
+            if menge[k] >= menge[k - 1] and menge[k] >= menge[k + 1] and menge[k] > 1.5 * menge.mean() and mitte < jetzt:
+                stellen.append((mitte, "viel Handel"))
+    stufe = runde_stufe(jetzt)
+    rund = math.floor(jetzt / stufe) * stufe
+    if rund < jetzt and rund > 0:
+        stellen.append((float(rund), f"runde Zahl {rund:g} $"))
+    zonen_liste = []
+    for kurs, grund in sorted(stellen, reverse=True):  # von oben nach unten, nah beieinander = eine Zone
+        if zonen_liste and zonen_liste[-1]["von"] <= kurs * 1.01:
+            z = zonen_liste[-1]
+            z["von"] = min(z["von"], kurs)
+            z["gruende"][grund] = z["gruende"].get(grund, 0) + 1
+        else:
+            zonen_liste.append({"von": kurs, "bis": kurs, "gruende": {grund: 1}})
+    aus = []
+    for z in zonen_liste[:zonen]:
+        mitte = (z["von"] + z["bis"]) / 2
+        aus.append({"von": z["von"], "bis": z["bis"], "abstand": (jetzt / mitte - 1) * 100,
+                    "gruende": [g if n == 1 else f"{g} {n}×" for g, n in z["gruende"].items()],
+                    "staerke": sum(z["gruende"].values())})
+    return aus
+
 def muster_am_tag(d, i):
     """Erkannte Kerzenmuster an Tag i: bullische am Tag oder am Tag davor, bärische am Tag selbst (Namen)."""
     k = d.get("KERZEN")
@@ -1242,6 +1304,7 @@ def bereite_vor(ticker, df, fx, zahlen_df, einst, markt=None):
     }
     d["KERZEN"] = kerzenmuster(df)  # nur Info (Selbstkontrolle auf der Lehren-Seite)
     d["DBOD"] = doppelboden(df)
+    d["V"] = (df["Volume"] if "Volume" in df else pd.Series(np.nan, index=df.index)).to_numpy(dtype=float)
     d["morgen"] = d["gesperrt"] = d["gerade"] = np.zeros(n, bool)
     if zahlen_df is not None:
         termine = zahlen_termine(zahlen_df)
@@ -1754,6 +1817,9 @@ def scanner_zeile(t, d, pausiert, einst):
         b = boden_am_tag(d, i) if r > 0 else None
         if b:
             zeile["_boden"] = {**b, "kurs": b["kurs"] / rate, "stop_darunter": stop < b["kurs"] / rate}
+        zonen = unterstuetzungen(d, i) if r > 0 else []
+        if zonen:
+            zeile["_zonen"] = [{**z, "von": z["von"] / rate, "bis": z["bis"] / rate} for z in zonen]
         if zeile["_offen"]:
             zeile["Strategie"] += " (vorläufig)"
     elif grund is not None:
@@ -1822,6 +1888,11 @@ def muster_satz(zeile, waehrung):
                      + ("" if b["ueber_200"] is None else ", über der 200-Tage-Linie" if b["ueber_200"]
                         else ", unter der 200-Tage-Linie")
                      + f"; Stop {'darunter' if b['stop_darunter'] else 'darüber'})")
+    zonen = zeile.get("_zonen")
+    if zonen:
+        teile.append("Unterstützung darunter: " + " · ".join(
+            (f"{de(z['bis'])}" if z["bis"] - z["von"] < 0.005 * z["bis"] else f"{de(z['von'])}–{de(z['bis'])}")
+            + f" {waehrung} (−{de(z['abstand'], 1)} %: {', '.join(z['gruende'])})" for z in zonen))
     return f" {'. '.join(teile)} (nur Info)." if teile else ""
 
 def handelsplan(zeile, nr, einst, waehrung):
@@ -3703,6 +3774,8 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                         "boden": ({"kurs": json_zahl(z["_boden"]["kurs"]), "abstand": json_zahl(z["_boden"]["abstand"], 1),
                                    "gehalten": z["_boden"]["gehalten"], "ueber_200": z["_boden"]["ueber_200"],
                                    "stop_darunter": bool(z["_boden"]["stop_darunter"])} if z.get("_boden") else None),
+                        "zonen": [{"von": json_zahl(x["von"]), "bis": json_zahl(x["bis"]), "abstand": json_zahl(x["abstand"], 1),
+                                   "gruende": x["gruende"], "staerke": x["staerke"]} for x in z.get("_zonen") or []],
                         "risiko": json_zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
                         "zahlen_tag": iso(z["_termin"].date()) if z.get("_termin") is not None else None,
                         "branche": BRANCHE.get(t), "im_plan": t in im_plan, "fehler": z.get("_fehler")})
