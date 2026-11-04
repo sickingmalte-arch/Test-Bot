@@ -31,5 +31,49 @@
    -1.0,
    -1.6
   ]
+ },
+ {
+  "datum": "2026-11-04",
+  "datei": "boden_gebrochen",
+  "name": "Boden c: nicht kaufen, wenn der Boden in den letzten 5 Tagen gebrochen wurde",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.1,
+   1.4,
+   -0.6
+  ]
+ },
+ {
+  "datum": "2026-11-04",
+  "datei": "boden_nah",
+  "name": "Boden b: nur kaufen, wenn der Kurs höchstens 1,5 ATR über dem Boden liegt",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -6.5,
+   -4.7,
+   -3.0
+  ]
+ },
+ {
+  "datum": "2026-11-04",
+  "datei": "boden_stop",
+  "name": "Boden a: Stop 0,5 ATR unter den letzten Boden",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -4.0,
+   2.0,
+   1.6
+  ]
+ },
+ {
+  "datum": "2026-11-04",
+  "datei": "boden_widerstand_ziel",
+  "name": "Boden d: Ziel am nächsten Widerstand (letztes Wendehoch über dem Kurs)",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -6.6,
+   1.4,
+   4.2
+  ]
  }
 ]

@@ -1,0 +1,60 @@
+{
+ "name": "Boden d: Ziel am nächsten Widerstand (letztes Wendehoch über dem Kurs)",
+ "datei": "boden_widerstand_ziel",
+ "datum": "2026-11-04",
+ "quelle": "Wunsch des Nutzers (Chat vom 03.11.2026), klassische Widerstands-Regel",
+ "urteil": "nicht überall besser",
+ "plus": {
+  "2010-01-01": -6.648057814987717,
+  "2015-01-01": 1.4206349041591029,
+  "2022-01-01": 4.220227423207469
+ },
+ "basis": {
+  "2010-01-01": {
+   "rendite": 13.34358899507814,
+   "rueckgang": 14.017221758127873,
+   "treffer": 57.65123217364907,
+   "schnitt_r": 0.14552676627094657,
+   "trades_jahr": 119.878979143798
+  },
+  "2015-01-01": {
+   "rendite": 11.892565023876635,
+   "rueckgang": 17.817240328737732,
+   "treffer": 58.660517888851544,
+   "schnitt_r": 0.13072558721847383,
+   "trades_jahr": 127.6051981409002
+  },
+  "2022-01-01": {
+   "rendite": 7.8978433110927035,
+   "rueckgang": 16.29015690012156,
+   "treffer": 57.314866450869374,
+   "schnitt_r": 0.09894588757166684,
+   "trades_jahr": 106.90430013927576
+  }
+ },
+ "idee": {
+  "2010-01-01": {
+   "rendite": 6.6955311800904225,
+   "rueckgang": 22.60788300982538,
+   "treffer": 56.59515424866123,
+   "schnitt_r": 0.08373958276410429,
+   "trades_jahr": 124.99087541163556
+  },
+  "2015-01-01": {
+   "rendite": 13.313199928035738,
+   "rueckgang": 19.67769826053992,
+   "treffer": 60.92146661582435,
+   "schnitt_r": 0.13307689545548487,
+   "trades_jahr": 128.15914872798436
+  },
+  "2022-01-01": {
+   "rendite": 12.118070734300172,
+   "rueckgang": 16.725174792485852,
+   "treffer": 60.71747134709334,
+   "schnitt_r": 0.24041339922159174,
+   "trades_jahr": 103.34336699164345
+  }
+ },
+ "zufall": [],
+ "sekunden": 33
+}
