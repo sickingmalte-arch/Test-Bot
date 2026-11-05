@@ -1,55 +1,55 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Do 05.11.2026 15:59 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Do 05.11.2026 18:27 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 05.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1222 $
+## 📈 SWING-SCANNER · Daten bis 05.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1235 $
 
-3× 🟢 KAUFEN · 1× ⏸ WARTEN · 3× ⚠️ ÜBERHITZT · 17× BEOBACHTEN  
+3× 🟢 KAUFEN · 1× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 19× BEOBACHTEN  
 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 04.11. über seiner 200-Tage-Linie – der Bot kauft nur (Long).  
 Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche und zusammen höchstens 5 % = 500 € Risiko – bei mehr Signalen die oberen nehmen.  
 ⏳ Die heutige Tageskerze ist noch nicht fertig (Börse noch offen bzw. Krypto-Tag läuft). Signale sind vorläufig – vor allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. Mit --nur-schluss nur fertige Tage bewerten.  
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | 🟢 KAUFEN | MACD-Wende ↑ (vorläufig) | 484,91 | 491,51 | 445,29 | 524,52 | 1,0 | 2 | 970 | 79 | Mi 27.01. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | 🟢 KAUFEN | EMA-Kreuz ↑ (vorläufig) | 234,12 | 238,01 | 210,83 | 257,42 | 1,0 | 4 | 936 | 93 | Do 04.02. |  |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | 🟢 KAUFEN | RSI-2-Rücksetzer ↑ (vorläufig) | 139,89 | 144,08 | 118,93 | 156,66 | 0,8 | 4 | 560 | 84 | Mo 01.02. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | ⏸ WARTEN | Zahlen gerade erst – Gegenbewegung riskant | 379,12 | – | – | – | – | – | – | – | Di 02.02. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 311,87 | – | – | – | – | – | – | – | Do 14.01. |  |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.285,33 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 954,02 | – | – | – | – | – | – | – | Do 10.12. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 67,33 | – | – | – | – | – | – | – | Di 10.11. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 21,68 | – | – | – | – | – | – | – | Mo 09.11. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 92,87 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 320,82 | – | – | – | – | – | – | – | Do 19.11. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 39,09 | – | – | – | – | – | – | – | Di 10.11. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 109,20 | – | – | – | – | – | – | – | Do 12.11. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.334,24 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 17,08 | – | – | – | – | – | – | – | Do 05.11. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 58,85 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | BEOBACHTEN |  | 313,48 | – | – | – | – | – | – | – | Do 28.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 27,63 | – | – | – | – | – | – | – | Mo 09.11. |  |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 14,40 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 168,79 | – | – | – | – | – | – | – | Di 17.11. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 542,88 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 255,67 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 309,87 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 153,88 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | 🟢 KAUFEN | Rücksetzer ↑ (vorläufig) | 306,64 | 310,51 | 283,42 | 329,87 | 1,0 | 4 | 1.227 | 93 | Do 28.01. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | 🟢 KAUFEN | EMA-Kreuz ↑ (vorläufig) | 232,73 | 236,93 | 207,47 | 257,98 | 1,0 | 3 | 698 | 76 | Do 04.02. |  |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | 🟢 KAUFEN | RSI-2-Rücksetzer ↑ (vorläufig) | 138,07 | 142,40 | 116,45 | 155,37 | 0,8 | 4 | 552 | 86 | Mo 01.02. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | ⏸ WARTEN | Zahlen gerade erst – Gegenbewegung riskant | 370,47 | – | – | – | – | – | – | – | Di 02.02. |  |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 948,91 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 67,12 | – | – | – | – | – | – | – | Di 10.11. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 20,69 | – | – | – | – | – | – | – | Mo 09.11. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 92,68 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 314,38 | – | – | – | – | – | – | – | Do 19.11. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 37,89 | – | – | – | – | – | – | – | Di 10.11. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 105,66 | – | – | – | – | – | – | – | Do 12.11. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.349,32 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 16,18 | – | – | – | – | – | – | – | Do 05.11. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 58,30 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 27,05 | – | – | – | – | – | – | – | Mo 09.11. |  |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 14,07 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 164,23 | – | – | – | – | – | – | – | Di 17.11. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 481,46 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 539,43 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 254,43 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 303,68 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 303,31 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.229,70 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 151,32 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
-🟢 1. MSFT · MACD-Wende ↑ (vorläufig): Am Fr 06.11. ab 15:30 Uhr (US-Börsenstart) 2 Stück kaufen, Limit 491,51 € (höchster Kaufkurs). Sofort Stop 445,29 € setzen, Ziel 524,52 €. Greift der Stop, verlierst du ca. 79 € (bei Einstieg zum Limit bis 92 €, bei Kurslücken mehr). Spätestens Fr 04.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 40 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen). Boden 433,07 € (12,0 % unter dem Kurs, 3,9 ATR, 1-mal gedreht, über der 200-Tage-Linie; Stop darüber). Unterstützung darunter: 483,24 € (−0,3 %: Kurslücke) · 474,10 € (−2,3 %: viel Handel) · 456,92–461,39 € (−5,6 %: altes Hoch 2×) (nur Info).  
-🟢 2. AMZN · EMA-Kreuz ↑ (vorläufig): Am Fr 06.11. ab 15:30 Uhr (US-Börsenstart) 4 Stück kaufen, Limit 238,01 € (höchster Kaufkurs). Sofort Stop 210,83 € setzen, Ziel 257,42 €. Greift der Stop, verlierst du ca. 93 € (bei Einstieg zum Limit bis 109 €, bei Kurslücken mehr). Spätestens Fr 04.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 40 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 48 % (nur Info – der Stop kann vorher kommen). Kerzenmuster: Three White Soldiers (bullisch), Bearish Engulfing (bärisch) – gedachte Trades mit so einem Muster bisher 58 % im Plus. Boden 218,08 € (7,4 % unter dem Kurs, 2,1 ATR, 2-mal gedreht, über der 200-Tage-Linie; Stop darunter). Unterstützung darunter: 229,98–233,49 € (−1,0 %: viel Handel, altes Hoch 2×) · 227,40 € (−3,1 %: Wendetief, viel Handel) · 223,27 € (−5,0 %: viel Handel, runde Zahl 250 $, altes Hoch) (nur Info).  
-🟢 3. PLTR · RSI-2-Rücksetzer ↑ (vorläufig): Am Fr 06.11. ab 15:30 Uhr (US-Börsenstart) 4 Stück kaufen, Limit 144,08 € (höchster Kaufkurs). Sofort Stop 118,93 € setzen, Ziel 156,66 €. Greift der Stop, verlierst du ca. 84 € (bei Einstieg zum Limit bis 101 €, bei Kurslücken mehr). Spätestens Fr 04.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 46 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 48 % (nur Info – der Stop kann vorher kommen). Boden 105,05 € (33,2 % unter dem Kurs, 4,2 ATR, 1-mal gedreht, unter der 200-Tage-Linie; Stop darüber). Unterstützung darunter: 133,67 € (−4,7 %: runde Zahl 150 $) · 127,68 € (−9,6 %: Kurslücke) · 123,77 € (−13,0 %: altes Hoch) (nur Info).  
+🟢 1. AAPL · Rücksetzer ↑ (vorläufig): Am Fr 06.11. ab 15:30 Uhr (US-Börsenstart) 4 Stück kaufen, Limit 310,51 € (höchster Kaufkurs). Sofort Stop 283,42 € setzen, Ziel 329,87 €. Greift der Stop, verlierst du ca. 93 € (bei Einstieg zum Limit bis 108 €, bei Kurslücken mehr). Spätestens Fr 04.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 30 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen). Boden 301,48 € (1,7 % unter dem Kurs, 0,7 ATR, 1-mal gedreht, über der 200-Tage-Linie; Stop darunter). Unterstützung darunter: 301,48–306,44 € (−0,9 %: altes Hoch, Kurslücke, Wendetief) · 297,92 € (−3,1 %: altes Hoch, viel Handel) · 290,00 € (−5,7 %: großes Wendetief) (nur Info).  
+🟢 2. AMZN · EMA-Kreuz ↑ (vorläufig): Am Fr 06.11. ab 15:30 Uhr (US-Börsenstart) 3 Stück kaufen, Limit 236,93 € (höchster Kaufkurs). Sofort Stop 207,47 € setzen, Ziel 257,98 €. Greift der Stop, verlierst du ca. 76 € (bei Einstieg zum Limit bis 88 €, bei Kurslücken mehr). Spätestens Fr 04.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 37 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen). Kerzenmuster: Three White Soldiers (bullisch), Bearish Engulfing (bärisch) – gedachte Trades mit so einem Muster bisher 58 % im Plus. Boden 217,83 € (6,8 % unter dem Kurs, 1,8 ATR, 2-mal gedreht, über der 200-Tage-Linie; Stop darunter). Unterstützung darunter: 229,72–230,97 € (−1,0 %: altes Hoch 2×) · 227,14 € (−2,6 %: Wendetief, viel Handel) · 223,02 € (−4,5 %: viel Handel, runde Zahl 250 $, altes Hoch) (nur Info).  
+🟢 3. PLTR · RSI-2-Rücksetzer ↑ (vorläufig): Am Fr 06.11. ab 15:30 Uhr (US-Börsenstart) 4 Stück kaufen, Limit 142,40 € (höchster Kaufkurs). Sofort Stop 116,45 € setzen, Ziel 155,37 €. Greift der Stop, verlierst du ca. 86 € (bei Einstieg zum Limit bis 104 €, bei Kurslücken mehr). Spätestens Fr 04.12. vor 22:00 Uhr verkaufen (20 Handelstage). Ziel-Chance nach Black-Scholes: 46 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 48 % (nur Info – der Stop kann vorher kommen). Boden 104,93 € (31,6 % unter dem Kurs, 3,8 ATR, 1-mal gedreht, unter der 200-Tage-Linie; Stop darüber). Unterstützung darunter: 133,52 € (−3,4 %: runde Zahl 150 $) · 127,53 € (−8,3 %: Kurslücke) · 123,63 € (−11,7 %: altes Hoch) (nur Info).  
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
-MSFT: IREN Sinks 9% After Report Links It to Microsoft’s AI Spending Delay; Nebius Tumbles 11%, CoreWeave Slides 7% (24/7 Wall St., 05.11. 15:50)  
-MSFT: Dan Ives Sees Cash Flow Rebound In MSFT, META, GOOGL, AMZN: Says AI Bubble Fears Thrown Out The Window (Stocktwits, 05.11. 15:49)  
+AAPL: Qualcomm Says December Won’t Be Its Biggest Quarter Anymore as Apple Walks Away (24/7 Wall St., 05.11. 18:14)  
+AAPL: Apple cuts employee AI budgets as new CEO looks to rein in costs (Proactive, 05.11. 18:10)  
 AMZN: Amazon partners with Uber Eats to bring restaurant delivery to Prime members (Yahoo Finance, 05.11. 12:01)  
-AMZN: Dan Ives Sees Cash Flow Rebound In MSFT, META, GOOGL, AMZN: Says AI Bubble Fears Thrown Out The Window (Stocktwits, 05.11. 15:49)  
+AMZN: Big Tech's massive AI spending is causing another problem for investors (Yahoo Finance, 05.11. 18:19)  
 PLTR: Is Palantir Stock a Buy on the Dip as Revenue Continues to Surge? (Motley Fool, 05.11. 15:50)  
-PLTR: Palantir’s CEO Just Said What Wall Street Doesn’t Want to Hear About AI (24/7 Wall St., 05.11. 13:47)  
-AMD: AMD is a 'data center first' company, says CEO Lisa Su (Yahoo Finance Video, 05.11. 14:21)  
-AMD: Qualcomm stock drops on rising memory pricing, supply challenges (Yahoo Finance Video, 05.11. 15:10)  
+PLTR: ZETA Gears Up to Report Q3 Earnings: What's in the Cards? (Zacks, 05.11. 14:53)  
+AMD: Qualcomm, Micron, Sandisk, and AMD stocks sink, leading chip sector lower (Yahoo Finance, 05.11. 14:31)  
+AMD: AMD CEO Su on earnings outlook, new Starbucks holiday menu, and Hilton CEO on hotel demand (Yahoo Finance Video, 05.11. 16:04)  
 RSI-2-Rücksetzer ↑: RSI(2) unter 10 über der 200-Tage-Linie (kurzer Rücksetzer im langen Aufwärtstrend). Stop −2,5 ATR, Ziel +2 ATR – braucht etwa 56 % Treffer  
-MACD-Wende ↑: MACD kreuzt heute seine Signallinie nach oben, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
+Rücksetzer ↑: Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
 EMA-Kreuz ↑: EMA 9 kreuzt heute die EMA 21 nach oben (neuer Aufwärtstrend), über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 ⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
@@ -89,9 +89,9 @@ Lernregel: Ab 20 Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr a
 
 Depotwert am 04.11.2026: 10.037,50 € (+0,4 %) · davon frei: 8.376,11 € · 1/7 Positionen, offenes Risiko 0,9 %  
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 10.113,77 € (+1,1 %)  
-Neu am 04.11.: eingestiegen: XOM (Long, 11 Stück zu 155,64 €); ausgestiegen: MSFT (Ziel (Kurslücke), +88,19 €).  
+Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 04.11.2026).  
 Abgeschlossene Trades: 1 · Gewinner: 1 (100 %) · Summe +88,19 € · größter Rückgang 0,0 % · Kosten: Gebühren 0,00 € + Spread ca. 4,53 €  
-Aufträge für Do 05.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 AMZN Ausbruch ↑ Limit 240,88, Stop 214,13, Ziel 259,99 € · 🟢 COST ATR-Ausbruch ↑ Limit 940,94, Stop 881,93, Ziel 983,09 € · 🟢 TSLA RSI-2-Rücksetzer ↑ Limit 349,52, Stop 311,86, Ziel 368,35 € · 🟢 JPM Squeeze-Ausbruch ↑ Limit 316,78, Stop 295,70, Ziel 331,83 € · 🟢 MSFT Ausbruch ↑ Limit 501,88, Stop 455,61, Ziel 534,94 €  
+Aufträge für Do 05.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 AMZN Ausbruch ↑ Limit 240,61, Stop 213,89, Ziel 259,69 € · 🟢 COST ATR-Ausbruch ↑ Limit 939,88, Stop 880,94, Ziel 981,98 € · 🟢 TSLA RSI-2-Rücksetzer ↑ Limit 349,13, Stop 311,51, Ziel 367,94 € · 🟢 JPM Squeeze-Ausbruch ↑ Limit 316,42, Stop 295,37, Ziel 331,46 € · 🟢 MSFT Ausbruch ↑ Limit 501,32, Stop 455,10, Ziel 534,34 €  
 Die Eröffnung am Do 05.11. ist schon gelaufen: Das Papier-Depot bucht einen Tag erst, wenn er für alle Werte fertig ist – also beim nächsten Lauf nach dem Handelstag (am besten am Morgen danach).  
 Die Aufträge stammen vom letzten fertigen Kurstag und berücksichtigen die offenen Positionen und das Geld des Papier-Depots – sie können deshalb vom Handelsplan oben (für ein leeres Konto) abweichen.  
 Gespeichert in: forschung/experiment\_depot.json im Repository (neu anfangen: die Datei im Repository löschen, die Historie bei GitHub behält den alten Stand). Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, 0,00 € Gebühr + 0,1 % Spread je Order.  
