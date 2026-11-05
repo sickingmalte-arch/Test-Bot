@@ -3,13 +3,13 @@
   "name": "Lernmodell: beste Punktzahl zuerst",
   "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
   "seit": "2026-11-02",
-  "bis": "2026-11-03",
-  "experiment_prozent": 0.31,
-  "papier_prozent": -0.4,
-  "depotwert": 10030.75,
+  "bis": "2026-11-04",
+  "experiment_prozent": 0.38,
+  "papier_prozent": 1.09,
+  "depotwert": 10037.5,
   "positionen": 1,
-  "trades": 0,
-  "gewinner": 0,
+  "trades": 1,
+  "gewinner": 1,
   "kurve": [
    {
     "tag": "2026-11-02",
@@ -20,6 +20,11 @@
     "tag": "2026-11-03",
     "experiment": 0.31,
     "papier": -0.4
+   },
+   {
+    "tag": "2026-11-04",
+    "experiment": 0.38,
+    "papier": 1.09
    }
   ]
  },
@@ -55,6 +60,50 @@
     -3.2,
     -1.0,
     -1.6
+   ]
+  },
+  {
+   "datum": "2026-11-04",
+   "datei": "boden_gebrochen",
+   "name": "Boden c: nicht kaufen, wenn der Boden in den letzten 5 Tagen gebrochen wurde",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -0.1,
+    1.4,
+    -0.6
+   ]
+  },
+  {
+   "datum": "2026-11-04",
+   "datei": "boden_nah",
+   "name": "Boden b: nur kaufen, wenn der Kurs höchstens 1,5 ATR über dem Boden liegt",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -6.5,
+    -4.7,
+    -3.0
+   ]
+  },
+  {
+   "datum": "2026-11-04",
+   "datei": "boden_stop",
+   "name": "Boden a: Stop 0,5 ATR unter den letzten Boden",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -4.0,
+    2.0,
+    1.6
+   ]
+  },
+  {
+   "datum": "2026-11-04",
+   "datei": "boden_widerstand_ziel",
+   "name": "Boden d: Ziel am nächsten Widerstand (letztes Wendehoch über dem Kurs)",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -6.6,
+    1.4,
+    4.2
    ]
   }
  ]
