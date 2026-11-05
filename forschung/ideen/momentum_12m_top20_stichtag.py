@@ -7,7 +7,7 @@ import rotation as ROT  # noqa: E402
 
 NAME = "Momentum: die 20 stärksten Aktien der letzten 12 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)"
 QUELLE = "Jegadeesh & Titman (1993); Asness, Moskowitz & Pedersen (2013) „Value and Momentum Everywhere“"
-BESCHREIBUNG = ("Nachtest gegen eine Verzerrung: Eine Aktie zählt erst ab ihrer Aufnahme in den S&P 500 (Wikipedia-Tabelle der Index-Änderungen), nur S&P-500-Aktien. Ohne Stichtag kaufte Momentum rückblickend Aktien, die erst wegen ihres Anstiegs in den Index kamen. Wie Momentum 12 Monate Top 10, aber breiter gestreut auf 20 Aktien. Liegt der S&P 500 (SPY) am Monatsende unter seiner 200-Tage-Linie, hält das Depot nur Geld. Gegenprobe: 20-mal zufällige 20 Aktien aus denselben Kandidaten.")
+BESCHREIBUNG = ("Nachtest gegen eine Verzerrung: Eine Aktie zählt nur, solange sie wirklich im S&P 500 war (Aufnahme- und Austrittsdatum aus der öffentlichen Liste github.com/fja05680/sp500). Umbenennungen wie FB → META zählen erst ab dem neuen Kürzel. Ohne Stichtag kaufte Momentum rückblickend Aktien, die erst wegen ihres Anstiegs in den Index kamen. Wie Momentum 12 Monate Top 10, aber breiter gestreut auf 20 Aktien. Liegt der S&P 500 (SPY) am Monatsende unter seiner 200-Tage-Linie, hält das Depot nur Geld. Gegenprobe: 20-mal zufällige 20 Aktien aus denselben Kandidaten.")
 
 VERMUTUNG = ("Diese Monats-Regel bringt in allen drei Zeiträumen mehr Rendite pro Rückgang als der Swing-Bot und ist besser als zufällig gewählte Aktien aus derselben Liste.")
 WIDERLEGT_WENN = ("In einem der drei Zeiträume weniger Rendite pro Rückgang als der Swing-Bot, tiefer gefallen als der "
@@ -24,4 +24,4 @@ def depot(cache, von, bis):
 def zufall(cache, von, bis, seed):
     return ROT.depot(cache, von, bis, "momentum", 20, lang=252, seed=seed, stichtag=True)
 
-# Neu gerechnet, nachdem die Tabelle der Index-Änderungen an ihren Spalten erkannt wird (der erste Lauf fand sie nicht).
+# Stichtag aus der Liste fja05680/sp500 (Wikipedia führt die Tabelle der Index-Änderungen nicht mehr auf der Seite).

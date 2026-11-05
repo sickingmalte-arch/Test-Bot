@@ -11,8 +11,8 @@ Trendfolge mit dem Nasdaq-100. Gleiche Regeln für die Idee und ihre Gegenprobe 
 Bekannte Verzerrung: Die Aktienliste ist die von heute (S&P 500 und Nasdaq-100). Firmen, die pleite gingen oder
 aus dem Index flogen, fehlen. Das macht jede Aktien-Strategie rückblickend zu gut – deshalb zählt vor allem der
 Vergleich mit zufällig gewählten Aktien aus derselben Liste. Die Branchen-ETFs haben diese Verzerrung nicht.
-Mit stichtag=True zählt eine Aktie erst ab dem Tag, an dem sie in den S&P 500 aufgenommen wurde (Wikipedia-Tabelle
-der Index-Änderungen) – sonst kauft Momentum rückblickend Aktien, die erst WEGEN ihres Anstiegs in den Index kamen."""
+Mit stichtag=True zählt eine Aktie nur, solange sie wirklich im S&P 500 war (Aufnahme- und Austrittsdatum aus der
+öffentlichen Liste github.com/fja05680/sp500) – sonst kauft Momentum rückblickend Aktien, die erst WEGEN ihres Anstiegs in den Index kamen."""
 import os
 import sys
 
@@ -55,62 +55,45 @@ def tabellen(cache):
         df = _tage(df)
         o[t], c[t] = df["Open"], df["Close"]
     tage = c["SPY"].dropna().index
-    wechsel = index_wechsel(cache)
-    if wechsel:
-        neu = sum(1 for t in aktien if any(d.year >= 2010 and not v for d, v in wechsel.get(t, [])))
-        print(f"S&P-500-Wechsel geladen: {len(wechsel)} Ticker, {neu} heutige Aktien kamen 2010 oder später dazu")
+    wechsel = None
     C = pd.DataFrame(c).reindex(tage)
     O = pd.DataFrame(o).reindex(tage)
     fx = _tage(D.lies_kurse(cache, "EURUSD=X"))["Close"].reindex(tage).ffill().bfill()
     roh = C.copy()  # ohne Auffüllen: wer am Entscheidungstag keinen Kurs hat, ist kein Kandidat
     C = C.ffill()
     O = O.fillna(C.shift(1)).fillna(C)
-    sp500 = set(uni.loc[uni["index"].fillna("").astype(str).str.contains("S&P"), "ticker"].astype(str)) \
-        if "index" in uni else set()
     _TABELLEN[cache] = {"C": C, "O": O, "roh": roh, "fx": fx, "tage": tage, "Cn": C.to_numpy(), "On": O.to_numpy(),
-                        "sp500": [t for t in aktien if t in C.columns and t in sp500],
-                        "wechsel": wechsel,
+                        "wechsel": wechsel, "cache": cache,
                         "fxn": fx.to_numpy(), "spalte": {t: j for j, t in enumerate(C.columns)},
                         "aktien": [t for t in aktien if t in C.columns]}
     return _TABELLEN[cache]
 
 
-def index_wechsel(cache):
-    """Aufnahmen und Abgänge im S&P 500 je Ticker: [(Datum, war vorher im Index?)], älteste zuerst."""
-    pfad = os.path.join(cache, "sp500_aenderungen.csv")
-    name = lambda c: (" ".join(map(str, c)) if isinstance(c, tuple) else str(c)).lower()  # noqa: E731
-    ch = pd.read_csv(pfad, header=[0, 1]) if os.path.exists(pfad) else None
-    if ch is None or not any("added" in name(c) for c in ch.columns):
-        # gespeicherte Datei fehlt oder ist eine andere Tabelle (Wikipedia hat die Reihenfolge geändert): neu holen
-        ch = D.sp500_aenderungen(D.hole(D.WIKI_SP500))
-        ch.to_csv(pfad, index=False)
-        print(f"S&P-500-Änderungen neu von Wikipedia geholt: {len(ch)} Zeilen")
+MITGLIEDER_URL = "https://raw.githubusercontent.com/fja05680/sp500/master/sp500_ticker_start_end.csv"
 
-    def spalte(oben, unten):
-        for c in ch.columns:
-            if oben in name(c) and unten in name(c):
-                return ch[c]
-        raise KeyError(f"Spalte {oben}/{unten} fehlt in der Tabelle der S&P-500-Änderungen: {list(ch.columns)}")
-    datum = pd.to_datetime(ch.iloc[:, 0].astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip(),
-                           errors="coerce", format="mixed")
-    wechsel = {}
-    for d, plus, minus in zip(datum, spalte("added", "ticker"), spalte("removed", "ticker")):
-        if pd.isna(d):
-            continue
-        for sym, vorher in ((plus, False), (minus, True)):
-            if isinstance(sym, str) and sym.strip() and sym.strip().lower() != "nan":
-                wechsel.setdefault(D.yahoo_name(sym.strip()), []).append((d.normalize(), vorher))
-    for v in wechsel.values():
-        v.sort()
-    return wechsel
+
+def index_wechsel(cache):
+    """Zeiten im S&P 500 je Ticker: [(Aufnahme, Austritt oder None)] aus der öffentlichen Liste fja05680/sp500
+    (Spalten ticker, start_date, end_date). Einmal geholt und im Cache gespeichert."""
+    pfad = os.path.join(cache, "sp500_start_ende.csv")
+    if not os.path.exists(pfad):
+        text = D.hole(MITGLIEDER_URL)
+        with open(pfad, "w", encoding="utf-8") as f:
+            f.write(text)
+    tab = pd.read_csv(pfad)
+    if not {"ticker", "start_date", "end_date"} <= set(tab.columns):
+        raise RuntimeError(f"Liste der S&P-500-Mitglieder hat unerwartete Spalten: {list(tab.columns)}")
+    zeiten = {}
+    for t, start, ende in zip(tab["ticker"].astype(str), pd.to_datetime(tab["start_date"], errors="coerce"),
+                              pd.to_datetime(tab["end_date"], errors="coerce")):
+        if pd.notna(start):
+            zeiten.setdefault(D.yahoo_name(t.strip()), []).append((start, None if pd.isna(ende) else ende))
+    return zeiten
 
 
 def im_index(T, t, tag):
-    """War die (heutige) S&P-500-Aktie t am Tag tag schon im Index? Der nächste Wechsel nach tag sagt es."""
-    for d, vorher in T["wechsel"].get(t, []):
-        if d > tag:
-            return vorher
-    return True
+    """War die Aktie t am Tag tag im S&P 500? (Umbenennungen wie FB → META zählen erst ab dem neuen Kürzel.)"""
+    return any(start <= tag and (ende is None or tag < ende) for start, ende in T["wechsel"].get(t, []))
 
 
 def punkte(T, art, i, lang=252, kurz=21, stichtag=False):
@@ -120,8 +103,11 @@ def punkte(T, art, i, lang=252, kurz=21, stichtag=False):
         spalten = [t for t in BRANCHEN_ETF if t in roh.columns]
     elif stichtag:
         if T["wechsel"] is None:
-            raise RuntimeError("sp500_aenderungen.csv fehlt im Cache – Stichtag-Test nicht möglich")
-        spalten = [t for t in T["sp500"] if im_index(T, t, T["tage"][i])]
+            T["wechsel"] = index_wechsel(T["cache"])
+            neu = sum(1 for t in T["aktien"] if t in T["wechsel"] and min(z[0] for z in T["wechsel"][t]).year >= 2010)
+            print(f"S&P-500-Mitglieder geladen: {len(T['wechsel'])} Ticker, {neu} der heutigen Aktien kamen 2010 "
+                  f"oder später in den Index")
+        spalten = [t for t in T["aktien"] if im_index(T, t, T["tage"][i])]
     else:
         spalten = T["aktien"]
     if i < lang:
