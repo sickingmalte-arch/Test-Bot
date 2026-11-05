@@ -20,7 +20,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 39
+    "nicht übernommen" : 41
 ```
 
 ## ✅ Steckt im Bot
@@ -75,6 +75,8 @@ pie showData
 | Boden b: nur kaufen nah am Boden (≤ 1,5 ATR) | −6,5 bis −3,0 Pkt, nicht besser als zufälliges Auslassen | [[Notizen/Forschung – Tagebuch]] |
 | Boden c: nicht kaufen nach gebrochenem Boden | −0,6 bis +1,4 Pkt, im Bereich des Zufalls | [[Notizen/Forschung – Tagebuch]] |
 | Boden d: Ziel am nächsten Widerstand | −6,6 / +1,4 / +4,2 Pkt, Rückgänge größer | [[Notizen/Forschung – Tagebuch]] |
+| Boden-Kauf a: neues Kauf-Signal am Abpraller (jede Unterstützung) | −0,1 / −0,6 / −1,1 Pkt, zufällige Zusatz-Käufe genauso gut | [[Notizen/Forschung – Tagebuch]] |
+| Boden-Kauf b: Abpraller nur an starker Zone (mind. 2 Gründe) | −0,6 / −1,3 / ±0 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
