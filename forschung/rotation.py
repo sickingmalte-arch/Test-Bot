@@ -78,15 +78,19 @@ def tabellen(cache):
 def index_wechsel(cache):
     """Aufnahmen und Abgänge im S&P 500 je Ticker: [(Datum, war vorher im Index?)], älteste zuerst."""
     pfad = os.path.join(cache, "sp500_aenderungen.csv")
-    if not os.path.exists(pfad):
-        return None
-    ch = pd.read_csv(pfad, header=[0, 1])
+    name = lambda c: (" ".join(map(str, c)) if isinstance(c, tuple) else str(c)).lower()  # noqa: E731
+    ch = pd.read_csv(pfad, header=[0, 1]) if os.path.exists(pfad) else None
+    if ch is None or not any("added" in name(c) for c in ch.columns):
+        # gespeicherte Datei fehlt oder ist eine andere Tabelle (Wikipedia hat die Reihenfolge geändert): neu holen
+        ch = D.sp500_aenderungen(D.hole(D.WIKI_SP500))
+        ch.to_csv(pfad, index=False)
+        print(f"S&P-500-Änderungen neu von Wikipedia geholt: {len(ch)} Zeilen")
 
     def spalte(oben, unten):
         for c in ch.columns:
-            if oben in str(c[0]).lower() and unten in str(c[1]).lower():
+            if oben in name(c) and unten in name(c):
                 return ch[c]
-        raise KeyError(f"Spalte {oben}/{unten} fehlt in sp500_aenderungen.csv: {list(ch.columns)}")
+        raise KeyError(f"Spalte {oben}/{unten} fehlt in der Tabelle der S&P-500-Änderungen: {list(ch.columns)}")
     datum = pd.to_datetime(ch.iloc[:, 0].astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip(),
                            errors="coerce", format="mixed")
     wechsel = {}

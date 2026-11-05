@@ -23,3 +23,5 @@ def depot(cache, von, bis):
 
 def zufall(cache, von, bis, seed):
     return ROT.depot(cache, von, bis, "momentum", 10, lang=126, seed=seed, stichtag=True)
+
+# Neu gerechnet, nachdem die Tabelle der Index-Änderungen an ihren Spalten erkannt wird (der erste Lauf fand sie nicht).

@@ -136,6 +136,16 @@ def _branchen(t):
     return _spalte(t, "Sector"), _spalte(t, "Sub-Industry", "Industry")
 
 
+def sp500_aenderungen(html):
+    """Die Tabelle der Aufnahmen und Abgänge im S&P 500 von der Wikipedia-Seite – erkannt an den Spalten „Added“ und
+    „Removed“ (nicht an ihrer Position, die Seite ändert sich)."""
+    for t in pd.read_html(io.StringIO(html)):
+        namen = " ".join(" ".join(map(str, c)) if isinstance(c, tuple) else str(c) for c in t.columns).lower()
+        if "added" in namen and "removed" in namen:
+            return t
+    raise ValueError("Tabelle der S&P-500-Änderungen auf Wikipedia nicht gefunden")
+
+
 def lade_universum(cache, extra=None):
     """Aktienliste mit Branche (GICS) und SEC-Nummer (CIK). extra: Watchlist des Bots {Ticker: Branche}.
     Gibt (DataFrame, Warnungen) zurück."""
@@ -176,7 +186,7 @@ def lade_universum(cache, extra=None):
         os.makedirs(cache, exist_ok=True)
         uni.to_csv(datei, index=False)
         try:  # Änderungen am S&P 500 (für den Hinweis auf die Verzerrung durch verschwundene Aktien)
-            aend = pd.read_html(io.StringIO(hole(WIKI_SP500)))[1]
+            aend = sp500_aenderungen(hole(WIKI_SP500))
             aend.to_csv(os.path.join(cache, "sp500_aenderungen.csv"), index=False)
         except Exception:  # noqa: BLE001
             pass
