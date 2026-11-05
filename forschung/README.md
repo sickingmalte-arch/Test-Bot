@@ -27,6 +27,11 @@ erst nach deinem „Ja“.**
   zufällig um bis zu ±2 Punkte im Jahr. Ideen, die nur auswählen oder sortieren, bekommen deshalb eine Gegenprobe mit
   zufälligen Signalen (`gegenprobe` in der Ideen-Datei). Schlägt die Idee den Zufall nicht, gilt sie als nicht
   bewiesen.
+- **Eigene Depots:** Eine Idee kann statt einer Änderung am Bot auch ein eigenes Depot sein, das einmal im Monat
+  umschichtet (`depot` und `zufall` in der Ideen-Datei, Rechner `forschung/rotation.py`). Bestanden nur, wenn es in
+  allen drei Zeiträumen mehr Rendite pro Rückgang bringt als der Swing-Bot, nicht tiefer fällt als der Nasdaq-100 beim
+  Halten und 19 von 20 Zufallsdepots schlägt. Aktien-Ideen mit `stichtag=True` rechnen: Eine Aktie zählt nur, solange
+  sie wirklich im S&P 500 war – sonst sieht alles rückblickend viel zu gut aus.
 
 ## Experimentier-Depot
 

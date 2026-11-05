@@ -20,7 +20,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 41
+    "nicht übernommen" : 48
 ```
 
 ## ✅ Steckt im Bot
@@ -77,6 +77,13 @@ pie showData
 | Boden d: Ziel am nächsten Widerstand | −6,6 / +1,4 / +4,2 Pkt, Rückgänge größer | [[Notizen/Forschung – Tagebuch]] |
 | Boden-Kauf a: neues Kauf-Signal am Abpraller (jede Unterstützung) | −0,1 / −0,6 / −1,1 Pkt, zufällige Zusatz-Käufe genauso gut | [[Notizen/Forschung – Tagebuch]] |
 | Boden-Kauf b: Abpraller nur an starker Zone (mind. 2 Gründe) | −0,6 / −1,3 / ±0 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Eigenes Depot: Momentum 12 Monate, 10 Aktien (monatlich) | heutige Liste +26 bis +46 %, mit Stichtag nur +8 bis +26 %; Rückgang bis −36 %, weniger als Nasdaq halten | [[Notizen/Forschung – Tagebuch]] |
+| Eigenes Depot: Momentum 6 Monate, 10 Aktien | mit Stichtag +9 bis +21 %, schlägt Zufall, aber Rückgang bis −37 % | [[Notizen/Forschung – Tagebuch]] |
+| Eigenes Depot: Momentum 12 Monate, 20 Aktien | mit Stichtag +6 bis +19 %, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Kombi: halb Swing-Bot, halb Momentum | mit Stichtag +8 bis +20 %, 2015–2026 weniger Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
+| Branchen-Rotation (3 stärkste Branchen-ETFs) | +7 bis +15 %, nirgends mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
+| Nasdaq-100 nur über der 200-Tage-Linie halten | +13 bis +18 %, nur 2022–2026 mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
+| Ruhige Aktien (20 mit geringster Schwankung) | +6 bis +15 %, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 

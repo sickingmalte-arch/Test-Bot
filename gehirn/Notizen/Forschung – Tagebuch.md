@@ -10,6 +10,34 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 05.11.2026 (Nacht) · Eigene Monats-Depots: Momentum, Branchen, Trend, ruhige Aktien
+
+**Idee** (Wunsch des Nutzers: „eine Strategie finden, die wirklich funktioniert“): nicht den Swing-Bot umbauen, sondern eine andere Art Strategie – einmal im Monat umschichten. Neu im Prüfstand: „eigene Depots“ (`forschung/rotation.py`), in Euro, mit Spread, Entscheidung am Monatsende, Handel am nächsten Morgen.
+
+- **Vermutung:** Eine Monats-Regel bringt in allen drei Zeiträumen mehr Rendite pro Rückgang als der Swing-Bot und schlägt zufällig gewählte Aktien.
+- **Widerlegt, wenn** in einem Zeitraum weniger Rendite pro Rückgang als der Bot, tiefer gefallen als der Nasdaq-100 beim Halten oder mehr als 1 von 20 Zufallsdepots gleich gut.
+- **Varianten:** 7, vor dem Rechnen festgelegt, dazu 4 Nachtests mit Stichtag (Bereinigung, keine neue Idee).
+
+| Rendite pro Jahr (größter Rückgang) | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Swing-Bot (jetzt) | +13,3 % (−14 %) | +11,9 % (−18 %) | +7,7 % (−15 %) |
+| Nasdaq-100 einfach halten | +22,9 % (−20 %) | +23,3 % (−31 %) | +12,8 % (−30 %) |
+| S&P 500 einfach halten | +19,2 % (−21 %) | +15,8 % (−33 %) | +11,8 % (−23 %) |
+| Momentum 12 Monate, 10 Aktien – heutige Aktienliste | +38,8 % (−23 %) | +25,7 % (−34 %) | +46,1 % (−38 %) |
+| … **mit Stichtag** (nur Aktien, die damals im S&P 500 waren) | +25,6 % (−25 %) | +7,7 % (−33 %) | +9,1 % (−36 %) |
+| Momentum 6 Monate, 10 Aktien – mit Stichtag | +21,1 % (−35 %) | +14,7 % (−30 %) | +9,2 % (−37 %) |
+| Momentum 12 Monate, 20 Aktien – mit Stichtag | +18,6 % (−25 %) | +9,6 % (−29 %) | +5,7 % (−34 %) |
+| Kombi halb Bot, halb Momentum – mit Stichtag | +19,7 % (−19 %) | +9,4 % (−20 %) | +8,1 % (−22 %) |
+| Branchen-Rotation (3 stärkste Branchen-ETFs) | +14,9 % (−23 %) | +6,8 % (−21 %) | +8,0 % (−18 %) |
+| Nasdaq-100 nur über der 200-Tage-Linie | +18,0 % (−20 %) | +16,7 % (−31 %) | +12,5 % (−17 %) |
+| Ruhige Aktien (20 mit der geringsten Schwankung) | +14,6 % (−12 %) | +9,9 % (−17 %) | +5,9 % (−13 %) |
+
+**Ergebnis:** keine Strategie besteht – nicht übernommen.
+- **Die große Lehre:** Mit der heutigen Aktienliste sah Momentum riesig aus (+26 bis +46 % im Jahr, besser als 20 von 20 Zufallsdepots). Das war eine Verzerrung: Aktien wie Palantir, Super Micro oder AppLovin kamen erst *wegen* ihres Anstiegs in den S&P 500 – Momentum kauft rückblickend genau sie. Zählt jede Aktie nur, solange sie wirklich im Index war (Liste github.com/fja05680/sp500), bleiben +8 bis +26 % – weniger als den Nasdaq-100 einfach zu halten, bei tieferen Rückgängen.
+- Momentum 6 Monate schlug auch mit Stichtag in allen drei Zeiträumen 19 von 20 Zufallsdepots: ein echter, aber kleiner Auswahl-Vorteil – zu klein gegen die Rückgänge von 30–37 %.
+- Branchen-Rotation, Trendfilter und ruhige Aktien waren nirgends überall besser als der Bot.
+- **Warnung für alle Rückblicke:** Auch die Watchlist des Bots ist mit heutigem Wissen gewählt. Sein Rückblick (+8 bis +13 %) ist vermutlich ebenfalls etwas zu gut.
+
 ## 05.11.2026 · Boden-Kauf (neues Kauf-Signal)
 
 **Idee** (Wunsch des Nutzers): Der Bot darf zusätzlich am Boden kaufen, nicht nur filtern. Neue Strategie „Boden-Abpraller ↑“: Das Tagestief berührt ein bestätigtes Wendetief (höchstens 0,25 ATR darüber oder 0,5 ATR darunter), der Schluss liegt wieder darüber und in der oberen Hälfte der Kerze, Kurs über der 200-Tage-Linie, Markt im Aufwärtstrend. Stop 0,5 ATR unter dem Boden (mindestens 1 ATR), Ziel +2 ATR. Gegenprobe: gleich viele Käufe an zufälligen Tagen über der 200-Tage-Linie mit denselben Stop-Abständen (6-mal). Gerechnet bei GitHub.
