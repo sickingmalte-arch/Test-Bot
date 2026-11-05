@@ -1,5 +1,5 @@
 {
- "stand": "05.11.2026 04:38 Uhr",
+ "stand": "05.11.2026 13:24 Uhr",
  "tag": "2026-11-04",
  "monat": "2026-11",
  "aktien": 523,
@@ -588,6 +588,36 @@
    "fehler_text": [
     "Normales Auf und Ab (kein besonderer Grund)"
    ]
+  },
+  {
+   "ticker": "XOM",
+   "strategie": "ausbruch_long",
+   "kauf_tag": "2026-11-02",
+   "verkauf_tag": "2026-11-04",
+   "grund": "Stop (Kurslücke)",
+   "R": -1.2419292900668724,
+   "fehler": [
+    "kursluecke",
+    "branche",
+    "zahlen"
+   ],
+   "fertig": false,
+   "fehler_text": [
+    "Kurslücke unter den Stop (über Nacht)",
+    "Branche schwach",
+    "Quartalszahlen"
+   ]
+  },
+  {
+   "ticker": "MSFT",
+   "strategie": "rsi2_long",
+   "kauf_tag": "2026-11-03",
+   "verkauf_tag": "2026-11-04",
+   "grund": "Ziel (Kurslücke)",
+   "R": 0.9570385855676076,
+   "fehler": [],
+   "fertig": false,
+   "fehler_text": []
   }
  ]
 }
