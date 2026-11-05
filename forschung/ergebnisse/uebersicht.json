@@ -75,5 +75,27 @@
    1.4,
    4.2
   ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "boden_abpraller",
+  "name": "Boden-Kauf: neues Kauf-Signal am Abpraller von irgendeiner Unterstützung (1 Grund reicht)",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.1,
+   -0.6,
+   -1.1
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "boden_abpraller_stark",
+  "name": "Boden-Kauf: neues Kauf-Signal am Abpraller von einer starken Unterstützung (mind. 2 Gründe)",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.6,
+   -1.3,
+   -0.0
+  ]
  }
 ]
