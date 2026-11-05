@@ -10,24 +10,24 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=XOM)
 
-**Stand Di 03.11. 2026:** 🟢 KAUFEN – Rücksetzer ↑ · Limit 160,41 · Stop 147,45 · Ziel 169,67 €
+**Stand Mi 04.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Nachricht: Analyst stuft runter
 **Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot
 
-- Offen: Long mit [[Strategien/Ausbruch Long|Ausbruch ↑]] seit 2026-11-02
+- [[Trades/2026-11-02 XOM Ausbruch Long|XOM -1,2 R]] mit [[Strategien/Ausbruch Long|Ausbruch ↑]] (Stop (Kurslücke), 2026-11-04)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 131 Trades · Ø +0,08 R · Treffer 59 %
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 7 Trades · Ø +0,06 R · Treffer 57 %
+- **Alle Strategien zusammen:** 134 Trades · Ø +0,06 R · Treffer 57 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 8 Trades · Ø -0,05 R · Treffer 50 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 28 Trades · Ø +0,22 R · Treffer 68 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 7 Trades · Ø +0,08 R · Treffer 57 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 22 Trades · Ø -0,05 R · Treffer 50 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 27 Trades · Ø +0,26 R · Treffer 67 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 6 Trades · Ø +0,01 R · Treffer 50 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 13 Trades · Ø -0,03 R · Treffer 54 %
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 21 Trades · Ø -0,12 R · Treffer 52 %
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 23 Trades · Ø -0,18 R · Treffer 48 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

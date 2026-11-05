@@ -110,5 +110,47 @@
   "strategie": "ruecksetzer_long",
   "gut": 0,
   "schlecht": 0
+ },
+ {
+  "tag": "2026-11-04",
+  "ticker": "AMZN",
+  "strategie": "ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-04",
+  "ticker": "COST",
+  "strategie": "atr_ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-04",
+  "ticker": "JPM",
+  "strategie": "squeeze_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-04",
+  "ticker": "MSFT",
+  "strategie": "ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-04",
+  "ticker": "TSLA",
+  "strategie": "rsi2_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-04",
+  "ticker": "XOM",
+  "strategie": "rsi2_long",
+  "gut": 0,
+  "schlecht": 1
  }
 ]

@@ -10,11 +10,11 @@ Hier sammelt der Bot, was er aus seinen Fehlern und Erfolgen zieht. **Automatisc
 
 Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 0,1 R je Trade verliert, und nimmt sie wieder, sobald der Schnitt im Plus ist. Ab 50 Trades muss sie über ihre ganze Geschichte im Plus sein.
 
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: ✅ aktiv (Ø -0,00 R über die letzten 60 Trades)
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: ✅ aktiv (Ø -0,03 R über die letzten 60 Trades)
 - [[Strategien/Abbruch Short|Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: ✅ aktiv (Ø +0,04 R über die letzten 60 Trades)
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: ✅ aktiv (Ø +0,05 R über die letzten 60 Trades)
 - [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
-- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: ✅ aktiv (Ø +0,05 R über die letzten 60 Trades)
+- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: ✅ aktiv (Ø +0,09 R über die letzten 60 Trades)
 - [[Strategien/Rückfall Short|Rückfall ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: ✅ aktiv (Ø -0,06 R über die letzten 60 Trades)
 - [[Strategien/MACD-Wende Short|MACD-Wende ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
@@ -24,7 +24,7 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 - [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: ✅ aktiv (Ø -0,04 R über die letzten 60 Trades)
 - [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: ✅ aktiv (Ø +0,03 R über die letzten 60 Trades)
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: ✅ aktiv (Ø +0,01 R über die letzten 60 Trades)
 - [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 
 ### Änderungen der letzten 30 Tage
@@ -33,14 +33,14 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 
 ## Muster im Strategie-Tagebuch (alle Strategien, alle Aktien)
 
-- Insgesamt: 2871 Trades · Ø +0,12 R · Treffer 57 %
+- Insgesamt: 2877 Trades · Ø +0,11 R · Treffer 57 %
 - Ziel: 947× (33 %), Ø +0,91 R
 - Zeitstopp: 664× (23 %), Ø +0,02 R
-- Stop: 559× (19 %), Ø -0,99 R
-- vor Quartalszahlen: 474× (17 %), Ø -0,02 R
-- Ziel (Kurslücke): 126× (4 %), Ø +1,07 R
-- Stop (Kurslücke): 101× (4 %), Ø -1,15 R
-- Long: 2871 Trades · Ø +0,12 R · Treffer 57 %
+- Stop: 561× (19 %), Ø -0,99 R
+- vor Quartalszahlen: 474× (16 %), Ø -0,02 R
+- Ziel (Kurslücke): 128× (4 %), Ø +1,07 R
+- Stop (Kurslücke): 103× (4 %), Ø -1,14 R
+- Long: 2877 Trades · Ø +0,11 R · Treffer 57 %
 
 ### Rangliste der Aktien (ab 20 Trades, nach Ø R)
 
@@ -64,12 +64,12 @@ Bei jedem Signal rechnet der Bot nach dem Black-Scholes-Modell aus dem Optionssk
 
 | Ziel-Chance laut Formel | Signale | Ø vorhergesagt | Ziel wirklich berührt | Trades im Plus | Ø je Trade |
 | --- | --- | --- | --- | --- | --- |
-| unter 30 % | 520 | 26 % | 43 % | 58 % | +0,13 R |
-| 30–40 % | 1036 | 35 % | 41 % | 57 % | +0,11 R |
-| 40–50 % | 822 | 45 % | 48 % | 56 % | +0,12 R |
+| unter 30 % | 522 | 26 % | 43 % | 58 % | +0,13 R |
+| 30–40 % | 1037 | 35 % | 41 % | 57 % | +0,11 R |
+| 40–50 % | 824 | 45 % | 48 % | 56 % | +0,11 R |
 | ab 50 % | 454 | 55 % | 52 % | 57 % | +0,14 R |
 
-- Zusammen: 2832 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
+- Zusammen: 2837 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
 - Trades im Plus je Gruppe: 56 bis 58 %. Die Formel sagt, wie weit eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor dem Stop kommt.
 
 ## 🕯️ Selbstkontrolle: Kerzenmuster
@@ -78,9 +78,9 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 
 | Gruppe | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
-| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 918 | 56 % | +0,11 R |
-| bärisches Kerzenmuster am Signaltag | 521 | 58 % | +0,12 R |
-| kein Kerzenmuster | 1432 | 57 % | +0,12 R |
+| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 919 | 56 % | +0,11 R |
+| bärisches Kerzenmuster am Signaltag | 523 | 58 % | +0,12 R |
+| kein Kerzenmuster | 1435 | 57 % | +0,11 R |
 
 - Mit und ohne Muster liegen nah beieinander – die Muster sagen bei diesen Strategien wenig voraus.
 
@@ -88,15 +88,19 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 
 Zu jedem Signal zählt der Bot die guten und schlechten Schlagzeilen der letzten Tage (z. B. Hochstufung, gute Quartalszahlen bzw. Herabstufung, Klage). Schlechte sperren den Kauf wie bisher; gute ändern nichts. Alte Schlagzeilen gibt es nicht, darum sammelt er ab jetzt und prüft hier, ob Signale mit guten Nachrichten wirklich besser laufen. Mitentscheiden dürfte die Stimmung erst, wenn jede Gruppe mindestens 30 Trades hat und der Unterschied deutlich ist.
 
-- Gesammelt: 16 Signale mit Schlagzeilen, davon noch keins mit abgeschlossenem Trade.
+| Stimmung am Signaltag | Trades | im Plus | Ø je Trade |
+| --- | --- | --- | --- |
+| gleich viele oder keine | 2 | 0 % | -0,85 R |
+
+- Gesammelt: 22 Signale mit Schlagzeilen. Noch zu wenige Trades für ein Urteil (mehr gute Schlagzeilen, gleich viele oder keine).
 
 ## Aus dem Übungsdepot (echte Vorwärts-Trades)
 
-- 4 Trades · Ø +0,04 R · Treffer 75 % · Summe -23,24 €
-- Gewinn wieder abgegeben (erst mehr als den halben Weg zum Ziel im Plus, am Ende im Minus): 0 von 4
-- Stop mit Kurslücke (größerer Verlust als geplant): 0 von 4
-- Zeitstopp (nach 20 Tagen ohne Ziel und Stop): 0 von 4
-- Erst 4 Trades – für belastbare Schlüsse braucht es deutlich mehr (etwa 100).
+- 6 Trades · Ø -0,02 R · Treffer 67 % · Summe -52,86 €
+- Gewinn wieder abgegeben (erst mehr als den halben Weg zum Ziel im Plus, am Ende im Minus): 0 von 6
+- Stop mit Kurslücke (größerer Verlust als geplant): 1 von 6
+- Zeitstopp (nach 20 Tagen ohne Ziel und Stop): 0 von 6
+- Erst 6 Trades – für belastbare Schlüsse braucht es deutlich mehr (etwa 100).
 
 ## 🔎 Fehler-Analyse und Lernmodell
 
@@ -109,7 +113,7 @@ Der Lern-Lauf spielt jedes Kauf-Signal aller Aktien aus S&P 500 und Nasdaq-100 a
 
 ### Häufigste Fehler aller Kauf-Signale (12 Monate)
 
-Von 23655 gedachten Trades verloren 47 %; von den 9405 mit der besten Punktzahl 46 %.
+Von 23783 gedachten Trades verloren 47 %; von den 9411 mit der besten Punktzahl 46 %.
 
 - Branche schwach: 14 % aller Signale · bei den besten 15 %
 - Zeitstopp ohne Schwung: 13 % aller Signale · bei den besten 14 %

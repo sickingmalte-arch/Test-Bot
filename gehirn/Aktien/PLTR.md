@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=PLTR)
 
-**Stand Di 03.11. 2026:** ⏸ WARTEN – Zahlen gerade erst – Gegenbewegung riskant
+**Stand Mi 04.11. 2026:** ⏸ WARTEN – Zahlen gerade erst – Gegenbewegung riskant
 **Nächste Quartalszahlen:** Mo 01.02.
 
 ## Übungsdepot

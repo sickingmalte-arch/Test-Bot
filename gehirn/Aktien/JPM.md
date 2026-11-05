@@ -10,7 +10,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=JPM)
 
-**Stand Di 03.11. 2026:** BEOBACHTEN
+**Stand Mi 04.11. 2026:** 🟢 KAUFEN – Squeeze-Ausbruch ↑ · Limit 317,20 · Stop 296,09 · Ziel 332,27 €
 **Nächste Quartalszahlen:** Do 14.01.
 
 ## Übungsdepot

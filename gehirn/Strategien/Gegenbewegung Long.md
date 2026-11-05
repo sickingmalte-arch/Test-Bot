@@ -7,23 +7,23 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Gegenbewegung ↑
 
-**Status:** ✅ aktiv (Ø +0,05 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø +0,09 R über die letzten 60 Trades)
 
 **Regel:** RSI(14) unter 32 oder am unteren Bollinger-Band, über der 200-Tage-Linie, EMA 20 mindestens 1,2 ATR über dem Kurs. Stop −2,5 ATR, Ziel +2 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø +0,05 R · Treffer 60 % · ± Zufall 0,19 R
-- Ganze Geschichte: 154 Trades · Ø +0,22 R · Treffer 68 %
+- Letzte 60 Trades: Ø +0,09 R · Treffer 62 % · ± Zufall 0,19 R
+- Ganze Geschichte: 155 Trades · Ø +0,23 R · Treffer 68 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 76× (49 %), Ø +0,77 R
-- Stop: 24× (16 %), Ø -0,99 R
-- Zeitstopp: 24× (16 %), Ø +0,06 R
+- Stop: 24× (15 %), Ø -0,99 R
+- Zeitstopp: 24× (15 %), Ø +0,06 R
 - vor Quartalszahlen: 16× (10 %), Ø -0,08 R
-- Ziel (Kurslücke): 8× (5 %), Ø +0,81 R
+- Ziel (Kurslücke): 9× (6 %), Ø +0,83 R
 - Stop (Kurslücke): 6× (4 %), Ø -1,25 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)

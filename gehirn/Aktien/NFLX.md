@@ -10,7 +10,7 @@ Branche: Kommunikation (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=NFLX)
 
-**Stand Di 03.11. 2026:** BEOBACHTEN
+**Stand Mi 04.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Di 19.01.
 
 ## Übungsdepot
