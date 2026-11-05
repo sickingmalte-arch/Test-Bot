@@ -1,14 +1,14 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 04.11.2026 13:12 Uhr · Kurse bis 03.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 05.11.2026 04:38 Uhr · Kurse bis 04.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
 ## ⚠️ Daten
 
-- ⚠️ Alte Kurse (nicht bis 03.11.2026) bei 1 Aktien: KVUE – sie werden heute nicht gehandelt.
+- ✅ Alle Kurse, Termine und Bilanzen sind da.
 
-## 📋 Kauf-Signale vom 03.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 04.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -16,33 +16,39 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| XOM | Rücksetzer | 59 % | 76 | ✅ |
+| XOM | RSI-2-Rücksetzer | 52 % | 36 | – |
+| PLTR | RSI-2-Rücksetzer | 50 % | 21 | – |
+| AMZN | Ausbruch | 49 % | 15 | – |
+| COST | ATR-Ausbruch | 49 % | 14 | – |
+| TSLA | RSI-2-Rücksetzer | 48 % | 13 | – |
+| JPM | Squeeze-Ausbruch | 47 % | 9 | – |
+| MSFT | Ausbruch | 45 % | 4 | – |
 
-**Ganzer Markt – die 15 besten von 52 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 195 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| PANW | RSI-2-Rücksetzer | 66 % | 93 | ✅ |
-| AIG | Rücksetzer | 60 % | 79 | ✅ |
-| CRM | RSI-2-Rücksetzer | 59 % | 78 | ✅ |
-| CSX | RSI-2-Rücksetzer | 59 % | 77 | ✅ |
-| XOM | Rücksetzer | 59 % | 76 | ✅ |
-| ROST | Rücksetzer | 57 % | 69 | – |
-| CVX | Rücksetzer | 57 % | 67 | – |
-| SLB | RSI-2-Rücksetzer | 56 % | 61 | – |
-| EBAY | Rücksetzer | 56 % | 59 | – |
-| DG | Rücksetzer | 54 % | 48 | – |
-| ALGN | Rücksetzer | 54 % | 48 | – |
-| UNH | Rücksetzer | 54 % | 46 | – |
-| BAX | EMA-Kreuz | 54 % | 45 | – |
-| NDSN | MACD-Wende | 54 % | 45 | – |
-| FOXA | MACD-Wende | 53 % | 44 | – |
+| DELL | Gegenbewegung | 60 % | 81 | ✅ |
+| FTNT | Gegenbewegung | 59 % | 77 | ✅ |
+| ILMN | Gegenbewegung | 56 % | 60 | – |
+| PANW | RSI-2-Rücksetzer | 55 % | 58 | – |
+| COO | ATR-Ausbruch | 54 % | 45 | – |
+| LMT | RSI-2-Rücksetzer | 53 % | 44 | – |
+| DOC | Squeeze-Ausbruch | 53 % | 44 | – |
+| CVX | RSI-2-Rücksetzer | 53 % | 42 | – |
+| URI | RSI-2-Rücksetzer | 53 % | 41 | – |
+| EIX | ATR-Ausbruch | 53 % | 39 | – |
+| O | ATR-Ausbruch | 53 % | 38 | – |
+| CASY | Rücksetzer | 52 % | 37 | – |
+| LEN | Ausbruch | 52 % | 36 | – |
+| XOM | RSI-2-Rücksetzer | 52 % | 36 | – |
+| GM | ATR-Ausbruch | 52 % | 35 | – |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23657 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23738 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
@@ -73,7 +79,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 23657 Signale, davon verloren 47 %. Von den 9406 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 23783 Signale, davon verloren 47 %. Von den 9411 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|

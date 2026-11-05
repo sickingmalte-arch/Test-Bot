@@ -1,13 +1,11 @@
 {
- "stand": "04.11.2026 13:12 Uhr",
- "tag": "2026-11-03",
+ "stand": "05.11.2026 04:38 Uhr",
+ "tag": "2026-11-04",
  "monat": "2026-11",
  "aktien": 523,
  "anteil": 0.3,
- "schwelle": 0.5761287012222018,
- "warnungen": [
-  "Alte Kurse (nicht bis 03.11.2026) bei 1 Aktien: KVUE – sie werden heute nicht gehandelt."
- ],
+ "schwelle": 0.5761845965601669,
+ "warnungen": [],
  "gelernt": [
   {
    "merkmal": "breite50",
@@ -441,106 +439,106 @@
  "training": 463621,
  "training_bis": "2026-10-30",
  "guete": {
-  "auc": 0.5198138840216172,
+  "auc": 0.5189669710788002,
   "fuenftel": [
    {
     "fuenftel": 1,
-    "R": 0.026270541060028307,
-    "n": 4732,
-    "treffer": 0.5177514792899408
+    "R": 0.029634371052584454,
+    "n": 4748,
+    "treffer": 0.5195871946082561
    },
    {
     "fuenftel": 2,
-    "R": 0.0159768482013786,
-    "n": 4731,
-    "treffer": 0.5165926865356162
+    "R": 0.017796442659778165,
+    "n": 4747,
+    "treffer": 0.5175900568780283
    },
    {
     "fuenftel": 3,
-    "R": 0.011366648973594571,
-    "n": 4731,
-    "treffer": 0.5140562248995983
+    "R": 0.012734556315360896,
+    "n": 4748,
+    "treffer": 0.5141112047177759
    },
    {
     "fuenftel": 4,
-    "R": -0.014752466791417349,
-    "n": 4731,
-    "treffer": 0.5151130839146058
+    "R": -0.01001145410854569,
+    "n": 4747,
+    "treffer": 0.5175900568780283
    },
    {
     "fuenftel": 5,
-    "R": 0.06984877402146701,
-    "n": 4732,
-    "treffer": 0.569949281487743
+    "R": 0.0677392998274861,
+    "n": 4748,
+    "treffer": 0.5692923336141533
    }
   ],
   "auc_je_jahr": {
-   "2025": 0.5327939579044902,
-   "2026": 0.5110633185319238
+   "2025": 0.5320274074238012,
+   "2026": 0.5102631292182477
   },
-  "n": 23657
+  "n": 23738
  },
  "fehler": {
   "tabelle": [
    {
     "grund": "branche",
     "text": "Branche schwach",
-    "alle": 0.1446929027349199,
-    "ausgewaehlt": 0.15054220710184987
+    "alle": 0.144683177059244,
+    "ausgewaehlt": 0.15067474232281372
    },
    {
     "grund": "zeit",
     "text": "Zeitstopp ohne Schwung",
-    "alle": 0.13273027011032676,
-    "ausgewaehlt": 0.13746544758664683
+    "alle": 0.13185889080435606,
+    "ausgewaehlt": 0.13707363723302518
    },
    {
     "grund": "normal",
     "text": "Normales Auf und Ab (kein besonderer Grund)",
-    "alle": 0.09773005875639346,
-    "ausgewaehlt": 0.10312566446948757
+    "alle": 0.09670773241390909,
+    "ausgewaehlt": 0.10222080544044204
    },
    {
     "grund": "zahlen",
     "text": "Quartalszahlen",
-    "alle": 0.09625058122331656,
-    "ausgewaehlt": 0.052200722942802466
+    "alle": 0.09666568557372913,
+    "ausgewaehlt": 0.05217298905536075
    },
    {
     "grund": "markt",
     "text": "Absturz des Gesamtmarkts",
-    "alle": 0.05296529568415268,
-    "ausgewaehlt": 0.04773548798639166
+    "alle": 0.05272673758567044,
+    "ausgewaehlt": 0.04771012644777388
    },
    {
     "grund": "stop_eng",
     "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
-    "alle": 0.04227078665933973,
-    "ausgewaehlt": 0.048692324048479695
+    "alle": 0.04284573014337972,
+    "ausgewaehlt": 0.049304005950483475
    },
    {
     "grund": "zu_spaet",
     "text": "Signal zu spät (Aktie war schon weit gelaufen)",
-    "alle": 0.03728283383353764,
-    "ausgewaehlt": 0.024558792260259407
+    "alle": 0.03729554723962494,
+    "ausgewaehlt": 0.024545744341727765
    },
    {
     "grund": "kursluecke",
     "text": "Kurslücke unter den Stop (über Nacht)",
-    "alle": 0.02844823942173564,
-    "ausgewaehlt": 0.03317031681905167
+    "alle": 0.0285077576420132,
+    "ausgewaehlt": 0.03325895228987355
    },
    {
     "grund": "nachricht",
     "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
-    "alle": 0.010525425878175593,
-    "ausgewaehlt": 0.007229428024665107
+    "alle": 0.010469663204810159,
+    "ausgewaehlt": 0.0072255870789501644
    }
   ],
-  "n_alle": 23657,
-  "n_ausgewaehlt": 9406,
-  "verlust_alle": 0.47330599822462693,
-  "verlust_ausgewaehlt": 0.4567297469700191
+  "n_alle": 23783,
+  "n_ausgewaehlt": 9411,
+  "verlust_alle": 0.472354202581676,
+  "verlust_ausgewaehlt": 0.4563808309425141
  },
  "bot_trades": [
   {
