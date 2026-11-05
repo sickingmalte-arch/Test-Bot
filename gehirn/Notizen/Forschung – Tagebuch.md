@@ -10,6 +10,23 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 05.11.2026 · Boden-Kauf (neues Kauf-Signal)
+
+**Idee** (Wunsch des Nutzers): Der Bot darf zusätzlich am Boden kaufen, nicht nur filtern. Neue Strategie „Boden-Abpraller ↑“: Das Tagestief berührt ein bestätigtes Wendetief (höchstens 0,25 ATR darüber oder 0,5 ATR darunter), der Schluss liegt wieder darüber und in der oberen Hälfte der Kerze, Kurs über der 200-Tage-Linie, Markt im Aufwärtstrend. Stop 0,5 ATR unter dem Boden (mindestens 1 ATR), Ziel +2 ATR. Gegenprobe: gleich viele Käufe an zufälligen Tagen über der 200-Tage-Linie mit denselben Stop-Abständen (6-mal). Gerechnet bei GitHub.
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +13,3 % / −14 % | +11,9 % / −18 % | +7,7 % / −15 % |
+| a) jede Unterstützung (1 Grund) | +13,2 % / −13 % | +11,3 % / −20 % | +6,6 % / −20 % |
+| … Gegenprobe Zufall (6-mal) | +13,1 bis +16,6 % | +12,2 bis +14,2 % | +4,3 bis +7,8 % |
+| b) nur starke Zone (mind. 2 Gründe: Doppel-Tief, großes Wendetief, runde Zahl) | +12,7 % / −13 % | +10,6 % / −18 % | +7,7 % / −17 % |
+| … Gegenprobe Zufall (6-mal) | +10,0 bis +14,2 % | +10,1 bis +14,3 % | +8,0 bis +9,1 % |
+
+**Ergebnis:** beide nicht besser – nicht übernommen.
+- a) −0,1 / −0,6 / −1,1 Punkte, 2022–2026 Rückgang −20 % statt −15 %.
+- b) −0,6 / −1,3 / ±0 Punkte.
+- Zufällige Zusatz-Käufe waren meist genauso gut oder besser: Das Berühren des Bodens bringt keinen eigenen Vorteil. Der Boden bleibt nur Anzeige.
+
 ## 04.11.2026 · Boden-Regeln
 
 **Idee** (Wunsch des Nutzers): Der Bot soll auf den Boden achten, also auf das letzte Wendetief unter dem Kurs (tiefer als je 5 Tage davor und danach, erst 5 Tage später bekannt). Vier Regeln, gerechnet bei GitHub (Watchlist dort, 0 € Gebühr, 7 Positionen):
