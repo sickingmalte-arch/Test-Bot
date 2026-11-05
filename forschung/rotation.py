@@ -10,7 +10,9 @@ Trendfolge mit dem Nasdaq-100. Gleiche Regeln für die Idee und ihre Gegenprobe 
 - Marktfilter: Liegt der Filter-Wert (Standard SPY) am Entscheidungstag unter seiner 200-Tage-Linie, nur Geld.
 Bekannte Verzerrung: Die Aktienliste ist die von heute (S&P 500 und Nasdaq-100). Firmen, die pleite gingen oder
 aus dem Index flogen, fehlen. Das macht jede Aktien-Strategie rückblickend zu gut – deshalb zählt vor allem der
-Vergleich mit zufällig gewählten Aktien aus derselben Liste. Die Branchen-ETFs haben diese Verzerrung nicht."""
+Vergleich mit zufällig gewählten Aktien aus derselben Liste. Die Branchen-ETFs haben diese Verzerrung nicht.
+Mit stichtag=True zählt eine Aktie erst ab dem Tag, an dem sie in den S&P 500 aufgenommen wurde (Wikipedia-Tabelle
+der Index-Änderungen) – sonst kauft Momentum rückblickend Aktien, die erst WEGEN ihres Anstiegs in den Index kamen."""
 import os
 import sys
 
@@ -53,23 +55,69 @@ def tabellen(cache):
         df = _tage(df)
         o[t], c[t] = df["Open"], df["Close"]
     tage = c["SPY"].dropna().index
+    wechsel = index_wechsel(cache)
+    if wechsel:
+        neu = sum(1 for t in aktien if any(d.year >= 2010 and not v for d, v in wechsel.get(t, [])))
+        print(f"S&P-500-Wechsel geladen: {len(wechsel)} Ticker, {neu} heutige Aktien kamen 2010 oder später dazu")
     C = pd.DataFrame(c).reindex(tage)
     O = pd.DataFrame(o).reindex(tage)
     fx = _tage(D.lies_kurse(cache, "EURUSD=X"))["Close"].reindex(tage).ffill().bfill()
     roh = C.copy()  # ohne Auffüllen: wer am Entscheidungstag keinen Kurs hat, ist kein Kandidat
     C = C.ffill()
     O = O.fillna(C.shift(1)).fillna(C)
+    sp500 = set(uni.loc[uni["index"].fillna("").astype(str).str.contains("S&P"), "ticker"].astype(str)) \
+        if "index" in uni else set()
     _TABELLEN[cache] = {"C": C, "O": O, "roh": roh, "fx": fx, "tage": tage, "Cn": C.to_numpy(), "On": O.to_numpy(),
+                        "sp500": [t for t in aktien if t in C.columns and t in sp500],
+                        "wechsel": wechsel,
                         "fxn": fx.to_numpy(), "spalte": {t: j for j, t in enumerate(C.columns)},
                         "aktien": [t for t in aktien if t in C.columns]}
     return _TABELLEN[cache]
 
 
-def punkte(T, art, i, lang=252, kurz=21):
+def index_wechsel(cache):
+    """Aufnahmen und Abgänge im S&P 500 je Ticker: [(Datum, war vorher im Index?)], älteste zuerst."""
+    pfad = os.path.join(cache, "sp500_aenderungen.csv")
+    if not os.path.exists(pfad):
+        return None
+    ch = pd.read_csv(pfad, header=[0, 1])
+
+    def spalte(oben, unten):
+        for c in ch.columns:
+            if oben in str(c[0]).lower() and unten in str(c[1]).lower():
+                return ch[c]
+        raise KeyError(f"Spalte {oben}/{unten} fehlt in sp500_aenderungen.csv: {list(ch.columns)}")
+    datum = pd.to_datetime(ch.iloc[:, 0].astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip(),
+                           errors="coerce", format="mixed")
+    wechsel = {}
+    for d, plus, minus in zip(datum, spalte("added", "ticker"), spalte("removed", "ticker")):
+        if pd.isna(d):
+            continue
+        for sym, vorher in ((plus, False), (minus, True)):
+            if isinstance(sym, str) and sym.strip() and sym.strip().lower() != "nan":
+                wechsel.setdefault(D.yahoo_name(sym.strip()), []).append((d.normalize(), vorher))
+    for v in wechsel.values():
+        v.sort()
+    return wechsel
+
+
+def im_index(T, t, tag):
+    """War die (heutige) S&P-500-Aktie t am Tag tag schon im Index? Der nächste Wechsel nach tag sagt es."""
+    for d, vorher in T["wechsel"].get(t, []):
+        if d > tag:
+            return vorher
+    return True
+
+
+def punkte(T, art, i, lang=252, kurz=21, stichtag=False):
     """Punktzahl je Kandidat am Tag i – nur mit Kursen bis einschließlich i. Höher = besser."""
     roh = T["roh"]
     if art == "sektor":
         spalten = [t for t in BRANCHEN_ETF if t in roh.columns]
+    elif stichtag:
+        if T["wechsel"] is None:
+            raise RuntimeError("sp500_aenderungen.csv fehlt im Cache – Stichtag-Test nicht möglich")
+        spalten = [t for t in T["sp500"] if im_index(T, t, T["tage"][i])]
     else:
         spalten = T["aktien"]
     if i < lang:
@@ -90,7 +138,7 @@ def _ueber_200(T, ticker, i):
     return len(s) >= 150 and s.iloc[-1] > s.mean()
 
 
-def depot(cache, von, bis, art, n, lang=252, kurz=21, filter_ticker="SPY", seed=None, feste=None):
+def depot(cache, von, bis, art, n, lang=252, kurz=21, filter_ticker="SPY", seed=None, feste=None, stichtag=False):
     """Wertverlauf in Euro (Serie je Börsentag, attrs["orders"] = Zahl der Orders). seed: Gegenprobe – statt der
     besten n zufällige n aus denselben Kandidaten. feste: immer diese Ticker (z. B. ["QQQ"] für Halten/Trendfolge)."""
     T = tabellen(cache)
@@ -103,7 +151,7 @@ def depot(cache, von, bis, art, n, lang=252, kurz=21, filter_ticker="SPY", seed=
     monat = tage.to_period("M")
     rng = np.random.default_rng(seed) if seed is not None else None
     bargeld, stueck, werte, orders = START_WERT, {}, [], 0
-    ziel = _auswahl(T, art, von_i - 1, n, lang, kurz, filter_ticker, rng, feste)  # am Abend vor dem Start
+    ziel = _auswahl(T, art, von_i - 1, n, lang, kurz, filter_ticker, rng, feste, stichtag)  # am Abend vor dem Start
     for k in range(von_i, bis_i + 1):
         if ziel is not None:  # am Vorabend entschieden, heute zur Eröffnung handeln
             kurs = {t: O[k, sp[t]] for t in set(stueck) | set(ziel)}
@@ -129,18 +177,18 @@ def depot(cache, von, bis, art, n, lang=252, kurz=21, filter_ticker="SPY", seed=
             ziel = None
         werte.append(bargeld + sum(s * C[k, sp[t]] for t, s in stueck.items()) / fx[k])
         if k < bis_i and monat[k] != monat[k + 1]:  # letzter Handelstag des Monats: neu entscheiden
-            ziel = _auswahl(T, art, k, n, lang, kurz, filter_ticker, rng, feste)
+            ziel = _auswahl(T, art, k, n, lang, kurz, filter_ticker, rng, feste, stichtag)
     kurve = pd.Series(werte, index=tage[von_i:bis_i + 1])
     kurve.attrs["orders"] = orders
     return kurve
 
 
-def _auswahl(T, art, i, n, lang, kurz, filter_ticker, rng, feste):
+def _auswahl(T, art, i, n, lang, kurz, filter_ticker, rng, feste, stichtag=False):
     if filter_ticker and not _ueber_200(T, filter_ticker, i):
         return []
     if feste:
         return [t for t in feste if pd.notna(T["roh"][t].iloc[i])]
-    p = punkte(T, art, i, lang, kurz)
+    p = punkte(T, art, i, lang, kurz, stichtag)
     if p.empty:
         return []
     if rng is not None:
