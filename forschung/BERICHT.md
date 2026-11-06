@@ -1,47 +1,50 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Fr 06.11.2026 17:48 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Fr 06.11.2026 19:04 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 06.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1156 $
+## 📈 SWING-SCANNER · Daten bis 06.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1151 $
 
-2× ⏸ WARTEN · 22× BEOBACHTEN  
+3× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 20× BEOBACHTEN  
 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Do 05.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
 Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche und zusammen höchstens 5 % = 500 € Risiko – bei mehr Signalen die oberen nehmen.  
 ⏳ Die heutige Tageskerze ist noch nicht fertig (Börse noch offen bzw. Krypto-Tag läuft). Signale sind vorläufig – vor allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. Mit --nur-schluss nur fertige Tage bewerten.  
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 308,20 | – | – | – | – | – | – | – | Do 28.01. |  |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 479,80 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 68,08 | – | – | – | – | – | – | – | Di 10.11. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 22,85 | – | – | – | – | – | – | – | Mo 09.11. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 92,52 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 307,83 | – | – | – | – | – | – | – | Do 19.11. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 40,79 | – | – | – | – | – | – | – | Di 10.11. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 115,50 | – | – | – | – | – | – | – | Do 12.11. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.352,32 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 19,22 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 57,58 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 28,87 | – | – | – | – | – | – | – | Mo 09.11. |  |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 14,56 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 168,46 | – | – | – | – | – | – | – | Di 17.11. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 235,53 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 556,14 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 257,24 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 323,58 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 397,13 | – | – | – | – | – | – | – | Di 02.02. |  |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 144,71 | – | – | – | – | – | – | – | Mo 01.02. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 302,91 | – | – | – | – | – | – | – | Do 14.01. |  |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.228,12 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 149,06 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | BEOBACHTEN |  | 947,46 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 308,74 | – | – | – | – | – | – | – | Do 28.01. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 478,47 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | ⏸ WARTEN | Gegenbewegung ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 143,91 | – | – | – | – | – | – | – | Mo 01.02. |  |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 951,89 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 67,60 | – | – | – | – | – | – | – | Di 10.11. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 22,88 | – | – | – | – | – | – | – | Mo 09.11. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 91,66 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 306,88 | – | – | – | – | – | – | – | Do 19.11. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 39,73 | – | – | – | – | – | – | – | Di 10.11. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 112,66 | – | – | – | – | – | – | – | Do 12.11. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.353,41 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 18,71 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 57,08 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 28,24 | – | – | – | – | – | – | – | Mo 09.11. |  |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 14,38 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 166,83 | – | – | – | – | – | – | – | Di 17.11. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 234,29 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 553,40 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 255,53 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 321,66 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 391,02 | – | – | – | – | – | – | – | Di 02.02. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 301,95 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.227,47 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 148,66 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
-AAPL: Analyst Calls Tech Stock Sell-Off 'Golden Buying Opportunity' (Investor's Business Daily, 06.11. 17:28)  
-AAPL: Oracle beats Microsoft and Amazon on a key Wall Street metric (GuruFocus.com, 06.11. 17:06)  
-MSFT: Protesters storm Microsoft data centre (The Telegraph, 06.11. 17:41)  
-MSFT: Amazon Just Delivered a Record-Breaking Quarter. But There’s One Number Investors Shouldn’t Ignore. (24/7 Wall St., 06.11. 17:33)  
+AAPL: State Pension Funds Have at Least $578 Billion Riding on Tumbling AI Stocks (24/7 Wall St., 06.11. 18:34)  
+AAPL: Apple Is “the Anti-AI Large Cap Tech Trade,” Says Josh Brown. Now It’s Capping AI Spending (TIKR, 06.11. 18:23)  
+MSFT: State Pension Funds Have at Least $578 Billion Riding on Tumbling AI Stocks (24/7 Wall St., 06.11. 18:34)  
+MSFT: Apple Is “the Anti-AI Large Cap Tech Trade,” Says Josh Brown. Now It’s Capping AI Spending (TIKR, 06.11. 18:23)  
+PLTR: $3 trillion wipe-out, CEOs on the volatility of politics, and the status of the AI trade (Yahoo Finance Video, 06.11. 16:15)  
+PLTR: Palantir Technologies Inc. (PLTR) Delivered Explosive AI Growth: Is the Stock Still Worth Watching? (Insider Monkey, 06.11. 18:30)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
+⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
 📰 Schlagzeilen: Spricht eine erkannte Meldung der letzten Tage gegen ein Signal (⚠️, z. B. Herabstufung, Kapitalerhöhung, Ermittlungen, Übernahme), wartet der Bot (⏸ WARTEN – Nachricht) und kauft auch im Papier-Depot nicht. Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf selbst lesen. Rückwirkend lässt sich diese Regel nicht testen; im Rückblick gilt sie nur für den letzten Tag.  
 
@@ -81,7 +84,7 @@ Depotwert am 05.11.2026: 9.871,14 € (-1,3 %) · davon frei: 7.298,67 € · 2/
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 9.434,18 € (-5,7 %)  
 Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 05.11.2026).  
 Abgeschlossene Trades: 2 · Gewinner: 1 (50 %) · Summe -0,37 € · größter Rückgang 1,7 % · Kosten: Gebühren 0,00 € + Spread ca. 8,10 €  
-Aufträge für Fr 06.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 PLTR RSI-2-Rücksetzer ↑ Limit 143,29, Stop 117,16, Ziel 156,35 € · 🟢 COST Ausbruch ↑ Limit 964,19, Stop 901,21, Ziel 1.009,18 € · 🟢 AMZN EMA-Kreuz ↑ Limit 237,49, Stop 207,81, Ziel 258,69 €  
+Aufträge für Fr 06.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 PLTR RSI-2-Rücksetzer ↑ Limit 143,35, Stop 117,21, Ziel 156,42 € · 🟢 COST Ausbruch ↑ Limit 964,62, Stop 901,61, Ziel 1.009,63 € · 🟢 AMZN EMA-Kreuz ↑ Limit 237,60, Stop 207,90, Ziel 258,81 €  
 Nachrücker (gekauft nur, wenn ein Auftrag davor nicht zum Limit klappt – sonst sind die 7 Plätze bzw. die Branche schon belegt): AAPL Rücksetzer ↑  
 Die Eröffnung am Fr 06.11. ist schon gelaufen: Das Papier-Depot bucht einen Tag erst, wenn er für alle Werte fertig ist – also beim nächsten Lauf nach dem Handelstag (am besten am Morgen danach).  
 Die Aufträge stammen vom letzten fertigen Kurstag und berücksichtigen die offenen Positionen und das Geld des Papier-Depots – sie können deshalb vom Handelsplan oben (für ein leeres Konto) abweichen.  
