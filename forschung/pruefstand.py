@@ -12,6 +12,7 @@ Statt anpassen kann eine Idee auch ein EIGENES DEPOT sein (andere Art Strategie,
   def zufall(cache, von, bis, seed): ...   # optional: dieselbe Regel mit zufällig gewählten Aktien
   KOMBI_BOT = 0.5                          # optional: halb Swing-Bot, halb eigenes Depot
   VERMUTUNG, WIDERLEGT_WENN, VARIANTEN     # vor dem Rechnen festgelegt (siehe CLAUDE.md)
+Oder ein eigener Prüfablauf: def pruefen(P, a, watch, sektor_von) -> (urteil, plus, mehr, markdown), P = dieses Modul.
 Ein eigenes Depot besteht nur, wenn es in allen drei Zeiträumen mehr Rendite pro Rückgang bringt als der Swing-Bot,
 nicht tiefer fällt als der Nasdaq-100 beim Halten und (mit Gegenprobe) besser ist als 19 von 20 Zufallsdepots.
 Ergebnis: forschung/ergebnisse/<name>.json und .md, Zeile in forschung/ergebnisse/uebersicht.json."""
@@ -194,6 +195,10 @@ def main(argv=None):
     uni = pd.read_csv(os.path.join(a.cache, "universum.csv"))
     sektor_von = dict(zip(uni["ticker"], uni["sektor"]))
     watch = [t for t in D.watchlist() if D.lies_kurse(a.cache, t) is not None]
+    if hasattr(idee, "pruefen"):  # eigener Prüfablauf (z. B. Bot-Check), bekommt den Prüfstand mit allen Werkzeugen
+        text, plus, mehr, md = idee.pruefen(sys.modules[__name__], a, watch, sektor_von)
+        speichern(name, idee, text, plus, mehr, md, t0)
+        return
     if hasattr(idee, "depot"):
         mehr, text, plus, md = pruefe_depot(a, idee, watch, sektor_von)
         speichern(name, idee, text, plus, mehr, md, t0)
