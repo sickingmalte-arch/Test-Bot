@@ -1,0 +1,103 @@
+{
+ "name": "Trendfolge: Nasdaq-100 (QQQ) halten, nur wenn er am Monatsende über seiner 200-Tage-Linie liegt",
+ "datei": "nasdaq_trend_200",
+ "datum": "2026-11-05",
+ "quelle": "Faber (2007) „A Quantitative Approach to Tactical Asset Allocation“",
+ "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot",
+ "plus": {
+  "2010-01-01": 4.694772508617394,
+  "2015-01-01": 4.774243151827104,
+  "2022-01-01": 4.814744133504924
+ },
+ "basis": {
+  "2010-01-01": {
+   "rendite": 13.34358899507814,
+   "rueckgang": 14.017221758127873,
+   "treffer": 57.65123217364907,
+   "schnitt_r": 0.14552676627094657,
+   "trades_jahr": 119.878979143798
+  },
+  "2015-01-01": {
+   "rendite": 11.892565023876635,
+   "rueckgang": 17.817240328737732,
+   "treffer": 58.660517888851544,
+   "schnitt_r": 0.13072558721847383,
+   "trades_jahr": 127.6051981409002
+  },
+  "2022-01-01": {
+   "rendite": 7.707792411771052,
+   "rueckgang": 15.268040599134867,
+   "treffer": 57.950121190861516,
+   "schnitt_r": 0.10482608129779906,
+   "trades_jahr": 105.49572992191858
+  }
+ },
+ "idee": {
+  "2010-01-01": {
+   "rendite": 18.038361503695533,
+   "rueckgang": 19.620107973430635,
+   "orders_jahr": 1.8041986827661909
+  },
+  "2015-01-01": {
+   "rendite": 16.66680817570374,
+   "rueckgang": 30.84313411799679,
+   "orders_jahr": 1.5725048923679061
+  },
+  "2022-01-01": {
+   "rendite": 12.522536545275976,
+   "rueckgang": 16.676436624531824,
+   "orders_jahr": 1.4485835694050992
+  }
+ },
+ "zufall": [],
+ "nasdaq_halten": {
+  "2010-01-01": {
+   "rendite": 22.887510592118353,
+   "rueckgang": 19.622105686502803,
+   "orders_jahr": 0.20046652030735454
+  },
+  "2015-01-01": {
+   "rendite": 23.29507441944132,
+   "rueckgang": 30.853036327210138,
+   "orders_jahr": 0.1429549902152642
+  },
+  "2022-01-01": {
+   "rendite": 12.845628283229637,
+   "rueckgang": 30.224444215591976,
+   "orders_jahr": 0.20694050991501417
+  }
+ },
+ "sp500_halten": {
+  "2010-01-01": {
+   "rendite": 19.15679092913878,
+   "rueckgang": 20.517008015643448,
+   "orders_jahr": 0.20046652030735454
+  },
+  "2015-01-01": {
+   "rendite": 15.821062157650957,
+   "rueckgang": 33.074785398981795,
+   "orders_jahr": 0.1429549902152642
+  },
+  "2022-01-01": {
+   "rendite": 11.773288239525193,
+   "rueckgang": 23.016752801983774,
+   "orders_jahr": 0.20694050991501417
+  }
+ },
+ "pruefungen": {
+  "2010-01-01": {
+   "bot": false,
+   "nasdaq": true
+  },
+  "2015-01-01": {
+   "bot": false,
+   "nasdaq": true
+  },
+  "2022-01-01": {
+   "bot": true,
+   "nasdaq": true
+  }
+ },
+ "kombi_bot": 0.0,
+ "sekunden": 19
+}

@@ -97,5 +97,126 @@
    -1.3,
    -0.0
   ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "branchen_rotation_top3",
+  "name": "Branchen-Rotation: die 3 stärksten Branchen-ETFs der letzten 12 Monate, monatlich",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten; nicht besser als Zufall",
+  "plus": [
+   1.6,
+   -5.1,
+   0.3
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "geringe_schwankung_top20",
+  "name": "Geringe Schwankung: die 20 ruhigsten Aktien des letzten Jahres, monatlich umschichten",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; nicht besser als Zufall",
+  "plus": [
+   1.3,
+   -2.0,
+   -1.8
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "kombi_bot_momentum",
+  "name": "Kombi: halb Swing-Bot, halb Momentum (10 stärkste Aktien, 12 Monate)",
+  "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
+  "plus": [
+   14.8,
+   7.9,
+   24.4
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "momentum_12m_top10",
+  "name": "Momentum: die 10 stärksten Aktien der letzten 12 Monate, monatlich umschichten",
+  "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
+  "plus": [
+   25.4,
+   13.9,
+   38.4
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "momentum_12m_top20",
+  "name": "Momentum: die 20 stärksten Aktien der letzten 12 Monate, monatlich umschichten",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten",
+  "plus": [
+   23.8,
+   9.0,
+   18.8
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "momentum_6m_top10",
+  "name": "Momentum: die 10 stärksten Aktien der letzten 6 Monate, monatlich umschichten",
+  "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
+  "plus": [
+   20.8,
+   21.5,
+   37.7
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "nasdaq_trend_200",
+  "name": "Trendfolge: Nasdaq-100 (QQQ) halten, nur wenn er am Monatsende über seiner 200-Tage-Linie liegt",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot",
+  "plus": [
+   4.7,
+   4.8,
+   4.8
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "kombi_bot_momentum_stichtag",
+  "name": "Kombi: halb Swing-Bot, halb Momentum (10 stärkste Aktien, 12 Monate) – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; nicht besser als Zufall",
+  "plus": [
+   6.4,
+   -2.5,
+   0.4
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "momentum_12m_top10_stichtag",
+  "name": "Momentum: die 10 stärksten Aktien der letzten 12 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten; nicht besser als Zufall",
+  "plus": [
+   12.3,
+   -4.2,
+   1.4
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "momentum_12m_top20_stichtag",
+  "name": "Momentum: die 20 stärksten Aktien der letzten 12 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten; nicht besser als Zufall",
+  "plus": [
+   5.3,
+   -2.3,
+   -2.0
+  ]
+ },
+ {
+  "datum": "2026-11-05",
+  "datei": "momentum_6m_top10_stichtag",
+  "name": "Momentum: die 10 stärksten Aktien der letzten 6 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+  "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten",
+  "plus": [
+   7.8,
+   2.8,
+   1.5
+  ]
  }
 ]
