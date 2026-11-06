@@ -251,5 +251,16 @@
    -1.1,
    0.9
   ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "gegenbewegung_nachtest",
+  "name": "Nachtest Gegenbewegung: auf neuen Zufallslisten besser als Zufallskäufe? Und ein Bot nur mit ihr?",
+  "urteil": "Gegenbewegung gegen Zufallskäufe auf neuen Listen: besteht; Bot nur mit Gegenbewegung besser als der volle Bot: nein",
+  "plus": [
+   -9.3,
+   -3.3,
+   -3.6
+  ]
  }
 ]
