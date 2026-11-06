@@ -32,7 +32,20 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 **Ergebnis:**
 - (1) Watchlist nach Regel: **besteht nicht** – meistgehandelte und stärkste Aktien liefen sogar schlechter als zufällige.
 - (2) Halb Bot, halb S&P 500: **besteht nicht** – besser als der Bot allein, aber der S&P 500 allein hatte in allen drei Zeiträumen die beste Rendite pro Rückgang.
-- (3) Nur **Gegenbewegung** schlug zufällige Käufe in allen drei Zeiträumen. Die anderen 8 Strategien verdienen meist nur, was jeder Kauf am steigenden Markt verdient (2010–2014 lagen fast alle unter dem Zufall). Bei 9 Strategien kann eine Glück sein – Nachtest auf neuen Aktien folgt.
+- (3) Nur **Gegenbewegung** schlug zufällige Käufe in allen drei Zeiträumen. Die anderen 8 Strategien verdienen meist nur, was jeder Kauf am steigenden Markt verdient (2010–2014 lagen fast alle unter dem Zufall). Bei 9 Strategien kann eine Glück sein – deshalb der Nachtest:
+
+**Nachtest Gegenbewegung** (8 neue Zufallslisten, andere Aktien; vorher festgelegt):
+
+| Mitte aus 8 neuen Listen | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Gegenbewegung, Ø R je gedachtem Trade | +0,11 | +0,10 | −0,03 |
+| 🎲 Zufall mit demselben Ausstieg | +0,09 | +0,06 | −0,04 |
+| Voller Bot (9 Strategien) | +12,7 % / −16 % | +4,7 % / −18 % | +2,5 % / −15 % |
+| Bot nur mit Gegenbewegung | +3,4 % / −12 % | +1,5 % / −17 % | −1,1 % / −11 % |
+
+- Gegenbewegung schlägt den Zufall auch auf neuen Aktien – aber nur knapp (+0,01 bis +0,04 R je Trade).
+- Ein Bot nur mit ihr ist viel schlechter: Er handelt nur 24–42-mal im Jahr und ist meist nicht investiert. Der volle Bot verdient vor allem, weil er oft im steigenden Markt investiert ist – nicht, weil seine Käufe besser sind als zufällige.
+- **Gesamtbild nach allen ehrlichen Tests:** Die Regeln des Bots sind kaum besser als zufällige Käufe mit denselben Ausstiegen. Einfach den S&P 500 zu halten hatte in allen drei Zeiträumen die beste Rendite pro Rückgang. Nicht übernommen, der Bot bleibt, wie er ist (Spielgeld, Lernprojekt).
 
 ## 06.11.2026 · Chart-Zeichnungen: Trendlinien-Regel (C), Anzeige (A), Chart-Agent (B)
 
