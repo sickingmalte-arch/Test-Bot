@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 06.11.2026 04:37 Uhr · Kurse bis 05.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 06.11.2026 13:23 Uhr · Kurse bis 05.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -16,37 +16,37 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| XOM | RSI-2-Rücksetzer | 49 % | 14 | – |
-| PLTR | RSI-2-Rücksetzer | 45 % | 4 | – |
+| XOM | RSI-2-Rücksetzer | 48 % | 11 | – |
+| PLTR | RSI-2-Rücksetzer | 42 % | 1 | – |
 | COST | Ausbruch | 35 % | 0 | – |
-| AAPL | Rücksetzer | 30 % | 0 | – |
-| AMZN | EMA-Kreuz | 28 % | 0 | – |
+| AAPL | Rücksetzer | 29 % | 0 | – |
+| AMZN | EMA-Kreuz | 26 % | 0 | – |
 
-**Ganzer Markt – die 15 besten von 89 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 85 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| HPE | RSI-2-Rücksetzer | 58 % | 73 | ✅ |
-| MPC | RSI-2-Rücksetzer | 55 % | 57 | – |
+| HPE | RSI-2-Rücksetzer | 58 % | 72 | ✅ |
+| MPC | RSI-2-Rücksetzer | 56 % | 62 | – |
+| NTAP | RSI-2-Rücksetzer | 55 % | 55 | – |
 | OKTA | RSI-2-Rücksetzer | 53 % | 38 | – |
 | PANW | RSI-2-Rücksetzer | 52 % | 37 | – |
 | PSX | RSI-2-Rücksetzer | 52 % | 35 | – |
-| NTAP | RSI-2-Rücksetzer | 52 % | 33 | – |
-| ILMN | RSI-2-Rücksetzer | 51 % | 27 | – |
 | CRWD | RSI-2-Rücksetzer | 50 % | 22 | – |
 | VLO | RSI-2-Rücksetzer | 50 % | 21 | – |
-| XOM | RSI-2-Rücksetzer | 49 % | 14 | – |
-| CVX | RSI-2-Rücksetzer | 48 % | 13 | – |
 | P | RSI-2-Rücksetzer | 48 % | 11 | – |
+| XOM | RSI-2-Rücksetzer | 48 % | 11 | – |
 | NDSN | RSI-2-Rücksetzer | 48 % | 10 | – |
+| ILMN | RSI-2-Rücksetzer | 47 % | 9 | – |
 | TXN | RSI-2-Rücksetzer | 47 % | 8 | – |
-| EXPD | RSI-2-Rücksetzer | 47 % | 8 | – |
+| CVX | RSI-2-Rücksetzer | 47 % | 8 | – |
+| L | Rücksetzer | 45 % | 4 | – |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23825 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23823 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
@@ -77,7 +77,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 23871 Signale, davon verloren 47 %. Von den 9421 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 23876 Signale, davon verloren 47 %. Von den 9421 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
@@ -85,7 +85,7 @@ Alle gedachten Trades der letzten 12 Monate: 23871 Signale, davon verloren 47 %.
 | Zeitstopp ohne Schwung | 13 % | 14 % |
 | Quartalszahlen | 10 % | 5 % ↓ |
 | Normales Auf und Ab (kein besonderer Grund) | 10 % | 10 % |
-| Absturz des Gesamtmarkts | 5 % | 5 % |
+| Absturz des Gesamtmarkts | 6 % | 5 % |
 | Stop zu eng (Kurs war danach schnell wieder über dem Einstieg) | 4 % | 5 % ↑ |
 | Signal zu spät (Aktie war schon weit gelaufen) | 4 % | 2 % ↓ |
 | Kurslücke unter den Stop (über Nacht) | 3 % | 3 % ↑ |

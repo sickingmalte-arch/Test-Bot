@@ -1,10 +1,10 @@
 {
- "stand": "06.11.2026 04:37 Uhr",
+ "stand": "06.11.2026 13:23 Uhr",
  "tag": "2026-11-05",
  "monat": "2026-11",
  "aktien": 523,
  "anteil": 0.3,
- "schwelle": 0.5761845965601669,
+ "schwelle": 0.5761853024760019,
  "warnungen": [],
  "gelernt": [
   {
@@ -439,105 +439,105 @@
  "training": 463621,
  "training_bis": "2026-10-30",
  "guete": {
-  "auc": 0.5195530371100814,
+  "auc": 0.519668381612036,
   "fuenftel": [
    {
     "fuenftel": 1,
-    "R": 0.02591428676577052,
+    "R": 0.02608447835856433,
     "n": 4765,
-    "treffer": 0.5175236096537251
+    "treffer": 0.5177334732423925
    },
    {
     "fuenftel": 2,
-    "R": 0.016449479564358313,
+    "R": 0.016904458144756766,
+    "n": 4764,
+    "treffer": 0.5155331654072208
+   },
+   {
+    "fuenftel": 3,
+    "R": 0.015837910545280772,
     "n": 4765,
     "treffer": 0.5160545645330535
    },
    {
-    "fuenftel": 3,
-    "R": 0.015478394190349841,
-    "n": 4765,
-    "treffer": 0.5162644281217209
-   },
-   {
     "fuenftel": 4,
-    "R": -0.011795700277821944,
-    "n": 4765,
-    "treffer": 0.5166841552990556
+    "R": -0.011246112581920235,
+    "n": 4764,
+    "treffer": 0.5167926112510496
    },
    {
     "fuenftel": 5,
-    "R": 0.06727623276731877,
+    "R": 0.06778783636326803,
     "n": 4765,
-    "treffer": 0.5689401888772297
+    "treffer": 0.5691500524658971
    }
   ],
   "auc_je_jahr": {
    "2025": 0.5320274074238012,
-   "2026": 0.5108868201888849
+   "2026": 0.5110159807698216
   },
-  "n": 23825
+  "n": 23823
  },
  "fehler": {
   "tabelle": [
    {
     "grund": "branche",
     "text": "Branche schwach",
-    "alle": 0.14519710108499853,
+    "alle": 0.14533422683866645,
     "ausgewaehlt": 0.1509393907228532
    },
    {
     "grund": "zeit",
     "text": "Zeitstopp ohne Schwung",
-    "alle": 0.13137279544216832,
+    "alle": 0.1313871670296532,
     "ausgewaehlt": 0.13692813926334785
    },
    {
     "grund": "zahlen",
     "text": "Quartalszahlen",
-    "alle": 0.09677013949981149,
-    "ausgewaehlt": 0.052117609595584334
+    "alle": 0.09683364047579159,
+    "ausgewaehlt": 0.0525421929731451
    },
    {
     "grund": "normal",
     "text": "Normales Auf und Ab (kein besonderer Grund)",
-    "alle": 0.09635122114699846,
+    "alle": 0.09633104372591723,
     "ausgewaehlt": 0.10211230230336482
    },
    {
     "grund": "markt",
     "text": "Absturz des Gesamtmarkts",
-    "alle": 0.05483641238322651,
+    "alle": 0.05515999329871,
     "ausgewaehlt": 0.048296359197537414
    },
    {
     "grund": "stop_eng",
     "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
-    "alle": 0.04272967198692975,
+    "alle": 0.042720723739319816,
     "ausgewaehlt": 0.049251671797049146
    },
    {
     "grund": "zu_spaet",
     "text": "Signal zu spät (Aktie war schon weit gelaufen)",
-    "alle": 0.03728373340036027,
-    "ausgewaehlt": 0.02451969005413438
+    "alle": 0.03727592561568102,
+    "ausgewaehlt": 0.024625835898524573
    },
    {
     "grund": "kursluecke",
     "text": "Kurslücke unter den Stop (über Nacht)",
-    "alle": 0.028695907167693015,
+    "alle": 0.028689897805327526,
     "ausgewaehlt": 0.03332979513852033
    },
    {
     "grund": "nachricht",
     "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
-    "alle": 0.010431066985044615,
+    "alle": 0.01042888255989278,
     "ausgewaehlt": 0.007217917418533064
    }
   ],
-  "n_alle": 23871,
+  "n_alle": 23876,
   "n_ausgewaehlt": 9421,
-  "verlust_alle": 0.47291692849063716,
+  "verlust_alle": 0.47298542469425364,
   "verlust_ausgewaehlt": 0.45653327672221633
  },
  "bot_trades": [
