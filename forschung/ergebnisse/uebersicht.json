@@ -229,5 +229,16 @@
    -8.7,
    -4.8
   ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "trendlinie_ausbruch",
+  "name": "Trendlinien-Ausbruch: neues Kauf-Signal, wenn der Kurs eine fallende Trendlinie nach oben durchbricht",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.5,
+   0.7,
+   0.4
+  ]
  }
 ]
