@@ -10,6 +10,24 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 06.11.2026 · Chart-Zeichnungen: Trendlinien-Regel (C), Anzeige (A), Chart-Agent (B)
+
+**Wunsch des Nutzers:** ein Agent, der den Chart analysiert, Linien zeichnet und danach handelt. Drei Teile:
+
+**C – Trendlinien-Ausbruch als Regel (Rückblick):** neues Kauf-Signal, wenn der Schluss eine fallende Trendlinie (durch die letzten zwei bestätigten Hochpunkte, das zweite tiefer) nach oben durchbricht, über der 200-Tage-Linie, Stop/Ziel ±3 ATR. 1 Variante, vorher festgelegt, Gegenprobe 6× Zufall.
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +13,3 % / −14 % | +11,9 % / −18 % | +7,9 % / −15 % |
+| Trendlinien-Ausbruch | +12,9 % / −13 % | +12,6 % / −17 % | +8,3 % / −15 % |
+| Gegenprobe Zufall (6×) | +10,9 bis +15,2 % | +10,9 bis +12,5 % | +7,0 bis +9,2 % |
+
+**Ergebnis C:** −0,5 / +0,7 / +0,4 Punkte – nicht überall besser, mitten im Zufallsbereich. Nicht übernommen.
+
+**A – Zeichnung nur anzeigen:** Zu jedem Kauf-Signal zeigt der Bot jetzt auch den nächsten Widerstand darüber (letzter Hochpunkt über dem Kurs) und die fallende Trendlinie – im Handelsplan und im Chart der Webseite (W-Linie, gestrichelte Trendlinie in der Tagesansicht). Geprüft: Die Zeichnung ist mit abgeschnittenen Kursen gleich, schaut also nicht in die Zukunft. Kauft und verkauft nicht danach.
+
+**B – Claude-Depot als Chart-Agent (Versuch nach vorne):** Ab dem 07.11. beurteilt die tägliche Claude-Depot-Entscheidung auch das Chart-Bild und darf Signale mit dem Grund „Chart: …“ auslassen. Ein Rückblick ist bei einem KI-Agenten nicht ehrlich möglich (er kennt den späteren Kursverlauf aus dem Training), deshalb nur mit Spielgeld nach vorne. Auswertung frühestens nach 30 Trades: Claude-Depot gegen Übungsdepot.
+
 ## 06.11.2026 · Ehrlicher Bot-Check: Wie gut ist der Bot ohne Rückblick-Watchlist?
 
 **Frage** (Folge der Nacht-Forschung): Die Watchlist ist mit dem Wissen von heute gewählt. Wie viel vom Rückblick des Bots kommt nur daher? Zu Beginn jedes Zeitraums 8-mal 24 zufällige Aktien aus dem damaligen S&P 500 (Liste github.com/fja05680/sp500), damit handelt der unveränderte Bot den ganzen Zeitraum. Keine Regeländerung, nur eine Messung.

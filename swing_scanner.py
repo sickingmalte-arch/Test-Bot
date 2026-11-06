@@ -1115,6 +1115,31 @@ def runde_stufe(kurs):
             return stufe
     return 500
 
+def zeichnung(d, i, w=5, fenster=126):
+    """Chart-Zeichnung wie von Hand (nur Info, ändert keine Regel): der nächste Widerstand über dem Kurs (letzter
+    bestätigter Hochpunkt darüber) und die fallende Trendlinie durch die letzten zwei bestätigten Hochpunkte (das
+    zweite tiefer als das erste). Hochpunkt = höher als je 5 Tage davor und danach, erst 5 Tage später bekannt – kein
+    Blick in die Zukunft. Kurse in $ wie d["C"]; None, wenn es nichts zu zeichnen gibt."""
+    h, c = np.asarray(d["H"], dtype=float), float(d["C"][i])
+    atr = float(d["ATR"][i]) if np.isfinite(d["ATR"][i]) else math.nan
+    if not np.isfinite(c):
+        return None
+    hochs = [q for q in range(max(w, i - fenster), i - w + 1)
+             if np.isfinite(h[q]) and h[q] == np.nanmax(h[q - w:q + w + 1])]
+    erg = {}
+    ueber = [q for q in hochs if h[q] > c]
+    if ueber:
+        q = ueber[-1]
+        erg["widerstand"] = {"kurs": float(h[q]), "tag": d["idx"][q], "abstand": (h[q] / c - 1) * 100,
+                             "abstand_atr": (h[q] - c) / atr if atr > 0 else math.nan}
+    if len(hochs) >= 2 and h[hochs[-1]] < h[hochs[-2]]:
+        p1, p2 = hochs[-2], hochs[-1]
+        heute = h[p1] + (h[p2] - h[p1]) / (p2 - p1) * (i - p1)
+        erg["trendlinie"] = {"von_tag": d["idx"][p1], "von_kurs": float(h[p1]), "bis_tag": d["idx"][i],
+                             "bis_kurs": float(heute), "ueber": c > heute, "tage": int(i - p1),
+                             "steigung": float((h[p2] - h[p1]) / (p2 - p1))}
+    return erg or None
+
 def unterstuetzungen(d, i, fenster=126, zonen=3):
     """Bis zu 3 Unterstützungs-Zonen unter dem Kurs (nur Info, ändert keine Regel). Gesucht wird im letzten halben Jahr
     nach: Wendetiefs (je 5 und je 10 Tage links und rechts höher), alten Hochs, über die der Kurs gestiegen ist
@@ -1817,6 +1842,10 @@ def scanner_zeile(t, d, pausiert, einst):
         b = boden_am_tag(d, i) if r > 0 else None
         if b:
             zeile["_boden"] = {**b, "kurs": b["kurs"] / rate, "stop_darunter": stop < b["kurs"] / rate}
+        zn = zeichnung(d, i) if r > 0 else None
+        if zn:
+            zeile["_zeichnung"] = {k: {**v, **{f: v[f] / rate for f in ("kurs", "von_kurs", "bis_kurs", "steigung") if f in v}}
+                                   for k, v in zn.items()}
         zonen = unterstuetzungen(d, i) if r > 0 else []
         if zonen:
             zeile["_zonen"] = [{**z, "von": z["von"] / rate, "bis": z["bis"] / rate} for z in zonen]
@@ -1893,6 +1922,15 @@ def muster_satz(zeile, waehrung):
         teile.append("Unterstützung darunter: " + " · ".join(
             (f"{de(z['bis'])}" if z["bis"] - z["von"] < 0.005 * z["bis"] else f"{de(z['von'])}–{de(z['bis'])}")
             + f" {waehrung} (−{de(z['abstand'], 1)} %: {', '.join(z['gruende'])})" for z in zonen))
+    zn = zeile.get("_zeichnung") or {}
+    if "widerstand" in zn:
+        w = zn["widerstand"]
+        teile.append(f"Widerstand darüber: {de(w['kurs'])} {waehrung} (+{de(w['abstand'], 1)} %"
+                     + (f", {de(w['abstand_atr'], 1)} ATR" if math.isfinite(w["abstand_atr"]) else "") + ")")
+    if "trendlinie" in zn:
+        t = zn["trendlinie"]
+        teile.append(f"Fallende Trendlinie seit {t['von_tag']:%d.%m.}: heute bei {de(t['bis_kurs'])} {waehrung}, "
+                     f"Kurs {'darüber (gebrochen)' if t['ueber'] else 'darunter'}")
     return f" {'. '.join(teile)} (nur Info)." if teile else ""
 
 def handelsplan(zeile, nr, einst, waehrung):
@@ -3774,6 +3812,12 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
                         "boden": ({"kurs": json_zahl(z["_boden"]["kurs"]), "abstand": json_zahl(z["_boden"]["abstand"], 1),
                                    "gehalten": z["_boden"]["gehalten"], "ueber_200": z["_boden"]["ueber_200"],
                                    "stop_darunter": bool(z["_boden"]["stop_darunter"])} if z.get("_boden") else None),
+                        "zeichnung": {k: {"kurs": json_zahl(v.get("kurs", v.get("bis_kurs"))),
+                                          **({"abstand": json_zahl(v["abstand"], 1)} if "abstand" in v else {}),
+                                          **({"von": iso(v["von_tag"]), "von_kurs": json_zahl(v["von_kurs"]),
+                                              "bis": iso(v["bis_tag"]), "ueber": bool(v["ueber"]), "tage": v["tage"],
+                                              "steigung": json_zahl(v["steigung"], 4)} if "von_tag" in v else {})}
+                                      for k, v in (z.get("_zeichnung") or {}).items()},
                         "zonen": [{"von": json_zahl(x["von"]), "bis": json_zahl(x["bis"]), "abstand": json_zahl(x["abstand"], 1),
                                    "gruende": x["gruende"], "staerke": x["staerke"]} for x in z.get("_zonen") or []],
                         "risiko": json_zahl(z.get("Risiko")), "zahlen": z.get("Zahlen") or "", "news": z.get("News") or "",
