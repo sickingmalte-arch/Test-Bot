@@ -3,12 +3,12 @@
   "name": "Lernmodell: beste Punktzahl zuerst",
   "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
   "seit": "2026-11-02",
-  "bis": "2026-11-04",
-  "experiment_prozent": 0.38,
-  "papier_prozent": 1.09,
-  "depotwert": 10037.5,
-  "positionen": 1,
-  "trades": 1,
+  "bis": "2026-11-05",
+  "experiment_prozent": -1.29,
+  "papier_prozent": -0.72,
+  "depotwert": 9871.14,
+  "positionen": 2,
+  "trades": 2,
   "gewinner": 1,
   "kurve": [
    {
@@ -25,85 +25,123 @@
     "tag": "2026-11-04",
     "experiment": 0.38,
     "papier": 1.09
+   },
+   {
+    "tag": "2026-11-05",
+    "experiment": -1.29,
+    "papier": -0.72
    }
   ]
  },
  "ideen": [
   {
-   "datum": "2026-10-30",
-   "datei": "beispiel_tagesbremse",
-   "name": "Tagesbremse: nach −2 % alles verkaufen",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-05",
+   "datei": "geringe_schwankung_top20",
+   "name": "Geringe Schwankung: die 20 ruhigsten Aktien des letzten Jahres, monatlich umschichten",
+   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; nicht besser als Zufall",
    "plus": [
-    -1.7,
-    -1.7,
-    -1.9
+    1.3,
+    -2.0,
+    -1.8
    ]
   },
   {
-   "datum": "2026-11-03",
-   "datei": "kosten_filter_3",
-   "name": "Kosten-Filter: Ziel mindestens 3 % über dem Kurs",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-05",
+   "datei": "kombi_bot_momentum",
+   "name": "Kombi: halb Swing-Bot, halb Momentum (10 stärkste Aktien, 12 Monate)",
+   "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
    "plus": [
-    -1.0,
-    0.5,
+    14.8,
+    7.9,
+    24.4
+   ]
+  },
+  {
+   "datum": "2026-11-05",
+   "datei": "momentum_12m_top10",
+   "name": "Momentum: die 10 stärksten Aktien der letzten 12 Monate, monatlich umschichten",
+   "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
+   "plus": [
+    25.4,
+    13.9,
+    38.4
+   ]
+  },
+  {
+   "datum": "2026-11-05",
+   "datei": "momentum_12m_top20",
+   "name": "Momentum: die 20 stärksten Aktien der letzten 12 Monate, monatlich umschichten",
+   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten",
+   "plus": [
+    23.8,
+    9.0,
+    18.8
+   ]
+  },
+  {
+   "datum": "2026-11-05",
+   "datei": "momentum_6m_top10",
+   "name": "Momentum: die 10 stärksten Aktien der letzten 6 Monate, monatlich umschichten",
+   "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
+   "plus": [
+    20.8,
+    21.5,
+    37.7
+   ]
+  },
+  {
+   "datum": "2026-11-05",
+   "datei": "nasdaq_trend_200",
+   "name": "Trendfolge: Nasdaq-100 (QQQ) halten, nur wenn er am Monatsende über seiner 200-Tage-Linie liegt",
+   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot",
+   "plus": [
+    4.7,
+    4.8,
+    4.8
+   ]
+  },
+  {
+   "datum": "2026-11-05",
+   "datei": "kombi_bot_momentum_stichtag",
+   "name": "Kombi: halb Swing-Bot, halb Momentum (10 stärkste Aktien, 12 Monate) – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; nicht besser als Zufall",
+   "plus": [
+    6.4,
+    -2.5,
     0.4
    ]
   },
   {
-   "datum": "2026-11-03",
-   "datei": "kosten_filter_5",
-   "name": "Kosten-Filter: Ziel mindestens 5 % über dem Kurs",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-05",
+   "datei": "momentum_12m_top10_stichtag",
+   "name": "Momentum: die 10 stärksten Aktien der letzten 12 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten; nicht besser als Zufall",
    "plus": [
-    -3.2,
-    -1.0,
-    -1.6
+    12.3,
+    -4.2,
+    1.4
    ]
   },
   {
-   "datum": "2026-11-04",
-   "datei": "boden_gebrochen",
-   "name": "Boden c: nicht kaufen, wenn der Boden in den letzten 5 Tagen gebrochen wurde",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-05",
+   "datei": "momentum_12m_top20_stichtag",
+   "name": "Momentum: die 20 stärksten Aktien der letzten 12 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten; nicht besser als Zufall",
    "plus": [
-    -0.1,
-    1.4,
-    -0.6
+    5.3,
+    -2.3,
+    -2.0
    ]
   },
   {
-   "datum": "2026-11-04",
-   "datei": "boden_nah",
-   "name": "Boden b: nur kaufen, wenn der Kurs höchstens 1,5 ATR über dem Boden liegt",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-05",
+   "datei": "momentum_6m_top10_stichtag",
+   "name": "Momentum: die 10 stärksten Aktien der letzten 6 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
+   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten",
    "plus": [
-    -6.5,
-    -4.7,
-    -3.0
-   ]
-  },
-  {
-   "datum": "2026-11-04",
-   "datei": "boden_stop",
-   "name": "Boden a: Stop 0,5 ATR unter den letzten Boden",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -4.0,
-    2.0,
-    1.6
-   ]
-  },
-  {
-   "datum": "2026-11-04",
-   "datei": "boden_widerstand_ziel",
-   "name": "Boden d: Ziel am nächsten Widerstand (letztes Wendehoch über dem Kurs)",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -6.6,
-    1.4,
-    4.2
+    7.8,
+    2.8,
+    1.5
    ]
   }
  ]
