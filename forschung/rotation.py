@@ -176,7 +176,7 @@ def depot(cache, von, bis, art, n, lang=252, kurz=21, filter_ticker="SPY", seed=
 def _auswahl(T, art, i, n, lang, kurz, filter_ticker, rng, feste, stichtag=False):
     if filter_ticker and not _ueber_200(T, filter_ticker, i):
         return []
-    if feste:
+    if feste is not None:
         return [t for t in feste if pd.notna(T["roh"][t].iloc[i])]
     p = punkte(T, art, i, lang, kurz, stichtag)
     if p.empty:

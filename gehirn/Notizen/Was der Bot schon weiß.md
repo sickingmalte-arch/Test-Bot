@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 30.10.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 06.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -16,11 +16,14 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 > [!info] 🛡️ Neue Regeln nur geprüft
 > Eine Idee kommt erst nach diesem Test und deinem „Ja“ zum Pull Request in den Bot. Der Sicherheits-Check bei GitHub zeigt jede Änderung an den Kaufregeln an.
 
+> [!warning] ⚠️ Ehrliche Messung vom 06.11.2026
+> Alle Rückblicke hier laufen mit der heutigen Watchlist – und die ist mit dem Wissen von heute gewählt. Mit 24 zufälligen Aktien, die damals im S&P 500 waren, brachte der unveränderte Bot nur **+11,6 / +3,2 / +3,3 %** im Jahr statt +13,3 / +11,9 / +8,1 %. Dieselben Aktien einfach zu halten brachte mehr (+11 bis +23 %, aber mit Rückgängen bis −38 %). Der echte Vorteil der Regeln ist also klein. Die Vergleiche zwischen Ideen (Pkt) bleiben gültig, die Höhe der Rendite nicht. Details: [[Notizen/Forschung – Tagebuch]].
+
 ```mermaid
 pie showData
     title Geprüfte Ideen
     "übernommen" : 4
-    "nicht übernommen" : 48
+    "nicht übernommen" : 49
 ```
 
 ## ✅ Steckt im Bot
@@ -84,6 +87,7 @@ pie showData
 | Branchen-Rotation (3 stärkste Branchen-ETFs) | +7 bis +15 %, nirgends mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
 | Nasdaq-100 nur über der 200-Tage-Linie halten | +13 bis +18 %, nur 2022–2026 mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
 | Ruhige Aktien (20 mit geringster Schwankung) | +6 bis +15 %, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Trendlinien-Ausbruch (Kauf beim Bruch einer fallenden Trendlinie) | −0,5 / +0,7 / +0,4 Pkt, im Bereich des Zufalls | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 

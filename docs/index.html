@@ -1208,7 +1208,7 @@ const ERKLAERUNG = {
   chance: ["Ziel-Chance nach Black-Scholes", CHANCE_TEXT],
   bilanz: ["Ehrliche Bilanz", "Wie schlägt sich das Übungsdepot wirklich – verglichen mit dem, was der Test mit echten Kursen von 2010 bis 2026 erwartet hat (gleiche Regeln, Aktien der Watchlist, mit Kosten)? Der blaue Bereich ist der Spielraum des Zufalls: Auch mit genau diesen Regeln landet das Ergebnis bei so wenigen Trades meistens irgendwo darin. Der Strich ist die Erwartung, der Punkt das Übungsdepot. Gewinnfaktor = alle Gewinne geteilt durch alle Verluste, über 1 heißt: unterm Strich verdient. Unter etwa 30 Trades kann alles noch Zufall sein."],
   ueberhitzt: ["Überhitzt – nur Info", "RSI über 70 oder Kurs am oberen Bollinger-Band: Die Aktie ist in kurzer Zeit stark gestiegen. Das Übungsdepot verkauft deshalb nicht. Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr: Die Gewinner werden früh verkauft, die Verlierer laufen trotzdem bis zum Stop. Gerade nach einem Ausbruch steigt eine überhitzte Aktie oft weiter bis zum Ziel. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen."],
-  muster: ["Muster und Nachrichten", "Kerzenmuster vom Poster (z. B. Hammer, Bullish Engulfing, Shooting Star) am Signaltag, bei Ausbrüchen und Doppelböden das Musterziel (Höhe des Musters nach oben verlängert) und wie viele gute und schlechte Schlagzeilen es in den letzten Tagen gab. Nur zur Info: Als Kaufregel oder Ziel hat das im Test über 16 Jahre nicht geholfen, der Bot kauft und verkauft deshalb nicht danach. Auf der Lehren-Seite im Gehirn prüft er weiter, ob Signale mit Muster oder guten Nachrichten besser laufen. Boden: das letzte Wendetief unter dem Kurs (tiefer als die 5 Tage davor und danach) und wie oft der Kurs im letzten halben Jahr dort gedreht hat. Unterstützung: bis zu 3 Zonen darunter – Wendetiefs (je 5 und je 10 Tage), alte Hochs, über die der Kurs gestiegen ist, offene Kurslücken, Kurse mit viel Handel und die nächste runde Zahl; was höchstens 1 % auseinanderliegt, ist eine Zone. Auch nur zur Info – ob Regeln mit dem Boden helfen, testet der Forschungs-Bot."],
+  muster: ["Muster und Nachrichten", "Kerzenmuster vom Poster (z. B. Hammer, Bullish Engulfing, Shooting Star) am Signaltag, bei Ausbrüchen und Doppelböden das Musterziel (Höhe des Musters nach oben verlängert) und wie viele gute und schlechte Schlagzeilen es in den letzten Tagen gab. Nur zur Info: Als Kaufregel oder Ziel hat das im Test über 16 Jahre nicht geholfen, der Bot kauft und verkauft deshalb nicht danach. Auf der Lehren-Seite im Gehirn prüft er weiter, ob Signale mit Muster oder guten Nachrichten besser laufen. Boden: das letzte Wendetief unter dem Kurs (tiefer als die 5 Tage davor und danach) und wie oft der Kurs im letzten halben Jahr dort gedreht hat. Unterstützung: bis zu 3 Zonen darunter – Wendetiefs (je 5 und je 10 Tage), alte Hochs, über die der Kurs gestiegen ist, offene Kurslücken, Kurse mit viel Handel und die nächste runde Zahl; was höchstens 1 % auseinanderliegt, ist eine Zone. Im Chart als U1–U3. Widerstand (W im Chart): der letzte Hochpunkt über dem Kurs. Trendlinie (gestrichelt): die fallende Linie durch die letzten zwei Hochpunkte. Alles nur zur Info – Regeln mit Boden, Widerstand oder Trendlinie haben im Test über 16 Jahre nicht geholfen."],
   live: ["Live", "Mo–Fr von 12 bis 22 Uhr läuft Live: Sobald die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit, in den Wochen der Zeitumstellung 14:30–21:00 Uhr), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
@@ -1222,6 +1222,9 @@ function musterZeile(s) {
   if (s.musterziel !== null && s.musterziel !== undefined) teile.push(`Musterziel ${euro(s.musterziel, 2)}`);
   if (s.stimmung && (s.stimmung.gut || s.stimmung.schlecht)) teile.push(`Nachrichten: ${s.stimmung.gut} gut · ${s.stimmung.schlecht} schlecht`);
   if (s.zonen && s.zonen.length) teile.push("Unterstützung: " + s.zonen.map(z => `${euro(z.bis, 2)} (−${zahl(z.abstand, 1)}\u00a0%: ${z.gruende.join(", ")})`).join(" · "));
+  const zw = s.zeichnung || {};
+  if (zw.widerstand && zw.widerstand.kurs !== null) teile.push(`Widerstand ${euro(zw.widerstand.kurs, 2)} (+${zahl(zw.widerstand.abstand, 1)}\u00a0%)`);
+  if (zw.trendlinie && zw.trendlinie.kurs !== null) teile.push(`Trendlinie ${euro(zw.trendlinie.kurs, 2)} (Kurs ${zw.trendlinie.ueber ? "darüber" : "darunter"})`);
   if (s.boden && s.boden.kurs !== null) teile.push(`Boden ${euro(s.boden.kurs, 2)} (${zahl(s.boden.abstand, 1)}\u00a0% tiefer, ${s.boden.gehalten}× gedreht, Stop ${s.boden.stop_darunter ? "darunter" : "darüber"})`);
   return teile.length ? el("div", { class: "zahlen-zeile chance-zeile" }, el("span", {}, teile.join(" · ")), info("muster")) : null;
 }
@@ -1330,7 +1333,7 @@ function chartUmschalten(art) {
   try { localStorage.setItem("swingbot-chart", art); } catch (e) { /* egal */ }
   for (const u of CHART_UMSCHALTER) u(art);
 }
-function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, zonen = [], hoehe = 170 } = {}) {
+function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, zonen = [], zeichnung = {}, hoehe = 170 } = {}) {
   const C = D.charts && D.charts[ticker], LW = window.LightweightCharts;
   if (!C || !LW || !C.tage.length) return null;
   const f = C.faktor || 1;
@@ -1381,6 +1384,17 @@ function kursChart(D, ticker, { stop, ziel, einstieg, limit, kauf_tag, zonen = [
       linie(z.bis, `U${k + 1}`, farbe, LW.LineStyle.SparseDotted);
       if (Number.isFinite(z.von) && z.von < z.bis * 0.995) serie.createPriceLine({ price: z.von, title: "", color: farbe, lineWidth: 1, lineStyle: LW.LineStyle.SparseDotted, axisLabelVisible: false });
     });
+    // Chart-Zeichnung (nur Info): nächster Widerstand darüber und fallende Trendlinie durch die letzten zwei Hochpunkte
+    const zw = zeichnung || {};
+    if (zw.widerstand && Number.isFinite(zw.widerstand.kurs)) linie(zw.widerstand.kurs, "W", css("--schlecht-text"), LW.LineStyle.SparseDotted);
+    const tl = zw.trendlinie;
+    if (!m30 && tl && Number.isFinite(tl.kurs) && Number.isFinite(tl.steigung)) {
+      const ende = Math.max(0, daten.findIndex(k => k.time === tl.bis));
+      const letzte = ende > 0 ? ende : daten.length - 1, start = Math.max(0, letzte - (tl.tage || 0));
+      const lin = chart.addSeries(LW.LineSeries, { color: css("--s1"), lineWidth: 1, lineStyle: LW.LineStyle.Dashed,
+        priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, autoscaleInfoProvider: () => null });
+      lin.setData([{ time: daten[start].time, value: tl.kurs - tl.steigung * (letzte - start) }, { time: daten[letzte].time, value: tl.kurs }]);
+    }
     const kauf = kauf_tag && daten.find(k => (m30 ? tagIso(k.time) : k.time) === kauf_tag); // gekauft zur Eröffnung
     if (kauf) LW.createSeriesMarkers(serie, [{ time: kauf.time, position: "belowBar", color: css("--s1"), shape: "arrowUp", text: "Kauf" }]);
     // Ausschnitt: Tageskerzen ganz, 30 Minuten die letzten 5 Handelstage (älteres per Ziehen)
@@ -2122,7 +2136,7 @@ function aufbauen(D) {
         el("div", {}, el("div", { class: "label" }, "Ziel"), el("div", { class: "wert" }, euro(s.ziel, 2)))),
       bahn({ stop: s.stop, ziel: s.ziel, kurs: s.kurs, limit: s.limit }),
       el("div", { class: "bahn-text" }, el("span", {}, "Stop"), el("span", {}, `Kurs ${euro(s.kurs, 2)}`), el("span", {}, "Ziel")),
-      kursChart(D, s.ticker, { stop: s.stop, ziel: s.ziel, limit: s.limit, zonen: s.zonen || [], hoehe: 160 }),
+      kursChart(D, s.ticker, { stop: s.stop, ziel: s.ziel, limit: s.limit, zonen: s.zonen || [], zeichnung: s.zeichnung || {}, hoehe: 160 }),
       zahlenZeile(zahlenVon.get(s.ticker), s.zahlen),
       s.chance !== null && s.chance !== undefined ? el("div", { class: "zahlen-zeile chance-zeile" },
         el("span", {}, `Ziel-Chance: Formel ${zahl(s.chance)}\u00a0%` + (s.chance_praxis !== null && s.chance_praxis !== undefined ? ` · bisher erreicht ${zahl(s.chance_praxis)}\u00a0%` : "")), info("chance")) : null,
