@@ -1,824 +1,10 @@
 {
- "stand": "05.11.2026 13:24 Uhr",
- "tag": "2026-11-04",
+ "stand": "06.11.2026 04:37 Uhr",
+ "tag": "2026-11-05",
  "monat": "2026-11",
  "anteil": 0.3,
  "schwelle": 0.5761845965601669,
  "tage": {
-  "2026-10-29": {
-   "MMM": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4956,
-    "rang": 19,
-    "beste": false,
-    "watchlist": false
-   },
-   "AOS": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5363,
-    "rang": 46,
-    "beste": false,
-    "watchlist": false
-   },
-   "AES": {
-    "strategie": "macd_long",
-    "punkte": 0.4845,
-    "rang": 13,
-    "beste": false,
-    "watchlist": false
-   },
-   "AFL": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4925,
-    "rang": 17,
-    "beste": false,
-    "watchlist": false
-   },
-   "MO": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5143,
-    "rang": 30,
-    "beste": false,
-    "watchlist": false
-   },
-   "AMCR": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4278,
-    "rang": 1,
-    "beste": false,
-    "watchlist": false
-   },
-   "AEE": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4862,
-    "rang": 14,
-    "beste": false,
-    "watchlist": false
-   },
-   "ADI": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4813,
-    "rang": 12,
-    "beste": false,
-    "watchlist": false
-   },
-   "ADSK": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4721,
-    "rang": 9,
-    "beste": false,
-    "watchlist": false
-   },
-   "ADP": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4912,
-    "rang": 16,
-    "beste": false,
-    "watchlist": false
-   },
-   "BBY": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5277,
-    "rang": 40,
-    "beste": false,
-    "watchlist": false
-   },
-   "BLK": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5099,
-    "rang": 27,
-    "beste": false,
-    "watchlist": false
-   },
-   "BRO": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4641,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "BF-B": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5425,
-    "rang": 51,
-    "beste": false,
-    "watchlist": false
-   },
-   "CDNS": {
-    "strategie": "macd_long",
-    "punkte": 0.4443,
-    "rang": 3,
-    "beste": false,
-    "watchlist": false
-   },
-   "CCL": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5361,
-    "rang": 46,
-    "beste": false,
-    "watchlist": false
-   },
-   "CVNA": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.4766,
-    "rang": 10,
-    "beste": false,
-    "watchlist": false
-   },
-   "CASY": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5834,
-    "rang": 74,
-    "beste": true,
-    "watchlist": false
-   },
-   "CDW": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4232,
-    "rang": 1,
-    "beste": false,
-    "watchlist": false
-   },
-   "COR": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4848,
-    "rang": 13,
-    "beste": false,
-    "watchlist": false
-   },
-   "CNC": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5326,
-    "rang": 43,
-    "beste": false,
-    "watchlist": false
-   },
-   "CF": {
-    "strategie": "rsi2_long",
-    "punkte": 0.4655,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "COP": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4672,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "ED": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.467,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "STZ": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5027,
-    "rang": 22,
-    "beste": false,
-    "watchlist": false
-   },
-   "CRH": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5338,
-    "rang": 44,
-    "beste": false,
-    "watchlist": false
-   },
-   "DG": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5451,
-    "rang": 53,
-    "beste": false,
-    "watchlist": false
-   },
-   "DLTR": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5082,
-    "rang": 26,
-    "beste": false,
-    "watchlist": false
-   },
-   "DTE": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.522,
-    "rang": 35,
-    "beste": false,
-    "watchlist": false
-   },
-   "DUK": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4875,
-    "rang": 15,
-    "beste": false,
-    "watchlist": false
-   },
-   "ECHO": {
-    "strategie": "ema_kreuz_long",
-    "punkte": 0.4586,
-    "rang": 5,
-    "beste": false,
-    "watchlist": false
-   },
-   "ECL": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5056,
-    "rang": 24,
-    "beste": false,
-    "watchlist": false
-   },
-   "EW": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4653,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "ELV": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.537,
-    "rang": 47,
-    "beste": false,
-    "watchlist": false
-   },
-   "EMR": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4488,
-    "rang": 4,
-    "beste": false,
-    "watchlist": false
-   },
-   "EQT": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4873,
-    "rang": 15,
-    "beste": false,
-    "watchlist": false
-   },
-   "EXR": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5325,
-    "rang": 43,
-    "beste": false,
-    "watchlist": false
-   },
-   "FERG": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4977,
-    "rang": 20,
-    "beste": false,
-    "watchlist": false
-   },
-   "GEN": {
-    "strategie": "ema_kreuz_long",
-    "punkte": 0.4663,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "GNRC": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5076,
-    "rang": 25,
-    "beste": false,
-    "watchlist": false
-   },
-   "HD": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5574,
-    "rang": 61,
-    "beste": false,
-    "watchlist": false
-   },
-   "HPQ": {
-    "strategie": "rsi2_long",
-    "punkte": 0.5413,
-    "rang": 50,
-    "beste": false,
-    "watchlist": false
-   },
-   "HUM": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4401,
-    "rang": 2,
-    "beste": false,
-    "watchlist": false
-   },
-   "HBAN": {
-    "strategie": "squeeze_long",
-    "punkte": 0.5011,
-    "rang": 22,
-    "beste": false,
-    "watchlist": false
-   },
-   "HII": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5471,
-    "rang": 54,
-    "beste": false,
-    "watchlist": false
-   },
-   "IBM": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4702,
-    "rang": 8,
-    "beste": false,
-    "watchlist": false
-   },
-   "IEX": {
-    "strategie": "macd_long",
-    "punkte": 0.5109,
-    "rang": 28,
-    "beste": false,
-    "watchlist": false
-   },
-   "PODD": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4862,
-    "rang": 14,
-    "beste": false,
-    "watchlist": false
-   },
-   "ICE": {
-    "strategie": "macd_long",
-    "punkte": 0.5018,
-    "rang": 22,
-    "beste": false,
-    "watchlist": false
-   },
-   "IP": {
-    "strategie": "squeeze_long",
-    "punkte": 0.5149,
-    "rang": 30,
-    "beste": false,
-    "watchlist": false
-   },
-   "IRM": {
-    "strategie": "squeeze_long",
-    "punkte": 0.4745,
-    "rang": 10,
-    "beste": false,
-    "watchlist": false
-   },
-   "JPM": {
-    "strategie": "squeeze_long",
-    "punkte": 0.5048,
-    "rang": 24,
-    "beste": false,
-    "watchlist": true
-   },
-   "KMB": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4629,
-    "rang": 6,
-    "beste": false,
-    "watchlist": false
-   },
-   "KIM": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5782,
-    "rang": 72,
-    "beste": true,
-    "watchlist": false
-   },
-   "LHX": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5131,
-    "rang": 29,
-    "beste": false,
-    "watchlist": false
-   },
-   "LLY": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5007,
-    "rang": 21,
-    "beste": false,
-    "watchlist": true
-   },
-   "LYV": {
-    "strategie": "squeeze_long",
-    "punkte": 0.4662,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "LOW": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5481,
-    "rang": 55,
-    "beste": false,
-    "watchlist": false
-   },
-   "LULU": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5393,
-    "rang": 49,
-    "beste": false,
-    "watchlist": false
-   },
-   "MRSH": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5044,
-    "rang": 23,
-    "beste": false,
-    "watchlist": false
-   },
-   "MLM": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.4599,
-    "rang": 6,
-    "beste": false,
-    "watchlist": false
-   },
-   "MAS": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5294,
-    "rang": 41,
-    "beste": false,
-    "watchlist": false
-   },
-   "MA": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4905,
-    "rang": 16,
-    "beste": false,
-    "watchlist": false
-   },
-   "MCD": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4693,
-    "rang": 8,
-    "beste": false,
-    "watchlist": false
-   },
-   "MSFT": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4451,
-    "rang": 3,
-    "beste": false,
-    "watchlist": true
-   },
-   "MSI": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.4271,
-    "rang": 1,
-    "beste": false,
-    "watchlist": false
-   },
-   "MSCI": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5001,
-    "rang": 21,
-    "beste": false,
-    "watchlist": false
-   },
-   "NTAP": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5308,
-    "rang": 42,
-    "beste": false,
-    "watchlist": false
-   },
-   "NDSN": {
-    "strategie": "ema_kreuz_long",
-    "punkte": 0.5196,
-    "rang": 34,
-    "beste": false,
-    "watchlist": false
-   },
-   "NSC": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.523,
-    "rang": 36,
-    "beste": false,
-    "watchlist": false
-   },
-   "NOC": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5092,
-    "rang": 27,
-    "beste": false,
-    "watchlist": false
-   },
-   "NCLH": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5406,
-    "rang": 50,
-    "beste": false,
-    "watchlist": false
-   },
-   "NXPI": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.4712,
-    "rang": 9,
-    "beste": false,
-    "watchlist": false
-   },
-   "OTIS": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5129,
-    "rang": 29,
-    "beste": false,
-    "watchlist": false
-   },
-   "PKG": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4986,
-    "rang": 20,
-    "beste": false,
-    "watchlist": false
-   },
-   "PANW": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5097,
-    "rang": 27,
-    "beste": false,
-    "watchlist": false
-   },
-   "PM": {
-    "strategie": "macd_long",
-    "punkte": 0.4654,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "PFG": {
-    "strategie": "squeeze_long",
-    "punkte": 0.5369,
-    "rang": 47,
-    "beste": false,
-    "watchlist": false
-   },
-   "PSA": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5107,
-    "rang": 27,
-    "beste": false,
-    "watchlist": false
-   },
-   "DGX": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4992,
-    "rang": 21,
-    "beste": false,
-    "watchlist": false
-   },
-   "RL": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4648,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "ROST": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5496,
-    "rang": 56,
-    "beste": false,
-    "watchlist": false
-   },
-   "RCL": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5103,
-    "rang": 27,
-    "beste": false,
-    "watchlist": false
-   },
-   "RTX": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5239,
-    "rang": 37,
-    "beste": false,
-    "watchlist": false
-   },
-   "SPGI": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5067,
-    "rang": 25,
-    "beste": false,
-    "watchlist": false
-   },
-   "CRM": {
-    "strategie": "rsi2_long",
-    "punkte": 0.5376,
-    "rang": 47,
-    "beste": false,
-    "watchlist": false
-   },
-   "SRE": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.505,
-    "rang": 24,
-    "beste": false,
-    "watchlist": false
-   },
-   "SHW": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4925,
-    "rang": 17,
-    "beste": false,
-    "watchlist": false
-   },
-   "SPG": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4974,
-    "rang": 20,
-    "beste": false,
-    "watchlist": false
-   },
-   "SJM": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5227,
-    "rang": 36,
-    "beste": false,
-    "watchlist": false
-   },
-   "STLD": {
-    "strategie": "squeeze_long",
-    "punkte": 0.4848,
-    "rang": 13,
-    "beste": false,
-    "watchlist": false
-   },
-   "SYF": {
-    "strategie": "squeeze_long",
-    "punkte": 0.5201,
-    "rang": 34,
-    "beste": false,
-    "watchlist": false
-   },
-   "TROW": {
-    "strategie": "ema_kreuz_long",
-    "punkte": 0.5406,
-    "rang": 50,
-    "beste": false,
-    "watchlist": false
-   },
-   "TRGP": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4628,
-    "rang": 6,
-    "beste": false,
-    "watchlist": false
-   },
-   "TXT": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5532,
-    "rang": 58,
-    "beste": false,
-    "watchlist": false
-   },
-   "TJX": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5272,
-    "rang": 39,
-    "beste": false,
-    "watchlist": false
-   },
-   "TDG": {
-    "strategie": "squeeze_long",
-    "punkte": 0.4622,
-    "rang": 6,
-    "beste": false,
-    "watchlist": false
-   },
-   "TRMB": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.452,
-    "rang": 4,
-    "beste": false,
-    "watchlist": false
-   },
-   "ULTA": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5158,
-    "rang": 31,
-    "beste": false,
-    "watchlist": false
-   },
-   "UNP": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5085,
-    "rang": 26,
-    "beste": false,
-    "watchlist": false
-   },
-   "VLO": {
-    "strategie": "rsi2_long",
-    "punkte": 0.5397,
-    "rang": 49,
-    "beste": false,
-    "watchlist": false
-   },
-   "VRSN": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.4725,
-    "rang": 9,
-    "beste": false,
-    "watchlist": false
-   },
-   "VTRS": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4661,
-    "rang": 7,
-    "beste": false,
-    "watchlist": false
-   },
-   "VICI": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5276,
-    "rang": 40,
-    "beste": false,
-    "watchlist": false
-   },
-   "V": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.4888,
-    "rang": 15,
-    "beste": false,
-    "watchlist": false
-   },
-   "VMC": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5275,
-    "rang": 40,
-    "beste": false,
-    "watchlist": false
-   },
-   "WRB": {
-    "strategie": "ruecksetzer_long",
-    "punkte": 0.5086,
-    "rang": 26,
-    "beste": false,
-    "watchlist": false
-   },
-   "WMT": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5336,
-    "rang": 44,
-    "beste": false,
-    "watchlist": false
-   },
-   "WEC": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5452,
-    "rang": 53,
-    "beste": false,
-    "watchlist": false
-   },
-   "WFC": {
-    "strategie": "squeeze_long",
-    "punkte": 0.5277,
-    "rang": 40,
-    "beste": false,
-    "watchlist": false
-   },
-   "WST": {
-    "strategie": "ausbruch_long",
-    "punkte": 0.5104,
-    "rang": 27,
-    "beste": false,
-    "watchlist": false
-   },
-   "WDAY": {
-    "strategie": "rsi2_long",
-    "punkte": 0.4924,
-    "rang": 17,
-    "beste": false,
-    "watchlist": false
-   },
-   "XEL": {
-    "strategie": "atr_ausbruch_long",
-    "punkte": 0.5455,
-    "rang": 53,
-    "beste": false,
-    "watchlist": false
-   },
-   "FER": {
-    "strategie": "ema_kreuz_long",
-    "punkte": 0.5264,
-    "rang": 39,
-    "beste": false,
-    "watchlist": false
-   },
-   "HIMS": {
-    "strategie": "macd_long",
-    "punkte": 0.4662,
-    "rang": 7,
-    "beste": false,
-    "watchlist": true
-   },
-   "SOFI": {
-    "strategie": "ema_kreuz_long",
-    "punkte": 0.5206,
-    "rang": 34,
-    "beste": false,
-    "watchlist": true
-   }
-  },
   "2026-10-30": {
    "ABBV": {
     "strategie": "atr_ausbruch_long",
@@ -3808,6 +2994,631 @@
     "beste": false,
     "watchlist": false
    }
+  },
+  "2026-11-05": {
+   "ABNB": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2965,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "AMZN": {
+    "strategie": "ema_kreuz_long",
+    "punkte": 0.2791,
+    "rang": 0,
+    "beste": false,
+    "watchlist": true
+   },
+   "AMCR": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3259,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "AIG": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3494,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "AWK": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.2981,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "AAPL": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3021,
+    "rang": 0,
+    "beste": false,
+    "watchlist": true
+   },
+   "APP": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.2934,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "ADP": {
+    "strategie": "atr_ausbruch_long",
+    "punkte": 0.2924,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "BDX": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3057,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "BIIB": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3842,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "BKNG": {
+    "strategie": "ema_kreuz_long",
+    "punkte": 0.3326,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "BSX": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2841,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "BR": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3334,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "CAH": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.2926,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "CBOE": {
+    "strategie": "atr_ausbruch_long",
+    "punkte": 0.2863,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "CDW": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2955,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "CVX": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4844,
+    "rang": 13,
+    "beste": false,
+    "watchlist": false
+   },
+   "ED": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3495,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "CPAY": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.332,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "COST": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3467,
+    "rang": 0,
+    "beste": false,
+    "watchlist": true
+   },
+   "CRWD": {
+    "strategie": "rsi2_long",
+    "punkte": 0.5036,
+    "rang": 22,
+    "beste": false,
+    "watchlist": false
+   },
+   "CSX": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3815,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "EW": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3064,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "EL": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2737,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "EVRG": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3293,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "P": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4805,
+    "rang": 11,
+    "beste": false,
+    "watchlist": false
+   },
+   "EXPD": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4705,
+    "rang": 8,
+    "beste": false,
+    "watchlist": false
+   },
+   "XOM": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4866,
+    "rang": 14,
+    "beste": false,
+    "watchlist": true
+   },
+   "FITB": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.396,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "FISV": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3372,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "GRMN": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2671,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "GD": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4098,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "GIS": {
+    "strategie": "atr_ausbruch_long",
+    "punkte": 0.2981,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "HPE": {
+    "strategie": "rsi2_long",
+    "punkte": 0.5841,
+    "rang": 73,
+    "beste": true,
+    "watchlist": false
+   },
+   "HII": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3636,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "IBM": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3342,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "IEX": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4484,
+    "rang": 4,
+    "beste": false,
+    "watchlist": false
+   },
+   "ILMN": {
+    "strategie": "rsi2_long",
+    "punkte": 0.511,
+    "rang": 27,
+    "beste": false,
+    "watchlist": false
+   },
+   "IFF": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4012,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "J": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4162,
+    "rang": 1,
+    "beste": false,
+    "watchlist": false
+   },
+   "KEY": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3568,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "KMB": {
+    "strategie": "macd_long",
+    "punkte": 0.3048,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "LDOS": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3322,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "LMT": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4365,
+    "rang": 2,
+    "beste": false,
+    "watchlist": false
+   },
+   "L": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.4209,
+    "rang": 1,
+    "beste": false,
+    "watchlist": false
+   },
+   "MPC": {
+    "strategie": "rsi2_long",
+    "punkte": 0.5516,
+    "rang": 57,
+    "beste": false,
+    "watchlist": false
+   },
+   "MRK": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3296,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "MET": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3372,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "MOS": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.329,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "MSI": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.2878,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "NTAP": {
+    "strategie": "rsi2_long",
+    "punkte": 0.5191,
+    "rang": 33,
+    "beste": false,
+    "watchlist": false
+   },
+   "NDSN": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4775,
+    "rang": 10,
+    "beste": false,
+    "watchlist": false
+   },
+   "NUE": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4407,
+    "rang": 2,
+    "beste": false,
+    "watchlist": false
+   },
+   "OKTA": {
+    "strategie": "rsi2_long",
+    "punkte": 0.527,
+    "rang": 38,
+    "beste": false,
+    "watchlist": false
+   },
+   "PKG": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2907,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "PLTR": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4504,
+    "rang": 4,
+    "beste": false,
+    "watchlist": true
+   },
+   "PANW": {
+    "strategie": "rsi2_long",
+    "punkte": 0.5246,
+    "rang": 37,
+    "beste": false,
+    "watchlist": false
+   },
+   "PFE": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3544,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "PSX": {
+    "strategie": "rsi2_long",
+    "punkte": 0.5223,
+    "rang": 35,
+    "beste": false,
+    "watchlist": false
+   },
+   "PNW": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.4441,
+    "rang": 3,
+    "beste": false,
+    "watchlist": false
+   },
+   "PFG": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3135,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "RF": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3951,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "RMD": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2981,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "ROST": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3446,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "SWKS": {
+    "strategie": "rsi2_long",
+    "punkte": 0.3424,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "STE": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3171,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "TPR": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.2899,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "TXN": {
+    "strategie": "rsi2_long",
+    "punkte": 0.471,
+    "rang": 8,
+    "beste": false,
+    "watchlist": false
+   },
+   "TWLO": {
+    "strategie": "gegenbewegung_long",
+    "punkte": 0.4212,
+    "rang": 1,
+    "beste": false,
+    "watchlist": false
+   },
+   "TYL": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.2825,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "USB": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.4222,
+    "rang": 1,
+    "beste": false,
+    "watchlist": false
+   },
+   "UNP": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3217,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "URI": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4476,
+    "rang": 3,
+    "beste": false,
+    "watchlist": false
+   },
+   "UHS": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.2909,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "VLO": {
+    "strategie": "rsi2_long",
+    "punkte": 0.502,
+    "rang": 21,
+    "beste": false,
+    "watchlist": false
+   },
+   "VEEV": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3503,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "VRSK": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3072,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "VMRK": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3577,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "WM": {
+    "strategie": "atr_ausbruch_long",
+    "punkte": 0.3051,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "WAT": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.351,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "WEC": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3517,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "WFC": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.3678,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "WST": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4483,
+    "rang": 3,
+    "beste": false,
+    "watchlist": false
+   },
+   "WDAY": {
+    "strategie": "ruecksetzer_long",
+    "punkte": 0.2954,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "ZBRA": {
+    "strategie": "rsi2_long",
+    "punkte": 0.4355,
+    "rang": 2,
+    "beste": false,
+    "watchlist": false
+   },
+   "CCEP": {
+    "strategie": "atr_ausbruch_long",
+    "punkte": 0.3129,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "FER": {
+    "strategie": "ausbruch_long",
+    "punkte": 0.3875,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "PDD": {
+    "strategie": "squeeze_long",
+    "punkte": 0.305,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   },
+   "SHOP": {
+    "strategie": "gegenbewegung_long",
+    "punkte": 0.3518,
+    "rang": 0,
+    "beste": false,
+    "watchlist": false
+   }
   }
  },
  "sperre": {
@@ -5225,6 +5036,13 @@
    "MSFT",
    "PLTR",
    "TSLA",
+   "XOM"
+  ],
+  "2026-11-05": [
+   "AAPL",
+   "AMZN",
+   "COST",
+   "PLTR",
    "XOM"
   ]
  },
@@ -7204,6 +7022,13 @@
    "MSFT": 0.451,
    "PLTR": 0.5018,
    "TSLA": 0.4846
+  },
+  "2026-11-05": {
+   "AMZN": 0.2791,
+   "AAPL": 0.3021,
+   "COST": 0.3467,
+   "XOM": 0.4866,
+   "PLTR": 0.4504
   }
  }
 }

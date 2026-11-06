@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 05.11.2026 13:24 Uhr · Kurse bis 04.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 06.11.2026 04:37 Uhr · Kurse bis 05.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -8,7 +8,7 @@ Stand: 05.11.2026 13:24 Uhr · Kurse bis 04.11.2026 · 523 Aktien (S&P 500, Nasd
 
 - ✅ Alle Kurse, Termine und Bilanzen sind da.
 
-## 📋 Kauf-Signale vom 04.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 05.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -16,45 +16,43 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| XOM | RSI-2-Rücksetzer | 52 % | 36 | – |
-| PLTR | RSI-2-Rücksetzer | 50 % | 21 | – |
-| AMZN | Ausbruch | 49 % | 15 | – |
-| COST | ATR-Ausbruch | 49 % | 14 | – |
-| TSLA | RSI-2-Rücksetzer | 48 % | 13 | – |
-| JPM | Squeeze-Ausbruch | 47 % | 9 | – |
-| MSFT | Ausbruch | 45 % | 4 | – |
+| XOM | RSI-2-Rücksetzer | 49 % | 14 | – |
+| PLTR | RSI-2-Rücksetzer | 45 % | 4 | – |
+| COST | Ausbruch | 35 % | 0 | – |
+| AAPL | Rücksetzer | 30 % | 0 | – |
+| AMZN | EMA-Kreuz | 28 % | 0 | – |
 
-**Ganzer Markt – die 15 besten von 195 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 89 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| DELL | Gegenbewegung | 60 % | 81 | ✅ |
-| FTNT | Gegenbewegung | 59 % | 77 | ✅ |
-| ILMN | Gegenbewegung | 56 % | 60 | – |
-| PANW | RSI-2-Rücksetzer | 55 % | 58 | – |
-| COO | ATR-Ausbruch | 54 % | 45 | – |
-| LMT | RSI-2-Rücksetzer | 53 % | 44 | – |
-| DOC | Squeeze-Ausbruch | 53 % | 44 | – |
-| CVX | RSI-2-Rücksetzer | 53 % | 42 | – |
-| URI | RSI-2-Rücksetzer | 53 % | 41 | – |
-| EIX | ATR-Ausbruch | 53 % | 39 | – |
-| O | ATR-Ausbruch | 53 % | 38 | – |
-| CASY | Rücksetzer | 52 % | 37 | – |
-| LEN | Ausbruch | 52 % | 36 | – |
-| XOM | RSI-2-Rücksetzer | 52 % | 36 | – |
-| GM | ATR-Ausbruch | 52 % | 35 | – |
+| HPE | RSI-2-Rücksetzer | 58 % | 73 | ✅ |
+| MPC | RSI-2-Rücksetzer | 55 % | 57 | – |
+| OKTA | RSI-2-Rücksetzer | 53 % | 38 | – |
+| PANW | RSI-2-Rücksetzer | 52 % | 37 | – |
+| PSX | RSI-2-Rücksetzer | 52 % | 35 | – |
+| NTAP | RSI-2-Rücksetzer | 52 % | 33 | – |
+| ILMN | RSI-2-Rücksetzer | 51 % | 27 | – |
+| CRWD | RSI-2-Rücksetzer | 50 % | 22 | – |
+| VLO | RSI-2-Rücksetzer | 50 % | 21 | – |
+| XOM | RSI-2-Rücksetzer | 49 % | 14 | – |
+| CVX | RSI-2-Rücksetzer | 48 % | 13 | – |
+| P | RSI-2-Rücksetzer | 48 % | 11 | – |
+| NDSN | RSI-2-Rücksetzer | 48 % | 10 | – |
+| TXN | RSI-2-Rücksetzer | 47 % | 8 | – |
+| EXPD | RSI-2-Rücksetzer | 47 % | 8 | – |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23738 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23825 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
 | bestes Fünftel | 57 % | +0,07 R |
 | 2. Fünftel | 52 % | -0,01 R |
-| Mitte | 51 % | +0,01 R |
+| Mitte | 52 % | +0,02 R |
 | 4. Fünftel | 52 % | +0,02 R |
 | schlechtestes Fünftel | 52 % | +0,03 R |
 
@@ -79,14 +77,14 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 23783 Signale, davon verloren 47 %. Von den 9411 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 23871 Signale, davon verloren 47 %. Von den 9421 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
-| Branche schwach | 14 % | 15 % |
+| Branche schwach | 15 % | 15 % |
 | Zeitstopp ohne Schwung | 13 % | 14 % |
-| Normales Auf und Ab (kein besonderer Grund) | 10 % | 10 % |
 | Quartalszahlen | 10 % | 5 % ↓ |
+| Normales Auf und Ab (kein besonderer Grund) | 10 % | 10 % |
 | Absturz des Gesamtmarkts | 5 % | 5 % |
 | Stop zu eng (Kurs war danach schnell wieder über dem Einstieg) | 4 % | 5 % ↑ |
 | Signal zu spät (Aktie war schon weit gelaufen) | 4 % | 2 % ↓ |
