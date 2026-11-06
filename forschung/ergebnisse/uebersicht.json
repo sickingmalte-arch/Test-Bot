@@ -262,5 +262,38 @@
    -3.3,
    -3.6
   ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "kaufzeit_ohne_luecke",
+  "name": "Kaufzeit 3: Kauf zur Eröffnung nur ohne Kurslücke nach oben (Eröffnung nicht über dem Schluss des Signaltags)",
+  "urteil": "nicht überall besser",
+  "plus": [
+   0.8,
+   1.9,
+   -3.6
+  ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "kaufzeit_schluss_folgetag",
+  "name": "Kaufzeit 2: Kauf zum Schlusskurs am nächsten Tag (statt zur Eröffnung), Limit wie heute",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -1.2,
+   0.5,
+   -1.0
+  ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "kaufzeit_schluss_signaltag",
+  "name": "Kaufzeit 1: Kauf zum Schlusskurs am Signaltag (statt zur Eröffnung am nächsten Tag)",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.5,
+   0.1,
+   -0.3
+  ]
  }
 ]
