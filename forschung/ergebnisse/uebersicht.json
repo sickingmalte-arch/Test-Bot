@@ -240,5 +240,16 @@
    0.7,
    0.4
   ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "ehrlicher_check_2",
+  "name": "Ehrlicher Check 2: Watchlist nach Regel, halb Bot halb S&P 500, echte Stärke der Strategien",
+  "urteil": "Watchlist nach Umsatz: besteht nicht; Watchlist nach Stärke: besteht nicht; halb Bot, halb S&P 500: besteht nicht; Strategien mit echtem Vorteil: gegenbewegung_long",
+  "plus": [
+   -2.0,
+   -1.1,
+   0.9
+  ]
  }
 ]
