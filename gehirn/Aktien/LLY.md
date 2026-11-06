@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=LLY)
 
-**Stand Mi 04.11. 2026:** ⚠️ ÜBERHITZT – überhitzt – nur Info, Depot verkauft nicht
+**Stand Do 05.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 03.02.
 
 ## Übungsdepot

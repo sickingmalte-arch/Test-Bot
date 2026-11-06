@@ -10,7 +10,7 @@ Branche: Kommunikation (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=ASTS)
 
-**Stand Mi 04.11. 2026:** BEOBACHTEN
+**Stand Do 05.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 09.11.
 
 ## Übungsdepot

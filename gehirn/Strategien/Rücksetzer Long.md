@@ -7,22 +7,22 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Rücksetzer ↑
 
-**Status:** ✅ aktiv (Ø +0,00 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø +0,01 R über die letzten 60 Trades)
 
 **Regel:** Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø +0,00 R · Treffer 48 % · ± Zufall 0,21 R
-- Ganze Geschichte: 553 Trades · Ø +0,05 R · Treffer 53 %
+- Letzte 60 Trades: Ø +0,01 R · Treffer 48 % · ± Zufall 0,21 R
+- Ganze Geschichte: 555 Trades · Ø +0,05 R · Treffer 53 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 152× (27 %), Ø +0,96 R
 - Zeitstopp: 140× (25 %), Ø -0,04 R
+- Stop: 112× (20 %), Ø -0,98 R
 - vor Quartalszahlen: 112× (20 %), Ø -0,05 R
-- Stop: 110× (20 %), Ø -0,98 R
 - Ziel (Kurslücke): 20× (4 %), Ø +1,12 R
 - Stop (Kurslücke): 19× (3 %), Ø -1,14 R
 
@@ -30,7 +30,7 @@ tags:
 
 1. [[Aktien/NBIS|NBIS]]: 12 Trades · Ø +0,28 R · Treffer 58 %
 2. [[Aktien/XOM|XOM]]: 27 Trades · Ø +0,26 R · Treffer 67 %
-3. [[Aktien/HIMS|HIMS]]: 21 Trades · Ø +0,25 R · Treffer 67 %
+3. [[Aktien/SOFI|SOFI]]: 21 Trades · Ø +0,22 R · Treffer 62 %
 …
 22. [[Aktien/NVDA|NVDA]]: 28 Trades · Ø -0,14 R · Treffer 43 %
 23. [[Aktien/AAPL|AAPL]]: 24 Trades · Ø -0,16 R · Treffer 42 %

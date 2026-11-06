@@ -152,5 +152,40 @@
   "strategie": "rsi2_long",
   "gut": 0,
   "schlecht": 1
+ },
+ {
+  "tag": "2026-11-05",
+  "ticker": "AAPL",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-05",
+  "ticker": "AMZN",
+  "strategie": "ema_kreuz_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-05",
+  "ticker": "COST",
+  "strategie": "ausbruch_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-05",
+  "ticker": "PLTR",
+  "strategie": "rsi2_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-05",
+  "ticker": "XOM",
+  "strategie": "rsi2_long",
+  "gut": 0,
+  "schlecht": 0
  }
 ]

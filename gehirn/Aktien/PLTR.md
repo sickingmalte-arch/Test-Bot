@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=PLTR)
 
-**Stand Mi 04.11. 2026:** ⏸ WARTEN – Zahlen gerade erst – Gegenbewegung riskant
+**Stand Do 05.11. 2026:** 🟢 KAUFEN – RSI-2-Rücksetzer ↑ · Limit 142,28 · Stop 116,33 · Ziel 155,25 €
 **Nächste Quartalszahlen:** Mo 01.02.
 
 ## Übungsdepot

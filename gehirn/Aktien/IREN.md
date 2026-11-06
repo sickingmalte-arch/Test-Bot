@@ -10,8 +10,8 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=IREN)
 
-**Stand Mi 04.11. 2026:** BEOBACHTEN
-**Nächste Quartalszahlen:** Do 05.11.
+**Stand Do 05.11. 2026:** BEOBACHTEN
+**Nächste Quartalszahlen:** –
 
 ## Übungsdepot
 

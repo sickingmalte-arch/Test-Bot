@@ -10,11 +10,12 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MSFT)
 
-**Stand Mi 04.11. 2026:** 🟢 KAUFEN – Ausbruch ↑ · Limit 502,55 · Stop 456,21 · Ziel 535,65 €
+**Stand Do 05.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 27.01.
 
 ## Übungsdepot
 
+- Offen: Long mit [[Strategien/Ausbruch Long|Ausbruch ↑]] seit 2026-11-05
 - [[Trades/2026-11-03 MSFT RSI-2-Rücksetzer Long|MSFT +1,0 R]] mit [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]] (Ziel (Kurslücke), 2026-11-04)
 
 ## Strategie-Tagebuch auf dieser Aktie

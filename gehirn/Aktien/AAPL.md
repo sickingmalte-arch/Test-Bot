@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AAPL)
 
-**Stand Mi 04.11. 2026:** BEOBACHTEN
+**Stand Do 05.11. 2026:** 🟢 KAUFEN – Rücksetzer ↑ · Limit 310,29 · Stop 282,66 · Ziel 330,02 €
 **Nächste Quartalszahlen:** Do 28.01.
 
 ## Übungsdepot
@@ -19,9 +19,9 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 145 Trades · Ø +0,16 R · Treffer 60 %
+- **Alle Strategien zusammen:** 144 Trades · Ø +0,17 R · Treffer 60 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 12 Trades · Ø +0,34 R · Treffer 75 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 27 Trades · Ø -0,06 R · Treffer 52 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 26 Trades · Ø -0,02 R · Treffer 54 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 10 Trades · Ø +0,22 R · Treffer 70 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 21 Trades · Ø +0,42 R · Treffer 67 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 24 Trades · Ø -0,16 R · Treffer 42 %

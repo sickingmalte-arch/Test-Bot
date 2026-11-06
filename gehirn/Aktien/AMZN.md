@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AMZN)
 
-**Stand Mi 04.11. 2026:** 🟢 KAUFEN – Ausbruch ↑ · Limit 241,20 · Stop 214,42 · Ziel 260,33 €
+**Stand Do 05.11. 2026:** 🟢 KAUFEN – EMA-Kreuz ↑ · Limit 235,82 · Stop 206,34 · Ziel 256,87 €
 **Nächste Quartalszahlen:** Do 04.02.
 
 ## Übungsdepot

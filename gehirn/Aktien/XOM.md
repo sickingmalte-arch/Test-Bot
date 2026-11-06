@@ -10,7 +10,7 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=XOM)
 
-**Stand Mi 04.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Nachricht: Analyst stuft runter
+**Stand Do 05.11. 2026:** 🟢 KAUFEN – RSI-2-Rücksetzer ↑ · Limit 149,29 · Stop 136,33 · Ziel 155,77 €
 **Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot
