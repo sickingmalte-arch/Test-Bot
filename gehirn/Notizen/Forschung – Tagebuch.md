@@ -10,6 +10,30 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 06.11.2026 (Abend) · Ehrlicher Check 2: Watchlist nach Regel, halb Bot halb S&P 500, echte Stärke je Strategie
+
+**Frage** (der Nutzer gab freie Hand): Alles mit Aktien, die zu Beginn des Zeitraums wirklich im S&P 500 waren. Vorher festgelegt: (1) Regel-Liste muss 7 von 8 Zufallslisten schlagen, (2) die Mischung muss mehr Rendite pro Rückgang haben als S&P 500 allein und Bot allein, (3) eine Strategie hat nur dann echten Vorteil, wenn sie in allen drei Zeiträumen zufällige Käufe mit denselben Stop- und Zielabständen schlägt.
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Bot mit 24 zufälligen damaligen Aktien (Mitte aus 8) | +12,3 % / −16 % | +4,4 % / −18 % | +3,1 % / −14 % |
+| Bot mit den 24 meistgehandelten | +10,3 % / −18 % | +3,3 % / −22 % | +4,0 % / −15 % |
+| Bot mit den 24 stärksten (12 Monate) | +6,2 % / −20 % | +2,8 % / −20 % | +4,0 % / −15 % |
+| Halb Bot, halb S&P 500 (Mitte) | +15,4 % / −17 % | +11,3 % / −26 % | +8,0 % / −17 % |
+| S&P 500 halten | +19,2 % / −21 % | +15,8 % / −33 % | +12,1 % / −23 % |
+
+| Gedachte Trades auf Zufallslisten, Ø R nach Kosten | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Gegenbewegung ↑ | +0,13 | +0,12 | +0,05 |
+| übrige 8 Strategien | +0,05 bis +0,11 | +0,02 bis +0,07 | +0,03 bis +0,06 |
+| 🎲 Zufall mit Trend-Ausstieg (±3 ATR) | +0,12 | +0,06 | −0,03 |
+| 🎲 Zufall mit Gegen-Ausstieg (−2,5/+2 ATR) | +0,09 | +0,05 | −0,01 |
+
+**Ergebnis:**
+- (1) Watchlist nach Regel: **besteht nicht** – meistgehandelte und stärkste Aktien liefen sogar schlechter als zufällige.
+- (2) Halb Bot, halb S&P 500: **besteht nicht** – besser als der Bot allein, aber der S&P 500 allein hatte in allen drei Zeiträumen die beste Rendite pro Rückgang.
+- (3) Nur **Gegenbewegung** schlug zufällige Käufe in allen drei Zeiträumen. Die anderen 8 Strategien verdienen meist nur, was jeder Kauf am steigenden Markt verdient (2010–2014 lagen fast alle unter dem Zufall). Bei 9 Strategien kann eine Glück sein – Nachtest auf neuen Aktien folgt.
+
 ## 06.11.2026 · Chart-Zeichnungen: Trendlinien-Regel (C), Anzeige (A), Chart-Agent (B)
 
 **Wunsch des Nutzers:** ein Agent, der den Chart analysiert, Linien zeichnet und danach handelt. Drei Teile:
