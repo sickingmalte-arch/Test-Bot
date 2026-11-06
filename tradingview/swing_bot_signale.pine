@@ -69,6 +69,7 @@ s13 = input.bool(true, "EMA-Kreuz ↑", group=grpS, inline="g")
 s14 = input.bool(true, "EMA-Kreuz ↓", group=grpS, inline="g")
 s15 = input.bool(true, "ATR-Ausbruch ↑", group=grpS, inline="h")
 s16 = input.bool(true, "ATR-Abbruch ↓", group=grpS, inline="h")
+s17 = input.bool(true, "Trendlinien-Ausbruch ↑", group=grpS, inline="i")
 
 // Feste Regeln des Bots (Konstanten oben in swing_scanner.py)
 ZEITSTOPP_TAGE = 20   // spätestens nach so vielen Handelstagen (inkl. Einstiegstag) aussteigen
@@ -107,6 +108,22 @@ eng = breite <= ta.percentile_linear_interpolation(breite, 120, 15)
 squeezeVorher = ta.highest(eng ? 1 : 0, 5)[1] == 1
 keltnerOben = ema20 + 2 * atr
 keltnerUnten = ema20 - 2 * atr
+// Fallende Trendlinie durch die letzten zwei bestätigten Hochpunkte (je 5 Kerzen davor und danach, erst 5 Kerzen später
+// bekannt) der letzten 126 Kerzen, das zweite tiefer als das erste – wie trendlinien_bruch() im Bot
+ph = ta.pivothigh(high, 5, 5)
+var int hoch1i = na
+var float hoch1 = na
+var int hoch2i = na
+var float hoch2 = na
+if not na(ph)
+    hoch1i := hoch2i
+    hoch1 := hoch2
+    hoch2i := bar_index - 5
+    hoch2 := ph
+linieOk = not na(hoch1) and not na(hoch2) and hoch2 < hoch1 and hoch1i >= bar_index - 126
+linieJetzt = linieOk ? hoch1 + (hoch2 - hoch1) / (hoch2i - hoch1i) * (bar_index - hoch1i) : na
+linieVorher = linieOk ? hoch1 + (hoch2 - hoch1) / (hoch2i - hoch1i) * (bar_index - 1 - hoch1i) : na
+trendlinienBruch = linieOk and c > linieJetzt and c[1] <= linieVorher
 stT = STOP_TREND_ATR * atr
 ziT = ZIEL_TREND_ATR * atr
 stG = STOP_GEGEN_ATR * atr
@@ -126,7 +143,7 @@ shortErlaubt = mitShort and (not marktfilter or na(marktLage) or marktLage == 0)
 gueltig(bool bedingung, float st, float zi, int r) =>
     bedingung and not na(atr) and st > 0 and zi > 0 and r * (c - st) > 0 and r * (zi - c) > 0 and bar_index >= 49
 
-// ---------- Die 16 Strategien (Reihenfolge = Vorrang), zuerst ohne Marktfilter ----------
+// ---------- Die 17 Strategien (Reihenfolge = Vorrang), zuerst ohne Marktfilter ----------
 g01 = gueltig(c > hoch20 and vielVolumen and c > sma50, c - stT, c + ziT, 1)
 g02 = mitShort and gueltig(c < tief20 and vielVolumen and c < sma50, c + stT, c - ziT, -1)
 g03 = gueltig(rsi2 < 10 and c > sma200, c - stG, c + ziG, 1)
@@ -143,17 +160,18 @@ g13 = gueltig(ema9 > ema21 and ema9[1] <= ema21[1] and c > sma50, c - stT, c + z
 g14 = mitShort and gueltig(ema9 < ema21 and ema9[1] >= ema21[1] and c < sma50, c + stT, c - ziT, -1)
 g15 = gueltig(c > keltnerOben and c[1] <= keltnerOben[1] and c > sma50, c - stT, c + ziT, 1)
 g16 = mitShort and gueltig(c < keltnerUnten and c[1] >= keltnerUnten[1] and c < sma50, c + stT, c - ziT, -1)
+g17 = gueltig(trendlinienBruch and c > sma200, c - stT, c + ziT, 1)
 
-namen = array.from("Ausbruch ↑", "Abbruch ↓", "RSI-2-Rücksetzer ↑", "RSI-2-Übertreibung ↓", "Gegenbewegung ↑", "Rückfall ↓", "MACD-Wende ↑", "MACD-Wende ↓", "Rücksetzer ↑", "Erholung ↓", "Squeeze-Ausbruch ↑", "Squeeze-Abbruch ↓", "EMA-Kreuz ↑", "EMA-Kreuz ↓", "ATR-Ausbruch ↑", "ATR-Abbruch ↓")
-richtungen = array.from(1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1)
-roh = array.from(g01, g02, g03, g04, g05, g06, g07, g08, g09, g10, g11, g12, g13, g14, g15, g16)
-aktiv = array.from(s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s15, s16)
-stops = array.from(c - stT, c + stT, c - stG, c + stG, c - stG, c + stG, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT)
-ziele = array.from(c + ziT, c - ziT, c + ziG, c - ziG, c + ziG, c - ziG, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT)
+namen = array.from("Ausbruch ↑", "Abbruch ↓", "RSI-2-Rücksetzer ↑", "RSI-2-Übertreibung ↓", "Gegenbewegung ↑", "Rückfall ↓", "MACD-Wende ↑", "MACD-Wende ↓", "Rücksetzer ↑", "Erholung ↓", "Squeeze-Ausbruch ↑", "Squeeze-Abbruch ↓", "EMA-Kreuz ↑", "EMA-Kreuz ↓", "ATR-Ausbruch ↑", "ATR-Abbruch ↓", "Trendlinien-Ausbruch ↑")
+richtungen = array.from(1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1)
+roh = array.from(g01, g02, g03, g04, g05, g06, g07, g08, g09, g10, g11, g12, g13, g14, g15, g16, g17)
+aktiv = array.from(s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s15, s16, s17)
+stops = array.from(c - stT, c + stT, c - stG, c + stG, c - stG, c + stG, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT, c - stT, c + stT, c - stT)
+ziele = array.from(c + ziT, c - ziT, c + ziG, c - ziG, c + ziG, c - ziG, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT, c - ziT, c + ziT)
 
 // Marktfilter: Long-Strategien nur im Aufwärtsmarkt, Short-Strategien nur im Abwärtsmarkt
-feuert = array.new_bool(16, false)
-for i = 0 to 15
+feuert = array.new_bool(17, false)
+for i = 0 to 16
     array.set(feuert, i, array.get(roh, i) and (array.get(richtungen, i) > 0 ? langErlaubt : shortErlaubt))
 
 // ---------- Entscheidung wie im Bot ----------
@@ -163,7 +181,7 @@ irgendLong = false
 irgendShort = false
 irgendRoh = false
 ersteRoh = -1
-for i = 0 to 15
+for i = 0 to 16
     if array.get(feuert, i)
         if array.get(richtungen, i) > 0
             irgendLong := true
@@ -177,7 +195,7 @@ konflikt = irgendLong and irgendShort
 wahl = -1
 ersteFeuernd = -1
 if not konflikt
-    for i = 0 to 15
+    for i = 0 to 16
         if array.get(feuert, i)
             if ersteFeuernd < 0
                 ersteFeuernd := i
