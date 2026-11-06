@@ -218,5 +218,16 @@
    2.8,
    1.5
   ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "bot_ehrliche_aktienliste",
+  "name": "Ehrlicher Bot-Check: Swing-Bot mit zufälligen Aktien aus dem damaligen S&P 500 statt der heutigen Watchlist",
+  "urteil": "Vermutung bestätigt: mit damaligen Aktien bringt der Bot weniger (-1,7 / -8,7 / -4,8 Punkte pro Jahr)",
+  "plus": [
+   -1.7,
+   -8.7,
+   -4.8
+  ]
  }
 ]
