@@ -22,8 +22,8 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 ```mermaid
 pie showData
     title Geprüfte Ideen
-    "übernommen" : 4
-    "nicht übernommen" : 49
+    "übernommen" : 5
+    "nicht übernommen" : 48
 ```
 
 ## ✅ Steckt im Bot
@@ -32,6 +32,7 @@ pie showData
 | --- | --- |
 | Stop und Ziel näher (Ziel nicht weiter weg als der Stop) | Trefferquote überall höher (etwa 45 % → 57 %), Rückgänge überall kleiner. Dafür bringt ein Treffer weniger. |
 | Höchstens 2 Positionen je Branche | +0,4 Pkt, in 5 von 6 Fällen besser, Rückgang nie größer |
+| Trendlinien-Ausbruch als 9. Kauf-Strategie (seit 06.11.2026) | **Auf Wunsch des Besitzers**, nicht weil der Test es zeigt: −0,5 / +0,7 / +0,4 Pkt, im Bereich des Zufalls. Bewährt sie sich nicht, pausiert sie die Lernregel von selbst. |
 | Lernregel behalten (schlecht laufende Strategien pausieren) | Ganz ohne war es in 4 von 6 Fällen schlechter, eine ruhigere Regel kostete 0,5–0,9 Pkt |
 | Shorts aus | Alle Short-Strategien verlieren, auch zehn verbesserte Varianten |
 
@@ -87,7 +88,6 @@ pie showData
 | Branchen-Rotation (3 stärkste Branchen-ETFs) | +7 bis +15 %, nirgends mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
 | Nasdaq-100 nur über der 200-Tage-Linie halten | +13 bis +18 %, nur 2022–2026 mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
 | Ruhige Aktien (20 mit geringster Schwankung) | +6 bis +15 %, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
-| Trendlinien-Ausbruch (Kauf beim Bruch einer fallenden Trendlinie) | −0,5 / +0,7 / +0,4 Pkt, im Bereich des Zufalls | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 

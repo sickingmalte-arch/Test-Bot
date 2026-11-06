@@ -166,6 +166,11 @@ STRATEGIEN = {
     "atr_abbruch_short":  {"name": "ATR-Abbruch", "richtung": -1, "art": "trend",
                            "regel": "Schluss erstmals mehr als 2 ATR unter der EMA 20 (Keltner-Kanal), unter der "
                                     "50-Tage-Linie. Stop +3 ATR, Ziel −3 ATR"},
+    # seit 06.11.2026 auf Wunsch des Besitzers – im Rückblick −0,5 / +0,7 / +0,4 Punkte, im Bereich des Zufalls
+    "trendlinie_long":    {"name": "Trendlinien-Ausbruch", "richtung": 1, "art": "trend",
+                           "regel": "Schluss heute über der fallenden Trendlinie durch die letzten zwei bestätigten "
+                                    "Hochpunkte (das zweite tiefer, letzte 6 Monate), gestern noch darunter, über der "
+                                    "200-Tage-Linie. Stop −3 ATR, Ziel +3 ATR"},
 }
 VORRANG = {k: i for i, k in enumerate(STRATEGIEN)}
 
@@ -890,6 +895,25 @@ def calculate_indicators(df):
     df['Keltner_Unten'] = df['EMA_20'] - 2 * df['ATR']
     return df
 
+def trendlinien_bruch(h, c, w=5, fenster=126):
+    """Je Tag: Schluss heute über der fallenden Trendlinie, gestern noch darunter. Die Linie geht durch die letzten zwei
+    bestätigten Hochpunkte der letzten 6 Monate (höher als je 5 Tage davor und danach, erst 5 Tage später bekannt –
+    kein Blick in die Zukunft), das zweite tiefer als das erste. Wie zeichnung(), nur für alle Tage."""
+    h, c = np.asarray(h, dtype=float), np.asarray(c, dtype=float)
+    n = len(c)
+    bruch = np.zeros(n, bool)
+    hoch = np.flatnonzero(pd.Series(h).rolling(2 * w + 1, center=True).max().to_numpy() == h)
+    for i in range(1, n):
+        bekannt = hoch[(hoch <= i - w) & (hoch >= i - fenster)]
+        if len(bekannt) < 2:
+            continue
+        p1, p2 = bekannt[-2], bekannt[-1]
+        if not h[p2] < h[p1]:
+            continue
+        s = (h[p2] - h[p1]) / (p2 - p1)
+        bruch[i] = c[i] > h[p1] + s * (i - p1) and c[i - 1] <= h[p1] + s * (i - 1 - p1)
+    return bruch
+
 def strategie_signale(df, mit_short):
     """Je Strategie: Bool-Array 'feuert' (Signal zum Schlusskurs) und Arrays Stop/Ziel in Kurswährung.
     Vergleiche mit NaN ergeben False – fehlt ein Indikator (z. B. SMA200 bei jungen Aktien), ist nur
@@ -928,6 +952,8 @@ def strategie_signale(df, mit_short):
         "ema_kreuz_short": ((ema9 < ema21) & (ema9.shift() >= ema21.shift()) & (c < sma50), c + st, c - zt),
         "atr_ausbruch_long": ((c > k_oben) & (c.shift() <= k_oben.shift()) & (c > sma50), c - st, c + zt),
         "atr_abbruch_short": ((c < k_unten) & (c.shift() >= k_unten.shift()) & (c < sma50), c + st, c - zt),
+        "trendlinie_long": (pd.Series(trendlinien_bruch(df['High'], c), index=df.index) & (c > sma200),
+                            c - st, c + zt),
     }
     genug = np.arange(len(df)) >= MIN_KERZEN - 1
     signale = {}

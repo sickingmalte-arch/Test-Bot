@@ -22,7 +22,7 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 | Trendlinien-Ausbruch | +12,9 % / −13 % | +12,6 % / −17 % | +8,3 % / −15 % |
 | Gegenprobe Zufall (6×) | +10,9 bis +15,2 % | +10,9 bis +12,5 % | +7,0 bis +9,2 % |
 
-**Ergebnis C:** −0,5 / +0,7 / +0,4 Punkte – nicht überall besser, mitten im Zufallsbereich. Nicht übernommen.
+**Ergebnis C:** −0,5 / +0,7 / +0,4 Punkte – nicht überall besser, mitten im Zufallsbereich. Nach den Regeln nicht übernommen – **auf ausdrücklichen Wunsch des Besitzers trotzdem als 9. Kauf-Strategie eingebaut** (06.11.2026). Sie unterliegt wie alle Strategien der Lernregel: Läuft sie schlecht, pausiert der Bot sie von selbst.
 
 **A – Zeichnung nur anzeigen:** Zu jedem Kauf-Signal zeigt der Bot jetzt auch den nächsten Widerstand darüber (letzter Hochpunkt über dem Kurs) und die fallende Trendlinie – im Handelsplan und im Chart der Webseite (W-Linie, gestrichelte Trendlinie in der Tagesansicht). Geprüft: Die Zeichnung ist mit abgeschnittenen Kursen gleich, schaut also nicht in die Zukunft. Kauft und verkauft nicht danach.
 
