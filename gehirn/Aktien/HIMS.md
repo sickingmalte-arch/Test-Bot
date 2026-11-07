@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=HIMS)
 
-**Stand Do 05.11. 2026:** BEOBACHTEN
+**Stand Fr 06.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 09.11.
 
 ## Übungsdepot
@@ -19,7 +19,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 128 Trades · Ø +0,07 R · Treffer 54 %
+- **Alle Strategien zusammen:** 135 Trades · Ø +0,09 R · Treffer 55 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 21 Trades · Ø +0,16 R · Treffer 57 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 23 Trades · Ø +0,05 R · Treffer 52 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 6 Trades · Ø -0,23 R · Treffer 33 %
@@ -28,6 +28,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 8 Trades · Ø -0,16 R · Treffer 50 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 11 Trades · Ø +0,21 R · Treffer 55 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 22 Trades · Ø +0,07 R · Treffer 55 %
+- [[Strategien/Trendlinien-Ausbruch Long|Trendlinien-Ausbruch ↑]]: 7 Trades · Ø +0,47 R · Treffer 71 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

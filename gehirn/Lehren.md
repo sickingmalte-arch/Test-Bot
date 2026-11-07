@@ -18,7 +18,7 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 - [[Strategien/Rückfall Short|Rückfall ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: ⏸ pausiert – die letzten 60 Trades liefen schlecht (Ø -0,12 R)
 - [[Strategien/MACD-Wende Short|MACD-Wende ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: ✅ aktiv (Ø +0,01 R über die letzten 60 Trades)
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: ✅ aktiv (Ø -0,02 R über die letzten 60 Trades)
 - [[Strategien/Erholung Short|Erholung ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: ✅ aktiv (Ø +0,17 R über die letzten 60 Trades)
 - [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
@@ -26,6 +26,7 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 - [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: ✅ aktiv (Ø -0,03 R über die letzten 60 Trades)
 - [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]: – aus (Short-Signale sind ausgeschaltet – im Test im Schnitt mit Verlust)
+- [[Strategien/Trendlinien-Ausbruch Long|Trendlinien-Ausbruch ↑]]: ✅ aktiv (Ø -0,02 R über die letzten 60 Trades)
 
 ### Änderungen der letzten 30 Tage
 
@@ -33,30 +34,30 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 
 ## Muster im Strategie-Tagebuch (alle Strategien, alle Aktien)
 
-- Insgesamt: 2885 Trades · Ø +0,11 R · Treffer 57 %
-- Ziel: 947× (33 %), Ø +0,91 R
-- Zeitstopp: 664× (23 %), Ø +0,02 R
-- Stop: 568× (20 %), Ø -0,99 R
-- vor Quartalszahlen: 474× (16 %), Ø -0,02 R
-- Ziel (Kurslücke): 129× (4 %), Ø +1,07 R
-- Stop (Kurslücke): 103× (4 %), Ø -1,14 R
-- Long: 2885 Trades · Ø +0,11 R · Treffer 57 %
+- Insgesamt: 3073 Trades · Ø +0,12 R · Treffer 57 %
+- Ziel: 1005× (33 %), Ø +0,91 R
+- Zeitstopp: 714× (23 %), Ø +0,03 R
+- Stop: 600× (20 %), Ø -0,99 R
+- vor Quartalszahlen: 512× (17 %), Ø -0,03 R
+- Ziel (Kurslücke): 135× (4 %), Ø +1,09 R
+- Stop (Kurslücke): 107× (3 %), Ø -1,13 R
+- Long: 3073 Trades · Ø +0,12 R · Treffer 57 %
 
 ### Rangliste der Aktien (ab 20 Trades, nach Ø R)
 
-1. [[Aktien/NBIS|NBIS]]: 61 Trades · Ø +0,27 R · Treffer 64 %
-2. [[Aktien/AMD|AMD]]: 116 Trades · Ø +0,25 R · Treffer 61 %
-3. [[Aktien/NVDA|NVDA]]: 139 Trades · Ø +0,25 R · Treffer 67 %
+1. [[Aktien/AMD|AMD]]: 128 Trades · Ø +0,28 R · Treffer 62 %
+2. [[Aktien/NVDA|NVDA]]: 147 Trades · Ø +0,26 R · Treffer 69 %
+3. [[Aktien/MSFT|MSFT]]: 138 Trades · Ø +0,25 R · Treffer 64 %
 …
-22. [[Aktien/TSLA|TSLA]]: 124 Trades · Ø -0,02 R · Treffer 45 %
-23. [[Aktien/MELI|MELI]]: 115 Trades · Ø -0,03 R · Treffer 50 %
+22. [[Aktien/TSLA|TSLA]]: 131 Trades · Ø -0,05 R · Treffer 44 %
+23. [[Aktien/MELI|MELI]]: 125 Trades · Ø -0,05 R · Treffer 49 %
 24. [[Aktien/CRWV|CRWV]]: 29 Trades · Ø -0,23 R · Treffer 45 %
 - Hinweis: Selbst 20–50 Trades je Aktie sind wenig. Sperren kannst du eine Aktie in [[Meine Regeln]].
 
 ### Trefferquote je Aktie (Ziel: über 50 %)
 
-- 20 von 24 Aktien (ab 20 Trades) treffen öfter als jedes zweite Mal.
-- Bei 50 % oder darunter: [[Aktien/CRWV|CRWV]] 45 % (29 Trades, Ø -0,23 R), [[Aktien/TSLA|TSLA]] 45 % (124 Trades, Ø -0,02 R), [[Aktien/LLY|LLY]] 49 % (134 Trades, Ø +0,02 R), [[Aktien/MELI|MELI]] 50 % (115 Trades, Ø -0,03 R). Ein paar Prozentpunkte unter 50 % können auch bei über 100 Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt Ø R, siehe Rangliste oben).
+- 19 von 24 Aktien (ab 20 Trades) treffen öfter als jedes zweite Mal.
+- Bei 50 % oder darunter: [[Aktien/TSLA|TSLA]] 44 % (131 Trades, Ø -0,05 R), [[Aktien/CRWV|CRWV]] 45 % (29 Trades, Ø -0,23 R), [[Aktien/LLY|LLY]] 48 % (143 Trades, Ø +0,02 R), [[Aktien/MELI|MELI]] 49 % (125 Trades, Ø -0,05 R), [[Aktien/SOFI|SOFI]] 49 % (114 Trades, Ø -0,02 R). Ein paar Prozentpunkte unter 50 % können auch bei über 100 Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt Ø R, siehe Rangliste oben).
 
 ## 📐 Selbstkontrolle: Ziel-Chance nach Black-Scholes
 
@@ -64,13 +65,13 @@ Bei jedem Signal rechnet der Bot nach dem Black-Scholes-Modell aus dem Optionssk
 
 | Ziel-Chance laut Formel | Signale | Ø vorhergesagt | Ziel wirklich berührt | Trades im Plus | Ø je Trade |
 | --- | --- | --- | --- | --- | --- |
-| unter 30 % | 523 | 26 % | 43 % | 58 % | +0,13 R |
-| 30–40 % | 1039 | 35 % | 41 % | 57 % | +0,11 R |
-| 40–50 % | 824 | 45 % | 48 % | 56 % | +0,11 R |
-| ab 50 % | 453 | 55 % | 52 % | 58 % | +0,14 R |
+| unter 30 % | 575 | 26 % | 43 % | 59 % | +0,14 R |
+| 30–40 % | 1125 | 35 % | 41 % | 57 % | +0,10 R |
+| 40–50 % | 868 | 45 % | 48 % | 56 % | +0,11 R |
+| ab 50 % | 465 | 55 % | 51 % | 58 % | +0,15 R |
 
-- Zusammen: 2839 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
-- Trades im Plus je Gruppe: 56 bis 58 %. Die Formel sagt, wie weit eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor dem Stop kommt.
+- Zusammen: 3033 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
+- Trades im Plus je Gruppe: 56 bis 59 %. Die Formel sagt, wie weit eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor dem Stop kommt.
 
 ## 🕯️ Selbstkontrolle: Kerzenmuster
 
@@ -78,9 +79,9 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 
 | Gruppe | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
-| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 926 | 56 % | +0,11 R |
-| bärisches Kerzenmuster am Signaltag | 525 | 58 % | +0,12 R |
-| kein Kerzenmuster | 1434 | 57 % | +0,11 R |
+| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 997 | 56 % | +0,12 R |
+| bärisches Kerzenmuster am Signaltag | 536 | 58 % | +0,13 R |
+| kein Kerzenmuster | 1540 | 57 % | +0,11 R |
 
 - Mit und ohne Muster liegen nah beieinander – die Muster sagen bei diesen Strategien wenig voraus.
 
@@ -90,7 +91,7 @@ Zu jedem Signal zählt der Bot die guten und schlechten Schlagzeilen der letzten
 
 | Stimmung am Signaltag | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
-| gleich viele oder keine | 7 | 14 % | -0,66 R |
+| gleich viele oder keine | 8 | 12 % | -0,68 R |
 
 - Gesammelt: 27 Signale mit Schlagzeilen. Noch zu wenige Trades für ein Urteil (mehr gute Schlagzeilen, gleich viele oder keine).
 
@@ -114,7 +115,7 @@ Der Lern-Lauf spielt jedes Kauf-Signal aller Aktien aus S&P 500 und Nasdaq-100 a
 
 ### Häufigste Fehler aller Kauf-Signale (12 Monate)
 
-Von 23871 gedachten Trades verloren 47 %; von den 9421 mit der besten Punktzahl 46 %.
+Von 24873 gedachten Trades verloren 47 %; von den 9422 mit der besten Punktzahl 46 %.
 
 - Branche schwach: 15 % aller Signale · bei den besten 15 %
 - Zeitstopp ohne Schwung: 13 % aller Signale · bei den besten 14 %

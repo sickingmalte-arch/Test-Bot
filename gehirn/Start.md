@@ -4,32 +4,33 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Do 05.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Fr 06.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
   kurse["📈 Kurse<br/>24 Aktien"]
   termine["📅 Quartalszahlen<br/>24 Termine"]
-  markt["🟢 Markt<br/>Nasdaq-100 über der<br/>200-Tage-Linie"]
+  markt["🔴 Markt<br/>Nasdaq-100 unter der<br/>200-Tage-Linie: kein Kauf"]
   regeln["📝 Meine Regeln<br/>nichts gesperrt"]
-  subgraph KERN["🧠 8 Strategien · 7 aktiv"]
+  subgraph KERN["🧠 9 Strategien · 8 aktiv"]
     direction TB
     s0["✅ Ausbruch ↑<br/>Ø -0,03 R"]
     s1["✅ RSI-2-Rücksetzer ↑<br/>Ø -0,04 R"]
     s2["✅ Gegenbewegung ↑<br/>Ø +0,09 R"]
     s3["⏸ MACD-Wende ↑<br/>Ø -0,12 R"]
-    s4["✅ Rücksetzer ↑<br/>Ø +0,01 R"]
+    s4["✅ Rücksetzer ↑<br/>Ø -0,02 R"]
     s5["✅ Squeeze-Ausbruch ↑<br/>Ø +0,17 R"]
     s6["✅ EMA-Kreuz ↑<br/>Ø -0,04 R"]
     s7["✅ ATR-Ausbruch ↑<br/>Ø -0,03 R"]
-    s0 ~~~ s4
-    s1 ~~~ s5
-    s2 ~~~ s6
-    s3 ~~~ s7
+    s8["✅ Trendlinien-Ausbruch ↑<br/>Ø -0,02 R"]
+    s0 ~~~ s5
+    s1 ~~~ s6
+    s2 ~~~ s7
+    s3 ~~~ s8
   end
-  tb["📓 Tagebuch<br/>2.885 gedachte Trades"]
-  sig["🎯 Signale heute<br/>5 kaufen · 0 warten"]
-  depot["📒 Übungsdepot<br/>9.885 € (-1,2 %)<br/>4 offen"]
+  tb["📓 Tagebuch<br/>3.073 gedachte Trades"]
+  sig["🎯 Signale heute<br/>0 kaufen · 4 warten"]
+  depot["📒 Übungsdepot<br/>9.833 € (-1,7 %)<br/>7 offen"]
   lehren["🎓 Lehren<br/>6 abgeschlossene Trades"]
   kurse --> KERN
   termine -->|Sperre| KERN
@@ -47,9 +48,9 @@ flowchart TB
   classDef aus fill:#22272e,stroke:#6e7681,color:#9ba7b4
   classDef aus2 fill:#2a1846,stroke:#a371f7,color:#e6edf3
   class kurse,termine,regeln ein
-  class markt ein
+  class markt rot
   class tb,sig,depot,lehren aus2
-  class s0,s1,s2,s4,s5,s6,s7 aktiv
+  class s0,s1,s2,s4,s5,s6,s7,s8 aktiv
   class s3 pausiert
   style KERN fill:#0b1016,stroke:#3987e5,color:#e6edf3
 ```
@@ -62,20 +63,20 @@ flowchart TB
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-11-05]] · Diese Woche: [[Wochen/2026-W45|Woche 45]]
+## Heute: [[Tage/2026-11-06]] · Diese Woche: [[Wochen/2026-W45|Woche 45]]
 
-- Signale: [[Aktien/AAPL|AAPL]] (🟢 KAUFEN), [[Aktien/AMZN|AMZN]] (🟢 KAUFEN), [[Aktien/PLTR|PLTR]] (🟢 KAUFEN), [[Aktien/XOM|XOM]] (🟢 KAUFEN), [[Aktien/COST|COST]] (🟢 KAUFEN)
-- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 04.11. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
+- Signale: keine
+- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Do 05.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
 
 ## Übungsdepot
 
-- 9.884,66 € (-1,2 % seit 2026-10-20) · 4 offen · 6 Trades · Ø -0,02 R · Treffer 67 %
+- 9.832,83 € (-1,7 % seit 2026-10-20) · 7 offen · 6 Trades · Ø -0,02 R · Treffer 67 %
 - Letzte Trades: [[Trades/2026-11-03 MSFT RSI-2-Rücksetzer Long|MSFT +1,0 R]], [[Trades/2026-11-02 XOM Ausbruch Long|XOM -1,2 R]], [[Trades/2026-10-21 HIMS Rücksetzer Long|HIMS -1,0 R]], [[Trades/2026-10-21 AAPL Rücksetzer Long|AAPL +0,6 R]], [[Trades/2026-10-21 NOW Squeeze-Ausbruch Long|NOW +0,1 R]]
-- Rückblick 12 Monate: +5,7 % (alle Aktien kaufen und halten: -11,8 %)
+- Rückblick 12 Monate: +0,4 % (alle Aktien kaufen und halten: -5,8 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
-- ✅ aktiv: [[Strategien/Ausbruch Long|Ausbruch ↑]], [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]], [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]], [[Strategien/Rücksetzer Long|Rücksetzer ↑]], [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]], [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]], [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]
+- ✅ aktiv: [[Strategien/Ausbruch Long|Ausbruch ↑]], [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]], [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]], [[Strategien/Rücksetzer Long|Rücksetzer ↑]], [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]], [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]], [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]], [[Strategien/Trendlinien-Ausbruch Long|Trendlinien-Ausbruch ↑]]
 - ⏸ pausiert: [[Strategien/MACD-Wende Long|MACD-Wende ↑]]
 - – Short ausgeschaltet: [[Strategien/Abbruch Short|Abbruch ↓]], [[Strategien/RSI-2-Übertreibung Short|RSI-2-Übertreibung ↓]], [[Strategien/Rückfall Short|Rückfall ↓]], [[Strategien/MACD-Wende Short|MACD-Wende ↓]], [[Strategien/Erholung Short|Erholung ↓]], [[Strategien/Squeeze-Abbruch Short|Squeeze-Abbruch ↓]], [[Strategien/EMA-Kreuz Short|EMA-Kreuz ↓]], [[Strategien/ATR-Abbruch Short|ATR-Abbruch ↓]]
 

@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=TSLA)
 
-**Stand Do 05.11. 2026:** BEOBACHTEN
+**Stand Fr 06.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 27.01.
 
 ## Übungsdepot
@@ -19,7 +19,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 124 Trades · Ø -0,02 R · Treffer 45 %
+- **Alle Strategien zusammen:** 131 Trades · Ø -0,05 R · Treffer 44 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 12 Trades · Ø +0,35 R · Treffer 58 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 18 Trades · Ø -0,14 R · Treffer 39 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 7 Trades · Ø +0,10 R · Treffer 57 %
@@ -28,6 +28,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 7 Trades · Ø +0,23 R · Treffer 57 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 18 Trades · Ø +0,05 R · Treffer 39 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 16 Trades · Ø -0,14 R · Treffer 38 %
+- [[Strategien/Trendlinien-Ausbruch Long|Trendlinien-Ausbruch ↑]]: 7 Trades · Ø -0,51 R · Treffer 29 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

@@ -10,7 +10,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=JPM)
 
-**Stand Do 05.11. 2026:** BEOBACHTEN
+**Stand Fr 06.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 14.01.
 
 ## Übungsdepot
@@ -19,7 +19,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 138 Trades · Ø +0,18 R · Treffer 62 %
+- **Alle Strategien zusammen:** 145 Trades · Ø +0,18 R · Treffer 62 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 7 Trades · Ø +0,29 R · Treffer 71 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 30 Trades · Ø +0,12 R · Treffer 53 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 10 Trades · Ø +0,20 R · Treffer 60 %
@@ -28,6 +28,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 8 Trades · Ø +0,57 R · Treffer 75 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 11 Trades · Ø +0,27 R · Treffer 73 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 25 Trades · Ø -0,07 R · Treffer 48 %
+- [[Strategien/Trendlinien-Ausbruch Long|Trendlinien-Ausbruch ↑]]: 7 Trades · Ø +0,18 R · Treffer 71 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%

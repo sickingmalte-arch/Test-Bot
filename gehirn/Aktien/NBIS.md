@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=NBIS)
 
-**Stand Do 05.11. 2026:** BEOBACHTEN
+**Stand Fr 06.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 12.11.
 
 ## Übungsdepot
@@ -19,7 +19,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 61 Trades · Ø +0,27 R · Treffer 64 %
+- **Alle Strategien zusammen:** 66 Trades · Ø +0,23 R · Treffer 61 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 8 Trades · Ø +0,55 R · Treffer 88 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 11 Trades · Ø +0,35 R · Treffer 64 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 4 Trades · Ø +0,07 R · Treffer 75 %
@@ -28,6 +28,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 3 Trades · Ø +0,53 R · Treffer 67 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 5 Trades · Ø -0,36 R · Treffer 20 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 11 Trades · Ø +0,09 R · Treffer 55 %
+- [[Strategien/Trendlinien-Ausbruch Long|Trendlinien-Ausbruch ↑]]: 5 Trades · Ø -0,16 R · Treffer 20 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]
 %% BOT-ENDE %%
