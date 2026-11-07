@@ -240,5 +240,60 @@
    0.7,
    0.4
   ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "ehrlicher_check_2",
+  "name": "Ehrlicher Check 2: Watchlist nach Regel, halb Bot halb S&P 500, echte Stärke der Strategien",
+  "urteil": "Watchlist nach Umsatz: besteht nicht; Watchlist nach Stärke: besteht nicht; halb Bot, halb S&P 500: besteht nicht; Strategien mit echtem Vorteil: gegenbewegung_long",
+  "plus": [
+   -2.0,
+   -1.1,
+   0.9
+  ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "gegenbewegung_nachtest",
+  "name": "Nachtest Gegenbewegung: auf neuen Zufallslisten besser als Zufallskäufe? Und ein Bot nur mit ihr?",
+  "urteil": "Gegenbewegung gegen Zufallskäufe auf neuen Listen: besteht; Bot nur mit Gegenbewegung besser als der volle Bot: nein",
+  "plus": [
+   -9.3,
+   -3.3,
+   -3.6
+  ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "kaufzeit_ohne_luecke",
+  "name": "Kaufzeit 3: Kauf zur Eröffnung nur ohne Kurslücke nach oben (Eröffnung nicht über dem Schluss des Signaltags)",
+  "urteil": "nicht überall besser",
+  "plus": [
+   0.8,
+   1.9,
+   -3.6
+  ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "kaufzeit_schluss_folgetag",
+  "name": "Kaufzeit 2: Kauf zum Schlusskurs am nächsten Tag (statt zur Eröffnung), Limit wie heute",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -1.2,
+   0.5,
+   -1.0
+  ]
+ },
+ {
+  "datum": "2026-11-06",
+  "datei": "kaufzeit_schluss_signaltag",
+  "name": "Kaufzeit 1: Kauf zum Schlusskurs am Signaltag (statt zur Eröffnung am nächsten Tag)",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.5,
+   0.1,
+   -0.3
+  ]
  }
 ]

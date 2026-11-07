@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 48
+    "nicht übernommen" : 55
 ```
 
 ## ✅ Steckt im Bot
@@ -88,6 +88,13 @@ pie showData
 | Branchen-Rotation (3 stärkste Branchen-ETFs) | +7 bis +15 %, nirgends mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
 | Nasdaq-100 nur über der 200-Tage-Linie halten | +13 bis +18 %, nur 2022–2026 mehr Rendite pro Rückgang als der Bot | [[Notizen/Forschung – Tagebuch]] |
 | Ruhige Aktien (20 mit geringster Schwankung) | +6 bis +15 %, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Watchlist nach Regel: 24 meistgehandelte S&P-500-Aktien | +10,3 / +3,3 / +4,0 %, nicht besser als zufällige Listen | [[Notizen/Forschung – Tagebuch]] |
+| Watchlist nach Regel: 24 stärkste Aktien (12 Monate) | +6,2 / +2,8 / +4,0 %, schlechter als zufällige Listen | [[Notizen/Forschung – Tagebuch]] |
+| Halb Bot, halb S&P 500 halten | besser als der Bot allein, aber weniger Rendite pro Rückgang als der S&P 500 allein | [[Notizen/Forschung – Tagebuch]] |
+| Bot nur mit Gegenbewegung (einzige Strategie knapp besser als Zufallskäufe) | +3,4 / +1,5 / −1,1 % statt +12,7 / +4,7 / +2,5 % | [[Notizen/Forschung – Tagebuch]] |
+| Kaufzeit: zum Schluss des Signaltags | −0,5 / +0,1 / −0,3 Pkt, Rückgänge größer | [[Notizen/Forschung – Tagebuch]] |
+| Kaufzeit: zum Schluss des nächsten Tages | −1,2 / +0,5 / −1,0 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| Kaufzeit: zur Eröffnung nur ohne Lücke nach oben | +0,8 / +1,9 / −3,6 Pkt, 2022–2026 deutlich schlechter | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
