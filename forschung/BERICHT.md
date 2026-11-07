@@ -1,6 +1,6 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Sa 07.11.2026 14:36 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Sa 07.11.2026 16:42 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
 ## 📈 SWING-SCANNER · Daten bis 06.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1228 $
 
@@ -38,10 +38,10 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
 INTU: Intuit (INTU) Stock Drops Despite Market Gains: Important Facts to Note (Zacks, 06.11. 22:45)  
 INTU: Digital Turbine to Report Q2 Earnings: What's in Store for the Stock? (Zacks, 06.11. 16:00)  
-AAPL: Dow Jones Futures: Market Needs Repair But Apple, Amazon, Microsoft Strong; Berkshire Earnings Fall (Investor's Business Daily, 07.11. 14:29)  
-AAPL: Alibaba Just Gained 12% in a Week as the Nasdaq Fell: Take Profits, or Buy More? (TIKR, 07.11. 13:28)  
-MSFT: Dow Jones Futures: Market Needs Repair But Apple, Amazon, Microsoft Strong; Berkshire Earnings Fall (Investor's Business Daily, 07.11. 14:29)  
-MSFT: What Is Behind The Move In Atlassian Stock? (Trefis, 07.11. 13:49)  
+AAPL: Booking vs. DoorDash: Does Going Out or Staying In Make One Stock a Better Buy for 2027? (Motley Fool, 07.11. 15:27)  
+AAPL: Analysts Just Sounded the Alarm on These 5 Overhyped Stocks (Insider Monkey, 07.11. 15:19)  
+MSFT: Fed Chair Kevin Warsh Just Issued a 6-Word Warning That Could Spell Disaster for AI Stocks (24/7 Wall St., 07.11. 16:26)  
+MSFT: OpenAI Just Raised $11 Billion at a $1.25 Trillion Valuation, Below the $1.4 Trillion It First Sought (24/7 Wall St., 07.11. 14:38)  
 PLTR: Palantir Stock Investors Just Got Great News From a Wall Street Analyst (Hint: The Stock Could Soar) (Motley Fool, 07.11. 11:08)  
 PLTR: How Much Should This Move Change Your View Of Snowflake Stock? (Trefis, 07.11. 11:06)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
@@ -89,7 +89,7 @@ Lernregel: Ab 20 Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr a
 
 Depotwert am 06.11.2026: 9.866,31 € (-1,3 %) · davon frei: 5.923,24 € · 4/7 Positionen, offenes Risiko 3,1 %  
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 9.571,83 € (-4,3 %)  
-Neu am 06.11.: eingestiegen: PLTR (Long, 3 Stück zu 141,46 €), COST (Long, 2 Stück zu 931,84 €), AMZN (Long, 3 Stück zu 231,62 €); ausgestiegen: XOM (Stop (Kurslücke), -104,59 €); nicht ausgeführt (Limit nicht erreicht, Kurslücke, kein Platz/Geld oder schon 2 aus derselben Branche im Depot): AAPL.  
+Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 06.11.2026).  
 Abgeschlossene Trades: 3 · Gewinner: 1 (33 %) · Summe -104,96 € · größter Rückgang 1,7 % · Kosten: Gebühren 0,00 € + Spread ca. 12,69 €  
 Keine Aufträge für den nächsten Handelstag.  
 Gespeichert in: forschung/experiment\_depot.json im Repository (neu anfangen: die Datei im Repository löschen, die Historie bei GitHub behält den alten Stand). Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, 0,00 € Gebühr + 0,1 % Spread je Order.  
