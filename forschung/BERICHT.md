@@ -1,6 +1,6 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Sa 07.11.2026 16:42 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Sa 07.11.2026 17:53 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
 ## 📈 SWING-SCANNER · Daten bis 06.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1228 $
 
@@ -38,10 +38,10 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
 INTU: Intuit (INTU) Stock Drops Despite Market Gains: Important Facts to Note (Zacks, 06.11. 22:45)  
 INTU: Digital Turbine to Report Q2 Earnings: What's in Store for the Stock? (Zacks, 06.11. 16:00)  
+AAPL: Dow Jones Futures: Market Needs Repair But Apple, Amazon, Microsoft Strong; Berkshire Doubles Stock Buyback (Investor's Business Daily, 07.11. 17:19)  
 AAPL: Booking vs. DoorDash: Does Going Out or Staying In Make One Stock a Better Buy for 2027? (Motley Fool, 07.11. 15:27)  
-AAPL: Analysts Just Sounded the Alarm on These 5 Overhyped Stocks (Insider Monkey, 07.11. 15:19)  
-MSFT: Fed Chair Kevin Warsh Just Issued a 6-Word Warning That Could Spell Disaster for AI Stocks (24/7 Wall St., 07.11. 16:26)  
-MSFT: OpenAI Just Raised $11 Billion at a $1.25 Trillion Valuation, Below the $1.4 Trillion It First Sought (24/7 Wall St., 07.11. 14:38)  
+MSFT: Dow Jones Futures: Market Needs Repair But Apple, Amazon, Microsoft Strong; Berkshire Doubles Stock Buyback (Investor's Business Daily, 07.11. 17:19)  
+MSFT: AI Stocks Diverge as Democratic Election Victory Sparks Rotation Into Cloud Giants (InvestorsHub, 07.11. 16:54)  
 PLTR: Palantir Stock Investors Just Got Great News From a Wall Street Analyst (Hint: The Stock Could Soar) (Motley Fool, 07.11. 11:08)  
 PLTR: How Much Should This Move Change Your View Of Snowflake Stock? (Trefis, 07.11. 11:06)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
