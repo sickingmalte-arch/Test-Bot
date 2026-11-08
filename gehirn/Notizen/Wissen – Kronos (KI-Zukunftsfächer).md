@@ -32,8 +32,8 @@ Kronos-small, je 50 Zukünfte über 20 Handelstage, gerechnet bei GitHub (etwa 2
 
 | Aktie | Stop / Ziel | Kronos 256 Tage: Ziel / Stop zuerst · Mitte nach 20 Tagen | Kronos 64 Tage: Ziel / Stop zuerst · Mitte | Zufallsweg: Ziel zuerst |
 |---|---|---|---|---:|
-| AAPL | −7,7 / +7,7 % | 2 % / 96 % · −8,9 % (Kurs 18 % über Ø) | – | 27 % |
-| AMZN | −10,9 / +10,9 % | 6 % / 6 % · +0,9 % (8 % über Ø) | – | 25 % |
+| AAPL | −7,7 / +7,7 % | 2 % / 96 % · −8,9 % (Kurs 18 % über Ø) | 0 % / 8 % · −1,1 % (4 % über Ø) | 27 % |
+| AMZN | −10,9 / +10,9 % | 6 % / 6 % · +0,9 % (8 % über Ø) | 2 % / 2 % · −1,3 % (2 % über Ø) | 25 % |
 | COST | −5,7 / +5,7 % | 0 % / 100 % · −9,5 % (12 % über Ø) | 0 % / 100 % · −10,6 % (12 % über Ø) | 32 % |
 | PLTR | −15,7 / +12,5 % | 44 % / 50 % · −3,2 % (3 % unter Ø) | 100 % / 0 % · +17,4 % (16 % unter Ø) | 46 % |
 | XOM | −7,3 / +5,9 % | 4 % / 72 % · −2,6 % (13 % über Ø) | 80 % / 14 % · +5,9 % (1 % unter Ø) | 43 % |
