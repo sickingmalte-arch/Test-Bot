@@ -27,6 +27,19 @@ Stand: 08.11.2026 · Anlass: TikTok-Video „Kronos: KI rechnet 100 Bitcoin-Zuk�
 - **Ein Rückblick mit Kronos wäre unehrlich** – das Modell kann die Jahre 2010–2026 im Training gesehen haben.
 - **Deshalb läuft seit dem 08.11.2026 ein Versuch nur nach vorne** (`forschung/kronos_versuch.py`, GitHub-Lauf „Kronos-Versuch“): Für jedes neue Kauf-Signal rechnet Kronos-small 50 Zukünfte über 20 Handelstage. Verglichen wird mit einem Zufallsweg, ob zuerst das Ziel oder der Stop kommt. Vorher festgelegt: Ab 30 ausgewerteten Signalen zählt Kronos nur als besser, wenn sein Brier-Wert klar unter dem des Zufallswegs liegt (90-%-Intervall ganz unter 0). Der Bot kauft nicht danach.
 
+## Probeläufe am 08.11.2026 (Signale vom 05.11., noch ohne Ergebnis)
+Kronos-small, je 50 Zukünfte über 20 Handelstage, gerechnet bei GitHub (etwa 2,5 Minuten je Aktie):
+
+| Aktie | Stop / Ziel | Kronos 256 Tage: Ziel / Stop zuerst · Mitte nach 20 Tagen | Kronos 64 Tage: Ziel / Stop zuerst · Mitte | Zufallsweg: Ziel zuerst |
+|---|---|---|---|---:|
+| AAPL | −7,7 / +7,7 % | 2 % / 96 % · −8,9 % (Kurs 18 % über Ø) | – | 27 % |
+| AMZN | −10,9 / +10,9 % | 6 % / 6 % · +0,9 % (8 % über Ø) | – | 25 % |
+| COST | −5,7 / +5,7 % | 0 % / 100 % · −9,5 % (12 % über Ø) | 0 % / 100 % · −10,6 % (12 % über Ø) | 32 % |
+| PLTR | −15,7 / +12,5 % | 44 % / 50 % · −3,2 % (3 % unter Ø) | 100 % / 0 % · +17,4 % (16 % unter Ø) | 46 % |
+| XOM | −7,3 / +5,9 % | 4 % / 72 % · −2,6 % (13 % über Ø) | 80 % / 14 % · +5,9 % (1 % unter Ø) | 43 % |
+
+**Befund:** Auf Tageskerzen von Aktien zieht Kronos den Kurs fast immer zum Durchschnitt des Rückblick-Fensters zurück – egal ob 256 oder 64 Tage – und das mit großer Sicherheit (oft alle 50 Zukünfte in dieselbe Richtung). Seine Tageskerzen sind etwa 1,2- bis 1,7-mal so groß wie echte. Das passt zu den Nutzerberichten („Hang zur Rückkehr zum Mittelwert“). Ob das zufällig manchmal stimmt, zeigt erst der Versuch nach vorne – bei so festen 0-%/100-%-Aussagen wird jeder Irrtum im Brier-Wert teuer.
+
 ## Quellen
 - Repository und Code: https://github.com/shiyu-coder/Kronos
 - Paper: https://arxiv.org/abs/2508.02739 · AAAI: https://ojs.aaai.org/index.php/AAAI/article/view/39730
