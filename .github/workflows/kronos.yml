@@ -1,5 +1,5 @@
 # Kronos-Versuch nach vorne (siehe forschung/kronos_versuch.py): Nach jedem Morgen-Lauf des Bots rechnet die KI Kronos
-# für neue Kauf-Signale 50 mögliche Zukünfte aus; nach 20 Handelstagen wird mit den echten Kursen verglichen.
+# für neue Kauf-Signale je 50 mögliche Zukünfte aus (Rückblick 256 und 64 Tage); nach 20 Handelstagen Vergleich mit echten Kursen.
 # Nur eine Messung – der Bot kauft und verkauft nicht danach. Die Depots werden nie angefasst.
 # Sicherheit: Gerechnet wird ohne Schreibrechte (fremder Modellcode liegt fest im Repo, von Hugging Face kommen nur die
 # Gewichte); gespeichert wird in einem eigenen Schritt, der nur die beiden Ergebnis-Dateien übernimmt.

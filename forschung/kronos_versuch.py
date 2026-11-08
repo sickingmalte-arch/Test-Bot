@@ -4,16 +4,17 @@ Kronos (github.com/shiyu-coder/Kronos, AAAI 2026) ist eine KI, die mit über 12 
 trainiert wurde und viele mögliche Zukünfte eines Kursverlaufs ausrechnet. Ein Rückblick wäre unehrlich, weil das
 Modell die Kurse von 2010–2026 im Training schon gesehen haben kann. Deshalb nur NACH VORNE:
 
-- Jeden Abend nach dem Bot-Lauf: Für jedes neue Kauf-Signal rechnet Kronos-small 50 Zukünfte über 20 Handelstage
-  (so lange hält der Bot höchstens) aus den letzten 256 Tageskerzen. Gezählt wird, wie viele Zukünfte zuerst das Ziel
+- Jeden Abend nach dem Bot-Lauf: Für jedes neue Kauf-Signal rechnet Kronos-small je 50 Zukünfte über 20 Handelstage
+  (so lange hält der Bot höchstens) – in zwei Varianten: aus den letzten 256 und aus den letzten 64 Tageskerzen
+  (Probeläufe zeigten mit 256 Tagen einen starken Zug zurück zum Durchschnitt des Rückblicks). Gezählt wird, wie viele Zukünfte zuerst das Ziel
   erreichen und wie viele zuerst den Stop (am selben Tag beides: Stop zuerst – wie im Bot).
 - Vergleich: dieselbe Frage mit einem Zufallsweg (Brownsche Bewegung ohne Richtung, Schwankung der letzten 250 Tage),
   also die einfache „Formel“. Kronos ist nur nützlich, wenn es besser vorhersagt als dieser Zufallsweg.
 - Nach 20 Handelstagen wird mit den echten Kursen nachgesehen, was wirklich zuerst kam.
 
-Vorher festgelegt (zählt erst ab 30 ausgewerteten Signalen): Kronos ist besser, wenn sein Brier-Wert (mittlerer
-quadratischer Fehler der Wahrscheinlichkeit „Ziel vor Stop“, kleiner = besser) unter dem des Zufallswegs liegt und
-das 90-%-Bootstrap-Intervall des Unterschieds ganz unter 0 liegt. Sonst: nicht besser.
+Vorher festgelegt (zählt erst ab 30 ausgewerteten Signalen, je Variante): Kronos ist besser, wenn sein Brier-Wert
+(mittlerer quadratischer Fehler der Wahrscheinlichkeit „Ziel vor Stop“, kleiner = besser) unter dem des Zufallswegs
+liegt und das 90-%-Bootstrap-Intervall des Unterschieds ganz unter 0 liegt. Sonst: nicht besser. 2 Varianten.
 
 Aufruf: python forschung/kronos_versuch.py --modus pruefen   (nur: gibt es etwas zu tun? für GitHub Actions)
         python forschung/kronos_versuch.py --modus lauf [--probe] [--ausgabe ordner]"""
@@ -36,7 +37,7 @@ WARTEN_KALENDERTAGE = 32  # nach so vielen Kalendertagen sind 20 Handelstage sic
 MODELL = os.environ.get("KRONOS_MODELL", "NeoQuasar/Kronos-small")
 TOKENIZER = os.environ.get("KRONOS_TOKENIZER", "NeoQuasar/Kronos-Tokenizer-base")
 PFADE = int(os.environ.get("KRONOS_PFADE", "50"))
-RUECKBLICK = int(os.environ.get("KRONOS_RUECKBLICK", "256"))
+RUECKBLICKE = [int(x) for x in os.environ.get("KRONOS_RUECKBLICKE", "256,64").split(",")]
 MAX_SIGNALE = int(os.environ.get("KRONOS_MAX_SIGNALE", "8"))
 
 
@@ -129,11 +130,11 @@ def kurse(ticker, start, ende=None, roh=False):
     return df
 
 
-def kronos_zukuenfte(predictor, df, n, seed):
+def kronos_zukuenfte(predictor, df, n, seed, rueckblick):
     """n einzelne Zukünfte (Kronos mittelt mehrere Proben sonst zu einem Pfad – deshalb n Kopien mit je 1 Probe)."""
     import torch
     torch.manual_seed(seed)
-    x = df.tail(RUECKBLICK)
+    x = df.tail(rueckblick)
     x_df = x[["open", "high", "low", "close", "volume"]].reset_index(drop=True).astype(float)
     x_ts = pd.Series(x.index)
     y_ts = pd.Series(pd.bdate_range(pd.Timestamp(x.index[-1]) + pd.DateOffset(days=1), periods=TAGE))
@@ -161,40 +162,44 @@ def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=Fa
     for s in neu:
         t0 = time.time()
         df = kurse_fn(s["ticker"], start, ende)
-        if df is None or df.empty or df.index[-1].date().isoformat() != tag or len(df) < RUECKBLICK:
+        if df is None or df.empty or df.index[-1].date().isoformat() != tag or len(df) < max(RUECKBLICKE):
             print(f"{s['ticker']}: keine passenden Kurse bis {tag} – übersprungen")
             continue
         kurs_usd = float(df["close"].iloc[-1])
         stop, ziel = kurs_usd * s["stop"] / s["kurs"], kurs_usd * s["ziel"] / s["kurs"]
         seed = sum(map(ord, s["ticker"] + tag))
-        wege = kronos_zukuenfte(predictor, df, PFADE, seed)
-        erg = [ausgang(w["open"].to_numpy(), w["high"].to_numpy(), w["low"].to_numpy(), stop, ziel)[0] for w in wege]
-        ende20 = np.array([w["close"].iloc[-1] / kurs_usd - 1 for w in wege]) * 100
         p_zufall, vola = zufallsweg(df["close"].to_numpy(), kurs_usd, stop, ziel, seed=seed)
+        spanne_echt = float(((df["high"] - df["low"]) / df["close"]).tail(60).mean()) * 100
+        varianten = {}
+        for rb in RUECKBLICKE:
+            t1 = time.time()
+            wege = kronos_zukuenfte(predictor, df, PFADE, seed, rb)
+            erg = [ausgang(w["open"].to_numpy(), w["high"].to_numpy(), w["low"].to_numpy(), stop, ziel)[0] for w in wege]
+            ende20 = np.array([w["close"].iloc[-1] / kurs_usd - 1 for w in wege]) * 100
+            varianten[str(rb)] = {
+                "p_ziel": round(erg.count("ziel") / len(erg), 3), "p_stop": round(erg.count("stop") / len(erg), 3),
+                "nach_20_tagen_prozent": {"q10": round(float(np.percentile(ende20, 10)), 2),
+                                          "mitte": round(float(np.median(ende20)), 2),
+                                          "q90": round(float(np.percentile(ende20, 90)), 2)},
+                "tagesspanne_prozent": round(float(np.mean([((w["high"] - w["low"]) / w["close"]).mean()
+                                                            for w in wege])) * 100, 2),
+                "abstand_zum_mittel_prozent": round((kurs_usd / float(df["close"].tail(rb).mean()) - 1) * 100, 1),
+                "sekunden": round(time.time() - t1, 1)}
         e = {"signal_tag": tag, "ticker": s["ticker"], "strategie": s.get("strategie"), "kurs_usd": round(kurs_usd, 4),
              "stop_abstand": round((stop / kurs_usd - 1) * 100, 2), "ziel_abstand": round((ziel / kurs_usd - 1) * 100, 2),
-             "p_ziel_kronos": round(erg.count("ziel") / len(erg), 3), "p_stop_kronos": round(erg.count("stop") / len(erg), 3),
-             "p_ziel_zufall": round(p_zufall, 3), "ziel_chance_bot": s.get("chance"),
-             "kronos_20t_prozent": {"q10": round(float(np.percentile(ende20, 10)), 2),
-                                    "mitte": round(float(np.median(ende20)), 2),
-                                    "q90": round(float(np.percentile(ende20, 90)), 2)},
-             "vola_tag_prozent": round(vola * 100, 2), "modell": MODELL, "pfade": len(erg), "rueckblick": RUECKBLICK,
-             "sekunden": round(time.time() - t0, 1), "erstellt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")}
+             "kronos": varianten, "p_ziel_zufall": round(p_zufall, 3), "ziel_chance_bot": s.get("chance"),
+             "vola_tag_prozent": round(vola * 100, 2), "tagesspanne_echt_prozent": round(spanne_echt, 2),
+             "modell": MODELL, "pfade": PFADE, "sekunden": round(time.time() - t0, 1),
+             "erstellt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")}
         if probe:
             e["probe"] = True
         log.append(e)
-        print(f"{s['ticker']}: Kronos Ziel zuerst {e['p_ziel_kronos']:.0%}, Stop zuerst {e['p_stop_kronos']:.0%} · "
-              f"Zufallsweg Ziel zuerst {p_zufall:.0%} · {e['sekunden']} s")
-        # Prüfung der Kerzen: Spanne (Hoch−Tief) der Kronos-Zukünfte gegen die echten letzten 60 Tage, Richtung
-        spanne_k = float(np.mean([((w["high"] - w["low"]) / w["close"]).mean() for w in wege])) * 100
-        spanne_echt = float(((df["high"] - df["low"]) / df["close"]).tail(60).mean()) * 100
-        tag1 = float(np.mean([w["close"].iloc[0] / kurs_usd - 1 for w in wege])) * 100
-        e["pruefung"] = {"spanne_kronos_prozent": round(spanne_k, 2), "spanne_echt_prozent": round(spanne_echt, 2),
-                         "tag1_schnitt_prozent": round(tag1, 2),
-                         "abstand_mittel_rueckblick_prozent": round((kurs_usd / float(df["close"].tail(RUECKBLICK).mean()) - 1) * 100, 1)}
-        print(f"   Stop {e['stop_abstand']:+.1f} %, Ziel {e['ziel_abstand']:+.1f} % · Kronos nach 20 Tagen "
-              f"{e['kronos_20t_prozent']} · Tagesspanne Kronos {spanne_k:.2f} % / echt {spanne_echt:.2f} % · "
-              f"Tag 1 Ø {tag1:+.2f} % · Kurs über Ø der {RUECKBLICK} Tage {e['pruefung']['abstand_mittel_rueckblick_prozent']:+.1f} %")
+        print(f"{s['ticker']}: Stop {e['stop_abstand']:+.1f} %, Ziel {e['ziel_abstand']:+.1f} %, echte Tagesspanne "
+              f"{spanne_echt:.2f} % · Zufallsweg Ziel zuerst {p_zufall:.0%}")
+        for rb, v in varianten.items():
+            print(f"   Kronos {rb} Tage: Ziel zuerst {v['p_ziel']:.0%}, Stop zuerst {v['p_stop']:.0%} · nach 20 Tagen "
+                  f"{v['nach_20_tagen_prozent']} · Tagesspanne {v['tagesspanne_prozent']:.2f} % · Kurs über Ø "
+                  f"{v['abstand_zum_mittel_prozent']:+.1f} % · {v['sekunden']} s")
     return len(neu)
 
 
@@ -228,50 +233,76 @@ def brier(p, y):
     return float(np.mean((np.asarray(p, float) - np.asarray(y, float)) ** 2))
 
 
+def _vergleich(fertig, rb):
+    """Brier-Werte Kronos-Variante gegen Zufallsweg, mit 90-%-Bootstrap-Intervall des Unterschieds."""
+    y = [1 if e["ergebnis"] == "ziel" else 0 for e in fertig]
+    pk = [e["kronos"][rb]["p_ziel"] for e in fertig]
+    pz = [e["p_ziel_zufall"] for e in fertig]
+    rng = np.random.default_rng(0)
+    diffs = []
+    for _ in range(2000):
+        idx = rng.integers(0, len(fertig), len(fertig))
+        diffs.append(brier([pk[i] for i in idx], [y[i] for i in idx]) - brier([pz[i] for i in idx], [y[i] for i in idx]))
+    lo, hi = np.percentile(diffs, [5, 95])
+    return brier(pk, y), brier(pz, y), float(lo), float(hi), float(np.mean(pk)), float(np.mean(pz)), float(np.mean(y))
+
+
 def bericht(log):
-    fertig = [e for e in log if not e.get("probe") and e.get("ergebnis") in ("ziel", "stop", "zeit")]
-    offen = [e for e in log if not e.get("probe") and "ergebnis" not in e]
+    eigene = [e for e in log if not e.get("probe") and "kronos" in e]
+    fertig = [e for e in eigene if e.get("ergebnis") in ("ziel", "stop", "zeit")]
+    offen = [e for e in eigene if "ergebnis" not in e]
+    varianten = [str(rb) for rb in RUECKBLICKE]
     z = ["# 🔮 Kronos-Versuch (nach vorne)", "",
-         f"Stand {dt.date.today():%d.%m.%Y} · Modell {MODELL}, {PFADE} Zukünfte je Signal, {TAGE} Handelstage, "
-         f"Rückblick {RUECKBLICK} Tageskerzen. Nur eine Messung – der Bot kauft nicht danach.", "",
+         f"Stand {dt.date.today():%d.%m.%Y} · Modell {MODELL}, {PFADE} Zukünfte je Signal und Variante, {TAGE} "
+         f"Handelstage, Rückblick {' bzw. '.join(varianten)} Tageskerzen. Nur eine Messung – der Bot kauft nicht danach.", "",
          "**Frage:** Sagt Kronos besser voraus, ob ein Kauf-Signal zuerst das Ziel oder zuerst den Stop erreicht, als "
          "ein Zufallsweg ohne Richtung (die einfache Formel)?", "",
-         f"**Vorher festgelegt:** Ab {MIN_AUSWERTUNG} ausgewerteten Signalen gilt Kronos als besser, wenn sein Brier-Wert "
-         "kleiner ist als der des Zufallswegs und das 90-%-Bootstrap-Intervall des Unterschieds ganz unter 0 liegt.", ""]
+         f"**Vorher festgelegt:** Ab {MIN_AUSWERTUNG} ausgewerteten Signalen gilt eine Kronos-Variante als besser, wenn "
+         "ihr Brier-Wert kleiner ist als der des Zufallswegs und das 90-%-Bootstrap-Intervall des Unterschieds ganz "
+         "unter 0 liegt. 2 Varianten (256 und 64 Tage Rückblick).", "",
+         "**Schon in den Probeläufen sichtbar:** Mit 256 Tagen Rückblick zieht Kronos den Kurs stark zum Durchschnitt "
+         "der letzten 256 Tage zurück (z. B. Apple 18 % darüber → alle 50 Zukünfte −7 bis −13 % in 20 Tagen), und seine "
+         "Tageskerzen sind etwa 1,5-mal so groß wie echte. Das deckt sich mit Nutzerberichten (Hang zur Rückkehr zum "
+         "Mittelwert).", ""]
     if fertig:
-        y = [1 if e["ergebnis"] == "ziel" else 0 for e in fertig]
-        bk, bz = brier([e["p_ziel_kronos"] for e in fertig], y), brier([e["p_ziel_zufall"] for e in fertig], y)
-        rng = np.random.default_rng(0)
-        diffs = []
-        for _ in range(2000):
-            idx = rng.integers(0, len(fertig), len(fertig))
-            diffs.append(brier([fertig[i]["p_ziel_kronos"] for i in idx], [y[i] for i in idx])
-                         - brier([fertig[i]["p_ziel_zufall"] for i in idx], [y[i] for i in idx]))
-        lo, hi = np.percentile(diffs, [5, 95])
-        if len(fertig) < MIN_AUSWERTUNG:
-            urteil = f"noch zu wenig Signale ({len(fertig)} von {MIN_AUSWERTUNG}) – noch keine Aussage"
-        elif bk < bz and hi < 0:
-            urteil = "Kronos sagt besser voraus als der Zufallsweg"
-        else:
-            urteil = "Kronos ist nicht besser als der Zufallsweg"
-        z += [f"**Ergebnis:** {urteil}", "", "| | Kronos | Zufallsweg |", "|---|---:|---:|",
-              f"| Brier-Wert (kleiner = besser) | {de(bk, '.3f')} | {de(bz, '.3f')} |",
-              f"| Ø vorhergesagte Chance „Ziel zuerst“ | {np.mean([e['p_ziel_kronos'] for e in fertig]):.0%} | "
-              f"{np.mean([e['p_ziel_zufall'] for e in fertig]):.0%} |",
-              f"| Wirklich Ziel zuerst | {np.mean(y):.0%} | {np.mean(y):.0%} |", "",
-              f"Unterschied Kronos − Zufallsweg: {de(bk - bz, '+.3f')}, 90-%-Intervall {de(lo, '+.3f')} bis "
-              f"{de(hi, '+.3f')} ({len(fertig)} Signale).", ""]
+        z += ["| | " + " | ".join(f"Kronos {rb} Tage" for rb in varianten) + " | Zufallsweg |",
+              "|---|" + "---:|" * (len(varianten) + 1)]
+        werte = {rb: _vergleich(fertig, rb) for rb in varianten}
+        z.append("| Brier-Wert (kleiner = besser) | " + " | ".join(de(werte[rb][0], ".3f") for rb in varianten)
+                 + f" | {de(werte[varianten[0]][1], '.3f')} |")
+        z.append("| Ø vorhergesagte Chance „Ziel zuerst“ | " + " | ".join(f"{werte[rb][4]:.0%}" for rb in varianten)
+                 + f" | {werte[varianten[0]][5]:.0%} |")
+        z.append(f"| Wirklich Ziel zuerst | " + " | ".join(f"{werte[rb][6]:.0%}" for rb in varianten)
+                 + f" | {werte[varianten[0]][6]:.0%} |")
+        z.append("")
+        for rb in varianten:
+            bk, bz, lo, hi = werte[rb][:4]
+            if len(fertig) < MIN_AUSWERTUNG:
+                urteil = f"noch zu wenig Signale ({len(fertig)} von {MIN_AUSWERTUNG}) – noch keine Aussage"
+            elif bk < bz and hi < 0:
+                urteil = "sagt besser voraus als der Zufallsweg"
+            else:
+                urteil = "nicht besser als der Zufallsweg"
+            z.append(f"- **Kronos {rb} Tage:** {urteil} (Unterschied {de(bk - bz, '+.3f')}, 90-%-Intervall "
+                     f"{de(lo, '+.3f')} bis {de(hi, '+.3f')}, {len(fertig)} Signale)")
+        z.append("")
     else:
         z += ["**Ergebnis:** noch keine Signale ausgewertet (das geht frühestens 20 Handelstage nach dem Signal).", ""]
-    z += ["## Alle Signale", "", "| Signaltag | Aktie | Strategie | Kronos: Ziel / Stop zuerst | Zufallsweg: Ziel zuerst "
-          "| Kronos in 20 Tagen (10 % / Mitte / 90 %) | Ergebnis |", "|---|---|---|---:|---:|---|---|"]
-    for e in sorted((e for e in log if not e.get("probe")), key=lambda e: (e["signal_tag"], e["ticker"]), reverse=True):
-        q = e["kronos_20t_prozent"]
-        z.append(f"| {e['signal_tag']} | {e['ticker']} | {e.get('strategie') or ''} | {e['p_ziel_kronos']:.0%} / "
-                 f"{e['p_stop_kronos']:.0%} | {e['p_ziel_zufall']:.0%} | {de(q['q10'], '+.1f')} / "
-                 f"{de(q['mitte'], '+.1f')} / {de(q['q90'], '+.1f')} % | {e.get('ergebnis', 'offen')} |")
+    z += ["## Alle Signale", "", "| Signaltag | Aktie | Strategie | Stop / Ziel | "
+          + " | ".join(f"Kronos {rb}: Ziel / Stop zuerst · Mitte nach 20 Tagen" for rb in varianten)
+          + " | Zufallsweg: Ziel zuerst | Ergebnis |", "|---|---|---|---|" + "---|" * len(varianten) + "---:|---|"]
+    for e in sorted(eigene, key=lambda e: (e["signal_tag"], e["ticker"]), reverse=True):
+        zellen = []
+        for rb in varianten:
+            v = e["kronos"].get(rb)
+            zellen.append(f"{v['p_ziel']:.0%} / {v['p_stop']:.0%} · {de(v['nach_20_tagen_prozent']['mitte'], '+.1f')} %"
+                          if v else "–")
+        z.append(f"| {e['signal_tag']} | {e['ticker']} | {e.get('strategie') or ''} | "
+                 f"{de(e['stop_abstand'], '+.1f')} / {de(e['ziel_abstand'], '+.1f')} % | " + " | ".join(zellen)
+                 + f" | {e['p_ziel_zufall']:.0%} | {e.get('ergebnis', 'offen')} |")
     z += ["", f"Offen: {len(offen)} Signale warten auf ihre 20 Handelstage. Kronos-Code: `forschung/kronos_modell/` "
-          "(MIT-Lizenz). Simulation, keine Anlageberatung."]
+          "(MIT-Lizenz). Hintergrund: `gehirn/Notizen/Wissen – Kronos (KI-Zukunftsfächer).md`. Simulation, keine "
+          "Anlageberatung."]
     return "\n".join(z) + "\n"
 
 
