@@ -321,6 +321,11 @@ sie ehrlich. Das Rechnen übernimmt GitHub (`forschung.yml`):
 Ergebnisse stehen im Gehirn (`Forschung – Tagebuch`) und auf der Webseite im Bereich „Forschung“. **In den Bot kommt
 eine Idee nur per Pull Request nach deinem „Ja“.** Mehr dazu in [forschung/README.md](forschung/README.md).
 
+
+### Kronos-Versuch (KI rechnet viele Zukünfte, nur nach vorne)
+
+Seit dem 08.11.2026 rechnet nach jedem Morgen-Lauf die offene KI **Kronos** (Tsinghua-Universität, AAAI 2026, MIT-Lizenz) für jedes neue Kauf-Signal 50 mögliche Zukünfte über 20 Handelstage aus und zählt, wie oft zuerst das Ziel und wie oft zuerst der Stop kommt. Zum Vergleich dieselbe Frage mit einem Zufallsweg ohne Richtung. Nach 20 Handelstagen wird mit den echten Kursen verglichen (`forschung/kronos_ergebnis.md`). Ein Rückblick wäre unehrlich, weil das Modell die alten Kurse im Training gesehen haben kann. Vorher festgelegt: Ab 30 ausgewerteten Signalen zählt Kronos nur als besser, wenn es klar genauer ist als der Zufallsweg. **Der Bot kauft nicht danach.** Gerechnet wird bei GitHub (Lauf „Kronos-Versuch“), ohne Claude-Tokens. Hintergrund: `gehirn/Notizen/Wissen – Kronos (KI-Zukunftsfächer).md`.
+
 ### Sicherheits-Check (automatischer Test)
 
 Bei jedem Pull Request und jeder Änderung in `main` startet GitHub den Ablauf `.github/workflows/tests.yml` („Sicherheits-Check“). Schlägt ein Test fehl, ist der Pull Request rot (❌) – dann bitte nicht übernehmen.
