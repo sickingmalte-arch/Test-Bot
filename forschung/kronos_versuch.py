@@ -136,7 +136,7 @@ def kronos_zukuenfte(predictor, df, n, seed):
     x = df.tail(RUECKBLICK)
     x_df = x[["open", "high", "low", "close", "volume"]].reset_index(drop=True).astype(float)
     x_ts = pd.Series(x.index)
-    y_ts = pd.Series(pd.bdate_range(x.index[-1] + pd.Timedelta(days=1), periods=TAGE))
+    y_ts = pd.Series(pd.bdate_range(pd.Timestamp(x.index[-1]) + pd.DateOffset(days=1), periods=TAGE))
     return predictor.predict_batch([x_df] * n, [x_ts] * n, [y_ts] * n, pred_len=TAGE, T=1.0, top_p=0.9,
                                    sample_count=1, verbose=False)
 
@@ -185,6 +185,16 @@ def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=Fa
         log.append(e)
         print(f"{s['ticker']}: Kronos Ziel zuerst {e['p_ziel_kronos']:.0%}, Stop zuerst {e['p_stop_kronos']:.0%} · "
               f"Zufallsweg Ziel zuerst {p_zufall:.0%} · {e['sekunden']} s")
+        # Prüfung der Kerzen: Spanne (Hoch−Tief) der Kronos-Zukünfte gegen die echten letzten 60 Tage, Richtung
+        spanne_k = float(np.mean([((w["high"] - w["low"]) / w["close"]).mean() for w in wege])) * 100
+        spanne_echt = float(((df["high"] - df["low"]) / df["close"]).tail(60).mean()) * 100
+        tag1 = float(np.mean([w["close"].iloc[0] / kurs_usd - 1 for w in wege])) * 100
+        e["pruefung"] = {"spanne_kronos_prozent": round(spanne_k, 2), "spanne_echt_prozent": round(spanne_echt, 2),
+                         "tag1_schnitt_prozent": round(tag1, 2),
+                         "abstand_mittel_rueckblick_prozent": round((kurs_usd / float(df["close"].tail(RUECKBLICK).mean()) - 1) * 100, 1)}
+        print(f"   Stop {e['stop_abstand']:+.1f} %, Ziel {e['ziel_abstand']:+.1f} % · Kronos nach 20 Tagen "
+              f"{e['kronos_20t_prozent']} · Tagesspanne Kronos {spanne_k:.2f} % / echt {spanne_echt:.2f} % · "
+              f"Tag 1 Ø {tag1:+.2f} % · Kurs über Ø der {RUECKBLICK} Tage {e['pruefung']['abstand_mittel_rueckblick_prozent']:+.1f} %")
     return len(neu)
 
 
