@@ -3,7 +3,7 @@ tags: [wissen, ki, forschung]
 ---
 # 🔮 Wissen – Kronos (KI rechnet viele Zukünfte)
 
-Stand: 08.11.2026 · Anlass: TikTok-Video „Kronos: KI rechnet 100 Bitcoin-Zukünfte durch und liegt trotzdem …“. Zurück zur [[Start|Startseite]] · Versuch im Bot: `forschung/kronos_ergebnis.md` · alle Tests: [[Notizen/Was der Bot schon weiß]].
+Stand: 09.11.2026 · Anlass: TikTok-Video „Kronos: KI rechnet 100 Bitcoin-Zukünfte durch und liegt trotzdem …“. Zurück zur [[Start|Startseite]] · Versuch im Bot: `forschung/kronos_ergebnis.md` · alle Tests: [[Notizen/Was der Bot schon weiß]].
 
 ## Was Kronos ist
 - **Ein „Grundmodell“ für Kerzen-Charts** (K-Linien) von der Tsinghua-Universität, offen (MIT-Lizenz): [github.com/shiyu-coder/Kronos](https://github.com/shiyu-coder/Kronos). Paper „Kronos: A Foundation Model for the Language of Financial Markets“ (arXiv 2508.02739, August 2025), angenommen bei der Konferenz AAAI 2026.
@@ -26,6 +26,14 @@ Stand: 08.11.2026 · Anlass: TikTok-Video „Kronos: KI rechnet 100 Bitcoin-Zuk�
 - Das deckt sich mit unseren eigenen Tests: Schwankung lässt sich vorhersagen, Richtung kaum (Lernmodell, Muster-Gedächtnis, Ziel-Chance).
 - **Ein Rückblick mit Kronos wäre unehrlich** – das Modell kann die Jahre 2010–2026 im Training gesehen haben.
 - **Deshalb läuft seit dem 08.11.2026 ein Versuch nur nach vorne** (`forschung/kronos_versuch.py`, GitHub-Lauf „Kronos-Versuch“): Für jedes neue Kauf-Signal rechnet Kronos-small 50 Zukünfte über 20 Handelstage. Verglichen wird mit einem Zufallsweg, ob zuerst das Ziel oder der Stop kommt. Vorher festgelegt: Ab 30 ausgewerteten Signalen zählt Kronos nur als besser, wenn sein Brier-Wert klar unter dem des Zufallswegs liegt (90-%-Intervall ganz unter 0). Der Bot kauft nicht danach.
+
+## Erweiterung am 09.11.2026 (Wunsch: „bau alles“)
+Aus dem Befund oben drei Verbesserungen, alle vor dem Rechnen festgelegt und nur als Messung:
+1. **Schwankung statt Richtung:** Das Paper nennt die Schwankung als Stärke (9 % kleinerer Fehler). Jetzt wird auch die vorhergesagte Tagesspanne (Hoch−Tief) und die Schwankung der Schlusskurse gespeichert und nach 20 Tagen mit der echten verglichen. Vergleich: einfach die letzten 20 Tage fortschreiben. Zusätzlich ohne Urteil: die Rangfolge – erkennt Kronos wenigstens, welche Aktien unruhiger werden, auch wenn seine Kerzen zu groß sind?
+2. **Weniger übermütig:** Variante „small-64-T15“ rechnet mit mehr Zufall (Temperatur 1,5 statt 1,0, ohne Abschneiden der unwahrscheinlichen Zeichen). Wenn die festen 0-%/100-%-Aussagen nur daher kommen, dass das Modell zu sicher würfelt, sollte der Brier-Wert hier besser werden.
+3. **Das größere Modell:** Variante „base-256“ mit Kronos-base (102 Mio. statt 24,7 Mio. Parameter). Es rechnet etwa viermal so lange, deshalb nur die ersten 3 Signale am Tag und nur, solange das Zeitbudget (80 Minuten) reicht.
+
+Damit sind es 4 Varianten × 2 Fragen = 8 Vergleiche. Bei so vielen kann einer zufällig gut aussehen – das steht im Bericht dabei. Urteil je Variante erst ab 30 ausgewerteten Signalen.
 
 ## Probeläufe am 08.11.2026 (Signale vom 05.11., noch ohne Ergebnis)
 Kronos-small, je 50 Zukünfte über 20 Handelstage, gerechnet bei GitHub (etwa 2,5 Minuten je Aktie):

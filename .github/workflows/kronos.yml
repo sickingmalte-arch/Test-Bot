@@ -1,5 +1,6 @@
 # Kronos-Versuch nach vorne (siehe forschung/kronos_versuch.py): Nach jedem Morgen-Lauf des Bots rechnet die KI Kronos
-# für neue Kauf-Signale je 50 mögliche Zukünfte aus (Rückblick 256 und 64 Tage); nach 20 Handelstagen Vergleich mit echten Kursen.
+# für neue Kauf-Signale je 50 mögliche Zukünfte aus (4 Varianten: small-256, small-64, small-64 mit mehr Zufall, das größere
+# base-256 für die ersten 3 Signale); nach 20 Handelstagen Vergleich mit echten Kursen (Richtung und Schwankung).
 # Nur eine Messung – der Bot kauft und verkauft nicht danach. Die Depots werden nie angefasst.
 # Sicherheit: Gerechnet wird ohne Schreibrechte (fremder Modellcode liegt fest im Repo, von Hugging Face kommen nur die
 # Gewichte); gespeichert wird in einem eigenen Schritt, der nur die beiden Ergebnis-Dateien übernimmt.
@@ -25,7 +26,7 @@ jobs:
   rechnen:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     permissions:
       contents: read
     outputs:
@@ -54,7 +55,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
-          key: kronos-gewichte-small-v1
+          key: kronos-gewichte-v2 # small + base
       - name: Kronos rechnen und auswerten
         if: steps.pruefen.outputs.noetig == 'true'
         env:
