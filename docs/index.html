@@ -361,7 +361,9 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .lern .lern-trade { padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
 /* Kronos-Versuch */
 .kronos-stapel { display: grid; gap: 12px; }
-.kronos-tabellen { display: grid; gap: 14px; margin-top: 8px; }
+.kronos-tabellen { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 8px; }
+.kronos-tabellen > div { min-width: 0; }
+.kronos-tabellen th { white-space: normal; }
 .kronos-tabellen td:last-child { white-space: normal; }
 .kronos-tabellen .scroll { overflow-x: auto; }
 .kronos .karten { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 12px; }
@@ -1230,7 +1232,7 @@ const ERKLAERUNG = {
   ueberhitzt: ["Überhitzt – nur Info", "RSI über 70 oder Kurs am oberen Bollinger-Band: Die Aktie ist in kurzer Zeit stark gestiegen. Das Übungsdepot verkauft deshalb nicht. Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr: Die Gewinner werden früh verkauft, die Verlierer laufen trotzdem bis zum Stop. Gerade nach einem Ausbruch steigt eine überhitzte Aktie oft weiter bis zum Ziel. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen."],
   muster: ["Muster und Nachrichten", "Kerzenmuster vom Poster (z. B. Hammer, Bullish Engulfing, Shooting Star) am Signaltag, bei Ausbrüchen und Doppelböden das Musterziel (Höhe des Musters nach oben verlängert) und wie viele gute und schlechte Schlagzeilen es in den letzten Tagen gab. Nur zur Info: Als Kaufregel oder Ziel hat das im Test über 16 Jahre nicht geholfen, der Bot kauft und verkauft deshalb nicht danach. Auf der Lehren-Seite im Gehirn prüft er weiter, ob Signale mit Muster oder guten Nachrichten besser laufen. Boden: das letzte Wendetief unter dem Kurs (tiefer als die 5 Tage davor und danach) und wie oft der Kurs im letzten halben Jahr dort gedreht hat. Unterstützung: bis zu 3 Zonen darunter – Wendetiefs (je 5 und je 10 Tage), alte Hochs, über die der Kurs gestiegen ist, offene Kurslücken, Kurse mit viel Handel und die nächste runde Zahl; was höchstens 1 % auseinanderliegt, ist eine Zone. Im Chart als U1–U3. Widerstand (W im Chart): der letzte Hochpunkt über dem Kurs. Trendlinie (gestrichelt): die fallende Linie durch die letzten zwei Hochpunkte. Alles nur zur Info – Regeln mit Boden, Widerstand oder Trendlinie haben im Test über 16 Jahre nicht geholfen."],
   live: ["Live", "Mo–Fr von 12 bis 22 Uhr läuft Live: Sobald die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit, in den Wochen der Zeitumstellung 14:30–21:00 Uhr), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
-  kronos: ["Kronos-Versuch", "Kronos ist eine offene KI der Tsinghua-Universität, trainiert mit über 12 Milliarden Kerzen von 45 Börsen. Für jedes neue Kauf-Signal rechnet sie 50 mögliche Zukünfte der nächsten 20 Handelstage aus – jede ein bisschen anders, wie Würfeln mit Erfahrung. Daraus ergibt sich der Fächer. Geprüft wird nur nach vorne, weil die KI die alten Kurse im Training gesehen haben kann. Zwei Fragen: Kommt zuerst das Ziel oder der Stop (Vergleich: ein Zufallsweg ohne Richtung)? Und wie stark schwankt die Aktie (Vergleich: die letzten 20 Tage)? Der Fehler ist bei der Richtung der Brier-Wert (0 = perfekt, kleiner ist besser), bei der Schwankung die mittlere Abweichung der Tagesspanne. Ein Urteil gibt es je Variante erst ab 30 ausgewerteten Signalen. Der Bot kauft nicht danach."],
+  kronos: ["Kronos-Versuch", "Kronos ist eine offene KI der Tsinghua-Universität, trainiert mit über 12 Milliarden Kerzen von 45 Börsen. Für jedes neue Kauf-Signal rechnet sie 50 mögliche Zukünfte der nächsten 20 Handelstage aus – jede ein bisschen anders, wie Würfeln mit Erfahrung. Daraus ergibt sich der Fächer. Geprüft wird nur nach vorne, weil die KI die alten Kurse im Training gesehen haben kann. Zwei Fragen: Kommt zuerst das Ziel oder der Stop (Vergleich: ein Zufallsweg ohne Richtung)? Und wie stark schwankt die Aktie (Vergleich: die letzten 20 Tage)? Der Fehler ist bei der Richtung der Brier-Wert (0 = perfekt, kleiner ist besser), bei der Schwankung die mittlere Abweichung der Tagesspanne. Dazu drei Vorhersagen ohne eigene Rechnung: das Mittel aller Varianten, halb Mittel und halb Zufallsweg (gegen Übermut) und bei der Schwankung das Mittel geeicht (geteilt durch den Faktor, um den Kronos bisher danebenlag – nur aus schon ausgewerteten Signalen). Bei der Richtung muss Kronos auch die Ziel-Chance schlagen, die der Bot schon anzeigt – sonst bringt es dem Bot nichts. Ein Urteil gibt es je Vorhersage erst ab 30 ausgewerteten Signalen (Watchlist: ab 15 Tagen), und „besser“ heißt: Das 98-%-Intervall liegt ganz unter 0. Alles wurde festgelegt, bevor das erste Ergebnis da war. Der Bot kauft nicht danach."],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
 const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
@@ -1954,7 +1956,31 @@ function forschungBauen(F) {
 // Kronos-Versuch (kronos.json, eigener Ablauf nach jedem Morgen-Lauf): Zwischenstand und Zukunftsfächer je Signal
 const KRONOS_TEXT = {
   "small-256": "Klein 256", "small-64": "Klein 64", "small-64-T15": "Klein 64 + Zufall", "base-256": "Groß 256",
+  "mittel": "Mittel aller", "mischung": "Mittel + Zufall", "mittel-geeicht": "Mittel geeicht",
 };
+// Zwischenstand-Tabellen (Kauf-Signale und Watchlist): Fehler Kronos gegen die einfachen Vergleiche
+function kronosStand(A, { mitBot = false, einheit = "Signale" } = {}) {
+  const kurz = u => (u === "nicht besser" ? "nein" : u.replace(/^noch zu wenig (Signale|Tage) \((\d+) von (\d+)\)$/, "zu wenig ($2/$3)"));
+  const urteil = u => el("span", { class: klasse(u), style: "white-space:nowrap" }, kurz(u));
+  const klasse = u => (u === "besser" ? "gut" : u === "nicht besser" ? "schlecht" : "muted");
+  const name = r => el("td", {}, kronosName(r.variante), el("br"), el("span", { class: "muted", style: "font-size:11px" },
+    einheit === "Tage" ? `${r.n} Werte · ${r.tage} Tage` : `${r.n} Signale`));
+  const t1 = el("table", {}, el("thead", {}, el("tr", {}, ["Vorhersage", "Kronos", "Zufall", mitBot ? "Bot" : null, "Besser?"].filter(Boolean).map(h => el("th", {}, h)))),
+    el("tbody", {}, A.richtung.map(r => el("tr", {}, name(r), el("td", {}, zahl(r.fehler_kronos, 3)), el("td", {}, zahl(r.fehler_vergleich, 3)),
+      mitBot ? el("td", {}, r.fehler_bot != null ? zahl(r.fehler_bot, 3) : "–") : null,
+      el("td", {}, urteil(r.urteil), mitBot ? [" / ", r.urteil_bot ? urteil(r.urteil_bot) : "–"] : null)))));
+  const t2 = el("table", {}, el("thead", {}, el("tr", {}, ["Vorhersage", "Kronos", "Letzte 20 T.", "Besser?"].map(h => el("th", {}, h)))),
+    el("tbody", {}, A.schwankung.map(r => el("tr", {}, name(r), el("td", {}, prozent(r.fehler_kronos, 2, false)),
+      el("td", {}, prozent(r.fehler_vergleich, 2, false)), el("td", {}, urteil(r.urteil))))));
+  const schnitt = A.schwankung.length ? el("p", { class: "erklaer", style: "margin-top:6px" }, "Ø vorhergesagte Tagesspanne: ",
+    A.schwankung.map(r => `${kronosName(r.variante)} ${prozent(r.kronos_mittel, 1, false)}`).join(" · "),
+    ` – echt waren es ${prozent(A.schwankung[0].echt_mittel, 1, false)}.`) : null;
+  return el("div", { class: "kronos-tabellen" },
+    el("div", {}, el("p", { class: "erklaer" }, `Richtung: Kommt zuerst das Ziel oder der Stop? Fehler = Brier-Wert, kleiner ist besser. Zufall = Zufallsweg ohne Richtung${mitBot ? ", Bot = die Ziel-Chance, die der Bot schon anzeigt (rechnet ohne Stop)" : ""}. „Mittel + Zufall“ = halb Kronos-Mittel, halb Zufallsweg.${mitBot ? " „Besser?“: erst gegen den Zufall, dann gegen den Bot." : ""}`),
+      el("div", { class: "scroll" }, t1)),
+    el("div", {}, el("p", { class: "erklaer" }, "Schwankung: Wie groß sind die Tageskerzen (Hoch bis Tief) in den 20 Tagen? Fehler = mittlere Abweichung, Vergleich: die letzten 20 Tage."),
+      el("div", { class: "scroll" }, t2), schnitt));
+}
 const kronosName = n => KRONOS_TEXT[n] || n;
 function kronosBauen(K, repo) {
   const farbe = css("--kronos");
@@ -1963,32 +1989,32 @@ function kronosBauen(K, repo) {
   const erstes = sigs.length ? sigs[sigs.length - 1].signal_tag : null;
   const kacheln = el("div", { class: "panel kacheln" },
     kachel("Signale gerechnet", String(Z.gerechnet || 0), erstes ? `seit ${datum(erstes)}` : "ab dem nächsten Morgen-Lauf"),
-    kachel("Ausgewertet", String(Z.ausgewertet || 0), `Urteil je Variante ab ${K.min_auswertung}`),
+    kachel("Ausgewertet", String(Z.ausgewertet || 0), `Urteil je Vorhersage ab ${K.min_auswertung}`),
     kachel("Warten noch", String(Z.offen || 0), K.naechste_auswertung ? `nächste Auswertung ${datum(K.naechste_auswertung)}` : "–"),
     kachel("Kauft der Bot danach?", "Nein", "nur eine Messung"));
 
   // Zwischenstand: je Variante Fehler Kronos gegen den einfachen Vergleich
   const A = K.auswertung || { richtung: [], schwankung: [] };
-  const urteil = u => el("td", { class: u === "besser" ? "gut" : u === "nicht besser" ? "schlecht" : "muted" }, u.replace(/^noch zu wenig Signale \((\d+) von (\d+)\)$/, "zu wenig ($1/$2)"));
-  const stand = el("div", { class: "panel panel-innen" }, el("h3", {}, "Zwischenstand – ist Kronos besser als der einfache Vergleich?"));
+  const huerde = `„Besser“ heißt: kleinerer Fehler, und das ${K.intervall || 98}-%-Intervall des Unterschieds liegt ganz unter 0 – eine strenge Hürde, weil viele Vergleiche laufen und einer sonst zufällig gut aussehen kann.`;
+  const stand = el("div", { class: "panel panel-innen" }, el("h3", {}, "Zwischenstand bei den Kauf-Signalen – ist Kronos besser als der einfache Vergleich?"));
   if (!A.richtung.length) {
-    stand.append(el("p", { class: "erklaer" }, `Noch nichts ausgewertet. Jedes Signal wird nach ${K.tage} Handelstagen mit den echten Kursen nachgeprüft${K.naechste_auswertung ? ` – das erste am ${datum(K.naechste_auswertung)}` : ""}. Ein Urteil gibt es je Variante erst ab ${K.min_auswertung} ausgewerteten Signalen.`));
+    stand.append(el("p", { class: "erklaer" }, `Noch nichts ausgewertet. Jedes Signal wird nach ${K.tage} Handelstagen mit den echten Kursen nachgeprüft${K.naechste_auswertung ? ` – das erste am ${datum(K.naechste_auswertung)}` : ""}. Ein Urteil gibt es je Vorhersage erst ab ${K.min_auswertung} ausgewerteten Signalen. ${huerde}`));
   } else {
-    const t1 = el("table", {}, el("thead", {}, el("tr", {}, ["Variante", "Signale", "Kronos", "Zufall", "Urteil"].map(h => el("th", {}, h)))),
-      el("tbody", {}, A.richtung.map(r => el("tr", {}, el("td", {}, kronosName(r.variante)), el("td", {}, String(r.n)),
-        el("td", {}, zahl(r.fehler_kronos, 3)), el("td", {}, zahl(r.fehler_vergleich, 3)), urteil(r.urteil)))));
-    const t2 = el("table", {}, el("thead", {}, el("tr", {}, ["Variante", "Signale", "Kronos", "Letzte 20 T.", "Urteil"].map(h => el("th", {}, h)))),
-      el("tbody", {}, A.schwankung.map(r => el("tr", {}, el("td", {}, kronosName(r.variante)), el("td", {}, String(r.n)),
-        el("td", {}, prozent(r.fehler_kronos, 2, false)), el("td", {}, prozent(r.fehler_vergleich, 2, false)), urteil(r.urteil)))));
-    const schnitt = A.schwankung.length ? el("p", { class: "erklaer", style: "margin-top:6px" }, "Ø vorhergesagte Tagesspanne: ",
-      A.schwankung.map(r => `${kronosName(r.variante)} ${prozent(r.kronos_mittel, 1, false)}`).join(" · "),
-      ` – echt waren es ${prozent(A.schwankung[0].echt_mittel, 1, false)}.`) : null;
-    stand.append(el("div", { class: "kronos-tabellen" },
-      el("div", {}, el("p", { class: "erklaer" }, "Richtung: Kommt zuerst das Ziel oder der Stop? Fehler = Brier-Wert, kleiner ist besser."), el("div", { class: "scroll" }, t1)),
-      el("div", {}, el("p", { class: "erklaer" }, "Schwankung: Wie groß sind die Tageskerzen (Hoch bis Tief) in den 20 Tagen? Fehler = mittlere Abweichung, Vergleich: die letzten 20 Tage."), el("div", { class: "scroll" }, t2), schnitt)));
+    stand.append(el("p", { class: "erklaer" }, huerde), kronosStand(A, { mitBot: true }));
   }
   if (repo) stand.append(el("p", { class: "erklaer", style: "margin-top:8px" }, "Alle Zahlen: ",
     el("a", { href: `https://github.com/${repo}/blob/main/forschung/kronos_ergebnis.md`, target: "_blank", rel: "noopener" }, "Bericht bei GitHub")));
+
+  // Watchlist täglich: viel mehr Werte, damit das Urteil schneller sicher wird
+  const L = K.liste;
+  let liste = null;
+  if (L) {
+    const LZ = L.zaehler || {};
+    liste = el("div", { class: "panel panel-innen" }, el("h3", {}, "Alle Aktien der Watchlist, jeden Tag"),
+      el("p", { class: "erklaer" }, `Damit das Urteil schneller sicher wird, rechnen die beiden schnellen Varianten jeden Tag für alle Aktien der Watchlist – mit festem Stop −${zahl(L.atr, 0)} ATR und Ziel +${zahl(L.atr, 0)} ATR (ATR = typische Tagesspanne). Aktien am selben Tag laufen oft ähnlich, deshalb zählt hier die Zahl der Tage: Urteil ab ${L.min_tage} ausgewerteten Tagen.`),
+      el("p", { class: "erklaer" }, `Bisher ${LZ.gerechnet || 0} Werte an ${LZ.tage || 0} Tagen gerechnet, ${LZ.ausgewertet || 0} an ${LZ.tage_ausgewertet || 0} Tagen ausgewertet${L.naechste_auswertung ? ` · nächste Auswertung ${datum(L.naechste_auswertung)}` : "."}`));
+    if (L.auswertung && L.auswertung.richtung.length) liste.append(kronosStand(L.auswertung, { einheit: "Tage" }));
+  }
 
   // Fächer je Signal, eine Variante zur Zeit
   const namen = (K.varianten || []).map(v => v.name);
@@ -2023,7 +2049,7 @@ function kronosBauen(K, repo) {
     mehrKnopf);
   karten();
   return abschnitt("kronos", "Kronos-Versuch", "KI rechnet 50 Zukünfte je Kauf-Signal · nur eine Messung",
-    el("div", { class: "lern kronos kronos-stapel" }, kacheln, stand, faecher), { erkl: "kronos" });
+    el("div", { class: "lern kronos kronos-stapel" }, kacheln, stand, liste, faecher), { erkl: "kronos" });
 }
 function kronosKarte(s, name, farbe) {
   const v = (s.kronos || {})[name];

@@ -37,6 +37,18 @@ Aus dem Befund oben drei Verbesserungen, alle vor dem Rechnen festgelegt und nur
 
 Damit sind es 4 Varianten × 2 Fragen = 8 Vergleiche. Bei so vielen kann einer zufällig gut aussehen – das steht im Bericht dabei. Urteil je Variante erst ab 30 ausgewerteten Signalen.
 
+## Zweite Erweiterung am 09.11.2026 abends (Wunsch: „bau alles“)
+Festgelegt, bevor ein einziges Signal ausgewertet war – sonst wäre es Schummeln:
+1. **Mittel ½ + Zufall ½:** halb das Mittel der Kronos-Varianten, halb der Zufallsweg. Mildert die übermütigen 0-%/100-%-Aussagen.
+2. **Mittel aller Varianten:** oft stabiler als jede einzelne Variante.
+3. **Gegen die Bot-Formel:** Kronos muss bei der Richtung auch die Ziel-Chance schlagen, die der Bot schon anzeigt (Black-Scholes, rechnet ohne Stop und liegt deshalb eher zu hoch). Sonst bringt Kronos dem Bot nichts.
+4. **Watchlist täglich:** Die beiden schnellen Varianten (64 Tage, je etwa 30 Sekunden) rechnen jeden Tag für alle Aktien der Watchlist, mit festem Stop −2 ATR und Ziel +2 ATR. Aktien am selben Tag laufen ähnlich – deshalb zählen Tage (Urteil ab 15 ausgewerteten Tagen), und das Intervall zieht ganze Tage. Einzelwerte: `forschung/kronos_liste_log.json`.
+5. **Mittel geeicht (Schwankung):** Kronos’ Tageskerzen sind zu groß. Geteilt wird durch den Faktor, um den Kronos bisher danebenlag – gemessen nur an Signalen, die am Signaltag schon ausgewertet waren (Median, mindestens 10). Kein Blick in die Zukunft.
+
+**Strengere Hürde:** Mit allen Vergleichen gilt „besser“ nur noch, wenn das **98-%-Intervall** (statt 90 %) des Unterschieds ganz unter 0 liegt. Bei so vielen Vergleichen sähe sonst leicht einer zufällig gut aus.
+
+**Noch eine Idee für später:** Die Gewichte von Kronos wurden etwa im August 2025 veröffentlicht. Kurse danach kann das Modell nicht im Training gesehen haben. Ein Rückblick nur über die Zeit danach (rund ein Jahr) wäre also ehrlich und würde viel schneller hunderte Auswertungen liefern – vorher müsste man das genaue Datum der Gewichte prüfen.
+
 ## Probeläufe am 08.11.2026 (Signale vom 05.11., noch ohne Ergebnis)
 Kronos-small, je 50 Zukünfte über 20 Handelstage, gerechnet bei GitHub (etwa 2,5 Minuten je Aktie):
 
