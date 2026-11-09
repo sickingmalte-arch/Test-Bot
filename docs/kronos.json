@@ -39,9 +39,30 @@
   "offen": 0
  },
  "naechste_auswertung": null,
+ "intervall": 98,
  "auswertung": {
   "richtung": [],
   "schwankung": []
  },
- "signale": []
+ "signale": [],
+ "liste": {
+  "varianten": [
+   "small-64",
+   "small-64-T15"
+  ],
+  "atr": 2.0,
+  "min_tage": 15,
+  "zaehler": {
+   "gerechnet": 0,
+   "ausgewertet": 0,
+   "offen": 0,
+   "tage": 0,
+   "tage_ausgewertet": 0
+  },
+  "naechste_auswertung": null,
+  "auswertung": {
+   "richtung": [],
+   "schwankung": []
+  }
+ }
 }

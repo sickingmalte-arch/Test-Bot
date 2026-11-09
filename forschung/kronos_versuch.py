@@ -21,8 +21,19 @@ Modell die Kurse von 2010–2026 im Training schon gesehen haben kann. Deshalb n
 
 Vorher festgelegt (zählt erst ab 30 ausgewerteten Signalen, je Variante): Eine Variante ist besser, wenn ihr Fehler
 (Richtung: Brier-Wert der Wahrscheinlichkeit „Ziel zuerst“; Schwankung: mittlere Abweichung der Tagesspanne) unter dem
-des Vergleichs liegt und das 90-%-Bootstrap-Intervall des Unterschieds ganz unter 0 liegt. Sonst: nicht besser.
-4 Varianten × 2 Fragen – bei so vielen Vergleichen kann einer zufällig gut aussehen, das steht im Bericht dabei.
+des Vergleichs liegt und das Bootstrap-Intervall des Unterschieds ganz unter 0 liegt. Sonst: nicht besser.
+
+Erweiterung am 09.11.2026 abends (Wunsch „bau alles“), festgelegt bevor ein einziges Signal ausgewertet war:
+- Abgeleitete Vorhersagen ohne eigene Rechnung: „Mittel“ = Durchschnitt aller Varianten, die für das Signal gerechnet
+  haben; „Mittel ½ + Zufall ½“ = halb Mittel, halb Zufallsweg (gegen Übermut); „Mittel geeicht“ (Schwankung) = Mittel
+  geteilt durch den Faktor, um den Kronos bisher danebenlag – gemessen nur an Signalen, die zum Signaltag schon
+  ausgewertet waren (Median, mindestens 10), also ohne Blick in die Zukunft.
+- Zweiter Vergleich bei der Richtung: die Ziel-Chance des Bots (Black-Scholes, rechnet ohne Stop und liegt deshalb eher
+  zu hoch – aber das ist, was der Bot heute schon anzeigt). Kronos nützt dem Bot nur, wenn es auch die schlägt.
+- Watchlist täglich: Für alle Aktien der Watchlist rechnen die beiden schnellen Varianten (small-64, small-64-T15) mit
+  festem Stop −2 ATR und Ziel +2 ATR (ATR 14). Weil Aktien am selben Tag ähnlich laufen, wird hier nach Tagen gezogen
+  (Bootstrap über Tage) und erst ab 15 ausgewerteten Tagen geurteilt.
+- Weil es jetzt viele Vergleiche sind, gilt für alle die strengere Hürde: 98-%-Intervall (vorher 90 %).
 
 Für die Webseite (docs/kronos.json): je Signal und Variante der „Fächer“ (10-%-, 50-%- und 90-%-Linie der 50 Zukünfte
 für jeden der 20 Tage) und nach der Auswertung der echte Verlauf.
@@ -57,16 +68,25 @@ VARIANTEN = [
     {"name": "small-64-T15", "modell": "NeoQuasar/Kronos-small", "rueckblick": 64, "T": 1.5, "top_p": 1.0, "max": 8},
     {"name": "base-256", "modell": "NeoQuasar/Kronos-base", "rueckblick": 256, "T": 1.0, "top_p": 0.9, "max": 3},
 ]
+MISCHUNG = 0.5  # Anteil Kronos in „Mittel ½ + Zufall ½“
+EICH_MIN = 10  # so viele schon ausgewertete Signale braucht der Eich-Faktor
+INTERVALL = (1, 99)  # Bootstrap-Intervall in Prozent (98 %)
+LISTE_VARIANTEN = ["small-64", "small-64-T15"]  # täglich für alle Aktien der Watchlist (je etwa 30 s)
+LISTE_ATR = 2.0  # Watchlist: Stop −2 ATR, Ziel +2 ATR
+LISTE_MIN_TAGE = 15  # Urteil erst ab so vielen ausgewerteten Tagen
+LISTE_BUDGET_SEK = 60 * int(os.environ.get("KRONOS_LISTE_BUDGET_MIN", "115"))  # ab Laufbeginn, danach Schluss
 _PREDICTOREN = {}
 
 
 # ---------------------------------------------------------------- Dateien
 def pfade(ausgabe=None):
-    """Log, Bericht und Webseiten-Daten – im Repo oder (GitHub-Lauf ohne Schreibrechte) in einem eigenen Ordner."""
+    """Log, Bericht, Webseiten-Daten und Watchlist-Log – im Repo oder (GitHub-Lauf ohne Schreibrechte) in einem eigenen
+    Ordner."""
     if ausgabe:
-        return tuple(os.path.join(ausgabe, n) for n in ("kronos_log.json", "kronos_ergebnis.md", "kronos.json"))
+        return tuple(os.path.join(ausgabe, n) for n in ("kronos_log.json", "kronos_ergebnis.md", "kronos.json",
+                                                         "kronos_liste_log.json"))
     return (os.path.join(HIER, "kronos_log.json"), os.path.join(HIER, "kronos_ergebnis.md"),
-            os.path.join(WURZEL, "docs", "kronos.json"))
+            os.path.join(WURZEL, "docs", "kronos.json"), os.path.join(HIER, "kronos_liste_log.json"))
 
 
 def lies_log(datei):
@@ -175,8 +195,41 @@ def kronos_zukuenfte(predictor, df, n, seed, rueckblick, T, top_p):
                                    sample_count=1, verbose=False)
 
 
-def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=False):
-    t_start = time.time()
+def kronos_variante(predictor, df, kurs_usd, stop, ziel, seed, v, faecher=True):
+    """Eine Variante für ein Signal: Ziel/Stop zuerst, Ende nach 20 Tagen, Tagesspanne, Schwankung (und der Fächer)."""
+    t1 = time.time()
+    wege = kronos_zukuenfte(predictor, df, PFADE, seed, v["rueckblick"], v["T"], v["top_p"])
+    erg = [ausgang(w["open"].to_numpy(), w["high"].to_numpy(), w["low"].to_numpy(), stop, ziel)[0] for w in wege]
+    verlauf = np.array([w["close"].to_numpy(float) / kurs_usd - 1 for w in wege]) * 100  # Zukünfte × Tage
+    ende20 = verlauf[:, -1]
+    sv = np.array([spanne_und_vola(w, start_kurs=kurs_usd) for w in wege])
+    x = {"p_ziel": round(erg.count("ziel") / len(erg), 3), "p_stop": round(erg.count("stop") / len(erg), 3),
+         "nach_20_tagen_prozent": {"q10": round(float(np.percentile(ende20, 10)), 2),
+                                   "mitte": round(float(np.median(ende20)), 2),
+                                   "q90": round(float(np.percentile(ende20, 90)), 2)},
+         "tagesspanne_prozent": round(float(sv[:, 0].mean()), 3), "vola_prozent": round(float(sv[:, 1].mean()), 3),
+         "abstand_zum_mittel_prozent": round((kurs_usd / float(df["close"].tail(v["rueckblick"]).mean()) - 1) * 100, 1)}
+    if faecher:
+        x["faecher"] = {k: [round(float(q), 2) for q in np.percentile(verlauf, qq, axis=0)]
+                        for k, qq in (("q10", 10), ("mitte", 50), ("q90", 90))}
+    x["sekunden"] = round(time.time() - t1, 1)
+    return x
+
+
+def atr_prozent(df, n=14):
+    """Mittlere wahre Spanne der letzten n Tage in Prozent vom letzten Schluss."""
+    h, lo, c = df["high"].to_numpy(float), df["low"].to_numpy(float), df["close"].to_numpy(float)
+    tr = np.maximum(h[1:] - lo[1:], np.maximum(abs(h[1:] - c[:-1]), abs(lo[1:] - c[:-1])))
+    return float(np.mean(tr[-n:]) / c[-1] * 100)
+
+
+def zeitraum(tag):
+    return ((dt.date.fromisoformat(tag) - dt.timedelta(days=700)).isoformat(),
+            (dt.date.fromisoformat(tag) + dt.timedelta(days=1)).isoformat())
+
+
+def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=False, t_start=None):
+    t_start = t_start or time.time()
     tag = daten["daten_bis"]
     if daten.get("vorlaeufig"):
         print("Daten noch vorläufig – nichts zu tun.")
@@ -190,8 +243,7 @@ def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=Fa
     if not neu:
         print(f"Signale vom {tag}: nichts Neues.")
         return 0
-    start = (dt.date.fromisoformat(tag) - dt.timedelta(days=700)).isoformat()
-    ende = (dt.date.fromisoformat(tag) + dt.timedelta(days=1)).isoformat()
+    start, ende = zeitraum(tag)
     laenge = max(v["rueckblick"] for v in VARIANTEN)
     for nr, s in enumerate(neu):
         t0 = time.time()
@@ -208,22 +260,7 @@ def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=Fa
         for v in VARIANTEN:
             if nr >= v["max"] or (v["max"] < MAX_SIGNALE and time.time() - t_start > ZEITBUDGET_SEK):
                 continue
-            t1 = time.time()
-            wege = kronos_zukuenfte(predictor_fn(v["modell"]), df, PFADE, seed, v["rueckblick"], v["T"], v["top_p"])
-            erg = [ausgang(w["open"].to_numpy(), w["high"].to_numpy(), w["low"].to_numpy(), stop, ziel)[0] for w in wege]
-            verlauf = np.array([w["close"].to_numpy(float) / kurs_usd - 1 for w in wege]) * 100  # Zukünfte × Tage
-            ende20 = verlauf[:, -1]
-            sv = np.array([spanne_und_vola(w, start_kurs=kurs_usd) for w in wege])
-            varianten[v["name"]] = {
-                "p_ziel": round(erg.count("ziel") / len(erg), 3), "p_stop": round(erg.count("stop") / len(erg), 3),
-                "nach_20_tagen_prozent": {"q10": round(float(np.percentile(ende20, 10)), 2),
-                                          "mitte": round(float(np.median(ende20)), 2),
-                                          "q90": round(float(np.percentile(ende20, 90)), 2)},
-                "tagesspanne_prozent": round(float(sv[:, 0].mean()), 3), "vola_prozent": round(float(sv[:, 1].mean()), 3),
-                "abstand_zum_mittel_prozent": round((kurs_usd / float(df["close"].tail(v["rueckblick"]).mean()) - 1) * 100, 1),
-                "faecher": {k: [round(float(x), 2) for x in np.percentile(verlauf, q, axis=0)]
-                            for k, q in (("q10", 10), ("mitte", 50), ("q90", 90))},
-                "sekunden": round(time.time() - t1, 1)}
+            varianten[v["name"]] = kronos_variante(predictor_fn(v["modell"]), df, kurs_usd, stop, ziel, seed, v)
         e = {"signal_tag": tag, "ticker": s["ticker"], "strategie": s.get("strategie"), "kurs_usd": round(kurs_usd, 4),
              "stop_abstand": round((stop / kurs_usd - 1) * 100, 2), "ziel_abstand": round((ziel / kurs_usd - 1) * 100, 2),
              "kronos": varianten, "p_ziel_zufall": round(p_zufall, 3), "ziel_chance_bot": s.get("chance"),
@@ -243,7 +280,51 @@ def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=Fa
     return len(neu)
 
 
-def auswertung(log, heute, kurse_fn=kurse):
+def liste_vorhersage(daten, liste, predictor_fn=lade_predictor, kurse_fn=kurse, probe=False, t_start=None):
+    """Alle Aktien der Watchlist (die Zeilen in daten.json) mit den schnellen Varianten, Stop −2 ATR, Ziel +2 ATR."""
+    t_start = t_start or time.time()
+    tag = daten["daten_bis"]
+    if daten.get("vorlaeufig"):
+        return 0
+    schon = {(e["signal_tag"], e["ticker"]) for e in liste}
+    ticker = [s["ticker"] for s in daten.get("signale", []) if (tag, s["ticker"]) not in schon][:3 if probe else None]
+    start, ende = zeitraum(tag)
+    varianten = [v for v in VARIANTEN if v["name"] in LISTE_VARIANTEN]
+    n = 0
+    for t in ticker:
+        if time.time() - t_start > LISTE_BUDGET_SEK:
+            print(f"Watchlist: Zeitbudget erreicht – {len(ticker) - n} Aktien heute nicht gerechnet.")
+            break
+        df = kurse_fn(t, start, ende)
+        if df is None or df.empty or df.index[-1].date().isoformat() != tag or len(df) < 260:
+            print(f"Watchlist {t}: keine passenden Kurse bis {tag} – übersprungen")
+            continue
+        kurs_usd = float(df["close"].iloc[-1])
+        atr = atr_prozent(df)
+        stop, ziel = kurs_usd * (1 - LISTE_ATR * atr / 100), kurs_usd * (1 + LISTE_ATR * atr / 100)
+        seed = sum(map(ord, t + tag))
+        p_zufall, _ = zufallsweg(df["close"].to_numpy(), kurs_usd, stop, ziel, seed=seed)
+        spanne20, vola20 = spanne_und_vola(df.tail(TAGE + 1).iloc[1:], start_kurs=float(df["close"].iloc[-TAGE - 1]))
+        k = {}
+        for v in varianten:
+            x = kronos_variante(predictor_fn(v["modell"]), df, kurs_usd, stop, ziel, seed, v, faecher=False)
+            k[v["name"]] = {key: x[key] for key in ("p_ziel", "p_stop", "tagesspanne_prozent", "vola_prozent")}
+            k[v["name"]]["mitte_20"] = x["nach_20_tagen_prozent"]["mitte"]
+        e = {"signal_tag": tag, "ticker": t, "kurs_usd": round(kurs_usd, 4), "atr_prozent": round(atr, 2),
+             "stop_abstand": round((stop / kurs_usd - 1) * 100, 2), "ziel_abstand": round((ziel / kurs_usd - 1) * 100, 2),
+             "kronos": k, "p_ziel_zufall": round(p_zufall, 3),
+             "letzte_20_tage": {"tagesspanne_prozent": round(spanne20, 3), "vola_prozent": round(vola20, 3)}}
+        if probe:
+            e["probe"] = True
+        liste.append(e)
+        n += 1
+        print(f"Watchlist {t}: ±{LISTE_ATR * atr:.1f} % · Zufallsweg {p_zufall:.0%} · "
+              + " · ".join(f"{name} {v['p_ziel']:.0%}/{v['p_stop']:.0%}, Spanne {v['tagesspanne_prozent']:.2f} %"
+                           for name, v in k.items()) + f" (letzte 20 T. {spanne20:.2f} %)")
+    return n
+
+
+def auswertung(log, heute, kurse_fn=kurse, verlauf=True):
     n = 0
     for e in log:
         if e.get("probe") or not faellig(e, heute):
@@ -254,6 +335,8 @@ def auswertung(log, heute, kurse_fn=kurse):
         if df is None or len(df) < TAGE:
             continue
         df = df[df.index > pd.Timestamp(tag)].head(TAGE)
+        if len(df) < TAGE:
+            continue
         k = e["kurs_usd"]
         if abs(df["open"].iloc[0] / k - 1) > 0.5:
             e["ergebnis"], e["hinweis"] = "unklar", "Kurssprung über 50 % (Split?) – nicht gewertet"
@@ -263,7 +346,8 @@ def auswertung(log, heute, kurse_fn=kurse):
                                                   stop, ziel)
         spanne, vola = spanne_und_vola(df, start_kurs=k)
         e["echt"] = {"tagesspanne_prozent": round(spanne, 3), "vola_prozent": round(vola, 3)}
-        e["echt_verlauf"] = [round((float(c) / k - 1) * 100, 2) for c in df["close"]]
+        if verlauf:
+            e["echt_verlauf"] = [round((float(c) / k - 1) * 100, 2) for c in df["close"]]
         n += 1
     return n
 
@@ -276,17 +360,24 @@ def brier(p, y):
     return float(np.mean((np.asarray(p, float) - np.asarray(y, float)) ** 2))
 
 
-def _bootstrap(fehler_a, fehler_b, seed=0):
-    """90-%-Intervall des Unterschieds mittlerer Fehler (a − b), wenn man die Signale neu zieht."""
-    a, b = np.asarray(fehler_a, float), np.asarray(fehler_b, float)
+def _bootstrap(fehler_a, fehler_b, gruppen=None, seed=0):
+    """Intervall (INTERVALL) des Unterschieds mittlerer Fehler (a − b), wenn man die Signale neu zieht – bei der
+    Watchlist die Tage (gruppen), weil Aktien am selben Tag ähnlich laufen."""
+    d_alle = np.asarray(fehler_a, float) - np.asarray(fehler_b, float)
     rng = np.random.default_rng(seed)
-    d = [float(np.mean(a[i] - b[i])) for i in (rng.integers(0, len(a), len(a)) for _ in range(2000))]
-    return float(np.percentile(d, 5)), float(np.percentile(d, 95))
+    if gruppen is None:
+        d = [float(np.mean(d_alle[i])) for i in (rng.integers(0, len(d_alle), len(d_alle)) for _ in range(2000))]
+    else:
+        g = pd.Series(d_alle).groupby(np.asarray(gruppen))
+        summe, anzahl = g.sum().to_numpy(), g.size().to_numpy()
+        d = [float(summe[i].sum() / anzahl[i].sum()) for i in (rng.integers(0, len(summe), len(summe))
+                                                                  for _ in range(2000))]
+    return float(np.percentile(d, INTERVALL[0])), float(np.percentile(d, INTERVALL[1]))
 
 
-def _urteil(n, a, b, hi):
-    if n < MIN_AUSWERTUNG:
-        return f"noch zu wenig Signale ({n} von {MIN_AUSWERTUNG})"
+def _urteil(n, a, b, hi, minimum=MIN_AUSWERTUNG, einheit="Signale"):
+    if n < minimum:
+        return f"noch zu wenig {einheit} ({n} von {minimum})"
     return "besser" if a < b and hi < 0 else "nicht besser"
 
 
@@ -302,44 +393,104 @@ def teile(log):
             [e for e in eigene if "ergebnis" not in e])
 
 
-def tabellen(log):
-    """Zwischenstand je Variante für beide Fragen (Bericht und Webseite rechnen damit gleich)."""
-    _, fertig, _ = teile(log)
-    y = {id(e): 1 if e["ergebnis"] == "ziel" else 0 for e in fertig}
-    out = {"richtung": [], "schwankung": []}
-    for v in VARIANTEN:
-        name = v["name"]
-        teil = [e for e in fertig if name in e["kronos"]]
-        if teil:
-            fk = [(e["kronos"][name]["p_ziel"] - y[id(e)]) ** 2 for e in teil]
-            fz = [(e["p_ziel_zufall"] - y[id(e)]) ** 2 for e in teil]
-            lo, hi = _bootstrap(fk, fz)
-            out["richtung"].append({
-                "variante": name, "n": len(teil), "fehler_kronos": round(float(np.mean(fk)), 4),
-                "fehler_vergleich": round(float(np.mean(fz)), 4), "lo": round(lo, 4), "hi": round(hi, 4),
-                "chance_kronos": round(float(np.mean([e["kronos"][name]["p_ziel"] for e in teil])), 3),
-                "wirklich_ziel": round(float(np.mean([y[id(e)] for e in teil])), 3),
-                "urteil": _urteil(len(teil), np.mean(fk), np.mean(fz), hi)})
-        teil = [e for e in teil if "echt" in e and "tagesspanne_prozent" in e["kronos"][name]]
-        if teil:
-            echt = [e["echt"]["tagesspanne_prozent"] for e in teil]
-            kr = [e["kronos"][name]["tagesspanne_prozent"] for e in teil]
-            fb_basis = [e["letzte_20_tage"]["tagesspanne_prozent"] for e in teil]
-            fk = [abs(a - b) for a, b in zip(kr, echt)]
-            fb = [abs(a - b) for a, b in zip(fb_basis, echt)]
-            lo, hi = _bootstrap(fk, fb)
-            out["schwankung"].append({
-                "variante": name, "n": len(teil), "fehler_kronos": round(float(np.mean(fk)), 3),
-                "fehler_vergleich": round(float(np.mean(fb)), 3), "lo": round(lo, 3), "hi": round(hi, 3),
-                "kronos_mittel": round(float(np.mean(kr)), 3), "echt_mittel": round(float(np.mean(echt)), 3),
-                "rang_kronos": _rang(kr, echt), "rang_vergleich": _rang(fb_basis, echt),
-                "urteil": _urteil(len(teil), np.mean(fk), np.mean(fb), hi)})
+ABGELEITET = {"mittel": "Mittel aller Varianten", "mischung": "Mittel ½ + Zufall ½",
+              "mittel-geeicht": "Mittel geeicht"}
+
+
+def _mittel(e, feld):
+    w = [v[feld] for v in e["kronos"].values() if v.get(feld) is not None]
+    return float(np.mean(w)) if w else None
+
+
+def p_ziel(e, name):
+    """Vorhergesagte Chance „Ziel zuerst“ einer Variante oder abgeleiteten Vorhersage."""
+    if name == "mittel":
+        return _mittel(e, "p_ziel")
+    if name == "mischung":
+        m = _mittel(e, "p_ziel")
+        return None if m is None else MISCHUNG * m + (1 - MISCHUNG) * e["p_ziel_zufall"]
+    return e["kronos"].get(name, {}).get("p_ziel")
+
+
+def eich_faktoren(fertig):
+    """Je Signal der Eich-Faktor für „Mittel geeicht“: Median von (Mittel ÷ echt) über alle Signale, die am Signaltag
+    schon ausgewertet waren (Signaltag + 32 Kalendertage), mindestens EICH_MIN – sonst None."""
+    basis = sorted(((dt.date.fromisoformat(e["signal_tag"]), _mittel(e, "tagesspanne_prozent") / e["echt"]["tagesspanne_prozent"])
+                    for e in fertig if "echt" in e and _mittel(e, "tagesspanne_prozent") and e["echt"]["tagesspanne_prozent"] > 0))
+    out = {}
+    for e in fertig:
+        bis = dt.date.fromisoformat(e["signal_tag"]) - dt.timedelta(days=WARTEN_KALENDERTAGE)
+        r = [x for d, x in basis if d <= bis]
+        out[id(e)] = float(np.median(r)) if len(r) >= EICH_MIN else None
     return out
 
 
-def webseite(log):
+def spanne(e, name, faktoren=None):
+    if name == "mittel":
+        return _mittel(e, "tagesspanne_prozent")
+    if name == "mittel-geeicht":
+        m, f = _mittel(e, "tagesspanne_prozent"), (faktoren or {}).get(id(e))
+        return None if m is None or not f else m / f
+    return e["kronos"].get(name, {}).get("tagesspanne_prozent")
+
+
+def tabellen(log, namen=None, liste=False):
+    """Zwischenstand je Variante und abgeleiteter Vorhersage für beide Fragen (Bericht und Webseite rechnen gleich).
+    liste=True: Watchlist – Urteil erst ab LISTE_MIN_TAGE Tagen, Bootstrap über Tage, ohne Bot-Formel."""
+    _, fertig, _ = teile(log)
+    namen = namen or [v["name"] for v in VARIANTEN]
+    minimum, einheit = (LISTE_MIN_TAGE, "Tage") if liste else (MIN_AUSWERTUNG, "Signale")
+    zahl = (lambda teil: len({e["signal_tag"] for e in teil})) if liste else len  # noqa: E731
+    grp = (lambda teil: [e["signal_tag"] for e in teil]) if liste else (lambda teil: None)  # noqa: E731
+    y = {id(e): 1 if e["ergebnis"] == "ziel" else 0 for e in fertig}
+    faktoren = eich_faktoren(fertig)
+    out = {"richtung": [], "schwankung": []}
+    for name in namen + ["mittel", "mischung"]:
+        teil = [e for e in fertig if p_ziel(e, name) is not None]
+        if not teil:
+            continue
+        fk = [(p_ziel(e, name) - y[id(e)]) ** 2 for e in teil]
+        fz = [(e["p_ziel_zufall"] - y[id(e)]) ** 2 for e in teil]
+        lo, hi = _bootstrap(fk, fz, grp(teil))
+        r = {"variante": name, "n": len(teil), "tage": len({e["signal_tag"] for e in teil}),
+             "fehler_kronos": round(float(np.mean(fk)), 4), "fehler_vergleich": round(float(np.mean(fz)), 4),
+             "lo": round(lo, 4), "hi": round(hi, 4),
+             "chance_kronos": round(float(np.mean([p_ziel(e, name) for e in teil])), 3),
+             "wirklich_ziel": round(float(np.mean([y[id(e)] for e in teil])), 3),
+             "urteil": _urteil(zahl(teil), np.mean(fk), np.mean(fz), hi, minimum, einheit)}
+        mit_bot = [e for e in teil if e.get("ziel_chance_bot") is not None]
+        if not liste and mit_bot:
+            fk2 = [(p_ziel(e, name) - y[id(e)]) ** 2 for e in mit_bot]
+            fb = [(e["ziel_chance_bot"] / 100 - y[id(e)]) ** 2 for e in mit_bot]
+            lo2, hi2 = _bootstrap(fk2, fb)
+            r.update({"n_bot": len(mit_bot), "fehler_kronos_bot": round(float(np.mean(fk2)), 4),
+                      "fehler_bot": round(float(np.mean(fb)), 4), "lo_bot": round(lo2, 4), "hi_bot": round(hi2, 4),
+                      "urteil_bot": _urteil(len(mit_bot), np.mean(fk2), np.mean(fb), hi2)})
+        out["richtung"].append(r)
+    for name in namen + ["mittel", "mittel-geeicht"]:
+        teil = [e for e in fertig if "echt" in e and spanne(e, name, faktoren) is not None]
+        if not teil:
+            continue
+        echt = [e["echt"]["tagesspanne_prozent"] for e in teil]
+        kr = [spanne(e, name, faktoren) for e in teil]
+        fb_basis = [e["letzte_20_tage"]["tagesspanne_prozent"] for e in teil]
+        fk = [abs(a - b) for a, b in zip(kr, echt)]
+        fb = [abs(a - b) for a, b in zip(fb_basis, echt)]
+        lo, hi = _bootstrap(fk, fb, grp(teil))
+        out["schwankung"].append({
+            "variante": name, "n": len(teil), "tage": len({e["signal_tag"] for e in teil}),
+            "fehler_kronos": round(float(np.mean(fk)), 3), "fehler_vergleich": round(float(np.mean(fb)), 3),
+            "lo": round(lo, 3), "hi": round(hi, 3),
+            "kronos_mittel": round(float(np.mean(kr)), 3), "echt_mittel": round(float(np.mean(echt)), 3),
+            "rang_kronos": _rang(kr, echt), "rang_vergleich": _rang(fb_basis, echt),
+            "urteil": _urteil(zahl(teil), np.mean(fk), np.mean(fb), hi, minimum, einheit)})
+    return out
+
+
+def webseite(log, liste=()):
     """Daten für den Kronos-Bereich der Übersichtsseite (docs/kronos.json)."""
     eigene, fertig, offen = teile(log)
+    l_eigene, l_fertig, l_offen = teile(list(liste))
     weg = {"sekunden", "erstellt", "pfade"}
     signale = []
     for e in sorted(eigene, key=lambda e: (e["signal_tag"], e["ticker"]), reverse=True)[:SEITE_SIGNALE]:
@@ -352,65 +503,99 @@ def webseite(log):
             "varianten": [{"name": v["name"], "modell": v["modell"].split("/")[-1], "rueckblick": v["rueckblick"],
                            "T": v["T"], "nur_erste": v["max"] if v["max"] < MAX_SIGNALE else None} for v in VARIANTEN],
             "zaehler": {"gerechnet": len(eigene), "ausgewertet": len(fertig), "offen": len(offen)},
-            "naechste_auswertung": naechste.isoformat() if naechste else None,
-            "auswertung": tabellen(log), "signale": signale}
+            "naechste_auswertung": naechste.isoformat() if naechste else None, "intervall": INTERVALL[1] - INTERVALL[0],
+            "auswertung": tabellen(log), "signale": signale,
+            "liste": {"varianten": LISTE_VARIANTEN, "atr": LISTE_ATR, "min_tage": LISTE_MIN_TAGE,
+                      "zaehler": {"gerechnet": len(l_eigene), "ausgewertet": len(l_fertig), "offen": len(l_offen),
+                                  "tage": len({e["signal_tag"] for e in l_eigene}),
+                                  "tage_ausgewertet": len({e["signal_tag"] for e in l_fertig})},
+                      "naechste_auswertung": min((dt.date.fromisoformat(e["signal_tag"]) + dt.timedelta(
+                          days=WARTEN_KALENDERTAGE) for e in l_offen), default=dt.date.min).isoformat() if l_offen else None,
+                      "auswertung": tabellen(list(liste), LISTE_VARIANTEN, liste=True)}}
 
 
-def bericht(log):
+def _name(n):
+    return ABGELEITET.get(n, n)
+
+
+def _tabellen_md(T, mit_bot):
+    """Markdown-Tabellen für Richtung und Schwankung aus tabellen()."""
+    i = INTERVALL[1] - INTERVALL[0]
+    z = ["**Richtung: Ziel oder Stop zuerst?** (Fehler = Brier-Wert, kleiner ist besser)", "",
+         f"| Vorhersage | Anzahl | Brier Kronos | Brier Zufallsweg | Unterschied ({i}-%-Intervall) | Ø Chance Kronos | "
+         "wirklich Ziel zuerst | Urteil gegen Zufallsweg |" + (" Brier Bot-Formel | Urteil gegen Bot-Formel |" if mit_bot else ""),
+         "|---|---:|---:|---:|---|---:|---:|---|" + ("---:|---|" if mit_bot else "")]
+    for r in T["richtung"]:
+        zeile = (f"| {_name(r['variante'])} | {r['n']} | {de(r['fehler_kronos'], '.3f')} | {de(r['fehler_vergleich'], '.3f')} | "
+                 f"{de(r['fehler_kronos'] - r['fehler_vergleich'], '+.3f')} ({de(r['lo'], '+.3f')} bis {de(r['hi'], '+.3f')}) | "
+                 f"{r['chance_kronos']:.0%} | {r['wirklich_ziel']:.0%} | {r['urteil']} |")
+        if mit_bot:
+            zeile += (f" {de(r['fehler_bot'], '.3f')} (Kronos {de(r['fehler_kronos_bot'], '.3f')}, {r['n_bot']}) | {r['urteil_bot']} |"
+                      if "fehler_bot" in r else " – | – |")
+        z.append(zeile)
+    z += ["", "**Schwankung: mittlere Tagesspanne der nächsten 20 Tage** (Fehler = mittlere Abweichung; „Rangfolge“ = "
+          "Spearman-Korrelation mit der echten Spanne, ohne Urteil)", "",
+          f"| Vorhersage | Anzahl | Fehler Kronos | Fehler „letzte 20 Tage“ | Unterschied ({i}-%-Intervall) | Ø Kronos | "
+          "Ø echt | Rangfolge Kronos / letzte 20 T. | Urteil |", "|---|---:|---:|---:|---|---:|---:|---:|---|"]
+    rang = lambda r: "–" if r is None else de(r, "+.2f")  # noqa: E731
+    for r in T["schwankung"]:
+        z.append(f"| {_name(r['variante'])} | {r['n']} | {de(r['fehler_kronos'], '.2f')} % | {de(r['fehler_vergleich'], '.2f')} % | "
+                 f"{de(r['fehler_kronos'] - r['fehler_vergleich'], '+.2f')} ({de(r['lo'], '+.2f')} bis {de(r['hi'], '+.2f')}) | "
+                 f"{de(r['kronos_mittel'], '.2f')} % | {de(r['echt_mittel'], '.2f')} % | "
+                 f"{rang(r['rang_kronos'])} / {rang(r['rang_vergleich'])} | {r['urteil']} |")
+    return z + [""]
+
+
+def bericht(log, liste=()):
     eigene, fertig, offen = teile(log)
+    l_eigene, l_fertig, l_offen = teile(list(liste))
     namen = [v["name"] for v in VARIANTEN]
+    i = INTERVALL[1] - INTERVALL[0]
     z = ["# 🔮 Kronos-Versuch (nach vorne)", "",
          f"Stand {dt.date.today():%d.%m.%Y} · {PFADE} Zukünfte je Signal und Variante, {TAGE} Handelstage. Varianten: "
          + "; ".join(f"{v['name']} ({v['modell'].split('/')[-1]}, Rückblick {v['rueckblick']}, Temperatur "
                      f"{de(v['T'], '.1f')}{', nur 3 Signale am Tag' if v['max'] < MAX_SIGNALE else ''})" for v in VARIANTEN)
-         + ". Nur eine Messung – der Bot kauft nicht danach.", "",
+         + ". Dazu abgeleitet: Mittel aller Varianten, Mittel ½ + Zufall ½, Mittel geeicht (Schwankung). Nur eine "
+         "Messung – der Bot kauft nicht danach.", "",
          "**Fragen:** (1) Sagt Kronos besser voraus, ob zuerst das Ziel oder zuerst der Stop kommt, als ein Zufallsweg "
-         "ohne Richtung? (2) Sagt Kronos die Schwankung der nächsten 20 Tage besser voraus, als einfach die letzten 20 "
-         "Tage fortzuschreiben?", "",
-         f"**Vorher festgelegt:** Ab {MIN_AUSWERTUNG} ausgewerteten Signalen je Variante gilt sie als besser, wenn ihr "
-         "Fehler kleiner ist und das 90-%-Bootstrap-Intervall des Unterschieds ganz unter 0 liegt. 4 Varianten × 2 "
-         "Fragen = 8 Vergleiche – einer davon kann zufällig gut aussehen.", "",
-         "**Schon in den Probeläufen sichtbar (08.11.):** Kronos zieht den Kurs stark zum Durchschnitt des Rückblicks "
-         "zurück (oft alle 50 Zukünfte in dieselbe Richtung), und seine Tageskerzen sind 1,2- bis 1,7-mal so groß wie "
-         "echte.", ""]
+         "ohne Richtung – und als die Ziel-Chance, die der Bot schon anzeigt? (2) Sagt Kronos die Schwankung der nächsten "
+         "20 Tage besser voraus, als einfach die letzten 20 Tage fortzuschreiben?", "",
+         f"**Vorher festgelegt:** Ab {MIN_AUSWERTUNG} ausgewerteten Signalen je Vorhersage (Watchlist: ab "
+         f"{LISTE_MIN_TAGE} ausgewerteten Tagen) gilt sie als besser, wenn ihr Fehler kleiner ist und das {i}-%-"
+         "Bootstrap-Intervall des Unterschieds ganz unter 0 liegt. Es sind viele Vergleiche – deshalb die strenge Hürde "
+         "(seit 09.11. abends, vorher 90 %, festgelegt bevor ein Signal ausgewertet war). Die Bot-Formel rechnet ohne "
+         "Stop und liegt deshalb eher zu hoch.", "",
+         "**Schon in den Probeläufen sichtbar (08./09.11.):** Kronos zieht den Kurs stark zum Durchschnitt des Rückblicks "
+         "zurück (oft fast alle Zukünfte in dieselbe Richtung), und seine Tageskerzen sind größer als echte. Mehr Zufall "
+         "(T15) macht die Aussagen vorsichtiger.", "",
+         "## 1. Kauf-Signale des Bots", ""]
     if fertig:
-        T = tabellen(log)
-        z += ["## 1. Richtung: Ziel oder Stop zuerst?", "",
-              "| Variante | Signale | Brier Kronos | Brier Zufallsweg | Unterschied (90-%-Intervall) | Ø Chance Kronos | "
-              "wirklich Ziel zuerst | Urteil |", "|---|---:|---:|---:|---|---:|---:|---|"]
-        for r in T["richtung"]:
-            z.append(f"| {r['variante']} | {r['n']} | {de(r['fehler_kronos'], '.3f')} | {de(r['fehler_vergleich'], '.3f')} | "
-                     f"{de(r['fehler_kronos'] - r['fehler_vergleich'], '+.3f')} ({de(r['lo'], '+.3f')} bis "
-                     f"{de(r['hi'], '+.3f')}) | {r['chance_kronos']:.0%} | {r['wirklich_ziel']:.0%} | {r['urteil']} |")
-        z += ["", "## 2. Schwankung: mittlere Tagesspanne der nächsten 20 Tage", "",
-              "Zusatz ohne Urteil: „Rangfolge“ = Spearman-Korrelation mit der echten Spanne – erkennt Kronos wenigstens, "
-              "welche Aktien unruhiger werden, auch wenn seine Kerzen zu groß sind?", "",
-              "| Variante | Signale | Fehler Kronos | Fehler „letzte 20 Tage“ | Unterschied (90-%-Intervall) | Ø Kronos | "
-              "Ø echt | Rangfolge Kronos / letzte 20 T. | Urteil |", "|---|---:|---:|---:|---|---:|---:|---:|---|"]
-        rang = lambda r: "–" if r is None else de(r, "+.2f")  # noqa: E731
-        for r in T["schwankung"]:
-            z.append(f"| {r['variante']} | {r['n']} | {de(r['fehler_kronos'], '.2f')} % | {de(r['fehler_vergleich'], '.2f')} % | "
-                     f"{de(r['fehler_kronos'] - r['fehler_vergleich'], '+.2f')} ({de(r['lo'], '+.2f')} bis "
-                     f"{de(r['hi'], '+.2f')}) | {de(r['kronos_mittel'], '.2f')} % | {de(r['echt_mittel'], '.2f')} % | "
-                     f"{rang(r['rang_kronos'])} / {rang(r['rang_vergleich'])} | {r['urteil']} |")
-        z.append("")
+        z += _tabellen_md(tabellen(log), mit_bot=True)
     else:
-        z += ["**Ergebnis:** noch keine Signale ausgewertet (das geht frühestens 20 Handelstage nach dem Signal).", ""]
-    z += ["## Alle Signale", "", "| Signaltag | Aktie | Stop / Ziel | "
-          + " | ".join(f"{n}: Ziel / Stop · Mitte 20 T." for n in namen) + " | Zufallsweg Ziel | Ergebnis |",
-          "|---|---|---|" + "---|" * len(namen) + "---:|---|"]
+        z += ["Noch keine Signale ausgewertet (das geht frühestens 20 Handelstage nach dem Signal).", ""]
+    z += [f"## 2. Alle Aktien der Watchlist täglich ({', '.join(LISTE_VARIANTEN)}, Stop −{de(LISTE_ATR, '.0f')} ATR, "
+          f"Ziel +{de(LISTE_ATR, '.0f')} ATR)", "",
+          f"Gerechnet: {len(l_eigene)} an {len({e['signal_tag'] for e in l_eigene})} Tagen · ausgewertet: "
+          f"{len(l_fertig)} an {len({e['signal_tag'] for e in l_fertig})} Tagen · offen: {len(l_offen)}. "
+          "Aktien am selben Tag laufen ähnlich – deshalb zählt die Zahl der Tage, und das Intervall zieht ganze Tage.", ""]
+    if l_fertig:
+        z += _tabellen_md(tabellen(list(liste), LISTE_VARIANTEN, liste=True), mit_bot=False)
+    z += ["## Alle Kauf-Signale", "", "| Signaltag | Aktie | Stop / Ziel | "
+          + " | ".join(f"{n}: Ziel / Stop · Mitte 20 T." for n in namen) + " | Zufallsweg Ziel | Bot-Formel | Ergebnis |",
+          "|---|---|---|" + "---|" * len(namen) + "---:|---:|---|"]
     for e in sorted(eigene, key=lambda e: (e["signal_tag"], e["ticker"]), reverse=True):
         zellen = []
         for n in namen:
             v = e["kronos"].get(n)
             zellen.append(f"{v['p_ziel']:.0%} / {v['p_stop']:.0%} · {de(v['nach_20_tagen_prozent']['mitte'], '+.1f')} %"
                           if v else "–")
+        bot = "–" if e.get("ziel_chance_bot") is None else f"{e['ziel_chance_bot']:.0f} %"
         z.append(f"| {e['signal_tag']} | {e['ticker']} | {de(e['stop_abstand'], '+.1f')} / "
                  f"{de(e['ziel_abstand'], '+.1f')} % | " + " | ".join(zellen)
-                 + f" | {e['p_ziel_zufall']:.0%} | {e.get('ergebnis', 'offen')} |")
-    z += ["", f"Offen: {len(offen)} Signale warten auf ihre 20 Handelstage. Kronos-Code: `forschung/kronos_modell/` "
-          "(MIT-Lizenz). Hintergrund: `gehirn/Notizen/Wissen – Kronos (KI-Zukunftsfächer).md`. Simulation, keine "
-          "Anlageberatung."]
+                 + f" | {e['p_ziel_zufall']:.0%} | {bot} | {e.get('ergebnis', 'offen')} |")
+    z += ["", f"Offen: {len(offen)} Signale warten auf ihre 20 Handelstage. Watchlist-Einzelwerte: "
+          "`forschung/kronos_liste_log.json`. Kronos-Code: `forschung/kronos_modell/` (MIT-Lizenz). Hintergrund: "
+          "`gehirn/Notizen/Wissen – Kronos (KI-Zukunftsfächer).md`. Simulation, keine Anlageberatung."]
     return "\n".join(z) + "\n"
 
 
@@ -418,29 +603,37 @@ def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("--modus", choices=["pruefen", "lauf", "seite"], default="lauf")
     p.add_argument("--probe", action="store_true", help="Probelauf: nichts im Repo speichern")
-    p.add_argument("--ausgabe", default=None, help="Ordner für Log und Bericht (Standard: forschung/)")
+    p.add_argument("--ausgabe", default=None, help="Ordner für Logs, Bericht und Seiten-Daten (Standard: im Repo)")
     a = p.parse_args(argv)
-    log_datei, bericht_datei, seite_datei = pfade(a.ausgabe)
-    log = lies_log(pfade()[0])  # immer vom gespeicherten Log ausgehen
+    log_datei, bericht_datei, seite_datei, liste_datei = pfade(a.ausgabe)
+    log, liste = lies_log(pfade()[0]), lies_log(pfade()[3])  # immer vom gespeicherten Stand ausgehen
     with open(DATEN, encoding="utf-8") as f:
         daten = json.load(f)
     heute = dt.date.today()
     if a.modus == "pruefen":
-        neu = [s for s in kauf_signale(daten) if (daten["daten_bis"], s["ticker"]) not in
-               {(e["signal_tag"], e["ticker"]) for e in log}] and not daten.get("vorlaeufig")
-        noetig = bool(neu) or any(faellig(e, heute) for e in log if not e.get("probe")) or a.probe
+        tag, frisch = daten["daten_bis"], not daten.get("vorlaeufig")
+        neu = frisch and any((tag, s["ticker"]) not in {(e["signal_tag"], e["ticker"]) for e in log}
+                             for s in kauf_signale(daten))
+        liste_neu = frisch and bool(daten.get("signale")) and tag not in {e["signal_tag"] for e in liste}
+        noetig = (neu or liste_neu or a.probe
+                  or any(faellig(e, heute) for e in log + liste if not e.get("probe")))
         print(f"noetig={'true' if noetig else 'false'}")
         return
     if a.modus == "seite":
-        schreibe(bericht_datei, bericht(log))
-        schreibe(seite_datei, webseite(log))
+        schreibe(bericht_datei, bericht(log, liste))
+        schreibe(seite_datei, webseite(log, liste))
         return
-    n_neu = vorhersage(daten, log, probe=a.probe)
+    t_start = time.time()
+    n_neu = vorhersage(daten, log, probe=a.probe, t_start=t_start)
+    n_liste = liste_vorhersage(daten, liste, probe=a.probe, t_start=t_start)
     n_aus = auswertung(log, heute)
+    n_l_aus = auswertung(liste, heute, verlauf=False)
     schreibe(log_datei, log)
-    schreibe(bericht_datei, bericht(log))
-    schreibe(seite_datei, webseite(log))
-    print(f"Fertig: {n_neu} neue Signale, {n_aus} ausgewertet.")
+    schreibe(liste_datei, liste)
+    schreibe(bericht_datei, bericht(log, liste))
+    schreibe(seite_datei, webseite(log, liste))
+    print(f"Fertig: {n_neu} neue Signale, {n_liste} Watchlist-Aktien, {n_aus} Signale und {n_l_aus} Watchlist-Werte "
+          f"ausgewertet ({(time.time() - t_start) / 60:.0f} Minuten).")
 
 
 if __name__ == "__main__":
