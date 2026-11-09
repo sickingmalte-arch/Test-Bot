@@ -23,6 +23,7 @@
   --s2: #d95926;      /* Nasdaq-100 */
   --s3: #199e70;      /* Claude-Depot */
   --s-grau: #5b6672;  /* Vergleich im Hintergrund */
+  --kronos: #a371f7;  /* Kronos-Versuch (KI-Zukunftsfächer) */
   --gut: #0ca30c;
   --gut-text: #3fb950;
   --schlecht: #d03b3b;
@@ -358,6 +359,24 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .lern td:first-child, .lern th:first-child { text-align: left; }
 .lern th { color: var(--text-3); font-weight: 500; font-size: 11px; }
 .lern .lern-trade { padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+/* Kronos-Versuch */
+.kronos-stapel { display: grid; gap: 12px; }
+.kronos-tabellen { display: grid; gap: 14px; margin-top: 8px; }
+.kronos-tabellen td:last-child { white-space: normal; }
+.kronos-tabellen .scroll { overflow-x: auto; }
+.kronos .karten { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 12px; }
+.kronos .karte { border: 1px solid var(--line-soft); border-radius: 10px; background: var(--panel); }
+.kronos .karte-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.kronos .karte-kopf b { font-size: 15px; }
+.kronos .karte .zeile { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+.kronos .karte .zeile b { color: var(--text-1); font-weight: 600; font-variant-numeric: tabular-nums; }
+.kronos .karte .diagramm { margin: 8px 0 4px; }
+.kronos .ergebnis { font-size: 12px; margin-top: 6px; }
+.kronos .mehr { margin-top: 12px; font: 600 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; cursor: pointer; }
+.kronos .mehr:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.kronos .legende i.flaeche { height: 10px; opacity: .35; }
+.kronos .legende i.strich { background: none !important; border-top: 2px dashed; height: 0; }
+
 .lern .lern-trade:last-child { border-bottom: 0; }
 .lern .lern-trade .gruende { color: var(--text-2); font-size: 12px; }
 .nachricht .original { margin-top: 4px; color: var(--text-2); font-size: 12px; }
@@ -704,6 +723,7 @@ body { background: radial-gradient(1200px 500px at 15% -10%, rgba(57, 135, 229, 
     <a href="#nachrichten"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Nachrichten</a>
     <a href="#lernmodell"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 2.5c-3 0-5 2-5 4.5 0 1.5.8 2.6 2 3.4V13h6v-2.6c1.2-.8 2-1.9 2-3.4 0-2.5-2-4.5-5-4.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 8.5h4M8 6.5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Lernmodell</a>
     <a href="#forschung"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M6 2h4M7 2v4L3.5 12.5A1 1 0 0 0 4.4 14h7.2a1 1 0 0 0 .9-1.5L9 6V2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Forschung</a>
+    <a href="#kronos"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 8h3M5 8l9-5M5 8l9 0M5 8l9 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Kronos</a>
     <div class="label gruppe">Rückblick</div>
     <a href="#fazit"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Fazit</a>
     <div class="label gruppe">Du</div>
@@ -1210,6 +1230,7 @@ const ERKLAERUNG = {
   ueberhitzt: ["Überhitzt – nur Info", "RSI über 70 oder Kurs am oberen Bollinger-Band: Die Aktie ist in kurzer Zeit stark gestiegen. Das Übungsdepot verkauft deshalb nicht. Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr: Die Gewinner werden früh verkauft, die Verlierer laufen trotzdem bis zum Stop. Gerade nach einem Ausbruch steigt eine überhitzte Aktie oft weiter bis zum Ziel. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen."],
   muster: ["Muster und Nachrichten", "Kerzenmuster vom Poster (z. B. Hammer, Bullish Engulfing, Shooting Star) am Signaltag, bei Ausbrüchen und Doppelböden das Musterziel (Höhe des Musters nach oben verlängert) und wie viele gute und schlechte Schlagzeilen es in den letzten Tagen gab. Nur zur Info: Als Kaufregel oder Ziel hat das im Test über 16 Jahre nicht geholfen, der Bot kauft und verkauft deshalb nicht danach. Auf der Lehren-Seite im Gehirn prüft er weiter, ob Signale mit Muster oder guten Nachrichten besser laufen. Boden: das letzte Wendetief unter dem Kurs (tiefer als die 5 Tage davor und danach) und wie oft der Kurs im letzten halben Jahr dort gedreht hat. Unterstützung: bis zu 3 Zonen darunter – Wendetiefs (je 5 und je 10 Tage), alte Hochs, über die der Kurs gestiegen ist, offene Kurslücken, Kurse mit viel Handel und die nächste runde Zahl; was höchstens 1 % auseinanderliegt, ist eine Zone. Im Chart als U1–U3. Widerstand (W im Chart): der letzte Hochpunkt über dem Kurs. Trendlinie (gestrichelt): die fallende Linie durch die letzten zwei Hochpunkte. Alles nur zur Info – Regeln mit Boden, Widerstand oder Trendlinie haben im Test über 16 Jahre nicht geholfen."],
   live: ["Live", "Mo–Fr von 12 bis 22 Uhr läuft Live: Sobald die US-Börse offen ist (15:30–22:00 Uhr deutscher Zeit, in den Wochen der Zeitumstellung 14:30–21:00 Uhr), holt GitHub etwa alle 15 Minuten die aktuellen Kurse von Yahoo – etwa 15 Minuten verzögert – und rechnet Übungs- und Claude-Depot nach denselben Regeln wie am Morgen weiter: Kauf zur Eröffnung bis zum Limit, Verkauf an Stop oder Ziel. Zeitstopp und Verkauf vor Quartalszahlen gelten zum Schlusskurs. Das ist eine Vorschau: Endgültig bucht der Bot beim nächsten Morgen-Lauf mit den Schlusskursen, fast immer mit demselben Ergebnis (anders nur, wenn eine Aktie am selben Tag Stop und Ziel berührt – dann zählt wie im Test der Stop). Lässt du die Seite offen, aktualisiert sie sich von selbst."],
+  kronos: ["Kronos-Versuch", "Kronos ist eine offene KI der Tsinghua-Universität, trainiert mit über 12 Milliarden Kerzen von 45 Börsen. Für jedes neue Kauf-Signal rechnet sie 50 mögliche Zukünfte der nächsten 20 Handelstage aus – jede ein bisschen anders, wie Würfeln mit Erfahrung. Daraus ergibt sich der Fächer. Geprüft wird nur nach vorne, weil die KI die alten Kurse im Training gesehen haben kann. Zwei Fragen: Kommt zuerst das Ziel oder der Stop (Vergleich: ein Zufallsweg ohne Richtung)? Und wie stark schwankt die Aktie (Vergleich: die letzten 20 Tage)? Der Fehler ist bei der Richtung der Brier-Wert (0 = perfekt, kleiner ist besser), bei der Schwankung die mittlere Abweichung der Tagesspanne. Ein Urteil gibt es je Variante erst ab 30 ausgewerteten Signalen. Der Bot kauft nicht danach."],
   tagebuch: ["Gedachte Trades", "Der Bot spielt jedes Signal im Kopf durch, auch wenn er es nicht kauft. Aus diesen gedachten Trades lernt er, welche Strategien gerade funktionieren."],
 };
 const erklaerung = el("div", { class: "erklaerung", id: "erklaerung", role: "tooltip", hidden: true });
@@ -1930,6 +1951,193 @@ function forschungBauen(F) {
   }
   return abschnitt("forschung", "Forschung", "Forschungs-Bot · neue Ideen ehrlich testen", el("div", {}, ...teile));
 }
+// Kronos-Versuch (kronos.json, eigener Ablauf nach jedem Morgen-Lauf): Zwischenstand und Zukunftsfächer je Signal
+const KRONOS_TEXT = {
+  "small-256": "Klein 256", "small-64": "Klein 64", "small-64-T15": "Klein 64 + Zufall", "base-256": "Groß 256",
+};
+const kronosName = n => KRONOS_TEXT[n] || n;
+function kronosBauen(K, repo) {
+  const farbe = css("--kronos");
+  const sigs = K.signale || [];
+  const Z = K.zaehler || {};
+  const erstes = sigs.length ? sigs[sigs.length - 1].signal_tag : null;
+  const kacheln = el("div", { class: "panel kacheln" },
+    kachel("Signale gerechnet", String(Z.gerechnet || 0), erstes ? `seit ${datum(erstes)}` : "ab dem nächsten Morgen-Lauf"),
+    kachel("Ausgewertet", String(Z.ausgewertet || 0), `Urteil je Variante ab ${K.min_auswertung}`),
+    kachel("Warten noch", String(Z.offen || 0), K.naechste_auswertung ? `nächste Auswertung ${datum(K.naechste_auswertung)}` : "–"),
+    kachel("Kauft der Bot danach?", "Nein", "nur eine Messung"));
+
+  // Zwischenstand: je Variante Fehler Kronos gegen den einfachen Vergleich
+  const A = K.auswertung || { richtung: [], schwankung: [] };
+  const urteil = u => el("td", { class: u === "besser" ? "gut" : u === "nicht besser" ? "schlecht" : "muted" }, u.replace(/^noch zu wenig Signale \((\d+) von (\d+)\)$/, "zu wenig ($1/$2)"));
+  const stand = el("div", { class: "panel panel-innen" }, el("h3", {}, "Zwischenstand – ist Kronos besser als der einfache Vergleich?"));
+  if (!A.richtung.length) {
+    stand.append(el("p", { class: "erklaer" }, `Noch nichts ausgewertet. Jedes Signal wird nach ${K.tage} Handelstagen mit den echten Kursen nachgeprüft${K.naechste_auswertung ? ` – das erste am ${datum(K.naechste_auswertung)}` : ""}. Ein Urteil gibt es je Variante erst ab ${K.min_auswertung} ausgewerteten Signalen.`));
+  } else {
+    const t1 = el("table", {}, el("thead", {}, el("tr", {}, ["Variante", "Signale", "Kronos", "Zufall", "Urteil"].map(h => el("th", {}, h)))),
+      el("tbody", {}, A.richtung.map(r => el("tr", {}, el("td", {}, kronosName(r.variante)), el("td", {}, String(r.n)),
+        el("td", {}, zahl(r.fehler_kronos, 3)), el("td", {}, zahl(r.fehler_vergleich, 3)), urteil(r.urteil)))));
+    const t2 = el("table", {}, el("thead", {}, el("tr", {}, ["Variante", "Signale", "Kronos", "Letzte 20 T.", "Urteil"].map(h => el("th", {}, h)))),
+      el("tbody", {}, A.schwankung.map(r => el("tr", {}, el("td", {}, kronosName(r.variante)), el("td", {}, String(r.n)),
+        el("td", {}, prozent(r.fehler_kronos, 2, false)), el("td", {}, prozent(r.fehler_vergleich, 2, false)), urteil(r.urteil)))));
+    const schnitt = A.schwankung.length ? el("p", { class: "erklaer", style: "margin-top:6px" }, "Ø vorhergesagte Tagesspanne: ",
+      A.schwankung.map(r => `${kronosName(r.variante)} ${prozent(r.kronos_mittel, 1, false)}`).join(" · "),
+      ` – echt waren es ${prozent(A.schwankung[0].echt_mittel, 1, false)}.`) : null;
+    stand.append(el("div", { class: "kronos-tabellen" },
+      el("div", {}, el("p", { class: "erklaer" }, "Richtung: Kommt zuerst das Ziel oder der Stop? Fehler = Brier-Wert, kleiner ist besser."), el("div", { class: "scroll" }, t1)),
+      el("div", {}, el("p", { class: "erklaer" }, "Schwankung: Wie groß sind die Tageskerzen (Hoch bis Tief) in den 20 Tagen? Fehler = mittlere Abweichung, Vergleich: die letzten 20 Tage."), el("div", { class: "scroll" }, t2), schnitt)));
+  }
+  if (repo) stand.append(el("p", { class: "erklaer", style: "margin-top:8px" }, "Alle Zahlen: ",
+    el("a", { href: `https://github.com/${repo}/blob/main/forschung/kronos_ergebnis.md`, target: "_blank", rel: "noopener" }, "Bericht bei GitHub")));
+
+  // Fächer je Signal, eine Variante zur Zeit
+  const namen = (K.varianten || []).map(v => v.name);
+  let gewaehlt = speicher.lies("swingbot-kronos", namen[0]);
+  if (!namen.includes(gewaehlt)) gewaehlt = namen[0];
+  const reiter = el("div", { class: "reiter", role: "tablist", "aria-label": "Kronos-Variante" });
+  const raster = el("div", { class: "karten" });
+  const mehrKnopf = el("button", { type: "button", class: "mehr" });
+  let alle = false;
+  const ZEIGEN = 6;
+  function karten() {
+    reiter.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.id === gewaehlt ? "true" : "false"));
+    raster.replaceChildren(...(alle ? sigs : sigs.slice(0, ZEIGEN)).map(s => kronosKarte(s, gewaehlt, farbe)));
+    mehrKnopf.hidden = sigs.length <= ZEIGEN;
+    mehrKnopf.textContent = alle ? "Weniger zeigen" : `Ältere Signale zeigen (${sigs.length - ZEIGEN})`;
+  }
+  for (const v of K.varianten || []) {
+    reiter.append(el("button", { type: "button", role: "tab", "data-id": v.name, title: `${v.modell}, Rückblick ${v.rueckblick} Tage, Temperatur ${zahl(v.T, 1)}${v.nur_erste ? `, nur die ersten ${v.nur_erste} Signale am Tag` : ""}`,
+      onclick: () => { gewaehlt = v.name; speicher.schreib("swingbot-kronos", gewaehlt); karten(); } }, kronosName(v.name)));
+  }
+  mehrKnopf.addEventListener("click", () => { alle = !alle; karten(); });
+  const faecher = el("div", { class: "panel panel-innen" }, el("h3", {}, "Zukunftsfächer je Signal"),
+    el("p", { class: "erklaer" }, `Die Fläche zeigt, wo 8 von 10 der ${K.pfade} gerechneten Zukünfte an jedem Tag liegen, die Linie die mittlere Zukunft (in Prozent ab dem Kurs am Signaltag). Gestrichelt: Stop und Ziel des Bots. Weiß: der echte Verlauf, sobald die ${K.tage} Handelstage vorbei sind.`),
+    reiter,
+    el("div", { class: "legende" },
+      el("span", {}, el("i", { class: "flaeche", style: `background:${farbe}` }), "8 von 10 Zukünften"),
+      el("span", {}, el("i", { style: `background:${farbe}` }), "mittlere Zukunft"),
+      el("span", {}, el("i", { style: `background:${css("--text-1")}` }), "echter Verlauf"),
+      el("span", {}, el("i", { class: "strich", style: `border-color:${css("--gut")}` }), "Ziel"),
+      el("span", {}, el("i", { class: "strich", style: `border-color:${css("--schlecht")}` }), "Stop")),
+    sigs.length ? raster : el("div", { class: "leer" }, "Noch keine Signale gerechnet. Kronos rechnet nach jedem Morgen-Lauf, der neue Kauf-Signale hat."),
+    mehrKnopf);
+  karten();
+  return abschnitt("kronos", "Kronos-Versuch", "KI rechnet 50 Zukünfte je Kauf-Signal · nur eine Messung",
+    el("div", { class: "lern kronos kronos-stapel" }, kacheln, stand, faecher), { erkl: "kronos" });
+}
+function kronosKarte(s, name, farbe) {
+  const v = (s.kronos || {})[name];
+  const ausgang = { ziel: ["Ziel zuerst erreicht", "gut"], stop: ["Stop zuerst erreicht", "schlecht"], zeit: ["Nach 20 Tagen weder Stop noch Ziel", "muted"], unklar: ["Nicht gewertet (Kurssprung)", "muted"] }[s.ergebnis];
+  const bis = (() => { const d = tag(s.signal_tag); d.setUTCDate(d.getUTCDate() + 32); return d.toISOString().slice(0, 10); })();
+  const kopf = el("div", { class: "karte-kopf" }, el("b", {}, s.ticker), el("span", { class: "label" }, `Signal ${datum(s.signal_tag)}`));
+  const teile = [kopf, el("div", { class: "zeile" }, `${s.strategie || ""} · Stop ${prozent(s.stop_abstand)} · Ziel ${prozent(s.ziel_abstand)}`)];
+  if (!v) {
+    teile.push(el("div", { class: "leer" }, `${kronosName(name)} hat für dieses Signal nicht gerechnet (das große Modell nur für die ersten 3 Signale am Tag).`));
+  } else {
+    teile.push(el("div", { class: "zeile" }, "Ziel zuerst: Kronos ", el("b", {}, `${zahl(v.p_ziel * 100, 0)} %`), " · Zufallsweg ", el("b", {}, `${zahl(s.p_ziel_zufall * 100, 0)} %`)),
+      el("div", { class: "zeile" }, "Stop zuerst: Kronos ", el("b", {}, `${zahl(v.p_stop * 100, 0)} %`), " · nach 20 Tagen Mitte ", el("b", {}, prozent(v.nach_20_tagen_prozent.mitte))));
+    const box = el("div", { class: "diagramm" });
+    teile.push(box);
+    if (v.faecher) requestAnimationFrame(() => faecherDiagramm(box, s, v, farbe));
+    else box.append(el("div", { class: "leer" }, "Für dieses Signal gibt es noch kein Fächer-Bild."));
+    if (v.tagesspanne_prozent != null) {
+      teile.push(el("div", { class: "zeile" }, "Tagesspanne: Kronos ", el("b", {}, prozent(v.tagesspanne_prozent, 1, false)),
+        s.letzte_20_tage ? [" · letzte 20 Tage ", el("b", {}, prozent(s.letzte_20_tage.tagesspanne_prozent, 1, false))] : null,
+        s.echt ? [" · echt ", el("b", {}, prozent(s.echt.tagesspanne_prozent, 1, false))] : null));
+    }
+  }
+  teile.push(ausgang
+    ? el("div", { class: `ergebnis ${ausgang[1]}` }, ausgang[0], s.tag_ausgang && s.ergebnis !== "zeit" ? ` (Tag ${s.tag_ausgang})` : "")
+    : el("div", { class: "ergebnis muted" }, `Offen – Auswertung ab ${datum(bis)}`));
+  return el("div", { class: "karte" }, ...teile);
+}
+function faecherDiagramm(box, s, v, farbe) {
+  const F = v.faecher, n = F.mitte.length, echt = s.echt_verlauf && s.echt_verlauf.length ? s.echt_verlauf : null;
+  const tip = el("div", { class: "tooltip", role: "presentation" });
+  box.replaceChildren(tip);
+  box.setAttribute("tabindex", "0");
+  box.setAttribute("role", "img");
+  box.setAttribute("aria-label", `${s.ticker}: Kronos erwartet nach ${n} Tagen in der Mitte ${prozent(F.mitte[n - 1])}, 8 von 10 Zukünften zwischen ${prozent(F.q10[n - 1])} und ${prozent(F.q90[n - 1])}${echt ? `, echt ${prozent(echt[echt.length - 1])}` : ""}. Stop ${prozent(s.stop_abstand)}, Ziel ${prozent(s.ziel_abstand)}.`);
+  const werte = [0, ...F.q10, ...F.q90, s.stop_abstand, s.ziel_abstand, ...(echt || [])];
+  const hoehe = 170, R = { l: 6, r: 40, o: 8, u: 20 };
+  const yText = t => `${vz(t)}${zahl(t, Math.abs(t) < 10 && t % 1 ? 1 : 0)} %`;
+  let x, y, breite;
+  const teilPfad = (reihe, ab = 0) => reihe.map((w, i) => `L${x(i + 1 + ab).toFixed(1)},${y(w).toFixed(1)}`).join("");
+  function zeichnen() {
+    breite = Math.max(box.clientWidth, 240);
+    const min = Math.min(...werte), max = Math.max(...werte);
+    const pad = (max - min) * 0.06 || 1;
+    const ticks = schoeneSchritte(min - pad, max + pad, 4);
+    const yMin = Math.min(ticks[0], min - pad), yMax = Math.max(ticks[ticks.length - 1], max + pad);
+    const links = R.l + Math.max(...ticks.map(t => yText(t).length)) * 6.2 + 6;
+    x = i => links + (i / n) * (breite - links - R.r);
+    y = w => R.o + (1 - (w - yMin) / (yMax - yMin)) * (hoehe - R.o - R.u);
+    const svg = sv("svg", { viewBox: `0 0 ${breite} ${hoehe}`, height: hoehe, "aria-hidden": "true" });
+    for (const t of ticks) {
+      svg.append(sv("line", { x1: links, x2: x(n), y1: y(t), y2: y(t), stroke: css(t === 0 ? "--line" : "--line-soft"), "stroke-width": 1 }));
+      svg.append(sv("text", { x: links - 6, y: y(t) + 3, "text-anchor": "end" }, yText(t)));
+    }
+    for (const i of [0, 5, 10, 15, 20].filter(i => i <= n)) {
+      svg.append(sv("text", { x: x(i), y: hoehe - 5, "text-anchor": i === 0 ? "start" : "middle" }, i === 0 ? "Signal" : `Tag ${i}`));
+    }
+    // Stop und Ziel (gestrichelt, Beschriftung rechts)
+    for (const [w, name, c] of [[s.ziel_abstand, "Ziel", "--gut"], [s.stop_abstand, "Stop", "--schlecht"]]) {
+      svg.append(sv("line", { x1: links, x2: x(n), y1: y(w), y2: y(w), stroke: css(c), "stroke-width": 1.4, "stroke-dasharray": "5 4", opacity: 0.9 }));
+      svg.append(sv("text", { x: x(n) + 5, y: y(w) + 3 }, name));
+    }
+    // Fächer: Fläche zwischen 10-%- und 90-%-Linie, dazu die Mitte
+    svg.append(sv("path", { d: `M${x(0).toFixed(1)},${y(0).toFixed(1)}${teilPfad(F.q90)}${F.q10.map((w, i) => `L${x(i + 1).toFixed(1)},${y(w).toFixed(1)}`).reverse().join("")}Z`, fill: farbe, "fill-opacity": 0.2 }));
+    svg.append(sv("path", { d: `M${x(0).toFixed(1)},${y(0).toFixed(1)}${teilPfad(F.mitte)}`, fill: "none", stroke: farbe, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    // Echter Verlauf und wo Stop oder Ziel zuerst berührt wurde
+    if (echt) {
+      svg.append(sv("path", { d: `M${x(0).toFixed(1)},${y(0).toFixed(1)}${teilPfad(echt)}`, fill: "none", stroke: css("--text-1"), "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+      if ((s.ergebnis === "ziel" || s.ergebnis === "stop") && s.tag_ausgang) {
+        const w = s.ergebnis === "ziel" ? s.ziel_abstand : s.stop_abstand;
+        svg.append(sv("circle", { cx: x(s.tag_ausgang), cy: y(w), r: 4.5, fill: css(s.ergebnis === "ziel" ? "--gut" : "--schlecht"), stroke: css("--panel"), "stroke-width": 2 }));
+      }
+    }
+    svg.append(sv("circle", { cx: x(0), cy: y(0), r: 3.5, fill: css("--text-1"), stroke: css("--panel"), "stroke-width": 2 }));
+    const kreuz = sv("line", { y1: R.o, y2: hoehe - R.u, stroke: "#3a4654", "stroke-width": 1, opacity: 0 });
+    const pM = sv("circle", { r: 4, fill: farbe, stroke: css("--panel"), "stroke-width": 2, opacity: 0 });
+    const pE = sv("circle", { r: 4, fill: css("--text-1"), stroke: css("--panel"), "stroke-width": 2, opacity: 0 });
+    svg.append(kreuz, pM, pE);
+    box.querySelector("svg")?.remove();
+    box.prepend(svg);
+    box._zeige = i => {
+      const m = i ? F.mitte[i - 1] : 0, e = echt && i ? echt[i - 1] : echt ? 0 : null;
+      kreuz.setAttribute("x1", x(i)); kreuz.setAttribute("x2", x(i)); kreuz.setAttribute("opacity", 1);
+      pM.setAttribute("cx", x(i)); pM.setAttribute("cy", y(m)); pM.setAttribute("opacity", 1);
+      pE.setAttribute("opacity", e === null ? 0 : 1);
+      if (e !== null) { pE.setAttribute("cx", x(i)); pE.setAttribute("cy", y(e)); }
+      tip.replaceChildren(el("div", { class: "datum" }, i ? `Tag ${i} nach dem Signal` : "Signaltag"),
+        el("div", { class: "zeile" }, el("i", { style: `background:${farbe}` }), el("b", {}, prozent(m)), el("span", {}, "mittlere Zukunft")),
+        i ? el("div", { class: "zeile" }, el("i", { style: `background:${farbe};opacity:.4;height:8px` }), el("b", {}, `${prozent(F.q10[i - 1])} bis ${prozent(F.q90[i - 1])}`), el("span", {}, "8 von 10")) : null,
+        e !== null ? el("div", { class: "zeile" }, el("i", { style: `background:${css("--text-1")}` }), el("b", {}, prozent(e)), el("span", {}, "echt")) : null);
+      tip.style.opacity = 1;
+      const tx = x(i) + 14, tw = tip.offsetWidth;
+      tip.style.left = `${tx + tw > breite ? Math.max(0, x(i) - tw - 14) : tx}px`;
+      tip.style.top = "4px";
+    };
+    box._aus = () => { kreuz.setAttribute("opacity", 0); pM.setAttribute("opacity", 0); pE.setAttribute("opacity", 0); tip.style.opacity = 0; };
+  }
+  let aktuell = null;
+  box.onpointermove = ev => {
+    const px = ev.clientX - box.getBoundingClientRect().left;
+    aktuell = Math.max(0, Math.min(n, Math.round(((px - x(0)) / (x(n) - x(0))) * n)));
+    box._zeige(aktuell);
+  };
+  box.onpointerleave = () => box._aus();
+  box.onkeydown = ev => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(ev.key)) return;
+    ev.preventDefault();
+    if (aktuell === null) aktuell = n;
+    aktuell = ev.key === "Home" ? 0 : ev.key === "End" ? n : Math.max(0, Math.min(n, aktuell + (ev.key === "ArrowLeft" ? -1 : 1)));
+    box._zeige(aktuell);
+  };
+  box.onblur = () => box._aus();
+  zeichnen();
+  new ResizeObserver(() => { if (Math.abs(box.clientWidth - breite) > 2) zeichnen(); }).observe(box);
+}
 function lernmodellBauen(Lm) {
   const pz = v => v == null ? "–" : `${zahl(v * 100, 0)} %`;
   const kacheln = el("div", { class: "panel kacheln" },
@@ -2357,6 +2565,14 @@ function aufbauen(D) {
   fetch(`forschung.json?${Date.now()}`, { cache: "no-store" })
     .then(r => (r.ok ? r.json() : null))
     .then(F => { if (F && (F.experiment || (F.ideen || []).length)) forschungPlatz.replaceWith(forschungBauen(F)); })
+    .catch(() => {});
+
+  // ---------- Kronos-Versuch: Zukunftsfächer je Signal (kronos.json, eigener Ablauf) ----------
+  const kronosPlatz = el("div", {});
+  main.append(kronosPlatz);
+  fetch(`kronos.json?${Date.now()}`, { cache: "no-store" })
+    .then(r => (r.ok ? r.json() : null))
+    .then(K => { if (K && K.varianten) kronosPlatz.replaceWith(kronosBauen(K, D.repo)); })
     .catch(() => {});
 
   // ---------- Fazit: Tag, Woche, Monat, alles (ganz unten) ----------

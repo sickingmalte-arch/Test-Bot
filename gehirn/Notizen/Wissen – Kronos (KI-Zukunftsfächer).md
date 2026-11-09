@@ -33,6 +33,8 @@ Aus dem Befund oben drei Verbesserungen, alle vor dem Rechnen festgelegt und nur
 2. **Weniger übermütig:** Variante „small-64-T15“ rechnet mit mehr Zufall (Temperatur 1,5 statt 1,0, ohne Abschneiden der unwahrscheinlichen Zeichen). Wenn die festen 0-%/100-%-Aussagen nur daher kommen, dass das Modell zu sicher würfelt, sollte der Brier-Wert hier besser werden.
 3. **Das größere Modell:** Variante „base-256“ mit Kronos-base (102 Mio. statt 24,7 Mio. Parameter). Es rechnet etwa viermal so lange, deshalb nur die ersten 3 Signale am Tag und nur, solange das Zeitbudget (80 Minuten) reicht.
 
+**Auf der Webseite** (Bereich „Kronos“, Daten in `docs/kronos.json`): Zwischenstand je Variante und für jedes Signal der Fächer – die Fläche, in der 8 von 10 Zukünften liegen, die mittlere Zukunft, Stop und Ziel und nach 20 Tagen der echte Verlauf.
+
 Damit sind es 4 Varianten × 2 Fragen = 8 Vergleiche. Bei so vielen kann einer zufällig gut aussehen – das steht im Bericht dabei. Urteil je Variante erst ab 30 ausgewerteten Signalen.
 
 ## Probeläufe am 08.11.2026 (Signale vom 05.11., noch ohne Ergebnis)

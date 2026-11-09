@@ -1,0 +1,47 @@
+{
+ "stand": "2026-11-09",
+ "pfade": 50,
+ "tage": 20,
+ "min_auswertung": 30,
+ "varianten": [
+  {
+   "name": "small-256",
+   "modell": "Kronos-small",
+   "rueckblick": 256,
+   "T": 1.0,
+   "nur_erste": null
+  },
+  {
+   "name": "small-64",
+   "modell": "Kronos-small",
+   "rueckblick": 64,
+   "T": 1.0,
+   "nur_erste": null
+  },
+  {
+   "name": "small-64-T15",
+   "modell": "Kronos-small",
+   "rueckblick": 64,
+   "T": 1.5,
+   "nur_erste": null
+  },
+  {
+   "name": "base-256",
+   "modell": "Kronos-base",
+   "rueckblick": 256,
+   "T": 1.0,
+   "nur_erste": 3
+  }
+ ],
+ "zaehler": {
+  "gerechnet": 0,
+  "ausgewertet": 0,
+  "offen": 0
+ },
+ "naechste_auswertung": null,
+ "auswertung": {
+  "richtung": [],
+  "schwankung": []
+ },
+ "signale": []
+}

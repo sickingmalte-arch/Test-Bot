@@ -4,8 +4,8 @@
 name: Übersichtsseite
 
 on:
-  workflow_run: # nach jedem Lauf des Bots (er speichert neue Daten in docs/daten.json)
-    workflows: ["Swing-Bot"]
+  workflow_run: # nach jedem Lauf des Bots (er speichert neue Daten in docs/daten.json) und nach dem Kronos-Versuch (docs/kronos.json)
+    workflows: ["Swing-Bot", "Kronos-Versuch"]
     types: [completed]
   push: # wenn die Seite selbst geändert wird
     branches: [main]
@@ -23,6 +23,8 @@ concurrency:
 
 jobs:
   veroeffentlichen:
+    # Kronos-Probeläufe auf Arbeits-Branches speichern nichts – dann nichts neu veröffentlichen
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.name != 'Kronos-Versuch' || github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:

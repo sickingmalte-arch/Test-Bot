@@ -3,7 +3,8 @@
 # base-256 für die ersten 3 Signale); nach 20 Handelstagen Vergleich mit echten Kursen (Richtung und Schwankung).
 # Nur eine Messung – der Bot kauft und verkauft nicht danach. Die Depots werden nie angefasst.
 # Sicherheit: Gerechnet wird ohne Schreibrechte (fremder Modellcode liegt fest im Repo, von Hugging Face kommen nur die
-# Gewichte); gespeichert wird in einem eigenen Schritt, der nur die beiden Ergebnis-Dateien übernimmt.
+# Gewichte); gespeichert wird in einem eigenen Schritt, der nur die drei Ergebnis-Dateien übernimmt (Log, Bericht,
+# docs/kronos.json für die Webseite – die Übersichtsseite wird danach neu veröffentlicht).
 name: Kronos-Versuch
 
 on:
@@ -87,13 +88,14 @@ jobs:
         with:
           name: kronos-ergebnis
           path: ergebnis
-      - name: Speichern (nur die beiden Ergebnis-Dateien)
+      - name: Speichern (nur die drei Ergebnis-Dateien)
         run: |
           cp ergebnis/kronos_log.json forschung/kronos_log.json
           cp ergebnis/kronos_ergebnis.md forschung/kronos_ergebnis.md
+          cp ergebnis/kronos.json docs/kronos.json
           git config user.name "kronos-versuch"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add forschung/kronos_log.json forschung/kronos_ergebnis.md
+          git add forschung/kronos_log.json forschung/kronos_ergebnis.md docs/kronos.json
           if git diff --cached --quiet; then echo "Nichts Neues."; exit 0; fi
           git commit -m "Kronos-Versuch: $(TZ=Europe/Berlin date '+%d.%m.%Y')"
           for versuch in 1 2 3 4; do

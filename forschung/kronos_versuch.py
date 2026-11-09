@@ -24,8 +24,12 @@ Vorher festgelegt (zählt erst ab 30 ausgewerteten Signalen, je Variante): Eine 
 des Vergleichs liegt und das 90-%-Bootstrap-Intervall des Unterschieds ganz unter 0 liegt. Sonst: nicht besser.
 4 Varianten × 2 Fragen – bei so vielen Vergleichen kann einer zufällig gut aussehen, das steht im Bericht dabei.
 
+Für die Webseite (docs/kronos.json): je Signal und Variante der „Fächer“ (10-%-, 50-%- und 90-%-Linie der 50 Zukünfte
+für jeden der 20 Tage) und nach der Auswertung der echte Verlauf.
+
 Aufruf: python forschung/kronos_versuch.py --modus pruefen   (nur: gibt es etwas zu tun? für GitHub Actions)
-        python forschung/kronos_versuch.py --modus lauf [--probe] [--ausgabe ordner]"""
+        python forschung/kronos_versuch.py --modus lauf [--probe] [--ausgabe ordner]
+        python forschung/kronos_versuch.py --modus seite     (nur Bericht und docs/kronos.json neu schreiben)"""
 import argparse
 import datetime as dt
 import json
@@ -42,6 +46,7 @@ DATEN = os.path.join(WURZEL, "docs", "daten.json")
 TAGE = 20
 MIN_AUSWERTUNG = 30
 WARTEN_KALENDERTAGE = 32  # nach so vielen Kalendertagen sind 20 Handelstage sicher vorbei
+SEITE_SIGNALE = 40  # so viele Signale (die neuesten) zeigt die Webseite
 TOKENIZER = "NeoQuasar/Kronos-Tokenizer-base"
 PFADE = int(os.environ.get("KRONOS_PFADE", "50"))
 MAX_SIGNALE = int(os.environ.get("KRONOS_MAX_SIGNALE", "8"))
@@ -57,8 +62,11 @@ _PREDICTOREN = {}
 
 # ---------------------------------------------------------------- Dateien
 def pfade(ausgabe=None):
-    ordner = ausgabe or HIER
-    return os.path.join(ordner, "kronos_log.json"), os.path.join(ordner, "kronos_ergebnis.md")
+    """Log, Bericht und Webseiten-Daten – im Repo oder (GitHub-Lauf ohne Schreibrechte) in einem eigenen Ordner."""
+    if ausgabe:
+        return tuple(os.path.join(ausgabe, n) for n in ("kronos_log.json", "kronos_ergebnis.md", "kronos.json"))
+    return (os.path.join(HIER, "kronos_log.json"), os.path.join(HIER, "kronos_ergebnis.md"),
+            os.path.join(WURZEL, "docs", "kronos.json"))
 
 
 def lies_log(datei):
@@ -203,7 +211,8 @@ def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=Fa
             t1 = time.time()
             wege = kronos_zukuenfte(predictor_fn(v["modell"]), df, PFADE, seed, v["rueckblick"], v["T"], v["top_p"])
             erg = [ausgang(w["open"].to_numpy(), w["high"].to_numpy(), w["low"].to_numpy(), stop, ziel)[0] for w in wege]
-            ende20 = np.array([w["close"].iloc[-1] / kurs_usd - 1 for w in wege]) * 100
+            verlauf = np.array([w["close"].to_numpy(float) / kurs_usd - 1 for w in wege]) * 100  # Zukünfte × Tage
+            ende20 = verlauf[:, -1]
             sv = np.array([spanne_und_vola(w, start_kurs=kurs_usd) for w in wege])
             varianten[v["name"]] = {
                 "p_ziel": round(erg.count("ziel") / len(erg), 3), "p_stop": round(erg.count("stop") / len(erg), 3),
@@ -212,6 +221,8 @@ def vorhersage(daten, log, predictor_fn=lade_predictor, kurse_fn=kurse, probe=Fa
                                           "q90": round(float(np.percentile(ende20, 90)), 2)},
                 "tagesspanne_prozent": round(float(sv[:, 0].mean()), 3), "vola_prozent": round(float(sv[:, 1].mean()), 3),
                 "abstand_zum_mittel_prozent": round((kurs_usd / float(df["close"].tail(v["rueckblick"]).mean()) - 1) * 100, 1),
+                "faecher": {k: [round(float(x), 2) for x in np.percentile(verlauf, q, axis=0)]
+                            for k, q in (("q10", 10), ("mitte", 50), ("q90", 90))},
                 "sekunden": round(time.time() - t1, 1)}
         e = {"signal_tag": tag, "ticker": s["ticker"], "strategie": s.get("strategie"), "kurs_usd": round(kurs_usd, 4),
              "stop_abstand": round((stop / kurs_usd - 1) * 100, 2), "ziel_abstand": round((ziel / kurs_usd - 1) * 100, 2),
@@ -252,6 +263,7 @@ def auswertung(log, heute, kurse_fn=kurse):
                                                   stop, ziel)
         spanne, vola = spanne_und_vola(df, start_kurs=k)
         e["echt"] = {"tagesspanne_prozent": round(spanne, 3), "vola_prozent": round(vola, 3)}
+        e["echt_verlauf"] = [round((float(c) / k - 1) * 100, 2) for c in df["close"]]
         n += 1
     return n
 
@@ -278,10 +290,74 @@ def _urteil(n, a, b, hi):
     return "besser" if a < b and hi < 0 else "nicht besser"
 
 
-def bericht(log):
+def _rang(a, b):
+    """Spearman-Korrelation ohne scipy; None, wenn sie nicht berechnet werden kann."""
+    r = pd.Series(a).rank().corr(pd.Series(b).rank()) if len(a) > 2 else np.nan
+    return round(float(r), 2) if np.isfinite(r) else None
+
+
+def teile(log):
     eigene = [e for e in log if not e.get("probe") and "kronos" in e]
-    fertig = [e for e in eigene if e.get("ergebnis") in ("ziel", "stop", "zeit")]
-    offen = [e for e in eigene if "ergebnis" not in e]
+    return (eigene, [e for e in eigene if e.get("ergebnis") in ("ziel", "stop", "zeit")],
+            [e for e in eigene if "ergebnis" not in e])
+
+
+def tabellen(log):
+    """Zwischenstand je Variante für beide Fragen (Bericht und Webseite rechnen damit gleich)."""
+    _, fertig, _ = teile(log)
+    y = {id(e): 1 if e["ergebnis"] == "ziel" else 0 for e in fertig}
+    out = {"richtung": [], "schwankung": []}
+    for v in VARIANTEN:
+        name = v["name"]
+        teil = [e for e in fertig if name in e["kronos"]]
+        if teil:
+            fk = [(e["kronos"][name]["p_ziel"] - y[id(e)]) ** 2 for e in teil]
+            fz = [(e["p_ziel_zufall"] - y[id(e)]) ** 2 for e in teil]
+            lo, hi = _bootstrap(fk, fz)
+            out["richtung"].append({
+                "variante": name, "n": len(teil), "fehler_kronos": round(float(np.mean(fk)), 4),
+                "fehler_vergleich": round(float(np.mean(fz)), 4), "lo": round(lo, 4), "hi": round(hi, 4),
+                "chance_kronos": round(float(np.mean([e["kronos"][name]["p_ziel"] for e in teil])), 3),
+                "wirklich_ziel": round(float(np.mean([y[id(e)] for e in teil])), 3),
+                "urteil": _urteil(len(teil), np.mean(fk), np.mean(fz), hi)})
+        teil = [e for e in teil if "echt" in e and "tagesspanne_prozent" in e["kronos"][name]]
+        if teil:
+            echt = [e["echt"]["tagesspanne_prozent"] for e in teil]
+            kr = [e["kronos"][name]["tagesspanne_prozent"] for e in teil]
+            fb_basis = [e["letzte_20_tage"]["tagesspanne_prozent"] for e in teil]
+            fk = [abs(a - b) for a, b in zip(kr, echt)]
+            fb = [abs(a - b) for a, b in zip(fb_basis, echt)]
+            lo, hi = _bootstrap(fk, fb)
+            out["schwankung"].append({
+                "variante": name, "n": len(teil), "fehler_kronos": round(float(np.mean(fk)), 3),
+                "fehler_vergleich": round(float(np.mean(fb)), 3), "lo": round(lo, 3), "hi": round(hi, 3),
+                "kronos_mittel": round(float(np.mean(kr)), 3), "echt_mittel": round(float(np.mean(echt)), 3),
+                "rang_kronos": _rang(kr, echt), "rang_vergleich": _rang(fb_basis, echt),
+                "urteil": _urteil(len(teil), np.mean(fk), np.mean(fb), hi)})
+    return out
+
+
+def webseite(log):
+    """Daten für den Kronos-Bereich der Übersichtsseite (docs/kronos.json)."""
+    eigene, fertig, offen = teile(log)
+    weg = {"sekunden", "erstellt", "pfade"}
+    signale = []
+    for e in sorted(eigene, key=lambda e: (e["signal_tag"], e["ticker"]), reverse=True)[:SEITE_SIGNALE]:
+        x = {k: w for k, w in e.items() if k not in weg}
+        x["kronos"] = {n: {k: w for k, w in v.items() if k != "sekunden"} for n, v in e["kronos"].items()}
+        signale.append(x)
+    naechste = min((dt.date.fromisoformat(e["signal_tag"]) + dt.timedelta(days=WARTEN_KALENDERTAGE) for e in offen),
+                   default=None)
+    return {"stand": dt.date.today().isoformat(), "pfade": PFADE, "tage": TAGE, "min_auswertung": MIN_AUSWERTUNG,
+            "varianten": [{"name": v["name"], "modell": v["modell"].split("/")[-1], "rueckblick": v["rueckblick"],
+                           "T": v["T"], "nur_erste": v["max"] if v["max"] < MAX_SIGNALE else None} for v in VARIANTEN],
+            "zaehler": {"gerechnet": len(eigene), "ausgewertet": len(fertig), "offen": len(offen)},
+            "naechste_auswertung": naechste.isoformat() if naechste else None,
+            "auswertung": tabellen(log), "signale": signale}
+
+
+def bericht(log):
+    eigene, fertig, offen = teile(log)
     namen = [v["name"] for v in VARIANTEN]
     z = ["# 🔮 Kronos-Versuch (nach vorne)", "",
          f"Stand {dt.date.today():%d.%m.%Y} · {PFADE} Zukünfte je Signal und Variante, {TAGE} Handelstage. Varianten: "
@@ -298,43 +374,25 @@ def bericht(log):
          "zurück (oft alle 50 Zukünfte in dieselbe Richtung), und seine Tageskerzen sind 1,2- bis 1,7-mal so groß wie "
          "echte.", ""]
     if fertig:
-        y = {id(e): 1 if e["ergebnis"] == "ziel" else 0 for e in fertig}
+        T = tabellen(log)
         z += ["## 1. Richtung: Ziel oder Stop zuerst?", "",
               "| Variante | Signale | Brier Kronos | Brier Zufallsweg | Unterschied (90-%-Intervall) | Ø Chance Kronos | "
               "wirklich Ziel zuerst | Urteil |", "|---|---:|---:|---:|---|---:|---:|---|"]
-        for name in namen:
-            teil = [e for e in fertig if name in e["kronos"]]
-            if not teil:
-                continue
-            fk = [(e["kronos"][name]["p_ziel"] - y[id(e)]) ** 2 for e in teil]
-            fz = [(e["p_ziel_zufall"] - y[id(e)]) ** 2 for e in teil]
-            lo, hi = _bootstrap(fk, fz)
-            z.append(f"| {name} | {len(teil)} | {de(np.mean(fk), '.3f')} | {de(np.mean(fz), '.3f')} | "
-                     f"{de(np.mean(fk) - np.mean(fz), '+.3f')} ({de(lo, '+.3f')} bis {de(hi, '+.3f')}) | "
-                     f"{np.mean([e['kronos'][name]['p_ziel'] for e in teil]):.0%} | "
-                     f"{np.mean([y[id(e)] for e in teil]):.0%} | {_urteil(len(teil), np.mean(fk), np.mean(fz), hi)} |")
+        for r in T["richtung"]:
+            z.append(f"| {r['variante']} | {r['n']} | {de(r['fehler_kronos'], '.3f')} | {de(r['fehler_vergleich'], '.3f')} | "
+                     f"{de(r['fehler_kronos'] - r['fehler_vergleich'], '+.3f')} ({de(r['lo'], '+.3f')} bis "
+                     f"{de(r['hi'], '+.3f')}) | {r['chance_kronos']:.0%} | {r['wirklich_ziel']:.0%} | {r['urteil']} |")
         z += ["", "## 2. Schwankung: mittlere Tagesspanne der nächsten 20 Tage", "",
               "Zusatz ohne Urteil: „Rangfolge“ = Spearman-Korrelation mit der echten Spanne – erkennt Kronos wenigstens, "
               "welche Aktien unruhiger werden, auch wenn seine Kerzen zu groß sind?", "",
               "| Variante | Signale | Fehler Kronos | Fehler „letzte 20 Tage“ | Unterschied (90-%-Intervall) | Ø Kronos | "
               "Ø echt | Rangfolge Kronos / letzte 20 T. | Urteil |", "|---|---:|---:|---:|---|---:|---:|---:|---|"]
-        for name in namen:
-            teil = [e for e in fertig if name in e["kronos"] and "echt" in e]
-            if not teil:
-                continue
-            echt = [e["echt"]["tagesspanne_prozent"] for e in teil]
-            fk = [abs(e["kronos"][name]["tagesspanne_prozent"] - x) for e, x in zip(teil, echt)]
-            fb = [abs(e["letzte_20_tage"]["tagesspanne_prozent"] - x) for e, x in zip(teil, echt)]
-            lo, hi = _bootstrap(fk, fb)
-            kr = [e["kronos"][name]["tagesspanne_prozent"] for e in teil]
-            def rang(a):
-                r = pd.Series(a).rank().corr(pd.Series(echt).rank()) if len(teil) > 2 else np.nan  # Spearman ohne scipy
-                return de(r, "+.2f") if np.isfinite(r) else "–"
-            z.append(f"| {name} | {len(teil)} | {de(np.mean(fk), '.2f')} % | {de(np.mean(fb), '.2f')} % | "
-                     f"{de(np.mean(fk) - np.mean(fb), '+.2f')} ({de(lo, '+.2f')} bis {de(hi, '+.2f')}) | "
-                     f"{de(np.mean(kr), '.2f')} % | {de(np.mean(echt), '.2f')} % | "
-                     f"{rang(kr)} / {rang([e['letzte_20_tage']['tagesspanne_prozent'] for e in teil])} | "
-                     f"{_urteil(len(teil), np.mean(fk), np.mean(fb), hi)} |")
+        rang = lambda r: "–" if r is None else de(r, "+.2f")  # noqa: E731
+        for r in T["schwankung"]:
+            z.append(f"| {r['variante']} | {r['n']} | {de(r['fehler_kronos'], '.2f')} % | {de(r['fehler_vergleich'], '.2f')} % | "
+                     f"{de(r['fehler_kronos'] - r['fehler_vergleich'], '+.2f')} ({de(r['lo'], '+.2f')} bis "
+                     f"{de(r['hi'], '+.2f')}) | {de(r['kronos_mittel'], '.2f')} % | {de(r['echt_mittel'], '.2f')} % | "
+                     f"{rang(r['rang_kronos'])} / {rang(r['rang_vergleich'])} | {r['urteil']} |")
         z.append("")
     else:
         z += ["**Ergebnis:** noch keine Signale ausgewertet (das geht frühestens 20 Handelstage nach dem Signal).", ""]
@@ -358,11 +416,11 @@ def bericht(log):
 
 def main(argv=None):
     p = argparse.ArgumentParser()
-    p.add_argument("--modus", choices=["pruefen", "lauf"], default="lauf")
+    p.add_argument("--modus", choices=["pruefen", "lauf", "seite"], default="lauf")
     p.add_argument("--probe", action="store_true", help="Probelauf: nichts im Repo speichern")
     p.add_argument("--ausgabe", default=None, help="Ordner für Log und Bericht (Standard: forschung/)")
     a = p.parse_args(argv)
-    log_datei, bericht_datei = pfade(a.ausgabe)
+    log_datei, bericht_datei, seite_datei = pfade(a.ausgabe)
     log = lies_log(pfade()[0])  # immer vom gespeicherten Log ausgehen
     with open(DATEN, encoding="utf-8") as f:
         daten = json.load(f)
@@ -373,10 +431,15 @@ def main(argv=None):
         noetig = bool(neu) or any(faellig(e, heute) for e in log if not e.get("probe")) or a.probe
         print(f"noetig={'true' if noetig else 'false'}")
         return
+    if a.modus == "seite":
+        schreibe(bericht_datei, bericht(log))
+        schreibe(seite_datei, webseite(log))
+        return
     n_neu = vorhersage(daten, log, probe=a.probe)
     n_aus = auswertung(log, heute)
     schreibe(log_datei, log)
     schreibe(bericht_datei, bericht(log))
+    schreibe(seite_datei, webseite(log))
     print(f"Fertig: {n_neu} neue Signale, {n_aus} ausgewertet.")
 
 
