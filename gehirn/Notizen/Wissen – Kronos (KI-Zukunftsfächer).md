@@ -33,6 +33,8 @@ Aus dem Befund oben drei Verbesserungen, alle vor dem Rechnen festgelegt und nur
 2. **Weniger übermütig:** Variante „small-64-T15“ rechnet mit mehr Zufall (Temperatur 1,5 statt 1,0, ohne Abschneiden der unwahrscheinlichen Zeichen). Wenn die festen 0-%/100-%-Aussagen nur daher kommen, dass das Modell zu sicher würfelt, sollte der Brier-Wert hier besser werden.
 3. **Das größere Modell:** Variante „base-256“ mit Kronos-base (102 Mio. statt 24,7 Mio. Parameter). Es rechnet etwa viermal so lange, deshalb nur die ersten 3 Signale am Tag und nur, solange das Zeitbudget (80 Minuten) reicht.
 
+**Auf der Webseite** (Bereich „Kronos“, Daten in `docs/kronos.json`): Zwischenstand je Variante und für jedes Signal der Fächer – die Fläche, in der 8 von 10 Zukünften liegen, die mittlere Zukunft, Stop und Ziel und nach 20 Tagen der echte Verlauf.
+
 Damit sind es 4 Varianten × 2 Fragen = 8 Vergleiche. Bei so vielen kann einer zufällig gut aussehen – das steht im Bericht dabei. Urteil je Variante erst ab 30 ausgewerteten Signalen.
 
 ## Probeläufe am 08.11.2026 (Signale vom 05.11., noch ohne Ergebnis)
@@ -47,6 +49,22 @@ Kronos-small, je 50 Zukünfte über 20 Handelstage, gerechnet bei GitHub (etwa 2
 | XOM | −7,3 / +5,9 % | 4 % / 72 % · −2,6 % (13 % über Ø) | 80 % / 14 % · +5,9 % (1 % unter Ø) | 43 % |
 
 **Befund:** Auf Tageskerzen von Aktien zieht Kronos den Kurs fast immer zum Durchschnitt des Rückblick-Fensters zurück – egal ob 256 oder 64 Tage – und das mit großer Sicherheit (oft alle 50 Zukünfte in dieselbe Richtung). Seine Tageskerzen sind etwa 1,2- bis 1,7-mal so groß wie echte. Das passt zu den Nutzerberichten („Hang zur Rückkehr zum Mittelwert“). Ob das zufällig manchmal stimmt, zeigt erst der Versuch nach vorne – bei so festen 0-%/100-%-Aussagen wird jeder Irrtum im Brier-Wert teuer.
+
+## Probelauf am 09.11.2026 (alle 4 Varianten, Probe mit Stop und Ziel ±5 %)
+Ohne echtes Kauf-Signal an dem Tag – deshalb zwei Aktien mit gedachtem Stop −5 % und Ziel +5 %, nur zum Messen. Je 50 Zukünfte über 20 Handelstage, gerechnet bei GitHub:
+
+| Aktie (Kurs zum Ø 256 / 64 Tage) | small-256 | small-64 | small-64-T15 | base-256 | Zufallsweg |
+|---|---|---|---|---|---:|
+| INTU (−17,6 % / +5,2 %) | Ziel 26 % / Stop 74 % · Mitte −9,1 % | 72 % / 28 % · −1,1 % | 42 % / 58 % · −4,1 % | 40 % / 60 % · −6,9 % | Ziel 51 % |
+| AAPL (+17,2 % / +3,7 %) | 2 % / 98 % · −7,4 % | 22 % / 16 % · −0,3 % | 38 % / 58 % · −2,9 % | 0 % / 100 % · −12,1 % | Ziel 44 % |
+| Tagesspanne INTU / AAPL (letzte 20 Tage: 3,9 % / 2,1 %) | 6,1 % / 2,8 % | 4,3 % / 2,3 % | 6,9 % / 3,4 % | 8,8 % / 3,2 % | – |
+| Rechenzeit je Signal | 161–165 s | 29 s | 29 s | 508–519 s | – |
+
+**Befund:**
+- **Mehr Zufall (T15)** macht die Aussagen weniger übermütig: Bei AAPL sind es 38/58 statt 2/98.
+- **Das große Modell (base)** ist bei AAPL genauso fest (0/100) und zieht noch stärker nach unten.
+- **Bei der Schwankung** liegt Kronos über den letzten 20 Tagen. Am nächsten kommt die Variante mit 64 Tagen Rückblick.
+- **Rechenzeit:** Das große Modell braucht etwa 8,5 Minuten je Signal. Mit 8 Signalen am Tag (die ersten 3 auch mit base) dauert ein Lauf knapp eine Stunde – das passt in das Zeitbudget.
 
 ## Quellen
 - Repository und Code: https://github.com/shiyu-coder/Kronos
