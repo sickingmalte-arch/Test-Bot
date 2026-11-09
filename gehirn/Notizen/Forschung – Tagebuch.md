@@ -10,6 +10,57 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 06.11.2026 (Freitag) · Kaufzeit
+
+**Idee** (Wunsch des Nutzers): Heute entscheidet der Bot am Abend und kauft am nächsten Tag zur Eröffnung bis zum Limit. Drei andere Kaufzeiten, vorher festgelegt; Rechnung mit der heutigen Kaufzeit exakt nachgeprüft (gleiches Ergebnis wie der Bot).
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot (Eröffnung am nächsten Tag) | +12,9 % / −13 % | +12,6 % / −17 % | +8,3 % / −15 % |
+| 1) zum Schluss des Signaltags | +12,4 % / −17 % | +12,8 % / −21 % | +8,0 % / −13 % |
+| 2) zum Schluss des nächsten Tages | +11,6 % / −18 % | +13,2 % / −16 % | +7,3 % / −15 % |
+| 3) Eröffnung, aber nicht nach einer Lücke nach oben | +13,6 % / −14 % | +14,6 % / −17 % | +4,8 % / −18 % |
+| … Gegenprobe: gleich oft zufällig auslassen (6×) | +10,1 bis +13,6 % | +10,4 bis +13,6 % | +5,9 bis +9,2 % |
+
+**Ergebnis:** keine Kaufzeit ist überall besser – nicht übernommen. 1) −0,5 / +0,1 / −0,3 Punkte (Rückgänge größer), 2) −1,2 / +0,5 / −1,0, 3) +0,8 / +1,9 / −3,6 (2022–2026 deutlich schlechter). Variante 4 (1 Stunde nach der Eröffnung) entfiel: Stundenkerzen gibt es nur für etwa 2 Jahre, der Prüfstand rechnet 2010–2026.
+
+## 06.11.2026 (Abend) · Ehrlicher Check 2: Watchlist nach Regel, halb Bot halb S&P 500, echte Stärke je Strategie
+
+**Frage** (der Nutzer gab freie Hand): Alles mit Aktien, die zu Beginn des Zeitraums wirklich im S&P 500 waren. Vorher festgelegt: (1) Regel-Liste muss 7 von 8 Zufallslisten schlagen, (2) die Mischung muss mehr Rendite pro Rückgang haben als S&P 500 allein und Bot allein, (3) eine Strategie hat nur dann echten Vorteil, wenn sie in allen drei Zeiträumen zufällige Käufe mit denselben Stop- und Zielabständen schlägt.
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Bot mit 24 zufälligen damaligen Aktien (Mitte aus 8) | +12,3 % / −16 % | +4,4 % / −18 % | +3,1 % / −14 % |
+| Bot mit den 24 meistgehandelten | +10,3 % / −18 % | +3,3 % / −22 % | +4,0 % / −15 % |
+| Bot mit den 24 stärksten (12 Monate) | +6,2 % / −20 % | +2,8 % / −20 % | +4,0 % / −15 % |
+| Halb Bot, halb S&P 500 (Mitte) | +15,4 % / −17 % | +11,3 % / −26 % | +8,0 % / −17 % |
+| S&P 500 halten | +19,2 % / −21 % | +15,8 % / −33 % | +12,1 % / −23 % |
+
+| Gedachte Trades auf Zufallslisten, Ø R nach Kosten | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Gegenbewegung ↑ | +0,13 | +0,12 | +0,05 |
+| übrige 8 Strategien | +0,05 bis +0,11 | +0,02 bis +0,07 | +0,03 bis +0,06 |
+| 🎲 Zufall mit Trend-Ausstieg (±3 ATR) | +0,12 | +0,06 | −0,03 |
+| 🎲 Zufall mit Gegen-Ausstieg (−2,5/+2 ATR) | +0,09 | +0,05 | −0,01 |
+
+**Ergebnis:**
+- (1) Watchlist nach Regel: **besteht nicht** – meistgehandelte und stärkste Aktien liefen sogar schlechter als zufällige.
+- (2) Halb Bot, halb S&P 500: **besteht nicht** – besser als der Bot allein, aber der S&P 500 allein hatte in allen drei Zeiträumen die beste Rendite pro Rückgang.
+- (3) Nur **Gegenbewegung** schlug zufällige Käufe in allen drei Zeiträumen. Die anderen 8 Strategien verdienen meist nur, was jeder Kauf am steigenden Markt verdient (2010–2014 lagen fast alle unter dem Zufall). Bei 9 Strategien kann eine Glück sein – deshalb der Nachtest:
+
+**Nachtest Gegenbewegung** (8 neue Zufallslisten, andere Aktien; vorher festgelegt):
+
+| Mitte aus 8 neuen Listen | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Gegenbewegung, Ø R je gedachtem Trade | +0,11 | +0,10 | −0,03 |
+| 🎲 Zufall mit demselben Ausstieg | +0,09 | +0,06 | −0,04 |
+| Voller Bot (9 Strategien) | +12,7 % / −16 % | +4,7 % / −18 % | +2,5 % / −15 % |
+| Bot nur mit Gegenbewegung | +3,4 % / −12 % | +1,5 % / −17 % | −1,1 % / −11 % |
+
+- Gegenbewegung schlägt den Zufall auch auf neuen Aktien – aber nur knapp (+0,01 bis +0,04 R je Trade).
+- Ein Bot nur mit ihr ist viel schlechter: Er handelt nur 24–42-mal im Jahr und ist meist nicht investiert. Der volle Bot verdient vor allem, weil er oft im steigenden Markt investiert ist – nicht, weil seine Käufe besser sind als zufällige.
+- **Gesamtbild nach allen ehrlichen Tests:** Die Regeln des Bots sind kaum besser als zufällige Käufe mit denselben Ausstiegen. Einfach den S&P 500 zu halten hatte in allen drei Zeiträumen die beste Rendite pro Rückgang. Nicht übernommen, der Bot bleibt, wie er ist (Spielgeld, Lernprojekt).
+
 ## 06.11.2026 · Chart-Zeichnungen: Trendlinien-Regel (C), Anzeige (A), Chart-Agent (B)
 
 **Wunsch des Nutzers:** ein Agent, der den Chart analysiert, Linien zeichnet und danach handelt. Drei Teile:

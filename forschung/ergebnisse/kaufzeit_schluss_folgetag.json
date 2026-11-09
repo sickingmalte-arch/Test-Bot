@@ -1,0 +1,60 @@
+{
+ "name": "Kaufzeit 2: Kauf zum Schlusskurs am nächsten Tag (statt zur Eröffnung), Limit wie heute",
+ "datei": "kaufzeit_schluss_folgetag",
+ "datum": "2026-11-06",
+ "quelle": "Wunsch des Nutzers (Chat vom 05.11.2026): sollten wir die Kaufzeit ändern?",
+ "urteil": "nicht überall besser",
+ "plus": {
+  "2010-01-01": -1.211876172777714,
+  "2015-01-01": 0.543649663637428,
+  "2022-01-01": -1.0184055454359555
+ },
+ "basis": {
+  "2010-01-01": {
+   "rendite": 12.851336363938959,
+   "rueckgang": 12.856387246574624,
+   "treffer": 57.970420952734045,
+   "schnitt_r": 0.14924583595615296,
+   "trades_jahr": 121.20706984083424
+  },
+  "2015-01-01": {
+   "rendite": 12.629230723763378,
+   "rueckgang": 16.817661927054083,
+   "treffer": 58.929002757527776,
+   "schnitt_r": 0.13120348357317346,
+   "trades_jahr": 127.87323874755381
+  },
+  "2022-01-01": {
+   "rendite": 8.331134165706223,
+   "rueckgang": 14.841788013962965,
+   "treffer": 58.28918132391126,
+   "schnitt_r": 0.11302213485444335,
+   "trades_jahr": 106.50580058528428
+  }
+ },
+ "idee": {
+  "2010-01-01": {
+   "rendite": 11.639460191161245,
+   "rueckgang": 18.346417385269056,
+   "treffer": 57.05205703292187,
+   "schnitt_r": 0.1270851949282887,
+   "trades_jahr": 117.27291437980242
+  },
+  "2015-01-01": {
+   "rendite": 13.172880387400806,
+   "rueckgang": 16.445932604850988,
+   "treffer": 56.5371181053975,
+   "schnitt_r": 0.23417073598930715,
+   "trades_jahr": 120.51105675146772
+  },
+  "2022-01-01": {
+   "rendite": 7.312728620270267,
+   "rueckgang": 14.552190280876774,
+   "treffer": 54.44541061001683,
+   "schnitt_r": 0.09893740960506855,
+   "trades_jahr": 100.11799749163879
+  }
+ },
+ "zufall": [],
+ "sekunden": 15
+}
