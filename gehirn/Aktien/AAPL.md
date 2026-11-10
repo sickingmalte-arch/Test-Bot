@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AAPL)
 
-**Stand Fr 06.11. 2026:** ⏸ WARTEN – Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt)
+**Stand Mo 09.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 28.01.
 
 ## Übungsdepot

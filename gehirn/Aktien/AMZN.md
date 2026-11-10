@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AMZN)
 
-**Stand Fr 06.11. 2026:** BEOBACHTEN
+**Stand Mo 09.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 04.02.
 
 ## Übungsdepot
