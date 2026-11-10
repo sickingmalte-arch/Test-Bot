@@ -53,10 +53,10 @@
   "atr": 2.0,
   "min_tage": 15,
   "zaehler": {
-   "gerechnet": 24,
+   "gerechnet": 48,
    "ausgewertet": 0,
-   "offen": 24,
-   "tage": 1,
+   "offen": 48,
+   "tage": 2,
    "tage_ausgewertet": 0
   },
   "naechste_auswertung": "2026-12-08",

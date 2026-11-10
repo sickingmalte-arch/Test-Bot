@@ -14,7 +14,7 @@ Noch keine Signale ausgewertet (das geht frühestens 20 Handelstage nach dem Sig
 
 ## 2. Alle Aktien der Watchlist täglich (small-64, small-64-T15, Stop −2 ATR, Ziel +2 ATR)
 
-Gerechnet: 24 an 1 Tagen · ausgewertet: 0 an 0 Tagen · offen: 24. Aktien am selben Tag laufen ähnlich – deshalb zählt die Zahl der Tage, und das Intervall zieht ganze Tage.
+Gerechnet: 48 an 2 Tagen · ausgewertet: 0 an 0 Tagen · offen: 48. Aktien am selben Tag laufen ähnlich – deshalb zählt die Zahl der Tage, und das Intervall zieht ganze Tage.
 
 ## Alle Kauf-Signale
 
