@@ -81,6 +81,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+      actions: write # Übersichtsseite starten (siehe letzter Schritt)
     steps:
       - uses: actions/checkout@v5
         with:
@@ -106,3 +107,11 @@ jobs:
             sleep $((versuch * 5))
           done
           exit 1
+      - name: Übersichtsseite neu veröffentlichen
+        # Hat der Morgen-Lauf des Bots diesen Lauf gestartet, startet GitHub danach keine Folge-Abläufe – die Seite käme
+        # sonst erst mit dem nächsten Lauf. Deshalb hier ausdrücklich starten.
+        if: github.triggering_actor == 'github-actions[bot]'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run uebersicht.yml --repo "$GITHUB_REPOSITORY" --ref main

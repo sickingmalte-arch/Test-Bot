@@ -237,12 +237,17 @@ jobs:
           fi
           gh issue comment "$nummer" --repo "$GITHUB_REPOSITORY" --body-file "$datei"
 
-      - name: Übersichtsseite veröffentlichen
-        # uebersicht.yml startet sonst von selbst, wenn dieser Lauf fertig ist. Hat aber live.yml den Lauf angestoßen
-        # (Morgen-Lauf um 6:47 UTC), startet GitHub bei Läufen des Bots keine Folge-Abläufe – die Seite zeigte dann bis
-        # zum nächsten Live-Lauf um 12 Uhr noch den Stand von gestern. Deshalb hier ausdrücklich starten.
+      - name: Übersichtsseite veröffentlichen und Kronos-Versuch starten
+        # uebersicht.yml und kronos.yml starten sonst von selbst, wenn dieser Lauf fertig ist. Hat aber live.yml den Lauf
+        # angestoßen (Morgen-Lauf um 6:47 UTC), startet GitHub bei Läufen des Bots keine Folge-Abläufe – die Seite zeigte
+        # dann bis zum nächsten Live-Lauf um 12 Uhr noch den Stand von gestern, und Kronos rechnete erst nach einem
+        # späteren Lauf. Deshalb hier ausdrücklich starten (Kronos prüft selbst, ob es etwas zu tun gibt).
         if: always() && github.triggering_actor == 'github-actions[bot]'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run uebersicht.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"
+        run: |
+          gh workflow run uebersicht.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            gh workflow run kronos.yml --repo "$GITHUB_REPOSITORY" --ref main || echo "Kronos-Versuch nicht gestartet."
+          fi
