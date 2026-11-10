@@ -3,10 +3,10 @@
   "name": "Lernmodell: beste Punktzahl zuerst",
   "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
   "seit": "2026-11-02",
-  "bis": "2026-11-06",
-  "experiment_prozent": -1.34,
-  "papier_prozent": -1.24,
-  "depotwert": 9866.31,
+  "bis": "2026-11-09",
+  "experiment_prozent": -0.12,
+  "papier_prozent": 0.27,
+  "depotwert": 9988.01,
   "positionen": 4,
   "trades": 3,
   "gewinner": 1,
@@ -35,65 +35,15 @@
     "tag": "2026-11-06",
     "experiment": -1.34,
     "papier": -1.24
+   },
+   {
+    "tag": "2026-11-09",
+    "experiment": -0.12,
+    "papier": 0.27
    }
   ]
  },
  "ideen": [
-  {
-   "datum": "2026-11-05",
-   "datei": "momentum_12m_top10",
-   "name": "Momentum: die 10 stärksten Aktien der letzten 12 Monate, monatlich umschichten",
-   "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
-   "plus": [
-    25.4,
-    13.9,
-    38.4
-   ]
-  },
-  {
-   "datum": "2026-11-05",
-   "datei": "momentum_12m_top20",
-   "name": "Momentum: die 20 stärksten Aktien der letzten 12 Monate, monatlich umschichten",
-   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten",
-   "plus": [
-    23.8,
-    9.0,
-    18.8
-   ]
-  },
-  {
-   "datum": "2026-11-05",
-   "datei": "momentum_6m_top10",
-   "name": "Momentum: die 10 stärksten Aktien der letzten 6 Monate, monatlich umschichten",
-   "urteil": "fällt tiefer als der Nasdaq-100 beim Halten",
-   "plus": [
-    20.8,
-    21.5,
-    37.7
-   ]
-  },
-  {
-   "datum": "2026-11-05",
-   "datei": "nasdaq_trend_200",
-   "name": "Trendfolge: Nasdaq-100 (QQQ) halten, nur wenn er am Monatsende über seiner 200-Tage-Linie liegt",
-   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot",
-   "plus": [
-    4.7,
-    4.8,
-    4.8
-   ]
-  },
-  {
-   "datum": "2026-11-05",
-   "datei": "kombi_bot_momentum_stichtag",
-   "name": "Kombi: halb Swing-Bot, halb Momentum (10 stärkste Aktien, 12 Monate) – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
-   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; nicht besser als Zufall",
-   "plus": [
-    6.4,
-    -2.5,
-    0.4
-   ]
-  },
   {
    "datum": "2026-11-05",
    "datei": "momentum_12m_top10_stichtag",
@@ -147,6 +97,61 @@
     -0.5,
     0.7,
     0.4
+   ]
+  },
+  {
+   "datum": "2026-11-06",
+   "datei": "ehrlicher_check_2",
+   "name": "Ehrlicher Check 2: Watchlist nach Regel, halb Bot halb S&P 500, echte Stärke der Strategien",
+   "urteil": "Watchlist nach Umsatz: besteht nicht; Watchlist nach Stärke: besteht nicht; halb Bot, halb S&P 500: besteht nicht; Strategien mit echtem Vorteil: gegenbewegung_long",
+   "plus": [
+    -2.0,
+    -1.1,
+    0.9
+   ]
+  },
+  {
+   "datum": "2026-11-06",
+   "datei": "gegenbewegung_nachtest",
+   "name": "Nachtest Gegenbewegung: auf neuen Zufallslisten besser als Zufallskäufe? Und ein Bot nur mit ihr?",
+   "urteil": "Gegenbewegung gegen Zufallskäufe auf neuen Listen: besteht; Bot nur mit Gegenbewegung besser als der volle Bot: nein",
+   "plus": [
+    -9.3,
+    -3.3,
+    -3.6
+   ]
+  },
+  {
+   "datum": "2026-11-06",
+   "datei": "kaufzeit_ohne_luecke",
+   "name": "Kaufzeit 3: Kauf zur Eröffnung nur ohne Kurslücke nach oben (Eröffnung nicht über dem Schluss des Signaltags)",
+   "urteil": "nicht überall besser",
+   "plus": [
+    0.8,
+    1.9,
+    -3.6
+   ]
+  },
+  {
+   "datum": "2026-11-06",
+   "datei": "kaufzeit_schluss_folgetag",
+   "name": "Kaufzeit 2: Kauf zum Schlusskurs am nächsten Tag (statt zur Eröffnung), Limit wie heute",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -1.2,
+    0.5,
+    -1.0
+   ]
+  },
+  {
+   "datum": "2026-11-06",
+   "datei": "kaufzeit_schluss_signaltag",
+   "name": "Kaufzeit 1: Kauf zum Schlusskurs am Signaltag (statt zur Eröffnung am nächsten Tag)",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -0.5,
+    0.1,
+    -0.3
    ]
   }
  ]
