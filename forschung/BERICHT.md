@@ -1,8 +1,8 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Mi 11.11.2026 18:13 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Mi 11.11.2026 19:45 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 11.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1091 $
+## 📈 SWING-SCANNER · Daten bis 11.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1094 $
 
 5× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 18× BEOBACHTEN  
 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 10.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
@@ -11,42 +11,42 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 307,26 | – | – | – | – | – | – | – | Do 19.11. |  |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 319,96 | – | – | – | – | – | – | – | Do 28.01. | 📰 Analyst stuft runter |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 14,94 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN | EMA-Kreuz ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 353,60 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | ⏸ WARTEN | MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 498,83 | – | – | – | – | – | – | – | Di 02.02. | 📰 Prognose angehoben |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 974,16 | – | – | – | – | – | – | – | Do 10.12. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 67,47 | – | – | – | – | – | – | – | Di 02.03. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 18,04 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 305,68 | – | – | – | – | – | – | – | Do 19.11. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 320,11 | – | – | – | – | – | – | – | Do 28.01. | 📰 Analyst stuft runter |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 14,90 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN | EMA-Kreuz ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 355,33 | – | – | – | – | – | – | – | Mi 27.01. | ⚠️ Übernahme/Fusion |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | ⏸ WARTEN | MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 511,59 | – | – | – | – | – | – | – | Di 02.02. |  |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 969,55 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 66,81 | – | – | – | – | – | – | – | Di 02.03. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 18,51 | – | – | – | – | – | – | – | Mo 01.03. |  |
 | [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 92,56 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 54,82 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 142,33 | – | – | – | – | – | – | – | Do 12.11. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.344,20 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 19,03 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 57,77 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 32,74 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 159,01 | – | – | – | – | – | – | – | Di 17.11. |  |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 469,99 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 240,61 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 578,53 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 264,23 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 155,89 | – | – | – | – | – | – | – | Mo 01.02. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 309,80 | – | – | – | – | – | – | – | Do 14.01. |  |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.283,03 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 149,57 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 55,73 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 143,92 | – | – | – | – | – | – | – | Do 12.11. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.357,41 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 19,29 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 57,60 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 32,94 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 159,84 | – | – | – | – | – | – | – | Di 17.11. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 470,62 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 240,70 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 576,29 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 266,34 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 156,45 | – | – | – | – | – | – | – | Mo 01.02. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 310,33 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.290,12 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 149,58 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
 INTU: Accenture vs. Intuit: Does Corporate Consulting or Financial Software Make For a Better Stock Buy in 2026? (Motley Fool, 10.11. 20:10)  
 INTU: Intuit (INTU) Grew Revenue 14%, but Guidance Points Lower, Here’s What Investors Are Asking (Insider Monkey, 10.11. 17:16)  
 AAPL \[Analyst stuft runter\]: Buy, Sell, or Hold? Wednesday’s Top Upgrades and Downgrades: Akamai Technologies, Apple, BILL Holdings, Corning, Form Factor, Guidewire Software, NVIDIA, Riot Platforms, Toast, and More (24/7 Wall St., 11.11. 13:57)  
-AAPL: Eric Schmidt, Former Google CEO, Should Run Nvidia (24/7 Wall St., 11.11. 16:55)  
-SOFI: Could SoFi Actually Climb 59%? Or Is Scotiabank Totally Wrong? (TIKR, 11.11. 16:54)  
-SOFI: JPMorgan Says Strategy Could Face $2.8 Billion in Forced Selling. What Would That Do to the Bitcoin Price? (24/7 Wall St., 11.11. 14:14)  
-TSLA: Google Could Buy Uber to Win the Robotaxi Wars, Reuters Columnist Argues (Benzinga Prediction Markets, 11.11. 18:00)  
-TSLA: Tesla Clears Major Hurdle in European Self-Driving Push (GuruFocus.com, 11.11. 17:40)  
-AMD \[Prognose angehoben\]: AMD Rises 4% as CoreWeave’s Raised Outlook Revives the AI Chip Trade (TIKR, 11.11. 16:00)  
+AAPL: MP Materials Clears GM Magnet Milestone, Targets Apple as Next Customer (MarketBeat, 11.11. 18:15)  
+SOFI: What Will Bitcoin and Ethereum Be Worth in 5 Years? (24/7 Wall St., 11.11. 18:34)  
+SOFI: What Should Investors Do With Nu Holdings Ahead of Q3 Earnings? (Zacks, 11.11. 18:24)  
+TSLA \[Übernahme/Fusion\]: Tesla (TSLA) Forms Special Committee To Review Possible All Stock Merger (Simply Wall St., 11.11. 19:11)  
+TSLA: How Miami-Dade residents can use bitcoin to pay their property taxes (Yahoo Finance Video, 11.11. 19:30)  
 AMD: Goldman Sachs calls chip stocks 'oversold.' Here are the names it says to buy. (Yahoo Finance, 10.11. 17:53)  
+AMD: Nvidia, AMD and Broadcom Lead AI Stock Rally as CoreWeave Results Ease Spending Fears (GuruFocus.com, 11.11. 19:37)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 ⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
