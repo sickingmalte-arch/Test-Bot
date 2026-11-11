@@ -10,6 +10,26 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 11.11.2026 (Mittwoch) · Day-Trader-Skill: 10 Ideen aus einem fremden Projekt
+
+**Idee** (Wunsch des Nutzers): alles aus [github.com/Jakeschincariol/day-trader-skill](https://github.com/Jakeschincariol/day-trader-skill) kontrollieren, das Prüfbare testen und einbauen, was den Bot verbessert. Von 11 Bausteinen waren 5 mit Kursen prüfbar, daraus 10 Tests, alles vorher festgelegt. Die übrigen hat der Bot schon (Stop/Ziel vorher, Größe nach Risiko), sie sind verboten (Broker für echtes Geld) oder nicht prüfbar (Kongress-Käufe: keine sauberen Daten). Details: [[Notizen/Wissen – Day-Trader-Skill]].
+
+| Test (Pkt Rendite pro Jahr gegen den jetzigen Bot) | 2010–2014 | 2015–2021 | 2022–2026 | Ergebnis |
+|---|---:|---:|---:|---|
+| Bullen-Flagge als neue Strategie | +1,3 | +1,1 | +0,2 | überall besser, aber nicht besser als Zufall |
+| Überverkauft (RSI 14 unter 30) | −0,1 | +0,6 | +0,9 | nicht überall besser |
+| Abpraller nach Überverkauft | +0,3 | −0,6 | ±0,0 | nicht überall besser |
+| 20-Tage-Schlusshoch-Ausbruch | −0,9 | −0,4 | +0,3 | nicht überall besser |
+| Zurück über die 20-Tage-Linie | −1,2 | +0,8 | ±0,0 | nicht überall besser |
+| Höchstens 3 Käufe am Tag | +0,9 | −1,0 | +1,4 | nicht überall besser |
+| Chance-Risiko mindestens 1,0 | −2,2 | +0,2 | −0,1 | nicht überall besser |
+| Zeitmaschine als Filter | −2,6 | +0,9 | +2,4 | nicht überall besser |
+| Geschichte als Filter | −3,6 | −3,2 | +0,3 | deutlich schlechter |
+
+**Tageshandel** (Ausbruch aus der Eröffnungsspanne, Stunden-Kerzen 2 Jahre und 5-Minuten-Kerzen 60 Tage): im Schnitt −0,18 bis −0,30 R je Trade nach Spread, genauso schlecht wie zufällige Einstiege zur gleichen Uhrzeit (5.440 bzw. 755 Trades).
+
+**Ergebnis:** nichts übernommen. Die Bullen-Flagge war knapp überall besser, aber zufällige Zusatz-Käufe brachten genauso viel – der Gewinn kommt vom öfter Kaufen, nicht vom Muster. Der Tageshandel verliert nach Kosten.
+
 ## 06.11.2026 (Freitag) · Kaufzeit
 
 **Idee** (Wunsch des Nutzers): Heute entscheidet der Bot am Abend und kauft am nächsten Tag zur Eröffnung bis zum Limit. Drei andere Kaufzeiten, vorher festgelegt; Rechnung mit der heutigen Kaufzeit exakt nachgeprüft (gleiches Ergebnis wie der Bot).

@@ -148,7 +148,7 @@ def _intervall(diff, tage, seed=0):
 
 def pruefen(P, a, watch, sektor_von):
     tickers = list(watch)
-    erg, zeilen = {}, []
+    erg = {}
     for titel, intervall, zeitraum, laenge, n_spanne in DATENSAETZE:
         daten = _laden(tickers, intervall, zeitraum)
         sitz = {t: _sitzungen(df, laenge) for t, df in daten.items()}
