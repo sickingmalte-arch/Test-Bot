@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=PLTR)
 
-**Stand Mo 09.11. 2026:** BEOBACHTEN
+**Stand Di 10.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 01.02.
 
 ## Übungsdepot

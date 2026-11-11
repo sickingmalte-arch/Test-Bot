@@ -14,7 +14,7 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø -0,02 R · Treffer 47 % · ± Zufall 0,21 R
-- Ganze Geschichte: 559 Trades · Ø +0,04 R · Treffer 52 %
+- Ganze Geschichte: 558 Trades · Ø +0,04 R · Treffer 52 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
@@ -22,7 +22,7 @@ tags:
 - Ziel: 152× (27 %), Ø +0,96 R
 - Zeitstopp: 141× (25 %), Ø -0,04 R
 - Stop: 114× (20 %), Ø -0,98 R
-- vor Quartalszahlen: 112× (20 %), Ø -0,05 R
+- vor Quartalszahlen: 111× (20 %), Ø -0,06 R
 - Stop (Kurslücke): 20× (4 %), Ø -1,12 R
 - Ziel (Kurslücke): 20× (4 %), Ø +1,12 R
 
@@ -30,7 +30,7 @@ tags:
 
 1. [[Aktien/NBIS|NBIS]]: 12 Trades · Ø +0,28 R · Treffer 58 %
 2. [[Aktien/SOFI|SOFI]]: 21 Trades · Ø +0,22 R · Treffer 62 %
-3. [[Aktien/XOM|XOM]]: 28 Trades · Ø +0,22 R · Treffer 64 %
+3. [[Aktien/XOM|XOM]]: 27 Trades · Ø +0,21 R · Treffer 63 %
 …
 22. [[Aktien/NVDA|NVDA]]: 28 Trades · Ø -0,13 R · Treffer 43 %
 23. [[Aktien/AAPL|AAPL]]: 24 Trades · Ø -0,16 R · Treffer 42 %

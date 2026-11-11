@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=LLY)
 
-**Stand Mo 09.11. 2026:** BEOBACHTEN
+**Stand Di 10.11. 2026:** ⏸ WARTEN – ATR-Ausbruch ↑ – Marktfilter (kein Long im Abwärtsmarkt)
 **Nächste Quartalszahlen:** Mi 03.02.
 
 ## Übungsdepot
