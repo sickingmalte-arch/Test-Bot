@@ -10,7 +10,7 @@ Branche: Basiskonsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=COST)
 
-**Stand Di 10.11. 2026:** BEOBACHTEN
+**Stand Mi 11.11. 2026:** ⚠️ ÜBERHITZT – überhitzt – nur Info, Depot verkauft nicht
 **Nächste Quartalszahlen:** Do 10.12.
 
 ## Übungsdepot
@@ -19,9 +19,9 @@ Branche: Basiskonsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 124 Trades · Ø +0,17 R · Treffer 60 %
+- **Alle Strategien zusammen:** 125 Trades · Ø +0,16 R · Treffer 59 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 10 Trades · Ø +0,02 R · Treffer 50 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 21 Trades · Ø +0,17 R · Treffer 67 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 22 Trades · Ø +0,12 R · Treffer 64 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 2 Trades · Ø +0,76 R · Treffer 100 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 20 Trades · Ø +0,02 R · Treffer 45 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 23 Trades · Ø +0,02 R · Treffer 57 %

@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AAPL)
 
-**Stand Di 10.11. 2026:** BEOBACHTEN
+**Stand Mi 11.11. 2026:** ⏸ WARTEN – MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt)
 **Nächste Quartalszahlen:** Do 28.01.
 
 ## Übungsdepot

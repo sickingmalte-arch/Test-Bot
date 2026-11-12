@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=PLTR)
 
-**Stand Di 10.11. 2026:** BEOBACHTEN
+**Stand Mi 11.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 01.02.
 
 ## Übungsdepot
@@ -19,10 +19,10 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 150 Trades · Ø +0,22 R · Treffer 65 %
+- **Alle Strategien zusammen:** 152 Trades · Ø +0,23 R · Treffer 65 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 22 Trades · Ø +0,12 R · Treffer 50 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 24 Trades · Ø +0,10 R · Treffer 58 %
-- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 5 Trades · Ø +0,78 R · Treffer 100 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 25 Trades · Ø +0,12 R · Treffer 60 %
+- [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 6 Trades · Ø +0,76 R · Treffer 100 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 21 Trades · Ø +0,31 R · Treffer 76 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 24 Trades · Ø +0,11 R · Treffer 54 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 11 Trades · Ø +0,23 R · Treffer 73 %
