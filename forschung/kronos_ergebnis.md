@@ -1,6 +1,6 @@
 # 🔮 Kronos-Versuch (nach vorne)
 
-Stand 11.11.2026 · 50 Zukünfte je Signal und Variante, 20 Handelstage. Varianten: small-256 (Kronos-small, Rückblick 256, Temperatur 1,0); small-64 (Kronos-small, Rückblick 64, Temperatur 1,0); small-64-T15 (Kronos-small, Rückblick 64, Temperatur 1,5); base-256 (Kronos-base, Rückblick 256, Temperatur 1,0, nur 3 Signale am Tag). Dazu abgeleitet: Mittel aller Varianten, Mittel ½ + Zufall ½, Mittel geeicht (Schwankung). Nur eine Messung – der Bot kauft nicht danach.
+Stand 12.11.2026 · 50 Zukünfte je Signal und Variante, 20 Handelstage. Varianten: small-256 (Kronos-small, Rückblick 256, Temperatur 1,0); small-64 (Kronos-small, Rückblick 64, Temperatur 1,0); small-64-T15 (Kronos-small, Rückblick 64, Temperatur 1,5); base-256 (Kronos-base, Rückblick 256, Temperatur 1,0, nur 3 Signale am Tag). Dazu abgeleitet: Mittel aller Varianten, Mittel ½ + Zufall ½, Mittel geeicht (Schwankung). Nur eine Messung – der Bot kauft nicht danach.
 
 **Fragen:** (1) Sagt Kronos besser voraus, ob zuerst das Ziel oder zuerst der Stop kommt, als ein Zufallsweg ohne Richtung – und als die Ziel-Chance, die der Bot schon anzeigt? (2) Sagt Kronos die Schwankung der nächsten 20 Tage besser voraus, als einfach die letzten 20 Tage fortzuschreiben?
 
@@ -14,7 +14,7 @@ Noch keine Signale ausgewertet (das geht frühestens 20 Handelstage nach dem Sig
 
 ## 2. Alle Aktien der Watchlist täglich (small-64, small-64-T15, Stop −2 ATR, Ziel +2 ATR)
 
-Gerechnet: 72 an 3 Tagen · ausgewertet: 0 an 0 Tagen · offen: 72. Aktien am selben Tag laufen ähnlich – deshalb zählt die Zahl der Tage, und das Intervall zieht ganze Tage.
+Gerechnet: 96 an 4 Tagen · ausgewertet: 0 an 0 Tagen · offen: 96. Aktien am selben Tag laufen ähnlich – deshalb zählt die Zahl der Tage, und das Intervall zieht ganze Tage.
 
 ## Alle Kauf-Signale
 
