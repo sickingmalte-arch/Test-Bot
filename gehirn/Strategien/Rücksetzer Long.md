@@ -30,7 +30,7 @@ tags:
 
 1. [[Aktien/NBIS|NBIS]]: 12 Trades · Ø +0,28 R · Treffer 58 %
 2. [[Aktien/SOFI|SOFI]]: 21 Trades · Ø +0,22 R · Treffer 62 %
-3. [[Aktien/XOM|XOM]]: 27 Trades · Ø +0,21 R · Treffer 63 %
+3. [[Aktien/MELI|MELI]]: 21 Trades · Ø +0,21 R · Treffer 67 %
 …
 22. [[Aktien/NVDA|NVDA]]: 28 Trades · Ø -0,13 R · Treffer 43 %
 23. [[Aktien/AAPL|AAPL]]: 24 Trades · Ø -0,16 R · Treffer 42 %

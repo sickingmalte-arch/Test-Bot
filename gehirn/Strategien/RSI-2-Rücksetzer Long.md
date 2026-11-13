@@ -23,7 +23,7 @@ tags:
 - Stop: 113× (22 %), Ø -1,01 R
 - Zeitstopp: 68× (13 %), Ø -0,05 R
 - vor Quartalszahlen: 67× (13 %), Ø -0,13 R
-- Ziel (Kurslücke): 29× (6 %), Ø +1,00 R
+- Ziel (Kurslücke): 29× (6 %), Ø +0,98 R
 - Stop (Kurslücke): 17× (3 %), Ø -1,16 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)

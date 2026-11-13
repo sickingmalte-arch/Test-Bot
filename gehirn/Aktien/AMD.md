@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AMD)
 
-**Stand Mi 11.11. 2026:** ⏸ WARTEN – MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt)
+**Stand Do 12.11. 2026:** ⏸ WARTEN – Ausbruch ↑ – Nachricht: Chefwechsel
 **Nächste Quartalszahlen:** Di 02.02.
 
 ## Übungsdepot

@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MELI)
 
-**Stand Mi 11.11. 2026:** BEOBACHTEN
+**Stand Do 12.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 25.02.
 
 ## Übungsdepot
@@ -19,12 +19,12 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 125 Trades · Ø -0,05 R · Treffer 49 %
+- **Alle Strategien zusammen:** 124 Trades · Ø -0,04 R · Treffer 49 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 11 Trades · Ø -0,08 R · Treffer 36 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 22 Trades · Ø -0,22 R · Treffer 41 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 8 Trades · Ø +0,46 R · Treffer 75 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 13 Trades · Ø -0,23 R · Treffer 38 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 22 Trades · Ø +0,16 R · Treffer 64 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 21 Trades · Ø +0,21 R · Treffer 67 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 9 Trades · Ø +0,03 R · Treffer 56 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 16 Trades · Ø -0,14 R · Treffer 38 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 14 Trades · Ø +0,01 R · Treffer 57 %

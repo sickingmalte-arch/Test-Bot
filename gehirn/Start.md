@@ -4,13 +4,13 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Mi 11.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Do 12.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
   kurse["📈 Kurse<br/>24 Aktien"]
   termine["📅 Quartalszahlen<br/>24 Termine"]
-  markt["🔴 Markt<br/>Nasdaq-100 unter der<br/>200-Tage-Linie: kein Kauf"]
+  markt["🟢 Markt<br/>Nasdaq-100 über der<br/>200-Tage-Linie"]
   regeln["📝 Meine Regeln<br/>nichts gesperrt"]
   subgraph KERN["🧠 9 Strategien · 8 aktiv"]
     direction TB
@@ -21,7 +21,7 @@ flowchart TB
     s4["✅ Rücksetzer ↑<br/>Ø -0,02 R"]
     s5["✅ Squeeze-Ausbruch ↑<br/>Ø +0,17 R"]
     s6["✅ EMA-Kreuz ↑<br/>Ø -0,04 R"]
-    s7["✅ ATR-Ausbruch ↑<br/>Ø -0,03 R"]
+    s7["✅ ATR-Ausbruch ↑<br/>Ø -0,04 R"]
     s8["✅ Trendlinien-Ausbruch ↑<br/>Ø -0,02 R"]
     s0 ~~~ s5
     s1 ~~~ s6
@@ -29,8 +29,8 @@ flowchart TB
     s3 ~~~ s8
   end
   tb["📓 Tagebuch<br/>3.075 gedachte Trades"]
-  sig["🎯 Signale heute<br/>0 kaufen · 4 warten<br/>2 überhitzt"]
-  depot["📒 Übungsdepot<br/>9.947 € (-0,5 %)<br/>7 offen"]
+  sig["🎯 Signale heute<br/>1 kaufen · 2 warten<br/>1 überhitzt"]
+  depot["📒 Übungsdepot<br/>9.964 € (-0,4 %)<br/>7 offen"]
   lehren["🎓 Lehren<br/>6 abgeschlossene Trades"]
   kurse --> KERN
   termine -->|Sperre| KERN
@@ -48,7 +48,7 @@ flowchart TB
   classDef aus fill:#22272e,stroke:#6e7681,color:#9ba7b4
   classDef aus2 fill:#2a1846,stroke:#a371f7,color:#e6edf3
   class kurse,termine,regeln ein
-  class markt rot
+  class markt ein
   class tb,sig,depot,lehren aus2
   class s0,s1,s2,s4,s5,s6,s7,s8 aktiv
   class s3 pausiert
@@ -63,16 +63,16 @@ flowchart TB
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-11-11]] · Diese Woche: [[Wochen/2026-W46|Woche 46]]
+## Heute: [[Tage/2026-11-12]] · Diese Woche: [[Wochen/2026-W46|Woche 46]]
 
-- Signale: keine
-- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 10.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
+- Signale: [[Aktien/INTU|INTU]] (🟢 KAUFEN)
+- 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 11.11. über seiner 200-Tage-Linie – der Bot kauft nur (Long).
 
 ## Übungsdepot
 
-- 9.946,88 € (-0,5 % seit 2026-10-20) · 7 offen · 6 Trades · Ø -0,02 R · Treffer 67 %
+- 9.963,75 € (-0,4 % seit 2026-10-20) · 7 offen · 6 Trades · Ø -0,02 R · Treffer 67 %
 - Letzte Trades: [[Trades/2026-11-03 MSFT RSI-2-Rücksetzer Long|MSFT +1,0 R]], [[Trades/2026-11-02 XOM Ausbruch Long|XOM -1,2 R]], [[Trades/2026-10-21 HIMS Rücksetzer Long|HIMS -1,0 R]], [[Trades/2026-10-21 AAPL Rücksetzer Long|AAPL +0,6 R]], [[Trades/2026-10-21 NOW Squeeze-Ausbruch Long|NOW +0,1 R]]
-- Rückblick 12 Monate: -2,6 % (alle Aktien kaufen und halten: -3,0 %)
+- Rückblick 12 Monate: +0,1 % (alle Aktien kaufen und halten: -1,5 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 

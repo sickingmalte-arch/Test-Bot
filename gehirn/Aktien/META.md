@@ -10,7 +10,7 @@ Branche: Kommunikation (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=META)
 
-**Stand Mi 11.11. 2026:** BEOBACHTEN
+**Stand Do 12.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 27.01.
 
 ## Übungsdepot

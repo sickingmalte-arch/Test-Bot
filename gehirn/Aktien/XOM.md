@@ -10,7 +10,7 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=XOM)
 
-**Stand Mi 11.11. 2026:** BEOBACHTEN
+**Stand Do 12.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot
@@ -20,12 +20,12 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 143 Trades · Ø +0,06 R · Treffer 57 %
+- **Alle Strategien zusammen:** 144 Trades · Ø +0,05 R · Treffer 56 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 8 Trades · Ø -0,05 R · Treffer 50 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 28 Trades · Ø +0,22 R · Treffer 68 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 7 Trades · Ø +0,08 R · Treffer 57 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 22 Trades · Ø -0,05 R · Treffer 50 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 27 Trades · Ø +0,21 R · Treffer 63 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 28 Trades · Ø +0,17 R · Treffer 61 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 6 Trades · Ø +0,01 R · Treffer 50 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 13 Trades · Ø -0,03 R · Treffer 54 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 23 Trades · Ø -0,18 R · Treffer 48 %
