@@ -61,10 +61,10 @@ SEITE_SIGNALE = 40  # so viele Signale (die neuesten) zeigt die Webseite
 TOKENIZER = "NeoQuasar/Kronos-Tokenizer-base"
 # Fester Modell-Stand bei Hugging Face (Commit). So ändern sich die Gewichte nicht unbemerkt, auch nicht, wenn das
 # fremde Konto gekapert würde. Einen neuen Stand nur bewusst eintragen; den aktuellen zeigt jeder Lauf am Ende an.
-MODELL_STAND = {
-    "NeoQuasar/Kronos-Tokenizer-base": None,
-    "NeoQuasar/Kronos-small": None,
-    "NeoQuasar/Kronos-base": None,
+MODELL_STAND = {  # Stand vom 13.11.2026 (aus dem Probelauf an diesem Tag)
+    "NeoQuasar/Kronos-Tokenizer-base": "0e0117387f39004a9016484a186a908917e22426",
+    "NeoQuasar/Kronos-small": "901c26c1332695a2a8f243eb2f37243a37bea320",
+    "NeoQuasar/Kronos-base": "2b554741eca47781b64468546e77fef3e85130e6",
 }
 PFADE = int(os.environ.get("KRONOS_PFADE", "50"))
 MAX_SIGNALE = int(os.environ.get("KRONOS_MAX_SIGNALE", "8"))
