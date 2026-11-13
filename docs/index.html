@@ -106,6 +106,14 @@ a { color: inherit; }
 .seite-fuss .label { line-height: 1.6; }
 main { padding: 16px 20px 40px; min-width: 0; }
 .abschnitt { margin-bottom: 18px; }
+/* Drei Bereiche: Heute · Ergebnis · Hintergrund & Versuche */
+.bereich { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 38px 2px 0; padding-top: 16px; border-top: 1px solid var(--line); }
+.bereich:first-child { margin-top: 6px; padding-top: 0; border-top: 0; }
+.bereich span { font: 700 13px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-1); }
+.bereich small { font-size: 12.5px; color: var(--text-3); }
+.bereich + .abschnitt > .abschnitt-kopf { margin-top: 14px; }
+.abschnitt.zu { margin-bottom: 0; } /* zugeklappte Abschnitte stehen kompakt wie eine Liste */
+.abschnitt.zu > .abschnitt-kopf { margin-top: 16px; margin-bottom: 2px; }
 .abschnitt-kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 26px 2px 10px; }
 .abschnitt-kopf h2 { margin: 0; font: 600 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text-1); }
 .abschnitt-kopf h2::before { content: "•"; color: var(--s1); margin-right: 8px; }
@@ -597,14 +605,7 @@ button.kal-tag:hover { border-color: #3a4654; }
 @media (max-width: 860px) {
   html { scroll-padding-top: calc(var(--kopf-h, 72px) + 64px); }
   .geruest { grid-template-columns: minmax(0, 1fr); }
-  main { display: flex; flex-direction: column; }
-  main > .hinweis { order: 0; }
-  #heute { order: -1; } .seite a[href="#heute"] { order: -1; }
-  #live { order: 0; } #kennzahlen { order: 1; } #signale { order: 2; } #gehirn { order: 3; } #depot { order: 4; }
-  #positionen { order: 5; } #claude { order: 6; } #nachrichten { order: 7; } #fazit { order: 8; } main > .fuss { order: 9; }
-  .seite a[href="#live"] { order: 0; } .seite a[href="#kennzahlen"] { order: 1; } .seite a[href="#signale"] { order: 2; } .seite a[href="#gehirn"] { order: 3; }
-  .seite a[href="#depot"] { order: 4; } .seite a[href="#positionen"] { order: 5; } .seite a[href="#claude"] { order: 6; }
-  .seite a[href="#strategien"] { order: 7; } .seite a[href="#nachrichten"] { order: 8; } .seite a[href="#fazit"] { order: 9; } .seite a[href="#chat"] { order: 10; }
+  main { display: flex; flex-direction: column; } /* Reihenfolge wie am Computer: ordneBereiche() und die Navigation */
   .seite {
     position: sticky; top: var(--kopf-h, 72px); z-index: 15; height: auto; display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px;
     border-right: 0; border-bottom: 1px solid var(--line); background: rgba(6, 8, 12, .94); backdrop-filter: blur(8px); scrollbar-width: none;
@@ -709,25 +710,23 @@ body { background: radial-gradient(1200px 500px at 15% -10%, rgba(57, 135, 229, 
 
 <div class="geruest">
   <nav class="seite" id="navigation" aria-label="Bereiche">
-    <div class="label gruppe">Überblick</div>
-    <a href="#heute" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Auf einen Blick</a>
-    <a href="#gehirn"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
-    <a href="#kennzahlen"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Kennzahlen</a>
     <div class="label gruppe">Heute</div>
+    <a href="#heute" class="aktiv"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Auf einen Blick</a>
     <a href="#live" id="nav-live" hidden><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5" fill="currentColor"/><path d="M4.5 4.5a5 5 0 0 0 0 7M11.5 4.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Live</a>
     <a href="#signale"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 12l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Signale<span class="zaehler hell" id="nav-signale" hidden></span></a>
-    <div class="label gruppe">Geld</div>
-    <a href="#depot"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 4V3h6v1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Depot &amp; Kurve</a>
     <a href="#positionen"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Positionen<span class="zaehler" id="nav-positionen" hidden></span></a>
-    <a href="#claude"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 2l1.6 4.4L14 8l-4.4 1.6L8 14l-1.6-4.4L2 8l4.4-1.6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Claude-Depot</a>
-    <div class="label gruppe">Gehirn</div>
-    <a href="#strategien"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 13l3-5 3 2 3-6 3 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Strategien</a>
     <a href="#nachrichten"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Nachrichten</a>
+    <div class="label gruppe">Ergebnis</div>
+    <a href="#depot"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 4V3h6v1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Depot &amp; Kurve</a>
+    <a href="#strategien"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 13l3-5 3 2 3-6 3 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Strategien</a>
+    <a href="#fazit"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Fazit</a>
+    <a href="#kennzahlen"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Kennzahlen</a>
+    <a href="#claude"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 2l1.6 4.4L14 8l-4.4 1.6L8 14l-1.6-4.4L2 8l4.4-1.6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Claude-Depot</a>
+    <div class="label gruppe">Hintergrund &amp; Versuche</div>
+    <a href="#gehirn"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Gehirn</a>
     <a href="#lernmodell"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 2.5c-3 0-5 2-5 4.5 0 1.5.8 2.6 2 3.4V13h6v-2.6c1.2-.8 2-1.9 2-3.4 0-2.5-2-4.5-5-4.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 8.5h4M8 6.5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Lernmodell</a>
     <a href="#forschung"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M6 2h4M7 2v4L3.5 12.5A1 1 0 0 0 4.4 14h7.2a1 1 0 0 0 .9-1.5L9 6V2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Forschung</a>
     <a href="#kronos"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 8h3M5 8l9-5M5 8l9 0M5 8l9 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Kronos</a>
-    <div class="label gruppe">Rückblick</div>
-    <a href="#fazit"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Fazit</a>
     <div class="label gruppe">Du</div>
     <a href="#chat" id="nav-chat"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Tipps an Claude<span class="zaehler" id="nav-chat-neu" hidden></span></a>
     <div class="seite-fuss"><div class="label" id="seite-fuss">Bot lädt …</div></div>
@@ -1302,6 +1301,24 @@ function abschnitt(id, titel, unter, inhalt, { erkl = null, zuAmHandy = false } 
   // die ganze Kopfzeile schaltet um, nur das (i) nicht
   kopf.addEventListener("click", e => { if (!e.target.closest(".info")) umschalten(); });
   return teil;
+}
+// Drei Bereiche, am Handy und am Computer gleich: was heute wichtig ist, wie es läuft, Hintergrund und Versuche.
+// Die Abschnitte entstehen in anderer Reihenfolge; ordneBereiche() stellt sie am Ende um (Navigation: gleiche Folge).
+const BEREICHE = [
+  { name: "Heute", unter: "was jetzt wichtig ist", teile: ["heute", ".hinweis", "live", "signale", "positionen", "nachrichten"] },
+  { name: "Ergebnis", unter: "wie es läuft", teile: ["depot", "fazit", "kennzahlen", "claude"] },
+  { name: "Hintergrund & Versuche", unter: "wie der Bot lernt und was er testet", teile: ["gehirn", "lernmodell", "forschung", "kronos"] },
+];
+function ordneBereiche(main, platzhalter = {}) {
+  const fuss = main.querySelector(":scope > .fuss");
+  const neu = [];
+  for (const b of BEREICHE) {
+    const knoten = b.teile.flatMap(t => (t.startsWith(".") ? [...main.querySelectorAll(`:scope > ${t}`)]
+      : [main.querySelector(`:scope > #${t}`) || platzhalter[t]].filter(k => k && k.parentNode === main)));
+    if (knoten.length) neu.push(el("div", { class: "bereich" }, el("span", {}, b.name), el("small", {}, b.unter)), ...knoten);
+  }
+  const rest = [...main.children].filter(k => !neu.includes(k) && k !== fuss);  // Neues ohne festen Platz geht nicht verloren
+  main.replaceChildren(...neu, ...rest, ...(fuss ? [fuss] : []));
 }
 function klappPanel(panel, kopf, titel, schluessel, zuAmHandy) {
   const knopf = el("button", { type: "button", class: "klapp label" }, titel, PFEIL());
@@ -1951,7 +1968,7 @@ function forschungBauen(F) {
       ...ideen.map(x => el("p", {}, el("strong", {}, x.name), ` · ${datum(x.datum)} · ${x.urteil} (`,
         (x.plus || []).map(v => `${v >= 0 ? "+" : ""}${zahl(v, 1)}`).join(" / "), ")"))));
   }
-  return abschnitt("forschung", "Forschung", "Forschungs-Bot · neue Ideen ehrlich testen", el("div", {}, ...teile));
+  return abschnitt("forschung", "Forschung", "Forschungs-Bot · neue Ideen ehrlich testen", el("div", {}, ...teile), { zuAmHandy: true });
 }
 // Kronos-Versuch (kronos.json, eigener Ablauf nach jedem Morgen-Lauf): Zwischenstand und Zukunftsfächer je Signal
 const KRONOS_TEXT = {
@@ -2049,7 +2066,7 @@ function kronosBauen(K, repo) {
     mehrKnopf);
   karten();
   return abschnitt("kronos", "Kronos-Versuch", "KI rechnet 50 Zukünfte je Kauf-Signal · nur eine Messung",
-    el("div", { class: "lern kronos kronos-stapel" }, kacheln, stand, liste, faecher), { erkl: "kronos" });
+    el("div", { class: "lern kronos kronos-stapel" }, kacheln, stand, liste, faecher), { erkl: "kronos", zuAmHandy: true });
 }
 function kronosKarte(s, name, farbe) {
   const v = (s.kronos || {})[name];
@@ -2220,7 +2237,8 @@ function lernmodellBauen(Lm) {
   const hinweise = (Lm.warnungen || []).map(w => el("div", { class: "hinweis" }, `⚠️ ${w}`));
   const inhalt = el("div", { class: "lern" }, ...hinweise, kacheln,
     el("div", { class: "lern-raster" }, achtet, fehler, signale, trades), rueck ? el("div", { class: "lern-raster" }, rueck) : null);
-  return abschnitt("lernmodell", "Lernmodell", `Stand ${Lm.stand || "–"} · lernt aus jedem Trade aller Aktien aus S&P 500 und Nasdaq-100`, inhalt);
+  return abschnitt("lernmodell", "Lernmodell", `Stand ${Lm.stand || "–"} · lernt aus jedem Trade aller Aktien aus S&P 500 und Nasdaq-100`, inhalt,
+    { zuAmHandy: true });
 }
 function aufbauen(D) {
   const main = document.getElementById("inhalt");
@@ -2314,7 +2332,8 @@ function aufbauen(D) {
       el("div", { class: "label" }, "Lernt aus ", el("b", {}, `${zahl(G.tagebuch)} gedachten Trades`)),
       el("div", { class: "label" }, "Regeln: ", el("b", {}, `${D.regeln.max_positionen} Positionen · ${D.regeln.max_je_branche} je Branche · ${D.regeln.max_risiko} % Risiko`))));
   kern.prepend(sv("svg", { class: "kern-linien", "aria-hidden": "true" }));
-  main.append(abschnitt("gehirn", "Gehirn-Kern", `Daten bis ${datum(D.daten_bis)} · was heute reinkam und was rauskam`, kern));
+  main.append(abschnitt("gehirn", "Gehirn-Kern", `Daten bis ${datum(D.daten_bis)} · was heute reinkam und was rauskam`, kern,
+    { zuAmHandy: true }));
 
   // ---------- Kennzahlen: echtes Übungsdepot und Rückblick (Simulation) getrennt ----------
   const echt = el("div", { class: "panel kacheln echt" });
@@ -2601,7 +2620,7 @@ function aufbauen(D) {
     .then(K => { if (K && K.varianten) kronosPlatz.replaceWith(kronosBauen(K, D.repo)); })
     .catch(() => {});
 
-  // ---------- Fazit: Tag, Woche, Monat, alles (ganz unten) ----------
+  // ---------- Fazit: Tag, Woche, Monat, alles (im Bereich „Ergebnis“) ----------
   const fazit = fazitBauen(D);
   if (fazit) main.append(abschnitt("fazit", "Fazit", "Übungsdepot · was der Bot verdient, gekauft und verkauft hat", fazit));
 
@@ -2613,6 +2632,7 @@ function aufbauen(D) {
       " Lightweight Charts™, Copyright (c) 2025 TradingView, Inc."),
     el("span", {}, bericht ? el("a", { href: bericht, target: "_blank", rel: "noopener" }, "Ganzer Bericht") : null, bericht ? " · " : "",
       `aktualisiert ${lief} Uhr`)));
+  ordneBereiche(main, { forschung: forschungPlatz, kronos: kronosPlatz });
   document.getElementById("seite-fuss").replaceChildren(document.createTextNode(`Bot lief ${lief}`), el("br"), document.createTextNode(`Daten bis ${datum(D.daten_bis, false)}`));
 
   // Gehirn-Netz, Linien, Navigation
