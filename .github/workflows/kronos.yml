@@ -34,27 +34,27 @@ jobs:
     outputs:
       noetig: ${{ steps.pruefen.outputs.noetig }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
-      - name: Kleine Pakete für die Prüfung
-        run: pip install numpy pandas==2.2.2
+      - name: Pakete (feste Versionen mit Prüfsummen)
+        run: pip install --require-hashes -r forschung/kronos_requirements.txt
       - name: Gibt es etwas zu tun?
         id: pruefen
         env:
           PROBE: ${{ github.event_name == 'push' && '--probe' || '' }}
         run: python forschung/kronos_versuch.py --modus pruefen $PROBE | tee -a "$GITHUB_OUTPUT"
-      - name: Pakete (torch nur für den Prozessor, ohne Grafikkarte)
+      - name: torch (nur für den Prozessor, ohne Grafikkarte; seine Abhängigkeiten sind schon installiert)
         if: steps.pruefen.outputs.noetig == 'true'
         run: |
-          pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
-          pip install -r forschung/kronos_requirements.txt
+          pip install --no-deps torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          pip check # bricht ab, falls torch doch ein Paket fehlt
       - name: Modell-Gewichte aus dem Zwischenspeicher
         if: steps.pruefen.outputs.noetig == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cache/huggingface
           key: kronos-gewichte-v2 # small + base
@@ -67,7 +67,7 @@ jobs:
         run: |
           mkdir -p ergebnis
           python forschung/kronos_versuch.py --modus lauf $PROBE --ausgabe ergebnis
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: steps.pruefen.outputs.noetig == 'true'
         with:
           name: kronos-ergebnis
@@ -83,10 +83,10 @@ jobs:
       contents: write
       actions: write # Übersichtsseite starten (siehe letzter Schritt)
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           ref: main
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: kronos-ergebnis
           path: ergebnis

@@ -1,0 +1,18 @@
+# Pakete für den Kronos-Versuch (forschung/kronos_versuch.py). Daraus wird kronos_requirements.txt mit festen
+# Versionen und Prüfsummen erzeugt (siehe dort). torch selbst kommt ohne Abhängigkeiten aus dem PyTorch-Index (CPU,
+# siehe kronos.yml) – seine Abhängigkeiten stehen deshalb hier.
+numpy
+pandas==2.2.2
+einops==0.8.1
+huggingface_hub==0.33.1
+safetensors==0.6.2
+tqdm==4.67.1
+yfinance>=0.2.54
+# Abhängigkeiten von torch 2.5.1 (CPU)
+filelock
+typing-extensions>=4.8.0
+networkx
+jinja2
+fsspec
+setuptools
+sympy==1.13.1

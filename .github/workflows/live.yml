@@ -64,18 +64,18 @@ jobs:
       name: github-pages
       url: ${{ steps.seite.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           ref: main # neuester Stand von Seite und Depots
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements-bot.txt
 
       - name: Pakete installieren
-        run: pip install -r requirements-bot.txt
+        run: pip install --require-hashes -r requirements-bot.txt
 
       - name: Claudes Entscheidungen holen
         # wie im Morgen-Lauf: nur Kommentare des Repository-Besitzers im Thema mit dem Label claude-depot
@@ -115,13 +115,13 @@ jobs:
           # shellcheck disable=SC2086
           python swing_scanner.py "$@" $OPTIONEN
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: docs
 
       - name: Seite veröffentlichen
         id: seite
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
 
   weiter:
     # Wartet bis zum nächsten Termin und startet dann den nächsten Lauf (und am Morgen den Swing-Bot). Läuft auch,

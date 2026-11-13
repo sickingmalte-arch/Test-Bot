@@ -27,22 +27,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 150 # der allererste Lauf holt alle Daten seit 2007 (rund eine Stunde)
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           ref: ${{ github.ref_name }}
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.13"
           cache: pip
           cache-dependency-path: lernen/requirements.txt
 
       - name: Pakete installieren
-        run: pip install -r lernen/requirements.txt
+        run: pip install --require-hashes -r lernen/requirements.txt
 
       - name: Zwischenspeicher holen
         # Kurse, Termine, Bilanzen und die Lernmodelle der letzten Monate (nicht im Repository – zu groß)
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: lern_cache
           key: lernen-${{ github.run_id }}-${{ github.run_attempt }}
@@ -61,7 +61,7 @@ jobs:
       - name: Zwischenspeicher sichern
         # auch nach einem Abbruch: dann muss der nächste Lauf nicht wieder alles holen
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: lern_cache
           key: lernen-${{ github.run_id }}-${{ github.run_attempt }}

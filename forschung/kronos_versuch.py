@@ -59,6 +59,13 @@ MIN_AUSWERTUNG = 30
 WARTEN_KALENDERTAGE = 32  # nach so vielen Kalendertagen sind 20 Handelstage sicher vorbei
 SEITE_SIGNALE = 40  # so viele Signale (die neuesten) zeigt die Webseite
 TOKENIZER = "NeoQuasar/Kronos-Tokenizer-base"
+# Fester Modell-Stand bei Hugging Face (Commit). So ändern sich die Gewichte nicht unbemerkt, auch nicht, wenn das
+# fremde Konto gekapert würde. Einen neuen Stand nur bewusst eintragen; den aktuellen zeigt jeder Lauf am Ende an.
+MODELL_STAND = {
+    "NeoQuasar/Kronos-Tokenizer-base": None,
+    "NeoQuasar/Kronos-small": None,
+    "NeoQuasar/Kronos-base": None,
+}
 PFADE = int(os.environ.get("KRONOS_PFADE", "50"))
 MAX_SIGNALE = int(os.environ.get("KRONOS_MAX_SIGNALE", "8"))
 ZEITBUDGET_SEK = 60 * int(os.environ.get("KRONOS_ZEITBUDGET_MIN", "80"))  # danach keine langsamen Varianten mehr
@@ -163,9 +170,26 @@ def lade_predictor(modell):
         sys.path.insert(0, os.path.join(HIER, "kronos_modell"))
         import torch  # noqa: F401  (erst hier – der Bot braucht torch nicht)
         from model import Kronos, KronosPredictor, KronosTokenizer
-        tok = KronosTokenizer.from_pretrained(TOKENIZER)
-        _PREDICTOREN[modell] = KronosPredictor(Kronos.from_pretrained(modell), tok, device="cpu", max_context=512)
+        tok = KronosTokenizer.from_pretrained(TOKENIZER, revision=MODELL_STAND.get(TOKENIZER))
+        netz = Kronos.from_pretrained(modell, revision=MODELL_STAND.get(modell))
+        _PREDICTOREN[modell] = KronosPredictor(netz, tok, device="cpu", max_context=512)
     return _PREDICTOREN[modell]
+
+
+def modell_stand_melden():
+    """Schreibt ins Protokoll, welcher Modell-Stand fest eingestellt ist und welcher bei Hugging Face aktuell ist."""
+    try:
+        from huggingface_hub import HfApi
+    except ImportError:
+        return
+    for name, fest in MODELL_STAND.items():
+        try:
+            jetzt = HfApi().model_info(name).sha
+        except Exception as fehler:  # noqa: BLE001 – nur zur Info, darf den Lauf nicht stoppen
+            jetzt = f"unbekannt ({fehler.__class__.__name__})"
+        anders = fest and jetzt != fest and not jetzt.startswith("unbekannt")
+        hinweis = " – dort gibt es einen neueren Stand, es bleibt beim festen" if anders else ""
+        print(f"Modell-Stand {name}: fest {fest or 'noch nicht festgelegt'} · bei Hugging Face jetzt {jetzt}{hinweis}")
 
 
 def kurse(ticker, start, ende=None, roh=False):
@@ -634,6 +658,7 @@ def main(argv=None):
     schreibe(seite_datei, webseite(log, liste))
     print(f"Fertig: {n_neu} neue Signale, {n_liste} Watchlist-Aktien, {n_aus} Signale und {n_l_aus} Watchlist-Werte "
           f"ausgewertet ({(time.time() - t_start) / 60:.0f} Minuten).")
+    modell_stand_melden()
 
 
 if __name__ == "__main__":
