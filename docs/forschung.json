@@ -3,10 +3,10 @@
   "name": "Lernmodell: beste Punktzahl zuerst",
   "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
   "seit": "2026-11-02",
-  "bis": "2026-11-11",
-  "experiment_prozent": -0.13,
-  "papier_prozent": -0.09,
-  "depotwert": 9986.96,
+  "bis": "2026-11-12",
+  "experiment_prozent": 0.26,
+  "papier_prozent": 0.07,
+  "depotwert": 10025.95,
   "positionen": 3,
   "trades": 4,
   "gewinner": 2,
@@ -50,118 +50,124 @@
     "tag": "2026-11-11",
     "experiment": -0.13,
     "papier": -0.09
+   },
+   {
+    "tag": "2026-11-12",
+    "experiment": 0.26,
+    "papier": 0.07
    }
   ]
  },
  "ideen": [
   {
-   "datum": "2026-11-05",
-   "datei": "momentum_12m_top10_stichtag",
-   "name": "Momentum: die 10 stärksten Aktien der letzten 12 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
-   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten; nicht besser als Zufall",
+   "datum": "2026-11-11",
+   "datei": "skill_abpraller",
+   "name": "Day-Trader-Skill: Abpraller nach Überverkauft als neue Kauf-Strategie",
+   "urteil": "nicht überall besser",
    "plus": [
-    12.3,
-    -4.2,
+    0.3,
+    -0.6,
+    0.0
+   ]
+  },
+  {
+   "datum": "2026-11-11",
+   "datei": "skill_ausbruch_20",
+   "name": "Day-Trader-Skill: 20-Tage-Schlusshoch-Ausbruch als neue Kauf-Strategie",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -0.9,
+    -0.4,
+    0.3
+   ]
+  },
+  {
+   "datum": "2026-11-11",
+   "datei": "skill_bullenflagge",
+   "name": "Day-Trader-Skill: Bullen-Flagge als neue Kauf-Strategie",
+   "urteil": "überall besser, aber nicht besser als Zufall",
+   "plus": [
+    1.3,
+    1.1,
+    0.2
+   ]
+  },
+  {
+   "datum": "2026-11-11",
+   "datei": "skill_crv_mindestens_1",
+   "name": "Day-Trader-Skill: nur Käufe mit Chance-Risiko (CRV) mindestens 1,0",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -2.2,
+    0.2,
+    -0.1
+   ]
+  },
+  {
+   "datum": "2026-11-11",
+   "datei": "skill_geschichte",
+   "name": "Day-Trader-Skill: Geschichte – nicht kaufen, wenn dieselbe Regel bei dieser Aktie bisher verlor",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -3.6,
+    -3.2,
+    0.3
+   ]
+  },
+  {
+   "datum": "2026-11-11",
+   "datei": "skill_ma20_zurueck",
+   "name": "Day-Trader-Skill: Rückkehr über die 20-Tage-Linie als neue Kauf-Strategie",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -1.2,
+    0.8,
+    -0.0
+   ]
+  },
+  {
+   "datum": "2026-11-11",
+   "datei": "skill_max_3_kaeufe",
+   "name": "Day-Trader-Skill: höchstens 3 neue Käufe am Tag",
+   "urteil": "nicht überall besser",
+   "plus": [
+    0.9,
+    -1.0,
     1.4
    ]
   },
   {
-   "datum": "2026-11-05",
-   "datei": "momentum_12m_top20_stichtag",
-   "name": "Momentum: die 20 stärksten Aktien der letzten 12 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
-   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten; nicht besser als Zufall",
+   "datum": "2026-11-11",
+   "datei": "skill_orb_tageshandel",
+   "name": "Day-Trader-Skill: Tageshandel mit dem Ausbruch aus der Eröffnungsspanne",
+   "urteil": "Tageshandel (ORB): besteht in keiner Variante",
    "plus": [
-    5.3,
-    -2.3,
-    -2.0
+    0.0,
+    0.0,
+    -0.0,
+    -0.0
    ]
   },
   {
-   "datum": "2026-11-05",
-   "datei": "momentum_6m_top10_stichtag",
-   "name": "Momentum: die 10 stärksten Aktien der letzten 6 Monate, monatlich umschichten – mit Stichtag (nur Aktien, die damals schon im S&P 500 waren)",
-   "urteil": "nicht überall mehr Rendite pro Rückgang als der Swing-Bot; fällt tiefer als der Nasdaq-100 beim Halten",
-   "plus": [
-    7.8,
-    2.8,
-    1.5
-   ]
-  },
-  {
-   "datum": "2026-11-06",
-   "datei": "bot_ehrliche_aktienliste",
-   "name": "Ehrlicher Bot-Check: Swing-Bot mit zufälligen Aktien aus dem damaligen S&P 500 statt der heutigen Watchlist",
-   "urteil": "Vermutung bestätigt: mit damaligen Aktien bringt der Bot weniger (-1,7 / -8,7 / -4,8 Punkte pro Jahr)",
-   "plus": [
-    -1.7,
-    -8.7,
-    -4.8
-   ]
-  },
-  {
-   "datum": "2026-11-06",
-   "datei": "trendlinie_ausbruch",
-   "name": "Trendlinien-Ausbruch: neues Kauf-Signal, wenn der Kurs eine fallende Trendlinie nach oben durchbricht",
+   "datum": "2026-11-11",
+   "datei": "skill_ueberverkauft",
+   "name": "Day-Trader-Skill: Überverkauft (RSI 14 unter 30) als neue Kauf-Strategie",
    "urteil": "nicht überall besser",
    "plus": [
-    -0.5,
-    0.7,
-    0.4
-   ]
-  },
-  {
-   "datum": "2026-11-06",
-   "datei": "ehrlicher_check_2",
-   "name": "Ehrlicher Check 2: Watchlist nach Regel, halb Bot halb S&P 500, echte Stärke der Strategien",
-   "urteil": "Watchlist nach Umsatz: besteht nicht; Watchlist nach Stärke: besteht nicht; halb Bot, halb S&P 500: besteht nicht; Strategien mit echtem Vorteil: gegenbewegung_long",
-   "plus": [
-    -2.0,
-    -1.1,
+    -0.1,
+    0.6,
     0.9
    ]
   },
   {
-   "datum": "2026-11-06",
-   "datei": "gegenbewegung_nachtest",
-   "name": "Nachtest Gegenbewegung: auf neuen Zufallslisten besser als Zufallskäufe? Und ein Bot nur mit ihr?",
-   "urteil": "Gegenbewegung gegen Zufallskäufe auf neuen Listen: besteht; Bot nur mit Gegenbewegung besser als der volle Bot: nein",
-   "plus": [
-    -9.3,
-    -3.3,
-    -3.6
-   ]
-  },
-  {
-   "datum": "2026-11-06",
-   "datei": "kaufzeit_ohne_luecke",
-   "name": "Kaufzeit 3: Kauf zur Eröffnung nur ohne Kurslücke nach oben (Eröffnung nicht über dem Schluss des Signaltags)",
+   "datum": "2026-11-11",
+   "datei": "skill_zeitmaschine",
+   "name": "Day-Trader-Skill: Zeitmaschine – nur kaufen, wenn 1.000 Wiederholungen zum Ziel neigen",
    "urteil": "nicht überall besser",
    "plus": [
-    0.8,
-    1.9,
-    -3.6
-   ]
-  },
-  {
-   "datum": "2026-11-06",
-   "datei": "kaufzeit_schluss_folgetag",
-   "name": "Kaufzeit 2: Kauf zum Schlusskurs am nächsten Tag (statt zur Eröffnung), Limit wie heute",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -1.2,
-    0.5,
-    -1.0
-   ]
-  },
-  {
-   "datum": "2026-11-06",
-   "datei": "kaufzeit_schluss_signaltag",
-   "name": "Kaufzeit 1: Kauf zum Schlusskurs am Signaltag (statt zur Eröffnung am nächsten Tag)",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -0.5,
-    0.1,
-    -0.3
+    -2.6,
+    0.9,
+    2.4
    ]
   }
  ]
