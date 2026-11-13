@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 11.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 13.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 65
+    "nicht übernommen" : 67
 ```
 
 ## ✅ Steckt im Bot
@@ -105,6 +105,8 @@ pie showData
 | Day-Trader-Skill: Zeitmaschine (1.000 Wiederholungen) als Filter | −2,6 / +0,9 / +2,4 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
 | Day-Trader-Skill: Geschichte der Regel je Aktie als Filter | −3,6 / −3,2 / +0,3 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
 | Day-Trader-Skill: Tageshandel (Ausbruch aus der Eröffnungsspanne) | −0,18 bis −0,30 R je Trade nach Spread, nicht besser als Zufalls-Einstiege | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Monatswechsel 1: nur an den letzten 4 Handelstagen des Monats kaufen | −1,8 / −5,1 / −5,2 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Monatswechsel 2: nur an den letzten 4 und den ersten 3 Handelstagen kaufen | −0,8 / −3,1 / −5,5 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
