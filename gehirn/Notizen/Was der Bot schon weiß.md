@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 06.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 11.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 55
+    "nicht übernommen" : 65
 ```
 
 ## ✅ Steckt im Bot
@@ -95,6 +95,16 @@ pie showData
 | Kaufzeit: zum Schluss des Signaltags | −0,5 / +0,1 / −0,3 Pkt, Rückgänge größer | [[Notizen/Forschung – Tagebuch]] |
 | Kaufzeit: zum Schluss des nächsten Tages | −1,2 / +0,5 / −1,0 Pkt | [[Notizen/Forschung – Tagebuch]] |
 | Kaufzeit: zur Eröffnung nur ohne Lücke nach oben | +0,8 / +1,9 / −3,6 Pkt, 2022–2026 deutlich schlechter | [[Notizen/Forschung – Tagebuch]] |
+| Day-Trader-Skill: Bullen-Flagge als Strategie | +1,3 / +1,1 / +0,2 Pkt, aber zufällige Zusatz-Käufe genauso gut | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: überverkauft (RSI 14 unter 30) als Strategie | −0,1 / +0,6 / +0,9 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: Abpraller nach Überverkauft als Strategie | +0,3 / −0,6 / ±0,0 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: 20-Tage-Schlusshoch-Ausbruch als Strategie | −0,9 / −0,4 / +0,3 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: zurück über die 20-Tage-Linie als Strategie | −1,2 / +0,8 / ±0,0 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: höchstens 3 Käufe am Tag | +0,9 / −1,0 / +1,4 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: Chance-Risiko mindestens 1,0 | −2,2 / +0,2 / −0,1 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: Zeitmaschine (1.000 Wiederholungen) als Filter | −2,6 / +0,9 / +2,4 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: Geschichte der Regel je Aktie als Filter | −3,6 / −3,2 / +0,3 Pkt | [[Notizen/Wissen – Day-Trader-Skill]] |
+| Day-Trader-Skill: Tageshandel (Ausbruch aus der Eröffnungsspanne) | −0,18 bis −0,30 R je Trade nach Spread, nicht besser als Zufalls-Einstiege | [[Notizen/Wissen – Day-Trader-Skill]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 

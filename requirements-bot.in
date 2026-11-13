@@ -1,0 +1,5 @@
+# Pakete für den Bot bei GitHub (Swing-Bot, Live-Kurse, Experimentier-Depot). Daraus wird
+# requirements-bot.txt mit festen Versionen und Prüfsummen erzeugt (siehe dort).
+yfinance>=0.2.54
+pandas>=2.0
+numpy>=1.24

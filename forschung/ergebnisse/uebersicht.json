@@ -295,5 +295,116 @@
    0.1,
    -0.3
   ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_abpraller",
+  "name": "Day-Trader-Skill: Abpraller nach Überverkauft als neue Kauf-Strategie",
+  "urteil": "nicht überall besser",
+  "plus": [
+   0.3,
+   -0.6,
+   0.0
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_ausbruch_20",
+  "name": "Day-Trader-Skill: 20-Tage-Schlusshoch-Ausbruch als neue Kauf-Strategie",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.9,
+   -0.4,
+   0.3
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_bullenflagge",
+  "name": "Day-Trader-Skill: Bullen-Flagge als neue Kauf-Strategie",
+  "urteil": "überall besser, aber nicht besser als Zufall",
+  "plus": [
+   1.3,
+   1.1,
+   0.2
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_crv_mindestens_1",
+  "name": "Day-Trader-Skill: nur Käufe mit Chance-Risiko (CRV) mindestens 1,0",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -2.2,
+   0.2,
+   -0.1
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_geschichte",
+  "name": "Day-Trader-Skill: Geschichte – nicht kaufen, wenn dieselbe Regel bei dieser Aktie bisher verlor",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -3.6,
+   -3.2,
+   0.3
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_ma20_zurueck",
+  "name": "Day-Trader-Skill: Rückkehr über die 20-Tage-Linie als neue Kauf-Strategie",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -1.2,
+   0.8,
+   -0.0
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_max_3_kaeufe",
+  "name": "Day-Trader-Skill: höchstens 3 neue Käufe am Tag",
+  "urteil": "nicht überall besser",
+  "plus": [
+   0.9,
+   -1.0,
+   1.4
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_orb_tageshandel",
+  "name": "Day-Trader-Skill: Tageshandel mit dem Ausbruch aus der Eröffnungsspanne",
+  "urteil": "Tageshandel (ORB): besteht in keiner Variante",
+  "plus": [
+   0.0,
+   0.0,
+   -0.0,
+   -0.0
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_ueberverkauft",
+  "name": "Day-Trader-Skill: Überverkauft (RSI 14 unter 30) als neue Kauf-Strategie",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.1,
+   0.6,
+   0.9
+  ]
+ },
+ {
+  "datum": "2026-11-11",
+  "datei": "skill_zeitmaschine",
+  "name": "Day-Trader-Skill: Zeitmaschine – nur kaufen, wenn 1.000 Wiederholungen zum Ziel neigen",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -2.6,
+   0.9,
+   2.4
+  ]
  }
 ]

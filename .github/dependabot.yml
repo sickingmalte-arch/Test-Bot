@@ -1,0 +1,15 @@
+# Dependabot schlägt einmal im Monat neue Versionen der GitHub-Bausteine vor (actions/checkout usw.). Die Bausteine
+# sind in den Abläufen auf feste Commits festgelegt (Sicherheit: ein gekaperter Baustein kann sich nicht unbemerkt
+# ändern) – so bleiben sie trotzdem aktuell. Jeder Vorschlag kommt als Pull Request, der Sicherheits-Check läuft mit,
+# und übernommen wird wie immer erst nach dem „Ja“ des Besitzers.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      bausteine:
+        patterns: ["*"]
+    commit-message:
+      prefix: "Bausteine"

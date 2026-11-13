@@ -29,16 +29,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.13"
           cache: pip
           cache-dependency-path: lernen/requirements.txt
 
       - name: Pakete installieren
-        run: pip install -r lernen/requirements.txt
+        run: pip install --require-hashes -r lernen/requirements.txt
 
       - name: Tests
         run: python -m pytest -q lernen/tests
