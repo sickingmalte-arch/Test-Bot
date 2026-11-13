@@ -1,8 +1,8 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Fr 13.11.2026 18:15 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Fr 13.11.2026 19:35 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 13.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1036 $
+## 📈 SWING-SCANNER · Daten bis 13.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1033 $
 
 1× 🟢 KAUFEN · 1× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 21× BEOBACHTEN  
 🟢 Marktfilter: Nasdaq-100 (QQQ) schloss am Do 12.11. über seiner 200-Tage-Linie – der Bot kauft nur (Long).  
@@ -11,37 +11,37 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | 🟢 KAUFEN | Rücksetzer ↑ (vorläufig) | 309,87 | 315,54 | 275,86 | 343,87 | 1,0 | 2 | 620 | 68 | Do 19.11. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN | Rücksetzer ↑ – Nachricht: Übernahme/Fusion | 354,28 | – | – | – | – | – | – | – | Mi 27.01. | ⚠️ Übernahme/Fusion |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.003,54 | – | – | – | – | – | – | – | Do 10.12. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 68,15 | – | – | – | – | – | – | – | Di 02.03. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 17,69 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 91,60 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 46,84 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 105,29 | – | – | – | – | – | – | – | Do 11.02. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.353,43 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 16,11 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 56,37 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | BEOBACHTEN |  | 324,80 | – | – | – | – | – | – | – | Do 28.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 29,34 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | 🟢 KAUFEN | Rücksetzer ↑ (vorläufig) | 310,05 | 315,72 | 276,03 | 344,07 | 1,0 | 2 | 620 | 68 | Do 19.11. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN | Rücksetzer ↑ – Nachricht: Übernahme/Fusion | 353,82 | – | – | – | – | – | – | – | Mi 27.01. | ⚠️ Übernahme/Fusion |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.000,71 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 67,76 | – | – | – | – | – | – | – | Di 02.03. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 18,01 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 92,80 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 47,54 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 107,02 | – | – | – | – | – | – | – | Do 11.02. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.349,84 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 16,25 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 56,64 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | BEOBACHTEN |  | 324,24 | – | – | – | – | – | – | – | Do 28.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 29,88 | – | – | – | – | – | – | – | Mo 01.03. |  |
 | [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 14,03 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 145,25 | – | – | – | – | – | – | – | Di 17.11. |  |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 474,73 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 240,13 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 572,68 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 267,39 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 474,04 | – | – | – | – | – | – | – | Di 02.02. |  |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 152,34 | – | – | – | – | – | – | – | Mo 01.02. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 312,24 | – | – | – | – | – | – | – | Do 14.01. |  |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.302,72 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 153,56 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 146,50 | – | – | – | – | – | – | – | Di 17.11. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 474,98 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 240,75 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 577,01 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 267,92 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 477,41 | – | – | – | – | – | – | – | Di 02.02. |  |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 152,42 | – | – | – | – | – | – | – | Mo 01.02. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 311,99 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.309,61 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 154,15 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
-🟢 1. INTU · Rücksetzer ↑ (vorläufig): Am Mo 16.11. ab 15:30 Uhr (US-Börsenstart) 2 Stück kaufen, Limit 315,54 € (höchster Kaufkurs). Sofort Stop 275,86 € setzen, Ziel 343,87 €. Greift der Stop, verlierst du ca. 68 € (bei Einstieg zum Limit bis 79 €, bei Kurslücken mehr). Spätestens Do 19.11. vor 22:00 Uhr verkaufen (Quartalszahlen Do 19.11. nach Börsenschluss). Ziel-Chance nach Black-Scholes: 33 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen). Boden 289,06 € (7,2 % unter dem Kurs, 1,8 ATR, 2-mal gedreht, unter der 200-Tage-Linie; Stop darunter). Unterstützung darunter: 301,73–303,88 € (−2,3 %: altes Hoch, Kurslücke) · 288,87–290,92 € (−6,9 %: Wendetief 2×, viel Handel) · 284,52 € (−8,9 %: Kurslücke). Widerstand darüber: 332,06 € (+7,2 %, 2,0 ATR) (nur Info).  
+🟢 1. INTU · Rücksetzer ↑ (vorläufig): Am Mo 16.11. ab 15:30 Uhr (US-Börsenstart) 2 Stück kaufen, Limit 315,72 € (höchster Kaufkurs). Sofort Stop 276,03 € setzen, Ziel 344,07 €. Greift der Stop, verlierst du ca. 68 € (bei Einstieg zum Limit bis 79 €, bei Kurslücken mehr). Spätestens Do 19.11. vor 22:00 Uhr verkaufen (Quartalszahlen Do 19.11. nach Börsenschluss). Ziel-Chance nach Black-Scholes: 33 % in 20 Handelstagen, bei ähnlichen Signalen bisher wirklich erreicht: 41 % (nur Info – der Stop kann vorher kommen). Boden 289,16 € (7,2 % unter dem Kurs, 1,8 ATR, 2-mal gedreht, unter der 200-Tage-Linie; Stop darunter). Unterstützung darunter: 301,83–303,98 € (−2,4 %: altes Hoch, Kurslücke) · 288,96–291,02 € (−6,9 %: Wendetief 2×, viel Handel) · 284,61 € (−8,9 %: Kurslücke). Widerstand darüber: 332,17 € (+7,1 %, 2,0 ATR) (nur Info).  
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
 INTU: Intuit (INTU) Could Be 39% Undervalued On Earnings Focus (Simply Wall St., 13.11. 17:10)  
 INTU: Infleqtion Gears Up to Report Q3 Earnings: How to Play the Stock (Zacks, 13.11. 14:06)  
+TSLA \[Übernahme/Fusion\]: Tesla-SpaceX Merger Talks Progress. Gary Black Sees “Little Windfall” for Tesla Holders (TIKR, 13.11. 19:16)  
 TSLA \[Übernahme/Fusion\]: Investors Just Got Big News on a SpaceX-Tesla Merger (GuruFocus.com, 13.11. 17:39)  
-TSLA \[Übernahme/Fusion\]: SpaceX and Tesla merger talks advance as December announcement considered (Proactive, 13.11. 16:21)  
 Rücksetzer ↑: Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 ⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
@@ -84,7 +84,7 @@ Depotwert am 12.11.2026: 10.025,95 € (+0,3 %) · davon frei: 6.391,28 € · 3
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 10.160,09 € (+1,6 %)  
 Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 12.11.2026).  
 Abgeschlossene Trades: 4 · Gewinner: 2 (50 %) · Summe -61,31 € · größter Rückgang 1,7 % · Kosten: Gebühren 0,00 € + Spread ca. 13,15 €  
-Aufträge für Fr 13.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 AMD Ausbruch ↑ Limit 548,53, Stop 421,23, Ziel 639,45 € · 🟢 JPM Rücksetzer ↑ Limit 313,96, Stop 290,66, Ziel 330,60 €  
+Aufträge für Fr 13.11. (zur Eröffnung, nur bis zum Limit; die Stückzahl ergibt sich erst beim Kauf aus Depotwert, Risiko und freiem Geld): 🟢 AMD Ausbruch ↑ Limit 548,71, Stop 421,37, Ziel 639,66 € · 🟢 JPM Rücksetzer ↑ Limit 314,06, Stop 290,76, Ziel 330,71 €  
 Nachrücker (gekauft nur, wenn ein Auftrag davor nicht zum Limit klappt – sonst sind die 7 Plätze bzw. die Branche schon belegt): INTU Rücksetzer ↑  
 Die Eröffnung am Fr 13.11. ist schon gelaufen: Das Papier-Depot bucht einen Tag erst, wenn er für alle Werte fertig ist – also beim nächsten Lauf nach dem Handelstag (am besten am Morgen danach).  
 Die Aufträge stammen vom letzten fertigen Kurstag und berücksichtigen die offenen Positionen und das Geld des Papier-Depots – sie können deshalb vom Handelsplan oben (für ein leeres Konto) abweichen.  
