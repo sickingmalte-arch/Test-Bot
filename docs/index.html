@@ -112,6 +112,27 @@ main { padding: 16px 20px 40px; min-width: 0; }
 .bereich span { font: 700 13px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-1); }
 .bereich small { font-size: 12.5px; color: var(--text-3); }
 .bereich + .abschnitt > .abschnitt-kopf { margin-top: 14px; }
+/* Kachel-Cockpit (Auf einen Blick): alles Wichtige auf einem Bildschirm, Antippen öffnet die Einzelheiten */
+.cockpit { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.ck { position: relative; display: block; min-width: 0; padding: 12px 26px 13px 14px; background: var(--panel); border: 1px solid var(--line);
+      border-radius: 12px; color: inherit; text-decoration: none; transition: border-color .15s, background .15s; }
+.ck:hover, .ck:focus-visible { border-color: var(--s1); background: var(--panel-hi); outline: none; }
+.ck::after { content: "›"; position: absolute; right: 11px; top: 7px; color: var(--text-3); font-size: 18px; line-height: 1; }
+.ck.breit { grid-column: span 2; }
+.ck-wert { font: 600 24px/1.15 var(--sans); margin: 7px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ck.breit .ck-wert { font-size: 30px; }
+.ck.breit .ck-wert.text { font-size: 22px; }
+.ck.voll { grid-column: 1 / -1; } /* am Computer eine ganze Reihe, damit die vier kleinen Kacheln darunter eine Reihe füllen */
+.ck-wert small { font-size: 15px; font-weight: 600; }
+.ck-wert.text { font-size: 17px; line-height: 1.25; white-space: normal; margin-top: 9px; }
+.ck-wert.warn { color: var(--warnung); }
+.ck-unter { font-size: 12px; line-height: 1.4; color: var(--text-2); }
+.ck .ampel { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: 2px; }
+.ck .ampel.gut { background: var(--gut-text); } .ck .ampel.schlecht { background: var(--schlecht-text); }
+.ck .fortschritt { margin-top: 9px; }
+.ck.leise { background: transparent; }
+.ck.leise .ck-wert.text { font-size: 15px; }
+@media (max-width: 860px) { .cockpit { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; } .ck.breit .ck-wert { font-size: 28px; } }
 .abschnitt.zu { margin-bottom: 0; } /* zugeklappte Abschnitte stehen kompakt wie eine Liste */
 .abschnitt.zu > .abschnitt-kopf { margin-top: 16px; margin-bottom: 2px; }
 .abschnitt-kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 26px 2px 10px; }
@@ -152,18 +173,6 @@ main { padding: 16px 20px 40px; min-width: 0; }
 .kern-fuss .label b { color: var(--text-1); font-weight: 600; }
 
 /* ---------- Heute auf einen Blick ---------- */
-.heute { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 0; }
-.heute-links { padding: 16px 18px; border-right: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 10px; }
-.heute-satz { font: 500 19px/1.4 var(--sans); color: var(--text-1); }
-.heute-satz b { font-weight: 650; }
-.heute-tag { font-size: 13px; color: var(--text-2); }
-.heute-punkte { list-style: none; margin: 0; padding: 10px 18px; display: flex; flex-direction: column; }
-.heute-punkte li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 13.5px; line-height: 1.45; }
-.heute-punkte li:last-child { border-bottom: 0; }
-.heute-punkte .zeichen { font-size: 15px; line-height: 1.3; text-align: center; }
-.heute-punkte .klein { display: block; font-size: 12px; color: var(--text-2); margin-top: 2px; }
-.heute-punkte li.achtung { color: var(--text-1); }
-.heute-punkte li.achtung b { color: var(--schlecht-text); }
 .fortschritt { position: relative; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .fortschritt i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--s1); }
 
@@ -595,8 +604,6 @@ button.kal-tag:hover { border-color: #3a4654; }
   .kacheln.echt { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .kacheln.echt .bilanz { grid-column: 1 / -1; border-top: 1px solid var(--line-soft); }
   .kacheln.sim { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .heute { grid-template-columns: minmax(0, 1fr); }
-  .heute-links { border-right: 0; border-bottom: 1px solid var(--line-soft); }
   .kachel:nth-child(3n) { border-right: 0; }
   .kachel:nth-child(-n+3) { border-bottom: 1px solid var(--line-soft); }
   .kurven-raster { grid-template-columns: minmax(0, 1fr); }
@@ -634,7 +641,6 @@ button.kal-tag:hover { border-color: #3a4654; }
   .marke .lang { display: none; }
   .uhr .zeit { font-size: 13px; }
   .kacheln { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .heute-satz { font-size: 17px; }
   .kacheln.echt .kachel { grid-column: 1 / -1; border-right: 0 !important; }
   .bilanz-zeile { grid-template-columns: 84px minmax(0, 1fr); }
   .bilanz-zeile > :last-child { grid-column: 1 / -1; }
@@ -659,10 +665,6 @@ body { background: radial-gradient(1200px 500px at 15% -10%, rgba(57, 135, 229, 
 .panel:hover { border-color: #26313d; }
 .pille { border-radius: 999px; padding: 5px 10px; }
 .kachel .wert { letter-spacing: -.01em; }
-.blick-stapel { display: flex; flex-direction: column; gap: 10px; }
-.kacheln.blick { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.kacheln.blick .kachel .wert { font-size: 30px; }
-.kacheln.blick .kachel .unter { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .abschnitt { animation: einblenden .45s ease both; }
 @keyframes einblenden { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 /* Handy: größere Schrift und Tippflächen, Tabellen seitlich wischbar statt Seite zu breit */
@@ -670,12 +672,6 @@ body { background: radial-gradient(1200px 500px at 15% -10%, rgba(57, 135, 229, 
   body { font-size: 15px; }
   main { padding: 12px 10px 32px; }
   .panel-innen { padding: 12px; }
-  .heute { grid-template-columns: minmax(0, 1fr); }
-  .heute-links { border-right: 0; border-bottom: 1px solid var(--line-soft); }
-  .heute-punkte li { font-size: 14.5px; }
-  .kacheln.blick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .kacheln.blick .kachel .wert { font-size: 24px; }
-  .kacheln.blick .kachel.held, .kacheln.blick .kachel:nth-child(even):last-child { grid-column: auto; }
   .info { width: 22px; height: 22px; }
   .pille { font-size: 11px; padding: 6px 10px; }
   main table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -1302,6 +1298,12 @@ function abschnitt(id, titel, unter, inhalt, { erkl = null, zuAmHandy = false } 
   kopf.addEventListener("click", e => { if (!e.target.closest(".info")) umschalten(); });
   return teil;
 }
+// Sprung zu einem Abschnitt (Menü oder Kachel): zugeklappte Abschnitte, auch den umgebenden, vorher aufklappen
+function oeffneZiel(sel) {
+  for (let z = document.querySelector(sel); z; z = z.parentElement && z.parentElement.closest(".klappbar")) {
+    if (z.classList.contains("zu")) z._auf();
+  }
+}
 // Drei Bereiche, am Handy und am Computer gleich: was heute wichtig ist, wie es läuft, Hintergrund und Versuche.
 // Die Abschnitte entstehen in anderer Reihenfolge; ordneBereiche() stellt sie am Ende um (Navigation: gleiche Folge).
 const BEREICHE = [
@@ -1870,77 +1872,97 @@ function bilanzBlock(P, E) {
 // ---------------------------------------------------------------------------
 // Heute auf einen Blick: das Wichtigste in ganzen Sätzen
 // ---------------------------------------------------------------------------
+// Auf einen Blick als Kachel-Cockpit: alles Wichtige auf einem Bildschirm, jede Kachel öffnet ihren Abschnitt
+function ckKachel(ziel, label, wert, unter, { klasse = "", breit = false, voll = false, leise = false, id = null, farbe = null, extra = null } = {}) {
+  return el("a", { class: `ck${breit ? " breit" : ""}${voll ? " voll" : ""}${leise ? " leise" : ""}`, href: `#${ziel}`, id, onclick: () => oeffneZiel(`#${ziel}`) },
+    el("div", { class: "label", style: farbe ? `color:${farbe}` : null }, label),
+    el("div", { class: `ck-wert ${klasse}` }, ...[wert].flat(Infinity)),
+    unter ? el("div", { class: "ck-unter" }, ...[unter].flat(Infinity)) : null, extra);
+}
+// Die Kacheln, deren Daten erst später kommen (forschung.json, kronos.json)
+function ckSetze(id, wert, unter) {
+  const k = document.getElementById(id);
+  if (!k) return;
+  k.querySelector(".ck-wert").replaceChildren(wert);
+  const u = k.querySelector(".ck-unter");
+  if (u) u.replaceChildren(unter);
+}
 function heuteAbschnitt(D, P, kaufen, depotStatus) {
-  const links = el("div", { class: "heute-links" });
+  const ck = [];
+  const C = D.claude;
   if (P) {
     const seit = (P.wert / P.startkapital - 1) * 100;
     const q = P.qqq && P.qqq.length ? (P.qqq[P.qqq.length - 1][1] / P.startkapital - 1) * 100 : null;
     const d = q === null ? null : seit - q;
-    links.append(el("div", { class: "heute-satz" }, "Das Übungsdepot steht bei ", el("b", {}, euro(P.wert)), " (",
-      el("span", { class: richtung(seit) }, prozent(seit)), ` seit ${datum(P.angelegt, false)})`,
-      d === null ? "." : Math.abs(d) < 0.05 ? " – gleichauf mit dem Nasdaq-100." : [" und liegt ", el("b", { class: richtung(d) }, `${zahl(Math.abs(d), 1)} Punkte ${d > 0 ? "vor" : "hinter"}`), " dem Nasdaq-100."]));
-    const t = P.tage && P.tage.length ? P.tage[P.tage.length - 1] : null;
-    if (t && P.tage.length > 1) {
-      const vorher = t.wert - t.aenderung, pz = vorher ? (t.aenderung / vorher) * 100 : 0;
-      const qq = P.qqq && P.qqq.length > 1 ? (P.qqq[P.qqq.length - 1][1] / P.qqq[P.qqq.length - 2][1] - 1) * 100 : null;
-      links.append(el("div", { class: "heute-tag" }, `Letzter Börsentag (${datum(t.tag)}): `,
-        el("b", { class: richtung(t.aenderung) }, `${vz(t.aenderung)}${euro(t.aenderung, 2)}`), ` (${prozent(pz)})`,
-        qq === null ? "" : ` · Nasdaq-100 ${prozent(qq)}`));
-    }
-    const E = D.erwartung, n = P.bilanz ? P.bilanz.n : 0, min = (E && E.min_trades) || 30;
-    links.append(el("div", { class: "heute-tag" }, n < min ? `Ehrliche Bilanz: ${n} von ${min} abgeschlossenen Trades – für ein Urteil noch zu früh`
-      : `Ehrliche Bilanz: ${n} abgeschlossene Trades – Details unter Kennzahlen`),
-      el("div", { class: "fortschritt", "aria-hidden": "true" }, el("i", { style: `width:${Math.min(n / min, 1) * 100}%` })));
-  } else links.append(el("div", { class: "heute-satz" }, "Noch kein Übungsdepot."));
-
-  const punkte = [];
-  const punkt = (zeichen, inhalt, klein = null, klasse = "") => punkte.push(el("li", { class: klasse }, el("span", { class: "zeichen", "aria-hidden": "true" }, zeichen),
-    el("span", {}, ...[].concat(inhalt), klein ? el("span", { class: "klein" }, klein) : null)));
-  // Kaufen
-  if (P) {
-    const auftraege = P.auftraege.map(a => { const s = kaufen.find(k => k.ticker === a.ticker); return s ? `${a.ticker} bis ${euro(s.limit, 2)}` : a.ticker; });
-    if (auftraege.length) punkt("🛒", [el("b", {}, "Kauft zur nächsten Eröffnung: "), auftraege.join(", ")],
-      P.nachruecker && P.nachruecker.length ? `Rückt nach, falls ein Kauf nicht klappt: ${P.nachruecker.map(a => a.ticker).join(", ")}` : "Nur bis zum Limit – liegt der Kurs darüber, verfällt der Auftrag.");
-    else if (kaufen.length) {
-      const st = kaufen.map(s => depotStatus(s.ticker));
-      const grund = st.every(x => x && x.art === "drin") ? "die Signale liegen schon im Depot"
-        : P.verfallen.length ? P.verfallen[0].grund : "kein Signal passt gerade ins Depot";
-      punkt("🛒", [el("b", {}, "Kauft nichts: "), grund], `${kaufen.length} Kauf-Signal${kaufen.length === 1 ? "" : "e"} heute: ${kaufen.map(s => s.ticker).join(", ")}`);
-    } else punkt("🛒", [el("b", {}, "Keine Kauf-Signale"), " – der Bot wartet auf bessere Gelegenheiten."]);
+    ck.push(ckKachel("depot", "Übungsdepot", [euro(P.wert, 0), " ", el("small", {}, prozent(seit))],
+      [`seit ${datum(P.angelegt, false)}`, d === null ? "" : Math.abs(d) < 0.05 ? " · gleichauf mit dem Nasdaq-100"
+        : [" · ", el("b", { class: richtung(d) }, `${zahl(Math.abs(d), 1)} Pkt ${d > 0 ? "vor" : "hinter"}`), ` dem Nasdaq-100 (${prozent(q)})`]],
+      { klasse: richtung(seit), breit: true }));
+    const t = P.tage && P.tage.length > 1 ? P.tage[P.tage.length - 1] : null;
+    const pz = t && t.wert - t.aenderung ? (t.aenderung / (t.wert - t.aenderung)) * 100 : null;
+    const qq = P.qqq && P.qqq.length > 1 ? (P.qqq[P.qqq.length - 1][1] / P.qqq[P.qqq.length - 2][1] - 1) * 100 : null;
+    ck.push(ckKachel("fazit", "Letzter Tag", t ? `${vz(t.aenderung)}${euro(t.aenderung, 0)}` : "–",
+      t ? `${prozent(pz)} am ${datum(t.tag)}${qq === null ? "" : ` · Nasdaq ${prozent(qq)}`}` : "noch kein Vortag", { klasse: t ? richtung(t.aenderung) : "" }));
   }
-  // Quartalszahlen bei offenen Positionen
-  if (P) {
-    const bald = P.positionen.filter(p => p.zahlen_tag).map(p => ({ t: p.ticker, iso: p.zahlen_tag, tage: Math.round((tag(p.zahlen_tag) - tag(HEUTE)) / 864e5) }))
-      .filter(x => x.tage >= 0 && x.tage < 7).sort((a, b) => a.tage - b.tage);
-    if (bald.length) punkt("⚠️", [el("b", {}, "Quartalszahlen bald: "), bald.map(x => `${x.t} ${x.tage === 0 ? "heute" : x.tage === 1 ? "morgen" : `in ${x.tage} Tagen`}`).join(", ")],
-      "Der Bot verkauft eine Position spätestens zum Schluss des Tages vor den Zahlen – automatisch.", "achtung");
+  if (D.markt && D.markt.ueber_200 !== null && D.markt.ueber_200 !== undefined) {
+    const ja = D.markt.ueber_200;
+    ck.push(ckKachel("signale", "Markt", [el("span", { class: `ampel ${ja ? "gut" : "schlecht"}`, "aria-hidden": "true" }), ja ? "Käufe erlaubt" : "keine neuen Käufe"],
+      `Nasdaq-100 ${ja ? "über" : "unter"} der 200-Tage-Linie`, { klasse: "text" }));
   }
-  // Positionen
-  if (P && P.positionen.length) {
+  if (P) {
     const mit = P.positionen.filter(p => p.ergebnis !== null);
     const summe = mit.reduce((a, p) => a + p.ergebnis, 0);
-    const sortiert = [...mit].sort((a, b) => b.ergebnis - a.ergebnis);
-    punkt("📒", [el("b", {}, `${P.positionen.length} von ${D.regeln.max_positionen} Plätzen belegt`), " · zusammen ",
-      el("span", { class: richtung(summe) }, `${vz(summe)}${euro(summe, 2)}`)],
-      sortiert.length > 1 ? `Vorne: ${sortiert[0].ticker} ${vz(sortiert[0].ergebnis)}${euro(sortiert[0].ergebnis, 0)} · hinten: ${sortiert[sortiert.length - 1].ticker} ${vz(sortiert[sortiert.length - 1].ergebnis)}${euro(sortiert[sortiert.length - 1].ergebnis, 0)}` : null);
-  } else if (P) punkt("📒", [el("b", {}, "Keine offenen Positionen")]);
-  // Markt
-  if (D.markt.ueber_200 !== null) punkt(D.markt.ueber_200 ? "🟢" : "🔴",
-    [el("b", {}, D.markt.ueber_200 ? "Markt: Käufe erlaubt" : "Markt: keine neuen Käufe"), D.markt.ueber_200 ? " – der Nasdaq-100 liegt über seiner 200-Tage-Linie." : " – der Nasdaq-100 liegt unter seiner 200-Tage-Linie."]);
-  const inhalt = el("div", { class: "panel heute" }, links, el("ul", { class: "heute-punkte" }, ...punkte));
-  // Die vier wichtigsten Zahlen groß ganz oben
-  let blick = null;
-  if (P) {
-    const seit = (P.wert / P.startkapital - 1) * 100;
-    const t = P.tage && P.tage.length > 1 ? P.tage[P.tage.length - 1] : null;
-    const pzTag = t && t.wert - t.aenderung ? (t.aenderung / (t.wert - t.aenderung)) * 100 : null;
-    blick = el("div", { class: "panel kacheln blick" },
-      kachel("Übungsdepot", euro(P.wert, 0), `${prozent(seit)} seit ${datum(P.angelegt, false)}`, { klasse: richtung(seit) }),
-      kachel("Letzter Tag", t ? `${vz(t.aenderung)}${euro(t.aenderung, 0)}` : "–", t ? `${prozent(pzTag)} am ${datum(t.tag)}` : "noch kein Vortag", { klasse: t ? richtung(t.aenderung) : "" }),
-      kachel("Positionen", `${P.positionen.length} / ${D.regeln.max_positionen}`, P.positionen.length ? P.positionen.map(p => p.ticker).join(" · ") : "keine offen"),
-      kachel("Kauf-Signale", String(kaufen.length), kaufen.length ? kaufen.map(k => k.ticker).join(" · ") : "heute keine"));
+    const s = [...mit].sort((a, b) => b.ergebnis - a.ergebnis);
+    const z = p => [p.ticker, " ", el("span", { class: richtung(p.ergebnis) }, `${vz(p.ergebnis)}${euro(p.ergebnis, 0)}`)];
+    ck.push(ckKachel("positionen", "Positionen", `${P.positionen.length} / ${D.regeln.max_positionen}`,
+      s.length > 1 ? ["vorne ", ...z(s[0]), el("br"), "hinten ", ...z(s[s.length - 1])]
+        : P.positionen.length ? ["zusammen ", el("span", { class: richtung(summe) }, `${vz(summe)}${euro(summe, 0)}`)] : "keine offen"));
   }
-  return abschnitt("heute", "Auf einen Blick", `Kurse bis ${datum(D.daten_bis)} · das Wichtigste in Sätzen`, el("div", { class: "blick-stapel" }, blick, inhalt));
+  {  // Kauf-Signale: was zur nächsten Eröffnung passiert
+    let unter;
+    if (P && P.auftraege.length) unter = `kauft zur Eröffnung: ${P.auftraege.map(a => a.ticker).join(", ")}`;
+    else if (P && kaufen.length) {
+      const st = kaufen.map(s => depotStatus(s.ticker));
+      unter = st.every(x => x && x.art === "drin") ? `${kaufen.map(s => s.ticker).join(", ")} – schon im Depot, kauft nichts`
+        : P.verfallen.length ? `kauft nichts: ${P.verfallen[0].grund}` : "kauft nichts – kein Signal passt ins Depot";
+    } else unter = kaufen.length ? kaufen.map(s => s.ticker).join(" · ") : "heute keine – der Bot wartet";
+    ck.push(ckKachel("signale", "Kauf-Signale", String(kaufen.length), unter));
+  }
+  {  // Achtung: Quartalszahlen bald, sonst warnende Schlagzeilen
+    const bald = P ? P.positionen.filter(p => p.zahlen_tag).map(p => ({ t: p.ticker, tage: Math.round((tag(p.zahlen_tag) - tag(HEUTE)) / 864e5) }))
+      .filter(x => x.tage >= 0 && x.tage < 7).sort((a, b) => a.tage - b.tage) : [];
+    const warnt = (D.schlagzeilen || []).filter(n => n.warnt);
+    const wann = x => (x.tage === 0 ? "heute" : x.tage === 1 ? "morgen" : `in ${x.tage} Tagen`);
+    if (bald.length) ck.push(ckKachel("positionen", "Achtung", `${bald[0].t}-Zahlen`,
+      `${wann(bald[0])} · Verkauf am Vortag${bald.length > 1 ? ` · dazu ${bald.slice(1).map(x => x.t).join(", ")}` : ""}`, { klasse: "text warn" }));
+    else if (warnt.length) ck.push(ckKachel("nachrichten", "Achtung", `${warnt.length} Warnung${warnt.length === 1 ? "" : "en"}`,
+      `in den Schlagzeilen zu ${[...new Set(warnt.map(n => n.ticker))].join(", ")}`, { klasse: "text warn" }));
+    else ck.push(ckKachel("nachrichten", "Achtung", "nichts Besonderes", "keine Quartalszahlen in 7 Tagen, keine Warnung in den Schlagzeilen", { klasse: "text" }));
+  }
+  if (C && C.seit_start) {
+    const s = C.seit_start, diff = s.claude - s.bot;
+    ck.push(ckKachel("claude", "Claude-Depot", prozent(s.claude),
+      `seit ${datum(C.versuch_ab, false)} · ${Math.abs(diff) < 0.05 ? "gleich wie Übungsdepot" : `${zahl(Math.abs(diff), 1)} Pkt ${diff > 0 ? "vor" : "hinter"} dem Übungsdepot`}`,
+      { klasse: richtung(s.claude) }));
+  }
+  if (P) {
+    const E = D.erwartung, n = P.bilanz ? P.bilanz.n : 0, min = (E && E.min_trades) || 30;
+    ck.push(ckKachel("kennzahlen", "Ehrliche Bilanz", n < min ? `${n} von ${min} Trades` : `${n} Trades`,
+      n < min ? "abgeschlossen – für ein Urteil noch zu früh" : `Treffer ${zahl(P.bilanz.quote, 0)} % · Ø ${zahl(P.bilanz.schnitt_r, 2)} R je Trade`,
+      { klasse: "text", breit: true, voll: true, extra: el("div", { class: "fortschritt", "aria-hidden": "true" }, el("i", { style: `width:${Math.min(n / min, 1) * 100}%` })) }));
+  }
+  // Hintergrund & Versuche: kleinere Kacheln
+  const strat = D.strategien || [];
+  if (strat.length) {
+    const aus = strat.filter(s => s.status !== "aktiv");
+    ck.push(ckKachel("strategien", "Strategien", `${strat.length - aus.length} von ${strat.length} aktiv`,
+      aus.length ? `pausiert oder aus: ${aus.map(s => s.name).join(", ")}` : "alle aktiv", { klasse: "text", leise: true }));
+  }
+  if (D.lernmodell) ck.push(ckKachel("lernmodell", "Lernmodell", D.lernmodell.kauft ? "entscheidet mit" : "nur Anzeige",
+    `Stand ${String(D.lernmodell.stand || "–").split(" ")[0]}`, { klasse: "text", leise: true }));
+  ck.push(ckKachel("forschung", "Forschung", "…", "lädt", { klasse: "text", leise: true, id: "ck-forschung" }));
+  ck.push(ckKachel("kronos", "Kronos", "…", "lädt", { klasse: "text", leise: true, id: "ck-kronos", farbe: "var(--kronos)" }));
+  return abschnitt("heute", "Auf einen Blick", `Kurse bis ${datum(D.daten_bis)} · Antippen öffnet die Einzelheiten`, el("div", { class: "cockpit" }, ...ck));
 }
 
 // ---------------------------------------------------------------------------
@@ -2362,7 +2384,7 @@ function aufbauen(D) {
     sim.append(kachel("Größter Rückgang", prozent(-RB.max_rueckgang, 1), "vom bisherigen Hoch", { klasse: "schlecht", erkl: "rueckgang" }));
   }
   main.append(abschnitt("kennzahlen", "Kennzahlen", "oben das echte Übungsdepot, unten der Rückblick (Simulation)",
-    el("div", { style: "display:grid;gap:12px" }, P ? echt : null, RB ? sim : null)));
+    el("div", { style: "display:grid;gap:12px" }, P ? echt : null, RB ? sim : null), { zuAmHandy: true }));
 
   // ---------- Signale ----------
   const warten = D.signale.filter(s => s.art === "warten");
@@ -2424,7 +2446,7 @@ function aufbauen(D) {
     el("div", { class: "chips" }, beob.map(s => el("a", { class: "chip", href: tvLink(s.ticker), target: "_blank", rel: "noopener" }, s.ticker)),
       fehler.map(s => el("span", { class: "chip", title: s.fehler || "Fehler", style: "color:var(--schlecht-text)" }, `${s.ticker} ✕`)))));
   signalTeile.push(nebenher);
-  main.append(abschnitt("signale", "Signale heute", "Kauf am nächsten Handelstag ab 15:30 Uhr, nur bis zum Limit", signalTeile, { erkl: "signal" }));
+  main.append(abschnitt("signale", "Signale heute", "Kauf am nächsten Handelstag ab 15:30 Uhr, nur bis zum Limit", signalTeile, { erkl: "signal", zuAmHandy: true }));
   const navS = document.getElementById("nav-signale");
   if (kaufen.length) {
     // gelb nur, wenn das Übungsdepot wirklich etwas kauft
@@ -2483,7 +2505,7 @@ function aufbauen(D) {
       striche(rs)));
   }
   if (!D.strategien.length) strat.append(el("div", { class: "leer" }, "Noch keine Strategie-Daten."));
-  main.append(abschnitt("depot", "Depot & Kurve", "mit Fadenkreuz: Finger oder Maus über die Kurve", el("div", { class: "kurven-raster" }, strat, kurvenPanel)));
+  main.append(abschnitt("depot", "Depot & Kurve", "mit Fadenkreuz: Finger oder Maus über die Kurve", el("div", { class: "kurven-raster" }, strat, kurvenPanel), { zuAmHandy: true }));
   let start = ansichten[0];
   try { start = ansichten.find(a => a.id === localStorage.getItem("swingbot-ansicht")) || start; } catch (e) { /* egal */ }
   if (start) zeigeAnsicht(start); else kurvenPanel.append(el("div", { class: "leer" }, "Noch kein Depot."));
@@ -2609,20 +2631,32 @@ function aufbauen(D) {
   main.append(forschungPlatz);
   fetch(`forschung.json?${Date.now()}`, { cache: "no-store" })
     .then(r => (r.ok ? r.json() : null))
-    .then(F => { if (F && (F.experiment || (F.ideen || []).length)) forschungPlatz.replaceWith(forschungBauen(F)); })
-    .catch(() => {});
+    .then(F => {
+      if (F && (F.experiment || (F.ideen || []).length)) forschungPlatz.replaceWith(forschungBauen(F));
+      const I = (F && F.ideen) || [], E = F && F.experiment;
+      const letzte = I.reduce((m, i) => (i.datum > m ? i.datum : m), "");
+      ckSetze("ck-forschung", I.length ? `${I.length} Ideen geprüft` : E ? "Experiment läuft" : "noch nichts",
+        [letzte ? `zuletzt ${datum(letzte, false)}` : "", E && E.experiment_prozent != null ? `${letzte ? " · " : ""}Experiment ${prozent(E.experiment_prozent)}` : ""].join("") || "–");
+    })
+    .catch(() => ckSetze("ck-forschung", "–", "nicht geladen"));
 
   // ---------- Kronos-Versuch: Zukunftsfächer je Signal (kronos.json, eigener Ablauf) ----------
   const kronosPlatz = el("div", {});
   main.append(kronosPlatz);
   fetch(`kronos.json?${Date.now()}`, { cache: "no-store" })
     .then(r => (r.ok ? r.json() : null))
-    .then(K => { if (K && K.varianten) kronosPlatz.replaceWith(kronosBauen(K, D.repo)); })
-    .catch(() => {});
+    .then(K => {
+      if (K && K.varianten) kronosPlatz.replaceWith(kronosBauen(K, D.repo));
+      const z = (K && K.zaehler) || null, min = (K && K.min_auswertung) || 30;
+      ckSetze("ck-kronos", !z ? "noch keine Daten" : z.ausgewertet >= min ? "Urteil möglich" : "Messung läuft",
+        z ? `${z.ausgewertet} von ${min} Signalen ausgewertet` : "–");
+    })
+    .catch(() => ckSetze("ck-kronos", "–", "nicht geladen"));
 
   // ---------- Fazit: Tag, Woche, Monat, alles (im Bereich „Ergebnis“) ----------
   const fazit = fazitBauen(D);
-  if (fazit) main.append(abschnitt("fazit", "Fazit", "Übungsdepot · was der Bot verdient, gekauft und verkauft hat", fazit));
+  if (fazit) main.append(abschnitt("fazit", "Fazit", "Übungsdepot · was der Bot verdient, gekauft und verkauft hat", fazit,
+    { zuAmHandy: true }));
 
   // ---------- Fuß ----------
   const bericht = D.repo ? `https://github.com/${D.repo}/blob/main/bericht/README.md` : null;
@@ -2642,11 +2676,7 @@ function aufbauen(D) {
   new ResizeObserver(neuLinien).observe(kern);
   const links = [...document.querySelectorAll(".seite a:not(#nav-chat)")];
   // Sprung aus dem Menü: zugeklappte Abschnitte (auch den umgebenden) vorher aufklappen
-  links.forEach(a => a.addEventListener("click", () => {
-    for (let z = document.querySelector(a.getAttribute("href")); z; z = z.parentElement && z.parentElement.closest(".klappbar")) {
-      if (z.classList.contains("zu")) z._auf();
-    }
-  }));
+  links.forEach(a => a.addEventListener("click", () => oeffneZiel(a.getAttribute("href"))));
   const ziele = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
   const beobachter = new IntersectionObserver(eintraege => {
     for (const e of eintraege) if (e.isIntersecting) {
