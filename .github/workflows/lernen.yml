@@ -27,11 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 150 # der allererste Lauf holt alle Daten seit 2007 (rund eine Stunde)
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.ref_name }}
 
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
           cache: pip
@@ -42,7 +42,7 @@ jobs:
 
       - name: Zwischenspeicher holen
         # Kurse, Termine, Bilanzen und die Lernmodelle der letzten Monate (nicht im Repository – zu groß)
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: lern_cache
           key: lernen-${{ github.run_id }}-${{ github.run_attempt }}
@@ -61,7 +61,7 @@ jobs:
       - name: Zwischenspeicher sichern
         # auch nach einem Abbruch: dann muss der nächste Lauf nicht wieder alles holen
         if: always()
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: lern_cache
           key: lernen-${{ github.run_id }}-${{ github.run_attempt }}
