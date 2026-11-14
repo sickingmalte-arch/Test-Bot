@@ -1,6 +1,6 @@
 # 🔮 Kronos-Versuch (nach vorne)
 
-Stand 13.11.2026 · 50 Zukünfte je Signal und Variante, 20 Handelstage. Varianten: small-256 (Kronos-small, Rückblick 256, Temperatur 1,0); small-64 (Kronos-small, Rückblick 64, Temperatur 1,0); small-64-T15 (Kronos-small, Rückblick 64, Temperatur 1,5); base-256 (Kronos-base, Rückblick 256, Temperatur 1,0, nur 3 Signale am Tag). Dazu abgeleitet: Mittel aller Varianten, Mittel ½ + Zufall ½, Mittel geeicht (Schwankung). Nur eine Messung – der Bot kauft nicht danach.
+Stand 14.11.2026 · 50 Zukünfte je Signal und Variante, 20 Handelstage. Varianten: small-256 (Kronos-small, Rückblick 256, Temperatur 1,0); small-64 (Kronos-small, Rückblick 64, Temperatur 1,0); small-64-T15 (Kronos-small, Rückblick 64, Temperatur 1,5); base-256 (Kronos-base, Rückblick 256, Temperatur 1,0, nur 3 Signale am Tag). Dazu abgeleitet: Mittel aller Varianten, Mittel ½ + Zufall ½, Mittel geeicht (Schwankung). Nur eine Messung – der Bot kauft nicht danach.
 
 **Fragen:** (1) Sagt Kronos besser voraus, ob zuerst das Ziel oder zuerst der Stop kommt, als ein Zufallsweg ohne Richtung – und als die Ziel-Chance, die der Bot schon anzeigt? (2) Sagt Kronos die Schwankung der nächsten 20 Tage besser voraus, als einfach die letzten 20 Tage fortzuschreiben?
 
@@ -14,12 +14,13 @@ Noch keine Signale ausgewertet (das geht frühestens 20 Handelstage nach dem Sig
 
 ## 2. Alle Aktien der Watchlist täglich (small-64, small-64-T15, Stop −2 ATR, Ziel +2 ATR)
 
-Gerechnet: 120 an 5 Tagen · ausgewertet: 0 an 0 Tagen · offen: 120. Aktien am selben Tag laufen ähnlich – deshalb zählt die Zahl der Tage, und das Intervall zieht ganze Tage.
+Gerechnet: 144 an 6 Tagen · ausgewertet: 0 an 0 Tagen · offen: 144. Aktien am selben Tag laufen ähnlich – deshalb zählt die Zahl der Tage, und das Intervall zieht ganze Tage.
 
 ## Alle Kauf-Signale
 
 | Signaltag | Aktie | Stop / Ziel | small-256: Ziel / Stop · Mitte 20 T. | small-64: Ziel / Stop · Mitte 20 T. | small-64-T15: Ziel / Stop · Mitte 20 T. | base-256: Ziel / Stop · Mitte 20 T. | Zufallsweg Ziel | Bot-Formel | Ergebnis |
 |---|---|---|---|---|---|---|---:|---:|---|
+| 2026-11-13 | INTU | -11,0 / +11,0 % | 22% / 64% · -7,3 % | 40% / 26% · -3,0 % | 30% / 66% · -4,9 % | 26% / 72% · -9,2 % | 43% | 33 % | offen |
 | 2026-11-12 | INTU | -11,5 / +11,5 % | 12% / 72% · -11,7 % | 34% / 22% · -1,8 % | 30% / 62% · -4,6 % | 16% / 84% · -3,7 % | 43% | 31 % | offen |
 
-Offen: 1 Signale warten auf ihre 20 Handelstage. Watchlist-Einzelwerte: `forschung/kronos_liste_log.json`. Kronos-Code: `forschung/kronos_modell/` (MIT-Lizenz). Hintergrund: `gehirn/Notizen/Wissen – Kronos (KI-Zukunftsfächer).md`. Simulation, keine Anlageberatung.
+Offen: 2 Signale warten auf ihre 20 Handelstage. Watchlist-Einzelwerte: `forschung/kronos_liste_log.json`. Kronos-Code: `forschung/kronos_modell/` (MIT-Lizenz). Hintergrund: `gehirn/Notizen/Wissen – Kronos (KI-Zukunftsfächer).md`. Simulation, keine Anlageberatung.
