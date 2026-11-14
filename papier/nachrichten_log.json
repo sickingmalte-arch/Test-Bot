@@ -208,5 +208,19 @@
   "strategie": "ruecksetzer_long",
   "gut": 0,
   "schlecht": 1
+ },
+ {
+  "tag": "2026-11-13",
+  "ticker": "INTU",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
+ },
+ {
+  "tag": "2026-11-13",
+  "ticker": "TSLA",
+  "strategie": "ruecksetzer_long",
+  "gut": 0,
+  "schlecht": 0
  }
 ]

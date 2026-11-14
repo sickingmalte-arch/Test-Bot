@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=MELI)
 
-**Stand Do 12.11. 2026:** BEOBACHTEN
+**Stand Fr 13.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 25.02.
 
 ## Übungsdepot

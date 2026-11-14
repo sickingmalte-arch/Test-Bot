@@ -10,8 +10,8 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=NBIS)
 
-**Stand Do 12.11. 2026:** BEOBACHTEN
-**Nächste Quartalszahlen:** –
+**Stand Fr 13.11. 2026:** BEOBACHTEN
+**Nächste Quartalszahlen:** Do 11.02.
 
 ## Übungsdepot
 

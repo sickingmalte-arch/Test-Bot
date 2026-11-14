@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AAPL)
 
-**Stand Do 12.11. 2026:** BEOBACHTEN
+**Stand Fr 13.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 28.01.
 
 ## Übungsdepot
