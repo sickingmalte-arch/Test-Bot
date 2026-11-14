@@ -1,6 +1,6 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Sa 14.11.2026 16:51 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Sa 14.11.2026 18:12 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
 ## 📈 SWING-SCANNER · Daten bis 13.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1050 $
 
@@ -39,8 +39,8 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
 INTU: Intuit (INTU) Could Be 39% Undervalued On Earnings Focus (Simply Wall St., 13.11. 17:10)  
 INTU: Infleqtion Gears Up to Report Q3 Earnings: How to Play the Stock (Zacks, 13.11. 14:06)  
+TSLA \[Übernahme/Fusion\]: Texas’ Next Attorney General Vows “Tremendous Scrutiny” of a Tesla–SpaceX Merger (24/7 Wall St., 14.11. 17:44)  
 TSLA \[Übernahme/Fusion\]: SpaceX’s S&P 500 Bid Gets New Life as Musk Pitches Tesla Merger (Bloomberg, 14.11. 15:00)  
-TSLA: Here’s Why Tesla (TSLA) Is One of the Top High P/E Stocks Under the 200-Day SMA (Insider Monkey, 14.11. 16:29)  
 Rücksetzer ↑: Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 ⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
