@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 13.11.2026 13:29 Uhr · Kurse bis 12.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 14.11.2026 04:28 Uhr · Kurse bis 13.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -8,7 +8,7 @@ Stand: 13.11.2026 13:29 Uhr · Kurse bis 12.11.2026 · 523 Aktien (S&P 500, Nasd
 
 - ✅ Alle Kurse, Termine und Bilanzen sind da.
 
-## 📋 Kauf-Signale vom 12.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 13.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -16,35 +16,34 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| AMD | Ausbruch | 66 % | 93 | ✅ |
-| JPM | Rücksetzer | 64 % | 90 | ✅ |
-| INTU | Rücksetzer | 55 % | 54 | – |
+| TSLA | Rücksetzer | 55 % | 55 | – |
+| INTU | Rücksetzer | 49 % | 17 | – |
 
-**Ganzer Markt – die 15 besten von 95 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 90 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| CNC | Rücksetzer | 68 % | 95 | ✅ |
-| UNH | Rücksetzer | 68 % | 95 | ✅ |
-| ELV | Rücksetzer | 68 % | 95 | ✅ |
-| APA | Rücksetzer | 67 % | 94 | ✅ |
-| CSX | MACD-Wende | 67 % | 94 | ✅ |
-| XYZ | Rücksetzer | 67 % | 94 | ✅ |
-| PGR | MACD-Wende | 67 % | 94 | ✅ |
-| SOLV | Trendlinien-Ausbruch | 67 % | 94 | ✅ |
-| SNA | Rücksetzer | 66 % | 93 | ✅ |
-| RL | Rücksetzer | 66 % | 93 | ✅ |
-| MRK | Rücksetzer | 66 % | 93 | ✅ |
-| BIIB | Rücksetzer | 66 % | 93 | ✅ |
-| BAX | Rücksetzer | 66 % | 93 | ✅ |
-| NSC | Rücksetzer | 66 % | 93 | ✅ |
-| AMD | Ausbruch | 66 % | 93 | ✅ |
+| AEE | ATR-Ausbruch | 65 % | 92 | ✅ |
+| MRNA | RSI-2-Rücksetzer | 65 % | 92 | ✅ |
+| COP | Rücksetzer | 64 % | 89 | ✅ |
+| SNA | Rücksetzer | 63 % | 87 | ✅ |
+| PCG | Rücksetzer | 62 % | 86 | ✅ |
+| CCL | Rücksetzer | 62 % | 85 | ✅ |
+| TXT | Rücksetzer | 62 % | 85 | ✅ |
+| FE | MACD-Wende | 62 % | 84 | ✅ |
+| AXP | Rücksetzer | 62 % | 84 | ✅ |
+| UNH | Rücksetzer | 62 % | 84 | ✅ |
+| VRTX | RSI-2-Rücksetzer | 61 % | 84 | ✅ |
+| ED | MACD-Wende | 61 % | 84 | ✅ |
+| WEC | ATR-Ausbruch | 61 % | 84 | ✅ |
+| AIG | MACD-Wende | 61 % | 83 | ✅ |
+| RMD | Rücksetzer | 61 % | 83 | ✅ |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23860 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23866 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
@@ -75,7 +74,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 24897 Signale, davon verloren 47 %. Von den 9422 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 24901 Signale, davon verloren 47 %. Von den 9425 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|

@@ -1,6 +1,6 @@
 {
- "stand": "13.11.2026 13:29 Uhr",
- "tag": "2026-11-12",
+ "stand": "14.11.2026 04:28 Uhr",
+ "tag": "2026-11-13",
  "monat": "2026-11",
  "aktien": 523,
  "anteil": 0.3,
@@ -439,106 +439,106 @@
  "training": 463621,
  "training_bis": "2026-10-30",
  "guete": {
-  "auc": 0.5196139882019359,
+  "auc": 0.5195440233242229,
   "fuenftel": [
    {
     "fuenftel": 1,
-    "R": 0.025517679915987683,
-    "n": 4772,
-    "treffer": 0.5176026823134954
+    "R": 0.02574750408790405,
+    "n": 4774,
+    "treffer": 0.517804775869292
    },
    {
     "fuenftel": 2,
-    "R": 0.016852614386168023,
-    "n": 4772,
-    "treffer": 0.5157166806370495
+    "R": 0.016746562169464126,
+    "n": 4773,
+    "treffer": 0.5156086318877017
    },
    {
     "fuenftel": 3,
-    "R": 0.01559979516953252,
-    "n": 4772,
-    "treffer": 0.5159262363788768
+    "R": 0.015803144617571006,
+    "n": 4773,
+    "treffer": 0.5160276555625393
    },
    {
     "fuenftel": 4,
-    "R": -0.01164779695347041,
-    "n": 4772,
-    "treffer": 0.5167644593461861
+    "R": -0.011801746970050412,
+    "n": 4773,
+    "treffer": 0.5166561910747958
    },
    {
     "fuenftel": 5,
-    "R": 0.06779152184454898,
-    "n": 4772,
-    "treffer": 0.5691533948030176
+    "R": 0.06768306488896948,
+    "n": 4773,
+    "treffer": 0.5690341504294992
    }
   ],
   "auc_je_jahr": {
    "2025": 0.5320274074238012,
-   "2026": 0.5109290474015077
+   "2026": 0.5108504810856067
   },
-  "n": 23860
+  "n": 23866
  },
  "fehler": {
   "tabelle": [
    {
     "grund": "branche",
     "text": "Branche schwach",
-    "alle": 0.14660400851508215,
-    "ausgewaehlt": 0.15092337083421778
+    "alle": 0.14658045861611985,
+    "ausgewaehlt": 0.1509814323607427
    },
    {
     "grund": "zeit",
     "text": "Zeitstopp ohne Schwung",
-    "alle": 0.13174278025464917,
-    "ausgewaehlt": 0.1369136064529824
+    "alle": 0.13180193566523432,
+    "ausgewaehlt": 0.13708222811671086
    },
    {
     "grund": "zahlen",
     "text": "Quartalszahlen",
-    "alle": 0.09655781821102945,
-    "ausgewaehlt": 0.052536616429632775
+    "alle": 0.09654230753784988,
+    "ausgewaehlt": 0.052519893899204244
    },
    {
     "grund": "normal",
     "text": "Normales Auf und Ab (kein besonderer Grund)",
-    "alle": 0.09583483953890026,
-    "ausgewaehlt": 0.10210146465718531
+    "alle": 0.09581944500220875,
+    "ausgewaehlt": 0.10206896551724139
    },
    {
     "grund": "markt",
     "text": "Absturz des Gesamtmarkts",
-    "alle": 0.05502671004538699,
-    "ausgewaehlt": 0.04839736786244959
+    "alle": 0.055138347857515764,
+    "ausgewaehlt": 0.04859416445623342
    },
    {
     "grund": "stop_eng",
     "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
-    "alle": 0.04257541069205125,
-    "ausgewaehlt": 0.049564848227552534
+    "alle": 0.04260873057306935,
+    "ausgewaehlt": 0.049549071618037135
    },
    {
     "grund": "zu_spaet",
     "text": "Signal zu spät (Aktie war schon weit gelaufen)",
-    "alle": 0.036349761015383376,
-    "ausgewaehlt": 0.024623222245807683
+    "alle": 0.03638408096060399,
+    "ausgewaehlt": 0.024615384615384615
    },
    {
     "grund": "kursluecke",
     "text": "Kurslücke unter den Stop (über Nacht)",
-    "alle": 0.02823633369482267,
-    "ausgewaehlt": 0.03332625769475695
+    "alle": 0.02823179791976226,
+    "ausgewaehlt": 0.03331564986737401
    },
    {
     "grund": "nachricht",
     "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
-    "alle": 0.010402859782303089,
-    "ausgewaehlt": 0.007217151347909149
+    "alle": 0.010401188707280832,
+    "ausgewaehlt": 0.007214854111405836
    }
   ],
-  "n_alle": 24897,
-  "n_ausgewaehlt": 9422,
-  "verlust_alle": 0.47154275615536007,
-  "verlust_ausgewaehlt": 0.45659095733389937
+  "n_alle": 24901,
+  "n_ausgewaehlt": 9425,
+  "verlust_alle": 0.47154732741656963,
+  "verlust_ausgewaehlt": 0.456657824933687
  },
  "bot_trades": [
   {
@@ -571,7 +571,7 @@
    "grund": "vor Quartalszahlen",
    "R": 0.5707214407587646,
    "fehler": [],
-   "fertig": false,
+   "fertig": true,
    "fehler_text": []
   },
   {
