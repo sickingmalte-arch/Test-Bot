@@ -406,5 +406,27 @@
    0.9,
    2.4
   ]
+ },
+ {
+  "datum": "2026-11-13",
+  "datei": "monatswechsel_rund",
+  "name": "Monatswechsel 2: nur an den letzten 4 und den ersten 3 Handelstagen des Monats kaufen",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.8,
+   -3.1,
+   -5.5
+  ]
+ },
+ {
+  "datum": "2026-11-13",
+  "datei": "monatswechsel_vorher",
+  "name": "Monatswechsel 1: nur an den letzten 4 Handelstagen des Monats kaufen",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -1.8,
+   -5.1,
+   -5.2
+  ]
  }
 ]

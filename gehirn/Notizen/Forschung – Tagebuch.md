@@ -10,6 +10,19 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 13.11.2026 (Freitag) · Monatswechsel-Effekt
+
+**Idee** (Freitags-Idee aus der Forschung): McConnell & Xu (2008, *Financial Analysts Journal*) – von 1926 bis 2005 entstand fast die ganze Rendite des US-Aktienmarkts am letzten und an den ersten drei Handelstagen eines Monats (zuerst Lakonishok & Smidt 1988). Vermutung: Käufe kurz vor dem Monatswechsel laufen besser als Käufe in der Monatsmitte. 2 Varianten, vorher festgelegt, je mit 6 Gegenproben (gleich viele Signale zufällig weglassen).
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +11,5 % / −15 % | +12,0 % / −17 % | +8,3 % / −14 % |
+| 1) nur an den letzten 4 Handelstagen kaufen | +9,7 % / −10 % | +6,9 % / −11 % | +3,1 % / −15 % |
+| 2) an den letzten 4 und den ersten 3 Handelstagen | +10,7 % / −10 % | +9,0 % / −12 % | +2,8 % / −16 % |
+| beste Gegenprobe mit Zufall (zu 1 / zu 2) | +12,4 / +12,9 % | +13,6 / +13,7 % | +9,5 / +9,2 % |
+
+**Ergebnis:** nicht übernommen. Beide Varianten sind in allen drei Zeiträumen schlechter als der jetzige Bot (−1,8 / −5,1 / −5,2 und −0,8 / −3,1 / −5,5 Punkte) und nicht besser als zufälliges Weglassen gleich vieler Signale – 2015–2026 sogar schlechter als jede Gegenprobe. Der kleinere Rückgang 2010–2021 kommt nur daher, dass weniger Geld investiert war. Für die Signale des Bots gibt es keinen nutzbaren Monatswechsel-Effekt; dazu passt, dass eine Arbeit von 2025 den Titel „The disappearing turn-of-month effect“ trägt.
+
 ## 11.11.2026 (Mittwoch) · Day-Trader-Skill: 10 Ideen aus einem fremden Projekt
 
 **Idee** (Wunsch des Nutzers): alles aus [github.com/Jakeschincariol/day-trader-skill](https://github.com/Jakeschincariol/day-trader-skill) kontrollieren, das Prüfbare testen und einbauen, was den Bot verbessert. Von 11 Bausteinen waren 5 mit Kursen prüfbar, daraus 10 Tests, alles vorher festgelegt. Die übrigen hat der Bot schon (Stop/Ziel vorher, Größe nach Risiko), sie sind verboten (Broker für echtes Geld) oder nicht prüfbar (Kongress-Käufe: keine sauberen Daten). Details: [[Notizen/Wissen – Day-Trader-Skill]].

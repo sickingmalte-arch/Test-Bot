@@ -3353,7 +3353,7 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
                     f"Stück zu {de(p['einsatz_je_stueck'])} {waehrung})" for p in neu_rein))
             if erg["trades"]:
                 teile.append("ausgestiegen: " + ", ".join(
-                    f"{p['ticker']} ({p['grund']}, {de(p['erloes'] - p['kosten'], 2, True)} {waehrung})"
+                    f"{p['ticker']} ({p['grund']}, {de(p['erloes'] - p['kosten'], 2, True)} {waehrung}{plan_anhang(p)})"
                     for p in erg["trades"]))
             if bericht.get("ausgelassen"):
                 teile.append("von Claude ausgelassen: " + ", ".join(bericht["ausgelassen"]))
@@ -3670,6 +3670,30 @@ def claude_lauf(datei, stand, fehler, papier, daten, extra, roh, fx, fx_je_ticke
 SIGNAL_ART = {KAUFEN: "kaufen", SHORT: "short", WARTEN: "warten", SICHERN: "sichern", BEOBACHTEN: "beobachten",
               FEHLER: "fehler"}
 
+def plan_r(t):
+    """Ergebnis eines abgeschlossenen Trades in R: Vielfache des beim Kauf geplanten Risikos bis zum Stop (risiko_eur).
+    Nur zur Anzeige („Verlust im Plan?“), ändert nichts am Handel. None, wenn das geplante Risiko fehlt."""
+    risiko = t.get("risiko_eur") or 0
+    return (t["erloes"] - t["kosten"]) / risiko if risiko > 0 else None
+
+
+def plan_wort(r, toleranz=1.1):
+    """Ein Verlust bis −1,1 R gilt als im Plan (zum Stop kommen Spread und Gebühren dazu); darüber war er größer als
+    geplant, etwa durch eine Kurslücke unter den Stop. Gewinne bekommen kein Wort."""
+    if r is None or r >= 0:
+        return ""
+    return "Verlust im Plan" if r >= -toleranz else "Verlust größer als geplant"
+
+
+def plan_anhang(t):
+    """Kurzer Zusatz für den Bericht, z. B. „, −0,92 R – Verlust im Plan“."""
+    r = plan_r(t)
+    if r is None:
+        return ""
+    wort = plan_wort(r)
+    return f", {de(r, 2, True)} R" + (f" – {wort}" if wort else "")
+
+
 def json_zahl(x, nachkomma=2):
     """Zahl für JSON (None statt NaN/inf)."""
     try:
@@ -3751,7 +3775,9 @@ def depot_export(stand, daten, markt, fx):
             "zahlen_tag": iso(termin.date()) if termin is not None else None})
     trades = [{"ticker": t["ticker"], "strategie": strategie_name(t["strategie"]), "kauf_tag": t["kauf_tag"],
                "verkauf_tag": t["verkauf_tag"], "grund": t["grund"], "ergebnis": json_zahl(t["erloes"] - t["kosten"]),
-               "prozent": json_zahl((t["erloes"] / t["kosten"] - 1) * 100, 1) if t["kosten"] else None}
+               "prozent": json_zahl((t["erloes"] / t["kosten"] - 1) * 100, 1) if t["kosten"] else None,
+               # Verlust im Plan? Ergebnis in R (Vielfache des beim Kauf geplanten Risikos) – nur Anzeige
+               "risiko": json_zahl(t.get("risiko_eur")), "r": json_zahl(plan_r(t), 2)}
               for t in stand["trades"][-30:]][::-1]
     alle = stand["trades"]
     ok, verfallen, nachruecker = ausfuehrbare_auftraege(stand)
