@@ -10,6 +10,19 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 17.11.2026 (Dienstag) · Shorts: nach schlechten Zahlen und Krisen-Absicherung
+
+**Idee** (Wunsch des Nutzers: „Short reinbringen, damit er profitabel wird“): Zwei noch ungetestete Short-Ideen mit Forschung dahinter, je 2 Varianten, vorher festgelegt, je mit 6 Gegenproben. (a) Short nach schlechten Quartalszahlen (Post-Earnings-Drift, Bernard & Thomas 1989): Rutscht eine Aktie am Zahlen-Tag um mindestens 2 ATR, Short zur nächsten Eröffnung, Stop +3 ATR, Ziel −3 ATR. (b) Krisen-Absicherung: Nasdaq-100-Short über 50 % bzw. 100 % des Depots nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie.
+
+| Pkt Rendite pro Jahr gegen den jetzigen Bot | 2010–2014 | 2015–2021 | 2022–2026 | Ergebnis |
+|---|---:|---:|---:|---|
+| Short nach schlechten Zahlen, nur außerhalb des Aufwärtsmarkts | −0,3 | +0,4 | +0,8 | nicht überall besser, nicht besser als Zufall |
+| Short nach schlechten Zahlen, in jeder Marktlage | −0,6 | −0,4 | +0,2 | nicht überall besser |
+| Krisen-Absicherung 50 % | −1,8 | −2,2 | −2,1 | schlechter, sogar größere Rückgänge (−19 / −22 / −17 % statt −17 / −17 / −15 %) |
+| Krisen-Absicherung 100 % | −3,7 | −4,5 | −4,4 | deutlich schlechter (Rückgänge bis −28 %) |
+
+**Ergebnis:** nicht übernommen. Die Shorts nach schlechten Zahlen ändern fast nichts (Zufalls-Shorts genauso gut). Die Krisen-Absicherung schadet sogar, und zwar mehr als derselbe Short an zufälligen Tagen: Wenn der VIX über 30 steht und der Nasdaq unter der 200-Tage-Linie liegt, ist der Tiefpunkt oft schon nah – die folgende Erholung (z. B. ab März 2020) frisst den Short auf. Das bestätigt die früheren Short-Tests: Bis die Abwärtsphase erkennbar ist, ist der Fall meist vorbei.
+
 ## 13.11.2026 (Freitag) · Monatswechsel-Effekt
 
 **Idee** (Freitags-Idee aus der Forschung): McConnell & Xu (2008, *Financial Analysts Journal*) – von 1926 bis 2005 entstand fast die ganze Rendite des US-Aktienmarkts am letzten und an den ersten drei Handelstagen eines Monats (zuerst Lakonishok & Smidt 1988). Vermutung: Käufe kurz vor dem Monatswechsel laufen besser als Käufe in der Monatsmitte. 2 Varianten, vorher festgelegt, je mit 6 Gegenproben (gleich viele Signale zufällig weglassen).

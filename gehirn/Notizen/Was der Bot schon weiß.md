@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 13.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 17.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 67
+    "nicht übernommen" : 71
 ```
 
 ## ✅ Steckt im Bot
@@ -107,6 +107,10 @@ pie showData
 | Day-Trader-Skill: Tageshandel (Ausbruch aus der Eröffnungsspanne) | −0,18 bis −0,30 R je Trade nach Spread, nicht besser als Zufalls-Einstiege | [[Notizen/Wissen – Day-Trader-Skill]] |
 | Monatswechsel 1: nur an den letzten 4 Handelstagen des Monats kaufen | −1,8 / −5,1 / −5,2 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 | Monatswechsel 2: nur an den letzten 4 und den ersten 3 Handelstagen kaufen | −0,8 / −3,1 / −5,5 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Short nach schlechten Zahlen (Rutsch ≥ 2 ATR), nur außerhalb des Aufwärtsmarkts | −0,3 / +0,4 / +0,8 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Short nach schlechten Zahlen, in jeder Marktlage | −0,6 / −0,4 / +0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| Krisen-Absicherung: Nasdaq-100-Short 50 % bei VIX über 30 und Nasdaq unter der 200-Tage-Linie | −1,8 / −2,2 / −2,1 Pkt und größere Rückgänge | [[Notizen/Forschung – Tagebuch]] |
+| Krisen-Absicherung mit 100 % | −3,7 / −4,5 / −4,4 Pkt, Rückgänge bis −28 % | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
