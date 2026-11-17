@@ -1,51 +1,52 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Di 17.11.2026 17:30 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Di 17.11.2026 19:38 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
 ## 📈 SWING-SCANNER · Daten bis 17.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,1016 $
 
-4× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 19× BEOBACHTEN  
+5× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 18× BEOBACHTEN  
 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Mo 16.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
 Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche und zusammen höchstens 5 % = 500 € Risiko – bei mehr Signalen die oberen nehmen.  
 ⏳ Die heutige Tageskerze ist noch nicht fertig (Börse noch offen bzw. Krypto-Tag läuft). Signale sind vorläufig – vor allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. Mit --nur-schluss nur fertige Tage bewerten.  
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 452,89 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 231,58 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 141,46 | – | – | – | – | – | – | – | Mo 01.02. | 📰 Prognose angehoben |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 300,72 | – | – | – | – | – | – | – | Do 14.01. | 📰 Chefwechsel |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.013,69 | – | – | – | – | – | – | – | Do 10.12. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 63,08 | – | – | – | – | – | – | – | Di 02.03. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 15,76 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 83,76 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 292,37 | – | – | – | – | – | – | – | Do 19.11. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 44,67 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 96,83 | – | – | – | – | – | – | – | Do 11.02. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.299,08 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 14,40 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 54,37 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | BEOBACHTEN |  | 319,77 | – | – | – | – | – | – | – | Do 28.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 25,15 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 13,00 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 140,35 | – | – | – | – | – | – | – | ? |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 559,90 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 254,76 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 344,92 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 448,31 | – | – | – | – | – | – | – | Di 02.02. |  |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.284,87 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 152,58 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 318,19 | – | – | – | – | – | – | – | Do 28.01. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 458,49 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 233,11 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 142,22 | – | – | – | – | – | – | – | Mo 01.02. | 📰 Prognose angehoben |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 299,84 | – | – | – | – | – | – | – | Do 14.01. | 📰 Chefwechsel |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.012,12 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 63,35 | – | – | – | – | – | – | – | Di 02.03. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 16,00 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 84,72 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 297,69 | – | – | – | – | – | – | – | Do 19.11. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 44,78 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 96,59 | – | – | – | – | – | – | – | Do 11.02. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.303,18 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 14,34 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 54,09 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 25,35 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 13,07 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 139,61 | – | – | – | – | – | – | – | Di 17.11. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 564,97 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 255,61 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 344,63 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 446,52 | – | – | – | – | – | – | – | Di 02.02. |  |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.278,76 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 151,91 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
-MSFT: JPMorgan, Microsoft, United, FAA service outages: What exactly is going on? (Yahoo Finance Video, 17.11. 15:07)  
+AAPL: Apple down: Music, Apple Pay, App Store, iCloud and more not working in major outage (The Independent, 17.11. 19:28)  
+AAPL: Warren Buffett’s Successor, Greg Abel, Has 30.2% of Berkshire’s $367 Billion Portfolio in Just 2 Magnificent Artificial Intelligence (AI) Stocks. Here’s the One I’d Buy Without Hesitation. (Motley Fool, 17.11. 19:20)  
 MSFT: What far cheaper AI compute in space could mean for Elon Musk (Yahoo Finance Video, 17.11. 17:27)  
+MSFT: JPMorgan, Microsoft, United, FAA service outages: What exactly is going on? (Yahoo Finance Video, 17.11. 15:07)  
+AMZN: Why SpaceX's latest Starship test was a big deal (Yahoo Finance Video, 17.11. 17:14)  
 AMZN: Robert Pattinson is the next James Bond: A closer look at Amazon MGM's decision (Yahoo Finance Video, 17.11. 15:47)  
-AMZN: What far cheaper AI compute in space could mean for Elon Musk (Yahoo Finance Video, 17.11. 17:27)  
 PLTR \[Prognose angehoben\]: Palantir Raised Guidance 3 Times This Year. 1 Number Explains Why the Stock Fell. (Motley Fool, 17.11. 14:03)  
-PLTR: 6 Big Funds Sold Palo Alto Networks Last Quarter. Should You Follow Them Before Earnings? (TIKR, 17.11. 16:46)  
+PLTR: Trump Demands a “350 Billion Dollar” Military Bill Before Democrats Take Over. Palantir Has a Stake (TIKR, 17.11. 19:13)  
 JPM \[Chefwechsel\]: JPMorgan CFO Jeremy Barnum to step down as Jamie Dimon's succession plans take shape (Yahoo Finance, 17.11. 16:31)  
-JPM \[Chefwechsel\]: JPMorgan Names Bregje de Best Next CFO – Jeremy Barnum Steps Down After Six Years (Stocktwits, 17.11. 15:18)  
-⚠️ Zahlen „?“ = kein (aktueller) Quartalszahlen-Termin (NVDA: keine Termine gefunden (bei ETFs normal, sonst Yahoo gerade nicht erreichbar)) – vor dem Kauf selbst prüfen.  
+JPM: Software Stocks Retreat Amid Inflation Worries, New OpenAI Model (Investor's Business Daily, 17.11. 19:26)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 ⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
@@ -67,14 +68,14 @@ Alles dazu: /home/runner/work/Test-Bot/Test-Bot/lernen/LERNEN.md · ehrlicher R�
 | Strategie | Trades | Ø je Trade | ≈ je Trade | ± Zufall | Einschätzung | Status |
 | --- | --- | ---: | --- | ---: | --- | --- |
 | Ausbruch ↑ | 60 von 317 | -0,03 R | -3,38 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
-| RSI-2-Rücksetzer ↑ | 60 von 509 | -0,01 R | -1,44 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
+| RSI-2-Rücksetzer ↑ | 60 von 503 | -0,04 R | -3,60 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
 | Gegenbewegung ↑ | 60 von 156 | +0,12 R | +12 € | ±0,19 R | unklar – kann Zufall sein | ✅ aktiv |
-| MACD-Wende ↑ | 60 von 387 | -0,12 R | -12 € | ±0,20 R | unklar – kann Zufall sein | ⏸ pausiert (lief zuletzt schlecht – kann auch Pech sein) |
-| Rücksetzer ↑ | 60 von 555 | -0,01 R | -0,63 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
+| MACD-Wende ↑ | 60 von 386 | -0,12 R | -12 € | ±0,20 R | unklar – kann Zufall sein | ⏸ pausiert (lief zuletzt schlecht – kann auch Pech sein) |
+| Rücksetzer ↑ | 60 von 557 | -0,02 R | -2,39 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
 | Squeeze-Ausbruch ↑ | 60 von 207 | +0,17 R | +17 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
-| EMA-Kreuz ↑ | 60 von 304 | -0,06 R | -6,21 € | ±0,20 R | unklar – kann Zufall sein | ✅ aktiv |
-| ATR-Ausbruch ↑ | 60 von 458 | -0,05 R | -5,41 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
-| Trendlinien-Ausbruch ↑ | 60 von 188 | -0,05 R | -4,81 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
+| EMA-Kreuz ↑ | 60 von 304 | -0,05 R | -5,13 € | ±0,20 R | unklar – kann Zufall sein | ✅ aktiv |
+| ATR-Ausbruch ↑ | 60 von 458 | -0,07 R | -6,92 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
+| Trendlinien-Ausbruch ↑ | 60 von 187 | -0,02 R | -2,50 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
 
 Gezählt werden die letzten bis zu 60 gedachten Trades je Strategie über alle Ticker, nach Spread und Gebühren. 1 R = der geplante Verlust bis zum Stop (bei dir 100 €).  
 Lernregel: Ab 20 Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr als 0,1 R je Trade verliert, und wieder aktiv, sobald der Schnitt im Plus ist. Ab 50 Trades muss sie außerdem über ihre ganze Geschichte im Plus sein, sonst handelt der Bot sie gar nicht. Pausierte Strategien handeln im Tagebuch weiter und kommen zurück, wenn sie wieder gut laufen.  
@@ -85,7 +86,7 @@ Lernregel: Ab 20 Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr a
 
 Depotwert am 16.11.2026: 9.954,71 € (-0,5 %) · davon frei: 3.919,89 € · 6/7 Positionen, offenes Risiko 5,0 %  
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 9.832,36 € (-1,7 %)  
-Neu am 16.11.: eingestiegen: TSLA (Long, 2 Stück zu 351,38 €); nicht ausgeführt (Limit nicht erreicht, Kurslücke, kein Platz/Geld oder schon 2 aus derselben Branche im Depot): INTU.  
+Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 16.11.2026).  
 Abgeschlossene Trades: 4 · Gewinner: 2 (50 %) · Summe -61,31 € · größter Rückgang 1,7 % · Kosten: Gebühren 0,00 € + Spread ca. 15,62 €  
 Keine Aufträge für den nächsten Handelstag.  
 Gespeichert in: forschung/experiment\_depot.json im Repository (neu anfangen: die Datei im Repository löschen, die Historie bei GitHub behält den alten Stand). Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, 0,00 € Gebühr + 0,1 % Spread je Order.  
