@@ -428,5 +428,49 @@
    -5.1,
    -5.2
   ]
+ },
+ {
+  "datum": "2026-11-17",
+  "datei": "krisen_absicherung_100",
+  "name": "Krisen-Absicherung 2: Nasdaq-100-Short über 100 % nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -3.7,
+   -4.5,
+   -4.4
+  ]
+ },
+ {
+  "datum": "2026-11-17",
+  "datei": "krisen_absicherung_50",
+  "name": "Krisen-Absicherung 1: Nasdaq-100-Short über 50 % nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -1.8,
+   -2.2,
+   -2.1
+  ]
+ },
+ {
+  "datum": "2026-11-17",
+  "datei": "short_nach_zahlen_abwaerts",
+  "name": "Short nach schlechten Zahlen 1: nur außerhalb des Aufwärtsmarkts",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.3,
+   0.4,
+   0.8
+  ]
+ },
+ {
+  "datum": "2026-11-17",
+  "datei": "short_nach_zahlen_immer",
+  "name": "Short nach schlechten Zahlen 2: in jeder Marktlage",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.6,
+   -0.4,
+   0.2
+  ]
  }
 ]
