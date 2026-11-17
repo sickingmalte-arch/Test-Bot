@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=TSLA)
 
-**Stand Fr 13.11. 2026:** ⏸ WARTEN – Rücksetzer ↑ – Nachricht: Übernahme/Fusion
+**Stand Mo 16.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 27.01.
 
 ## Übungsdepot

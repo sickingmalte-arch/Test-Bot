@@ -10,24 +10,24 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=SOFI)
 
-**Stand Fr 13.11. 2026:** BEOBACHTEN
+**Stand Mo 16.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot
 
-- Offen: Long mit [[Strategien/Ausbruch Long|Ausbruch ↑]] seit 2026-10-29
+- [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]] mit [[Strategien/Ausbruch Long|Ausbruch ↑]] (Stop, 2026-11-16)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 115 Trades · Ø -0,03 R · Treffer 49 %
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 15 Trades · Ø +0,09 R · Treffer 53 %
+- **Alle Strategien zusammen:** 117 Trades · Ø -0,04 R · Treffer 48 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 16 Trades · Ø +0,02 R · Treffer 50 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 14 Trades · Ø -0,01 R · Treffer 50 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 5 Trades · Ø +0,14 R · Treffer 60 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 16 Trades · Ø -0,14 R · Treffer 38 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 21 Trades · Ø +0,22 R · Treffer 62 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 7 Trades · Ø -0,12 R · Treffer 43 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 15 Trades · Ø -0,23 R · Treffer 40 %
-- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 15 Trades · Ø +0,03 R · Treffer 53 %
+- [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 16 Trades · Ø -0,03 R · Treffer 50 %
 - [[Strategien/Trendlinien-Ausbruch Long|Trendlinien-Ausbruch ↑]]: 7 Trades · Ø -0,56 R · Treffer 29 %
 
 Übersicht: [[Start]] · [[Meine Regeln]]

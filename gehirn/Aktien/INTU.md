@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=INTU)
 
-**Stand Fr 13.11. 2026:** 🟢 KAUFEN – Rücksetzer ↑ · Limit 314,89 · Stop 275,26 · Ziel 343,19 €
+**Stand Mo 16.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 19.11.
 
 ## Übungsdepot

@@ -14,14 +14,14 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø -0,03 R · Treffer 45 % · ± Zufall 0,21 R
-- Ganze Geschichte: 316 Trades · Ø +0,21 R · Treffer 59 %
+- Ganze Geschichte: 317 Trades · Ø +0,21 R · Treffer 58 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 115× (36 %), Ø +0,99 R
 - Zeitstopp: 79× (25 %), Ø +0,05 R
-- Stop: 64× (20 %), Ø -0,95 R
+- Stop: 65× (21 %), Ø -0,95 R
 - vor Quartalszahlen: 32× (10 %), Ø +0,10 R
 - Ziel (Kurslücke): 16× (5 %), Ø +1,10 R
 - Stop (Kurslücke): 10× (3 %), Ø -1,08 R
@@ -43,6 +43,7 @@ tags:
 
 ## Trades im Übungsdepot (Papier-Depot)
 
+- [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]] (Stop, 2026-11-16)
 - [[Trades/2026-11-02 XOM Ausbruch Long|XOM -1,2 R]] (Stop (Kurslücke), 2026-11-04)
 
 Übersicht: [[Start]] · [[Lehren]] · [[Meine Regeln]]
