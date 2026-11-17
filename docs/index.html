@@ -311,6 +311,9 @@ th { font: 600 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppe
 .trade:last-child { border-bottom: 0; }
 .trade .t { font-weight: 700; }
 .trade .grund { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trade .plan { font: 11px/1.3 var(--mono); color: var(--text-3); margin-top: 3px; }
+.trade .plan.im-plan { color: var(--text-2); }
+.trade .plan.mehr { color: var(--warnung); }
 .ergebnis-pille { font: 600 12px/1 var(--sans); padding: 5px 7px; border-radius: 5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ergebnis-pille.gut { background: rgba(12, 163, 12, .14); }
 .ergebnis-pille.schlecht { background: rgba(208, 59, 59, .14); }
@@ -1297,6 +1300,16 @@ function abschnitt(id, titel, unter, inhalt, { erkl = null, zuAmHandy = false } 
   // die ganze Kopfzeile schaltet um, nur das (i) nicht
   kopf.addEventListener("click", e => { if (!e.target.closest(".info")) umschalten(); });
   return teil;
+}
+// Verlust im Plan? t.r = Ergebnis in R (Vielfache des beim Kauf geplanten Risikos bis zum Stop, vom Bot gerechnet).
+// Bis −1,1 R gilt ein Verlust als im Plan (Spread und Gebühren kommen dazu), darunter war er größer als geplant,
+// etwa durch eine Kurslücke unter den Stop. Gewinne zeigen nur ihr R. Ältere Trades ohne r: keine Anzeige.
+function planInfo(t) {
+  if (t.r === null || t.r === undefined) return null;
+  const r = `${vz(t.r)}${zahl(t.r, 2)} R`;
+  if (t.r >= 0) return { text: r, kurz: r, klasse: "" };
+  return t.r >= -1.1 ? { text: `✓ ${r} · Verlust im Plan`, kurz: "im Plan", klasse: "im-plan" }
+    : { text: `⚠ ${r} · Verlust größer als geplant`, kurz: "größer als geplant", klasse: "mehr" };
 }
 // Sprung zu einem Abschnitt (Menü oder Kachel): zugeklappte Abschnitte, auch den umgebenden, vorher aufklappen
 function oeffneZiel(sel) {
@@ -2303,7 +2316,10 @@ function aufbauen(D) {
   for (const s of kaufen.slice(0, 6)) band.push(["Signal", [el("b", {}, s.ticker), ` ${s.strategie} · Limit ${euro(s.limit, 2)} · Stop ${euro(s.stop, 2)} · Ziel ${euro(s.ziel, 2)}`]]);
   if (P) band.push(["Übungsdepot", [el("b", {}, euro(P.wert)), ` (${prozent((P.wert / P.startkapital - 1) * 100)} seit Start)`]]);
   if (C && C.seit_start) band.push(["Claude-Depot", [el("b", {}, prozent(C.seit_start.claude)), ` seit ${datum(C.versuch_ab, false)} · Übungsdepot ${prozent(C.seit_start.bot)} · Nasdaq-100 ${prozent(C.seit_start.qqq)}`]]);
-  if (P) for (const t of P.trades.slice(0, 3)) band.push(["Verkauft", [el("b", {}, t.ticker), ` ${t.grund} · ${euro(t.ergebnis, 2)}`]]);
+  if (P) for (const t of P.trades.slice(0, 3)) {
+    const plan = planInfo(t);
+    band.push(["Verkauft", [el("b", {}, t.ticker), ` ${t.grund} · ${euro(t.ergebnis, 2)}${plan && t.r < 0 ? ` · ${plan.kurz}` : ""}`]]);
+  }
   for (const n of D.schlagzeilen.slice(0, 4)) band.push([n.ticker, [n.titel_de || n.titel]]);
   const lb = document.getElementById("laufband");
   const bauen = () => band.map(([z, inhalt]) => el("span", {}, el("span", { class: "zeitstempel" }, z), ...inhalt));
@@ -2542,9 +2558,11 @@ function aufbauen(D) {
       el("div", { class: "label" }, `Letzte Trades · ${P.trades_anzahl}`),
       el("div", { class: "label" }, P.trades_anzahl ? `${P.gewinner} mit Gewinn · Summe ${euro(P.summe, 2)}` : "")));
     for (const t of P.trades.slice(0, 8)) {
+      const plan = planInfo(t);
       tr.append(el("div", { class: "trade" },
         el("div", {}, el("div", { class: "t" }, t.ticker), el("div", { class: "mono", style: "font-size:10px;color:var(--text-3)" }, datum(t.verkauf_tag, false))),
-        el("div", { class: "grund" }, `${t.grund} · ${t.strategie}`),
+        el("div", { style: "min-width:0" }, el("div", { class: "grund" }, `${t.grund} · ${t.strategie}`),
+          plan ? el("div", { class: `plan ${plan.klasse}`, title: "R = Ergebnis in Vielfachen des beim Kauf geplanten Risikos (Stop). −1 R ist genau der geplante Verlust." }, plan.text) : null),
         el("span", { class: `ergebnis-pille ${richtung(t.ergebnis)}` }, el("span", { class: richtung(t.ergebnis) }, `${vz(t.ergebnis)}${euro(t.ergebnis, 2)}`))));
     }
     if (!P.trades.length) tr.append(el("div", { class: "leer" }, "Noch kein abgeschlossener Trade."));
