@@ -1,5 +1,5 @@
 {
- "stand": "17.11.2026 06:12 Uhr",
+ "stand": "17.11.2026 14:28 Uhr",
  "tag": "2026-11-16",
  "monat": "2026-11",
  "aktien": 523,
@@ -443,7 +443,7 @@
   "fuenftel": [
    {
     "fuenftel": 1,
-    "R": 0.02594986508413237,
+    "R": 0.025949865084132367,
     "n": 4775,
     "treffer": 0.5179057591623036
    },
@@ -618,6 +618,23 @@
    "fehler": [],
    "fertig": false,
    "fehler_text": []
+  },
+  {
+   "ticker": "SOFI",
+   "strategie": "ausbruch_long",
+   "kauf_tag": "2026-10-29",
+   "verkauf_tag": "2026-11-16",
+   "grund": "Stop",
+   "R": -0.9309975771092703,
+   "fehler": [
+    "markt",
+    "zu_spaet"
+   ],
+   "fertig": false,
+   "fehler_text": [
+    "Absturz des Gesamtmarkts",
+    "Signal zu spät (Aktie war schon weit gelaufen)"
+   ]
   }
  ]
 }
