@@ -143,3 +143,14 @@ def test_nasdaq_branchen_nach_icb_werden_gics(netz, tmp_path):
     assert z.loc["N0", "sektor"] == "Information Technology" and z.loc["N0", "branche"] == "Software"
     assert z.loc["N60", "sektor"] == "Communication Services"
     assert z.loc["N1", "sektor"] == "Information Technology"  # schon ein GICS-Name: bleibt
+
+
+def test_kennung_nur_fuer_die_sec(monkeypatch):
+    """Der SEC-Kontakt (Name und E-Mail) geht nur an die SEC, nie an andere Seiten."""
+    monkeypatch.setattr(D, "KENNUNG", "Beispiel kontakt@example.org")
+    assert D.kennung_fuer("https://data.sec.gov/api/xbrl/companyfacts/CIK0000000001.json") == "Beispiel kontakt@example.org"
+    assert D.kennung_fuer("https://www.sec.gov/files/company_tickers.json") == "Beispiel kontakt@example.org"
+    for url in ("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",
+                "https://raw.githubusercontent.com/fja05680/sp500/master/sp500_ticker_start_end.csv",
+                "https://sec.gov.example.com/x", "https://notsec.gov/x"):
+        assert D.kennung_fuer(url) == D.PROJEKT_KENNUNG

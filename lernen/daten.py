@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import time
+import urllib.parse
 import urllib.request
 
 import pandas as pd
@@ -29,7 +30,15 @@ WIKI_NDX = ["https://en.wikipedia.org/wiki/Nasdaq-100", "https://en.wikipedia.or
 SEC_TICKER = "https://www.sec.gov/files/company_tickers.json"
 SEC_FAKTEN = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
 # Die SEC verlangt eine Kennung mit Name und E-Mail (Secret LERNEN_SEC_KONTAKT). Ohne sie lehnt die SEC ab (Fehler 403).
-KENNUNG = os.environ.get("LERNEN_SEC_KONTAKT") or "Test-Bot Swing-Bot (github.com/sickingmalte-arch/Test-Bot)"
+# Nur die SEC bekommt diesen Kontakt; alle anderen Seiten (Wikipedia, GitHub, …) nur den Namen des Projekts.
+PROJEKT_KENNUNG = "Test-Bot Swing-Bot (github.com/sickingmalte-arch/Test-Bot)"
+KENNUNG = os.environ.get("LERNEN_SEC_KONTAKT") or PROJEKT_KENNUNG
+
+
+def kennung_fuer(url):
+    """User-Agent für eine Adresse: der SEC-Kontakt nur für sec.gov, sonst der Projektname."""
+    host = (urllib.parse.urlsplit(url).hostname or "").lower()
+    return KENNUNG if host == "sec.gov" or host.endswith(".sec.gov") else PROJEKT_KENNUNG
 START = "2007-01-01"  # 2007 für 200-Tage-Linie und 12-Monats-Momentum ab 2008
 # Markt und Vergleich: S&P 500, Nasdaq-100, Volatilität (VIX), Euro-Kurs und die Branchen-Fonds
 ZUSATZ = ["SPY", "QQQ", "^VIX", "EURUSD=X", "XLK", "XLF", "XLV", "XLE", "XLY", "XLP", "XLI", "XLB", "XLU", "XLRE",
@@ -66,7 +75,7 @@ def hole(url, versuche=3, pause=2.0):
     fehler = None
     for n in range(versuche):
         try:
-            anfrage = urllib.request.Request(url, headers={"User-Agent": KENNUNG, "Accept-Encoding": "gzip"})
+            anfrage = urllib.request.Request(url, headers={"User-Agent": kennung_fuer(url), "Accept-Encoding": "gzip"})
             with urllib.request.urlopen(anfrage, timeout=60) as antwort:
                 roh = antwort.read()
                 if antwort.headers.get("Content-Encoding") == "gzip":
