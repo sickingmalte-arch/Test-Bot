@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 17.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 18.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 71
+    "nicht übernommen" : 75
 ```
 
 ## ✅ Steckt im Bot
@@ -34,7 +34,7 @@ pie showData
 | Höchstens 2 Positionen je Branche | +0,4 Pkt, in 5 von 6 Fällen besser, Rückgang nie größer |
 | Trendlinien-Ausbruch als 9. Kauf-Strategie (seit 06.11.2026) | **Auf Wunsch des Besitzers**, nicht weil der Test es zeigt: −0,5 / +0,7 / +0,4 Pkt, im Bereich des Zufalls. Bewährt sie sich nicht, pausiert sie die Lernregel von selbst. |
 | Lernregel behalten (schlecht laufende Strategien pausieren) | Ganz ohne war es in 4 von 6 Fällen schlechter, eine ruhigere Regel kostete 0,5–0,9 Pkt |
-| Shorts aus | Alle Short-Strategien verlieren, auch zehn verbesserte Varianten |
+| Shorts aus | Alle Short-Strategien verlieren, auch zehn verbesserte Varianten – und auch auf fairen Zufallslisten aus dem damaligen S&P 500 (18.11.2026: −2,2 / −0,2 / 0,0 Pkt, Ø −0,48 bis −0,13 R je Short) |
 
 ## ❌ Geprüft und nicht übernommen
 
@@ -107,10 +107,14 @@ pie showData
 | Day-Trader-Skill: Tageshandel (Ausbruch aus der Eröffnungsspanne) | −0,18 bis −0,30 R je Trade nach Spread, nicht besser als Zufalls-Einstiege | [[Notizen/Wissen – Day-Trader-Skill]] |
 | Monatswechsel 1: nur an den letzten 4 Handelstagen des Monats kaufen | −1,8 / −5,1 / −5,2 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 | Monatswechsel 2: nur an den letzten 4 und den ersten 3 Handelstagen kaufen | −0,8 / −3,1 / −5,5 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
-| Short nach schlechten Zahlen (Rutsch ≥ 2 ATR), nur außerhalb des Aufwärtsmarkts | −0,3 / +0,4 / +0,8 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
-| Short nach schlechten Zahlen, in jeder Marktlage | −0,6 / −0,4 / +0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| Short nach schlechten Zahlen (Rutsch ≥ 2 ATR), nur außerhalb des Aufwärtsmarkts | −0,3 / +0,4 / +0,8 Pkt, nicht besser als Zufall; auf fairen S&P-500-Listen 0,0 / −0,4 / +0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| Short nach schlechten Zahlen, in jeder Marktlage | −0,6 / −0,4 / +0,2 Pkt; auf fairen S&P-500-Listen −0,1 / −0,3 / 0,0 Pkt | [[Notizen/Forschung – Tagebuch]] |
 | Krisen-Absicherung: Nasdaq-100-Short 50 % bei VIX über 30 und Nasdaq unter der 200-Tage-Linie | −1,8 / −2,2 / −2,1 Pkt und größere Rückgänge | [[Notizen/Forschung – Tagebuch]] |
 | Krisen-Absicherung mit 100 % | −3,7 / −4,5 / −4,4 Pkt, Rückgänge bis −28 % | [[Notizen/Forschung – Tagebuch]] |
+| Short schwacher Bilanzen 1: alte Short-Signale nur bei Verlust oder schrumpfendem Umsatz und Gewinn, nicht im Aufwärtsmarkt (faire S&P-500-Listen) | −1,7 / −1,0 / −0,1 Pkt, Ø −0,44 bis −0,05 R je Short | [[Notizen/Forschung – Tagebuch]] |
+| Short schwacher Bilanzen 2: dasselbe in jeder Marktlage | −1,8 / −0,9 / −0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| Short direkt nach Herabstufung durch einen Analysten (faire S&P-500-Listen) | −0,3 / +0,1 / −0,1 Pkt; −0,28 R je Short, ab 2015 von der Lernregel abgeschaltet | [[Notizen/Forschung – Tagebuch]] |
+| Short direkt nach Pflichtmeldung an die SEC (8-K) mit Kursrutsch ≥ 2 ATR | −0,4 / −0,2 / 0,0 Pkt, zu wenige Shorts für eine Aussage | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
@@ -118,7 +122,7 @@ pie showData
 - **Kerzenmuster** und **Musterziel** bei Ausbrüchen und Doppelböden
 - **⚠️ ÜBERHITZT** bei offenen Positionen
 - **Lernmodell**: Punktzahl je Kauf-Signal, Fehler-Analyse jedes Trades und was das Modell gelernt hat – im Bericht, auf der Webseite und in [[Lehren]]. Es lernt jeden Monat weiter, entscheidet aber noch nicht.
-- **Schlagzeilen**: Nur erkannte schlechte Meldungen verhindern einen Kauf (Nachrichten-Regel). Über 16 Jahre testen lässt sich das nicht, weil es keine alten Schlagzeilen gibt.
+- **Schlagzeilen**: Nur erkannte schlechte Meldungen verhindern einen Kauf (Nachrichten-Regel). Über 16 Jahre testen lässt sich das nicht, weil es keine alten Schlagzeilen gibt. Ersatz mit Datum (18.11.2026): Herabstufungen durch Analysten und Pflichtmeldungen an die SEC – als Short-Signal nicht besser.
 
 ## Was die vielen Tests zeigen
 

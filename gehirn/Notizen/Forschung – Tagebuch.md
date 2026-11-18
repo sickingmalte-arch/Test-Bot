@@ -10,6 +10,34 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 18.11.2026 (Mittwoch) · Shorts fair geprüft: alte Shorts, schwache Bilanzen, schlechte Nachrichten
+
+**Idee** (Wünsche des Nutzers: „Es muss doch einen Weg geben, Shorts profitabel zu machen“ – gewählt: fairer Test mit S&P 500 und Short schwacher Bilanzen – und „wenn schlechte Nachrichten kommen, direkt shorten“): Bisher liefen alle Short-Tests mit der heutigen Watchlist, also mit späteren Gewinnern. Jetzt handelt der Bot je Zeitraum mit denselben 8 Zufallslisten aus 24 Aktien des damaligen S&P 500 wie im ehrlichen Bot-Check vom 06.11. Verglichen wird der Bot nur mit Long gegen denselben Bot mit Short-Variante, mit Gebühr und Spread.
+
+7 Varianten waren vorher festgelegt. Eine Variante gilt nur als besser, wenn in jedem Zeitraum alles stimmt: die Mitte der 8 Listen ist besser, mindestens 6 von 8 Listen sind besser, der Rückgang ist höchstens 1 Punkt größer, es gibt mindestens 30 Shorts und sie schlägt Shorts an Zufallstagen. Schlechte Nachrichten mit Datum gibt es für zwei Arten:
+- Herabstufungen durch Analysten: Daten von Yahoo, erst ab Ende 2011.
+- Pflichtmeldungen an die US-Börsenaufsicht (8-K) ohne Quartalszahlen: Hier zählt eine Meldung nur, wenn die Aktie am selben Tag um mindestens 2 ATR fiel.
+
+Für beide gilt: Eine Nachricht bis 16 Uhr New Yorker Zeit zählt für denselben Tag. Short ist immer erst zur nächsten Eröffnung.
+
+| Pkt Rendite pro Jahr gegen den Bot nur mit Long (Mitte der 8 Listen) | 2010–2014 | 2015–2021 | 2022–2026 | Ø Ergebnis je Short |
+|---|---:|---:|---:|---|
+| A: die 8 alten Short-Strategien | −2,2 | −0,2 | 0,0 | −0,48 / −0,31 / −0,13 R |
+| B: Short nach schlechten Zahlen, nicht im Aufwärtsmarkt | 0,0 | −0,4 | +0,2 | −0,40 / −0,25 / +0,07 R |
+| C: Short nach schlechten Zahlen, jede Marktlage | −0,1 | −0,3 | 0,0 | −0,18 / −0,12 / −0,07 R |
+| S1: alte Short-Signale nur bei schwacher Bilanz (Verlust oder Umsatz und Gewinn schrumpfen), nicht im Aufwärtsmarkt | −1,7 | −1,0 | −0,1 | −0,44 / −0,20 / −0,05 R |
+| S2: dasselbe in jeder Marktlage | −1,8 | −0,9 | −0,2 | −0,23 / −0,17 / −0,36 R |
+| N1: Short nach Herabstufung durch einen Analysten | −0,3 | +0,1 | −0,1 | −0,28 R / ab 2015 abgeschaltet |
+| N2: Short nach Pflichtmeldung mit Kursrutsch | −0,4 | −0,2 | 0,0 | −0,49 / +0,01 / +0,11 R |
+
+**Ergebnis:** nicht übernommen. Keine Variante ist in allen drei Zeiträumen besser, keine schafft auch nur die Mehrheit der Listen.
+- **Shorts verlieren auch mit fairen Listen:** Die Shorts selbst verlieren fast überall Geld, nach Kosten im Schnitt −0,5 bis +0,1 R je Short, meist nicht besser als Shorts an zufälligen Tagen. Die Watchlist aus Gewinnern war also nicht der Grund.
+- **Schwache Bilanzen machen es schlimmer:** Shorts nur auf schwache Bilanzen kosten 1 bis 2 Punkte im Jahr, 2015–2021 kommen 2,3 Punkte mehr Rückgang dazu. Firmen mit Verlust schwanken stark und erholen sich oft kräftig.
+- **Herabstufungen:** 2010–2014 verloren diese Shorts −0,28 R je Short, bei nur 32 % Treffern. Ab 2015 kam kein einziger mehr zustande, obwohl es über 3.700 Herabstufungen gab. Die Lernregel des Bots schaltete die Strategie ab, weil ihre gedachten Trades im Tagebuch im Minus lagen.
+- **Pflichtmeldung mit Kursrutsch:** Sie liegt am nächsten an null (2015–2026 +0,01 und +0,11 R). Mit 12 bis 31 Shorts je Zeitraum ist das aber zu selten für eine Aussage, und am Depot ändert es nichts.
+
+Verbleibende Verzerrung: Zur Wahl standen nur Aktien, die heute noch im S&P 500 oder Nasdaq-100 sind. Pleitefirmen fehlen also, und das Ergebnis ist für Shorts eher zu streng. Leihgebühren sind nicht abgezogen. Details in `forschung/ergebnisse/short_fair_sp500.md`, `short_schwache_bilanz.md` und `short_schlechte_nachricht.md`.
+
 ## 17.11.2026 (Dienstag) · Shorts: nach schlechten Zahlen und Krisen-Absicherung
 
 **Idee** (Wunsch des Nutzers: „Short reinbringen, damit er profitabel wird“): Zwei noch ungetestete Short-Ideen mit Forschung dahinter, je 2 Varianten, vorher festgelegt, je mit 6 Gegenproben. (a) Short nach schlechten Quartalszahlen (Post-Earnings-Drift, Bernard & Thomas 1989): Rutscht eine Aktie am Zahlen-Tag um mindestens 2 ATR, Short zur nächsten Eröffnung, Stop +3 ATR, Ziel −3 ATR. (b) Krisen-Absicherung: Nasdaq-100-Short über 50 % bzw. 100 % des Depots nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie.
