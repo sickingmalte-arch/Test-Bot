@@ -43,7 +43,7 @@ tags:
 
 ## Trades im Übungsdepot (Papier-Depot)
 
-- noch keine
+- [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]] (Zeitstopp, 2026-11-17)
 
 Übersicht: [[Start]] · [[Lehren]] · [[Meine Regeln]]
 %% BOT-ENDE %%

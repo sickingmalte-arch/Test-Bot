@@ -10,7 +10,7 @@ Branche: Kommunikation (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=ASTS)
 
-**Stand Mo 16.11. 2026:** BEOBACHTEN
+**Stand Di 17.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 01.03.
 
 ## Übungsdepot
@@ -19,9 +19,9 @@ Branche: Kommunikation (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 121 Trades · Ø +0,11 R · Treffer 56 %
+- **Alle Strategien zusammen:** 120 Trades · Ø +0,12 R · Treffer 57 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 25 Trades · Ø +0,26 R · Treffer 64 %
-- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 17 Trades · Ø +0,14 R · Treffer 65 %
+- [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 16 Trades · Ø +0,22 R · Treffer 69 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 4 Trades · Ø +0,58 R · Treffer 100 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 14 Trades · Ø -0,18 R · Treffer 36 %
 - [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 22 Trades · Ø -0,18 R · Treffer 36 %

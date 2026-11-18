@@ -10,12 +10,12 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=INTU)
 
-**Stand Mo 16.11. 2026:** BEOBACHTEN
+**Stand Di 17.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 19.11.
 
 ## Übungsdepot
 
-- Offen: Long mit [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]] seit 2026-10-21
+- [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]] mit [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]] (Zeitstopp, 2026-11-17)
 
 ## Strategie-Tagebuch auf dieser Aktie
 

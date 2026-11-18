@@ -10,7 +10,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=JPM)
 
-**Stand Mo 16.11. 2026:** BEOBACHTEN
+**Stand Di 17.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt)
 **Nächste Quartalszahlen:** Do 14.01.
 
 ## Übungsdepot
