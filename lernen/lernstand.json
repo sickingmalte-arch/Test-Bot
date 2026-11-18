@@ -1,5 +1,5 @@
 {
- "stand": "18.11.2026 05:39 Uhr",
+ "stand": "18.11.2026 14:06 Uhr",
  "tag": "2026-11-17",
  "monat": "2026-11",
  "aktien": 523,
@@ -634,6 +634,42 @@
    "fehler_text": [
     "Absturz des Gesamtmarkts",
     "Signal zu spät (Aktie war schon weit gelaufen)"
+   ]
+  },
+  {
+   "ticker": "INTU",
+   "strategie": "atr_ausbruch_long",
+   "kauf_tag": "2026-10-21",
+   "verkauf_tag": "2026-11-17",
+   "grund": "Zeitstopp",
+   "R": -0.3343394224538602,
+   "fehler": [
+    "markt",
+    "branche",
+    "zeit"
+   ],
+   "fertig": false,
+   "fehler_text": [
+    "Absturz des Gesamtmarkts",
+    "Branche schwach",
+    "Zeitstopp ohne Schwung"
+   ]
+  },
+  {
+   "ticker": "MSFT",
+   "strategie": "ausbruch_long",
+   "kauf_tag": "2026-11-05",
+   "verkauf_tag": "2026-11-17",
+   "grund": "Stop",
+   "R": -0.7628579188348427,
+   "fehler": [
+    "markt",
+    "branche"
+   ],
+   "fertig": false,
+   "fehler_text": [
+    "Absturz des Gesamtmarkts",
+    "Branche schwach"
    ]
   }
  ]
