@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 17.11.2026 14:28 Uhr · Kurse bis 16.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 18.11.2026 05:39 Uhr · Kurse bis 17.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -8,7 +8,7 @@ Stand: 17.11.2026 14:28 Uhr · Kurse bis 16.11.2026 · 523 Aktien (S&P 500, Nasd
 
 - ✅ Alle Kurse, Termine und Bilanzen sind da.
 
-## 📋 Kauf-Signale vom 16.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 17.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -16,40 +16,41 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| AMZN | RSI-2-Rücksetzer | 38 % | 0 | – |
-| PLTR | RSI-2-Rücksetzer | 37 % | 0 | – |
+| JPM | RSI-2-Rücksetzer | 57 % | 67 | – |
+| PLTR | RSI-2-Rücksetzer | 47 % | 9 | – |
+| MSFT | RSI-2-Rücksetzer | 46 % | 6 | – |
 
-**Ganzer Markt – die 15 besten von 120 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 154 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| CCL | RSI-2-Rücksetzer | 53 % | 38 | – |
-| TWLO | RSI-2-Rücksetzer | 50 % | 18 | – |
-| NKE | Rücksetzer | 49 % | 17 | – |
-| MRNA | RSI-2-Rücksetzer | 49 % | 15 | – |
-| COO | Rücksetzer | 48 % | 10 | – |
-| EMR | RSI-2-Rücksetzer | 46 % | 5 | – |
-| AMCR | RSI-2-Rücksetzer | 45 % | 4 | – |
-| RVTY | RSI-2-Rücksetzer | 45 % | 3 | – |
-| ILMN | RSI-2-Rücksetzer | 45 % | 3 | – |
-| VRTX | RSI-2-Rücksetzer | 44 % | 3 | – |
-| WAT | RSI-2-Rücksetzer | 44 % | 2 | – |
-| FITB | Rücksetzer | 44 % | 2 | – |
-| GM | RSI-2-Rücksetzer | 43 % | 2 | – |
-| CRH | Rücksetzer | 43 % | 2 | – |
-| WFC | Rücksetzer | 43 % | 1 | – |
+| CCL | RSI-2-Rücksetzer | 63 % | 87 | ✅ |
+| WFC | RSI-2-Rücksetzer | 62 % | 85 | ✅ |
+| PFE | RSI-2-Rücksetzer | 61 % | 83 | ✅ |
+| CTAS | RSI-2-Rücksetzer | 61 % | 81 | ✅ |
+| MRK | RSI-2-Rücksetzer | 60 % | 79 | ✅ |
+| MAS | RSI-2-Rücksetzer | 59 % | 76 | ✅ |
+| MMM | RSI-2-Rücksetzer | 59 % | 75 | ✅ |
+| PNW | RSI-2-Rücksetzer | 59 % | 74 | ✅ |
+| HSIC | RSI-2-Rücksetzer | 59 % | 74 | ✅ |
+| USB | RSI-2-Rücksetzer | 59 % | 74 | ✅ |
+| ITW | RSI-2-Rücksetzer | 58 % | 72 | ✅ |
+| SWK | RSI-2-Rücksetzer | 58 % | 72 | ✅ |
+| IQV | RSI-2-Rücksetzer | 58 % | 71 | ✅ |
+| VRTX | RSI-2-Rücksetzer | 58 % | 71 | ✅ |
+| SPGI | RSI-2-Rücksetzer | 58 % | 71 | ✅ |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23871 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23888 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
 | bestes Fünftel | 57 % | +0,07 R |
 | 2. Fünftel | 52 % | -0,01 R |
-| Mitte | 52 % | +0,02 R |
+| Mitte | 52 % | +0,01 R |
 | 4. Fünftel | 52 % | +0,02 R |
 | schlechtestes Fünftel | 52 % | +0,03 R |
 
@@ -74,7 +75,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 24906 Signale, davon verloren 47 %. Von den 9425 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 24923 Signale, davon verloren 47 %. Von den 9427 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
