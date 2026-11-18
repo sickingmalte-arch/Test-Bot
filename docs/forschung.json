@@ -3,12 +3,12 @@
   "name": "Lernmodell: beste Punktzahl zuerst",
   "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
   "seit": "2026-11-02",
-  "bis": "2026-11-16",
-  "experiment_prozent": -0.45,
-  "papier_prozent": -0.08,
-  "depotwert": 9954.71,
-  "positionen": 6,
-  "trades": 4,
+  "bis": "2026-11-17",
+  "experiment_prozent": -0.8,
+  "papier_prozent": -1.39,
+  "depotwert": 9919.83,
+  "positionen": 5,
+  "trades": 5,
   "gewinner": 2,
   "kurve": [
    {
@@ -65,119 +65,123 @@
     "tag": "2026-11-16",
     "experiment": -0.45,
     "papier": -0.08
+   },
+   {
+    "tag": "2026-11-17",
+    "experiment": -0.8,
+    "papier": -1.39
    }
   ]
  },
  "ideen": [
   {
-   "datum": "2026-11-11",
-   "datei": "skill_bullenflagge",
-   "name": "Day-Trader-Skill: Bullen-Flagge als neue Kauf-Strategie",
-   "urteil": "überall besser, aber nicht besser als Zufall",
+   "datum": "2026-11-17",
+   "datei": "krisen_absicherung_50",
+   "name": "Krisen-Absicherung 1: Nasdaq-100-Short über 50 % nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie",
+   "urteil": "nicht überall besser",
    "plus": [
-    1.3,
-    1.1,
+    -1.8,
+    -2.2,
+    -2.1
+   ]
+  },
+  {
+   "datum": "2026-11-17",
+   "datei": "short_nach_zahlen_abwaerts",
+   "name": "Short nach schlechten Zahlen 1: nur außerhalb des Aufwärtsmarkts",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -0.3,
+    0.4,
+    0.8
+   ]
+  },
+  {
+   "datum": "2026-11-17",
+   "datei": "short_nach_zahlen_immer",
+   "name": "Short nach schlechten Zahlen 2: in jeder Marktlage",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -0.6,
+    -0.4,
     0.2
    ]
   },
   {
-   "datum": "2026-11-11",
-   "datei": "skill_crv_mindestens_1",
-   "name": "Day-Trader-Skill: nur Käufe mit Chance-Risiko (CRV) mindestens 1,0",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-18",
+   "datei": "short_fair_sp500",
+   "name": "Fairer Short-Test: alte Shorts und Short nach schlechten Zahlen mit zufälligen damaligen S&P-500-Aktien",
+   "urteil": "A: nicht überall besser; B: nicht überall besser; C: nicht überall besser",
    "plus": [
-    -2.2,
-    0.2,
+    -0.1,
+    -0.3,
+    0.0
+   ]
+  },
+  {
+   "datum": "2026-11-18",
+   "datei": "short_schlechte_nachricht",
+   "name": "Short direkt nach schlechten Nachrichten: Herabstufung durch Analysten oder Pflichtmeldung mit Kursrutsch",
+   "urteil": "N1: nicht überall besser; N2: nicht überall besser",
+   "plus": [
+    -0.4,
+    -0.2,
+    0.0
+   ]
+  },
+  {
+   "datum": "2026-11-18",
+   "datei": "short_schwache_bilanz",
+   "name": "Short schwacher Bilanzen: Short-Signale nur bei Firmen mit Verlust oder schrumpfendem Geschäft",
+   "urteil": "S1: nicht überall besser; S2: nicht überall besser",
+   "plus": [
+    -1.7,
+    -1.0,
     -0.1
    ]
   },
   {
-   "datum": "2026-11-11",
-   "datei": "skill_geschichte",
-   "name": "Day-Trader-Skill: Geschichte – nicht kaufen, wenn dieselbe Regel bei dieser Aktie bisher verlor",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-18",
+   "datei": "optionen_call_statt_aktie",
+   "name": "Optionen 3: Call statt Aktie",
+   "urteil": "nicht überall besser (Preise günstig: -8,7 / -3,9 / -3,5 Punkte; Preise teuer: -15,7 / -10,2 / -8,4 Punkte)",
    "plus": [
-    -3.6,
-    -3.2,
-    0.3
+    -15.7,
+    -10.2,
+    -8.4
    ]
   },
   {
-   "datum": "2026-11-11",
-   "datei": "skill_ma20_zurueck",
-   "name": "Day-Trader-Skill: Rückkehr über die 20-Tage-Linie als neue Kauf-Strategie",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-18",
+   "datei": "optionen_gedeckter_call",
+   "name": "Optionen 2: Gedeckter Call am Kursziel",
+   "urteil": "nicht überall besser (Preise günstig: -1,0 / -0,2 / +0,7 Punkte; Preise teuer: +3,4 / +4,0 / +4,4 Punkte)",
    "plus": [
-    -1.2,
-    0.8,
-    -0.0
-   ]
-  },
-  {
-   "datum": "2026-11-11",
-   "datei": "skill_max_3_kaeufe",
-   "name": "Day-Trader-Skill: höchstens 3 neue Käufe am Tag",
-   "urteil": "nicht überall besser",
-   "plus": [
-    0.9,
     -1.0,
-    1.4
+    -0.2,
+    0.7
    ]
   },
   {
-   "datum": "2026-11-11",
-   "datei": "skill_orb_tageshandel",
-   "name": "Day-Trader-Skill: Tageshandel mit dem Ausbruch aus der Eröffnungsspanne",
-   "urteil": "Tageshandel (ORB): besteht in keiner Variante",
+   "datum": "2026-11-18",
+   "datei": "optionen_put_statt_short",
+   "name": "Optionen 4: Put statt Short",
+   "urteil": "nicht überall besser (Preise günstig: -2,2 / -0,1 / +0,0 Punkte; Preise teuer: -2,1 / -0,1 / +0,0 Punkte)",
    "plus": [
-    0.0,
-    0.0,
-    -0.0,
-    -0.0
-   ]
-  },
-  {
-   "datum": "2026-11-11",
-   "datei": "skill_ueberverkauft",
-   "name": "Day-Trader-Skill: Überverkauft (RSI 14 unter 30) als neue Kauf-Strategie",
-   "urteil": "nicht überall besser",
-   "plus": [
+    -2.2,
     -0.1,
-    0.6,
-    0.9
+    0.0
    ]
   },
   {
-   "datum": "2026-11-11",
-   "datei": "skill_zeitmaschine",
-   "name": "Day-Trader-Skill: Zeitmaschine – nur kaufen, wenn 1.000 Wiederholungen zum Ziel neigen",
-   "urteil": "nicht überall besser",
+   "datum": "2026-11-18",
+   "datei": "optionen_put_verkauf",
+   "name": "Optionen 1: Put-Verkauf mit dem freien Geld (S&P 500, wie der CBOE-PutWrite-Index)",
+   "urteil": "Puts mit 100 % des freien Geldes: nicht überall besser als der Bot allein; Puts mit 50 % des freien Geldes, Rest verzinst: nicht überall besser als der Bot allein",
    "plus": [
-    -2.6,
-    0.9,
+    3.5,
+    3.0,
     2.4
-   ]
-  },
-  {
-   "datum": "2026-11-13",
-   "datei": "monatswechsel_rund",
-   "name": "Monatswechsel 2: nur an den letzten 4 und den ersten 3 Handelstagen des Monats kaufen",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -0.8,
-    -3.1,
-    -5.5
-   ]
-  },
-  {
-   "datum": "2026-11-13",
-   "datei": "monatswechsel_vorher",
-   "name": "Monatswechsel 1: nur an den letzten 4 Handelstagen des Monats kaufen",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -1.8,
-    -5.1,
-    -5.2
    ]
   }
  ]
