@@ -505,5 +505,49 @@
    -1.0,
    -0.1
   ]
+ },
+ {
+  "datum": "2026-11-18",
+  "datei": "optionen_call_statt_aktie",
+  "name": "Optionen 3: Call statt Aktie",
+  "urteil": "nicht überall besser (Preise günstig: -8,7 / -3,9 / -3,5 Punkte; Preise teuer: -15,7 / -10,2 / -8,4 Punkte)",
+  "plus": [
+   -15.7,
+   -10.2,
+   -8.4
+  ]
+ },
+ {
+  "datum": "2026-11-18",
+  "datei": "optionen_gedeckter_call",
+  "name": "Optionen 2: Gedeckter Call am Kursziel",
+  "urteil": "nicht überall besser (Preise günstig: -1,0 / -0,2 / +0,7 Punkte; Preise teuer: +3,4 / +4,0 / +4,4 Punkte)",
+  "plus": [
+   -1.0,
+   -0.2,
+   0.7
+  ]
+ },
+ {
+  "datum": "2026-11-18",
+  "datei": "optionen_put_statt_short",
+  "name": "Optionen 4: Put statt Short",
+  "urteil": "nicht überall besser (Preise günstig: -2,2 / -0,1 / +0,0 Punkte; Preise teuer: -2,1 / -0,1 / +0,0 Punkte)",
+  "plus": [
+   -2.2,
+   -0.1,
+   0.0
+  ]
+ },
+ {
+  "datum": "2026-11-18",
+  "datei": "optionen_put_verkauf",
+  "name": "Optionen 1: Put-Verkauf mit dem freien Geld (S&P 500, wie der CBOE-PutWrite-Index)",
+  "urteil": "Puts mit 100 % des freien Geldes: nicht überall besser als der Bot allein; Puts mit 50 % des freien Geldes, Rest verzinst: nicht überall besser als der Bot allein",
+  "plus": [
+   3.5,
+   3.0,
+   2.4
+  ]
  }
 ]
