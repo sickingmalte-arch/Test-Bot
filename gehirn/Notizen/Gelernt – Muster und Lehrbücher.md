@@ -126,6 +126,8 @@ Ergebnis: **Nicht übernommen.** Das Volumen zählt weiter nur beim „Ausbruch�
 
   Bis die Abwärtsphase erkennbar ist, ist der Rückgang meist vorbei. Danach erholen sich Aktien oft schnell.
 - **Absicherung mit einem Nasdaq-100-Short** (unter der 200-Tage-Linie, 25–100 % des Depots): überall weniger Rendite und größere Rückgänge. Der Short brachte nur 2022 Geld (+12 %) und verlor sonst in jedem Jahr mit Short-Phasen.
+- **Neu getestet am 17.11.2026:** Short nach schlechten Quartalszahlen (−0,6 bis +0,8 Punkte, nicht besser als Zufall) und eine Krisen-Absicherung (Nasdaq-100-Short nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie: −1,8 bis −4,5 Punkte, sogar größere Rückgänge – der Short trifft die Erholung nach dem Tiefpunkt).
+- **Fair nachgeprüft am 18.11.2026:** mit 8 Zufallslisten aus dem damaligen S&P 500 statt der Watchlist aus Gewinnern. Die alten Shorts, Short nach schlechten Zahlen, Shorts nur bei schwacher Bilanz und Short direkt nach schlechten Nachrichten (Herabstufung, Pflichtmeldung an die SEC mit Kursrutsch) waren nirgends überall besser. Die Shorts verloren nach Kosten im Schnitt bis zu 0,5 R je Short. An der Watchlist lag es also nicht.
 - **Insider-Käufe als Zusatzinformation:** Der Datendienst (Quiver) braucht ein bezahltes Abo, deshalb nicht getestet.
 
 ## TradingView-Strategie „Chart-Muster (Volumen)“

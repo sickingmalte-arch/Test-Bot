@@ -96,6 +96,8 @@ jobs:
           GEBUEHR: ${{ vars.GEBUEHR || '0' }}
           IDEE: ${{ inputs.idee }}
           PYTHONUNBUFFERED: "1"
+          # Kennung mit Kontakt für Abfragen bei der SEC (wie im Lern-Lauf), z. B. Pflichtmeldungen im Nachrichten-Test
+          LERNEN_SEC_KONTAKT: ${{ secrets.LERNEN_SEC_KONTAKT }}
         run: |
           if [ -n "$IDEE" ]; then
             ideen="forschung/ideen/$(basename "$IDEE")"

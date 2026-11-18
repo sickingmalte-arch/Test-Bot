@@ -10,6 +10,74 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 18.11.2026 (Mittwoch) · Optionen: Put-Verkauf, gedeckter Call, Call statt Aktie, Put statt Short
+
+**Idee** (Wunsch des Nutzers: „Vielleicht wäre der Handel mit Optionen wirklich noch was für dich“; er wählte alle vier vorgeschlagenen Ideen): Die Trades des Bots bleiben gleich, nur werden sie mit Optionen umgesetzt. Gerechnet wird auf denselben 8 Zufallslisten aus dem damaligen S&P 500 wie bei den Short-Tests, jeder Depot-Lauf Tag für Tag nachbewertet.
+
+Alte Optionspreise für einzelne Aktien gibt es nicht kostenlos. Deshalb sind sie berechnet (Black-Scholes, Spread 2 %), mit zwei Annahmen für die Schwankung:
+- „günstig“: die Schwankung der letzten 20 Tage ×1,0
+- „teuer“: dieselbe Schwankung ×1,25
+
+Eine Idee muss mit beiden Annahmen bestehen. Für den Put-Verkauf gibt es echte Börsendaten: den CBOE-PutWrite-Index (verkaufte Puts auf den S&P 500, ab 2007) und den US-Geldmarktzins.
+
+| Pkt Rendite pro Jahr gegen den Bot (Mitte der 8 Listen) | 2010–2014 | 2015–2021 | 2022–2026 | Rückgang (Bot: −16 / −19 / −14 %) |
+|---|---:|---:|---:|---|
+| Put-Verkauf mit 100 % des freien Geldes (echte CBOE-Daten) | +3,5 | +3,0 | +2,4 | −21 / −31 / −20 % |
+| Put-Verkauf mit 50 % des freien Geldes, Rest verzinst | +1,7 | +2,0 | +2,1 | −18 / −22 / −15 % |
+| Gedeckter Call am Kursziel – Preise günstig | −1,0 | −0,2 | +0,7 | −19 / −22 / −14 % |
+| Gedeckter Call am Kursziel – Preise teuer | +3,4 | +4,0 | +4,4 | −15 / −18 / −11 % |
+| Call statt Aktie – Preise günstig / teuer | −8,7 / −15,7 | −3,9 / −10,2 | −3,5 / −8,4 | bis −42 % |
+| Put statt Short – Preise günstig / teuer | −2,2 / −2,1 | −0,1 / −0,1 | 0,0 / 0,0 | −17 / −19 / −15 % |
+
+**Ergebnis:** nicht übernommen.
+- **Put-Verkauf:** Er bringt in allen Zeiträumen und auf allen 8 Listen mehr Rendite, auch mehr, als das freie Geld nur zu verzinsen. Dafür werden die Rückgänge viel größer (2015–2021 −31 statt −19 %). Das ist im Grunde mehr Aktienmarkt: Dasselbe Geld direkt im S&P 500 brachte noch mehr Rendite (+17,7 / +13,3 / +6,9 %) bei ähnlich großen Rückgängen. Die Regel „höchstens 1 Punkt mehr Rückgang“ verfehlt er deutlich – so wie früher „freies Geld im Nasdaq-100 parken“.
+- **Gedeckter Call:** Hier hängt alles an den Optionspreisen. Sind Calls teuer, bringt er +3,4 bis +4,4 Punkte bei kleineren Rückgängen. Sind sie fair, bringt er nichts (−1,0 bis +0,7). Welche Annahme stimmt, lässt sich ohne echte Optionspreise nicht sagen.
+- **Call statt Aktie:** Viel schlechter. Von den +0,13 R je Aktien-Trade bleiben mit dem Call +0,03 bis −0,07 R, weil Zeitwert und Spread den kleinen Vorteil der Signale auffressen.
+- **Put statt Short:** Die Puts verlieren genauso viel wie die Shorts (−0,47 statt −0,48 R je Trade). Sie sind auch nicht besser als Puts an zufälligen Tagen.
+
+Nebenbei: Freies Geld zum Geldmarktzins anzulegen bringt 2022–2026 ohne Risiko +1,5 Punkte (US-Zinsen). Das hat aber nichts mit Optionen zu tun. Details: `forschung/ergebnisse/optionen_*.md`.
+
+## 18.11.2026 (Mittwoch) · Shorts fair geprüft: alte Shorts, schwache Bilanzen, schlechte Nachrichten
+
+**Idee** (Wünsche des Nutzers: „Es muss doch einen Weg geben, Shorts profitabel zu machen“ – gewählt: fairer Test mit S&P 500 und Short schwacher Bilanzen – und „wenn schlechte Nachrichten kommen, direkt shorten“): Bisher liefen alle Short-Tests mit der heutigen Watchlist, also mit späteren Gewinnern. Jetzt handelt der Bot je Zeitraum mit denselben 8 Zufallslisten aus 24 Aktien des damaligen S&P 500 wie im ehrlichen Bot-Check vom 06.11. Verglichen wird der Bot nur mit Long gegen denselben Bot mit Short-Variante, mit Gebühr und Spread.
+
+7 Varianten waren vorher festgelegt. Eine Variante gilt nur als besser, wenn in jedem Zeitraum alles stimmt: die Mitte der 8 Listen ist besser, mindestens 6 von 8 Listen sind besser, der Rückgang ist höchstens 1 Punkt größer, es gibt mindestens 30 Shorts und sie schlägt Shorts an Zufallstagen. Schlechte Nachrichten mit Datum gibt es für zwei Arten:
+- Herabstufungen durch Analysten: Daten von Yahoo, erst ab Ende 2011.
+- Pflichtmeldungen an die US-Börsenaufsicht (8-K) ohne Quartalszahlen: Hier zählt eine Meldung nur, wenn die Aktie am selben Tag um mindestens 2 ATR fiel.
+
+Für beide gilt: Eine Nachricht bis 16 Uhr New Yorker Zeit zählt für denselben Tag. Short ist immer erst zur nächsten Eröffnung.
+
+| Pkt Rendite pro Jahr gegen den Bot nur mit Long (Mitte der 8 Listen) | 2010–2014 | 2015–2021 | 2022–2026 | Ø Ergebnis je Short |
+|---|---:|---:|---:|---|
+| A: die 8 alten Short-Strategien | −2,2 | −0,2 | 0,0 | −0,48 / −0,31 / −0,13 R |
+| B: Short nach schlechten Zahlen, nicht im Aufwärtsmarkt | 0,0 | −0,4 | +0,2 | −0,40 / −0,25 / +0,07 R |
+| C: Short nach schlechten Zahlen, jede Marktlage | −0,1 | −0,3 | 0,0 | −0,18 / −0,12 / −0,07 R |
+| S1: alte Short-Signale nur bei schwacher Bilanz (Verlust oder Umsatz und Gewinn schrumpfen), nicht im Aufwärtsmarkt | −1,7 | −1,0 | −0,1 | −0,44 / −0,20 / −0,05 R |
+| S2: dasselbe in jeder Marktlage | −1,8 | −0,9 | −0,2 | −0,23 / −0,17 / −0,36 R |
+| N1: Short nach Herabstufung durch einen Analysten | −0,3 | +0,1 | −0,1 | −0,28 R / ab 2015 abgeschaltet |
+| N2: Short nach Pflichtmeldung mit Kursrutsch | −0,4 | −0,2 | 0,0 | −0,49 / +0,01 / +0,11 R |
+
+**Ergebnis:** nicht übernommen. Keine Variante ist in allen drei Zeiträumen besser, keine schafft auch nur die Mehrheit der Listen.
+- **Shorts verlieren auch mit fairen Listen:** Die Shorts selbst verlieren fast überall Geld, nach Kosten im Schnitt −0,5 bis +0,1 R je Short, meist nicht besser als Shorts an zufälligen Tagen. Die Watchlist aus Gewinnern war also nicht der Grund.
+- **Schwache Bilanzen machen es schlimmer:** Shorts nur auf schwache Bilanzen kosten 1 bis 2 Punkte im Jahr, 2015–2021 kommen 2,3 Punkte mehr Rückgang dazu. Firmen mit Verlust schwanken stark und erholen sich oft kräftig.
+- **Herabstufungen:** 2010–2014 verloren diese Shorts −0,28 R je Short, bei nur 32 % Treffern. Ab 2015 kam kein einziger mehr zustande, obwohl es über 3.700 Herabstufungen gab. Die Lernregel des Bots schaltete die Strategie ab, weil ihre gedachten Trades im Tagebuch im Minus lagen.
+- **Pflichtmeldung mit Kursrutsch:** Sie liegt am nächsten an null (2015–2026 +0,01 und +0,11 R). Mit 12 bis 31 Shorts je Zeitraum ist das aber zu selten für eine Aussage, und am Depot ändert es nichts.
+
+Verbleibende Verzerrung: Zur Wahl standen nur Aktien, die heute noch im S&P 500 oder Nasdaq-100 sind. Pleitefirmen fehlen also, und das Ergebnis ist für Shorts eher zu streng. Leihgebühren sind nicht abgezogen. Details in `forschung/ergebnisse/short_fair_sp500.md`, `short_schwache_bilanz.md` und `short_schlechte_nachricht.md`.
+
+## 17.11.2026 (Dienstag) · Shorts: nach schlechten Zahlen und Krisen-Absicherung
+
+**Idee** (Wunsch des Nutzers: „Short reinbringen, damit er profitabel wird“): Zwei noch ungetestete Short-Ideen mit Forschung dahinter, je 2 Varianten, vorher festgelegt, je mit 6 Gegenproben. (a) Short nach schlechten Quartalszahlen (Post-Earnings-Drift, Bernard & Thomas 1989): Rutscht eine Aktie am Zahlen-Tag um mindestens 2 ATR, Short zur nächsten Eröffnung, Stop +3 ATR, Ziel −3 ATR. (b) Krisen-Absicherung: Nasdaq-100-Short über 50 % bzw. 100 % des Depots nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie.
+
+| Pkt Rendite pro Jahr gegen den jetzigen Bot | 2010–2014 | 2015–2021 | 2022–2026 | Ergebnis |
+|---|---:|---:|---:|---|
+| Short nach schlechten Zahlen, nur außerhalb des Aufwärtsmarkts | −0,3 | +0,4 | +0,8 | nicht überall besser, nicht besser als Zufall |
+| Short nach schlechten Zahlen, in jeder Marktlage | −0,6 | −0,4 | +0,2 | nicht überall besser |
+| Krisen-Absicherung 50 % | −1,8 | −2,2 | −2,1 | schlechter, sogar größere Rückgänge (−19 / −22 / −17 % statt −17 / −17 / −15 %) |
+| Krisen-Absicherung 100 % | −3,7 | −4,5 | −4,4 | deutlich schlechter (Rückgänge bis −28 %) |
+
+**Ergebnis:** nicht übernommen. Die Shorts nach schlechten Zahlen ändern fast nichts (Zufalls-Shorts genauso gut). Die Krisen-Absicherung schadet sogar, und zwar mehr als derselbe Short an zufälligen Tagen: Wenn der VIX über 30 steht und der Nasdaq unter der 200-Tage-Linie liegt, ist der Tiefpunkt oft schon nah – die folgende Erholung (z. B. ab März 2020) frisst den Short auf. Das bestätigt die früheren Short-Tests: Bis die Abwärtsphase erkennbar ist, ist der Fall meist vorbei.
+
 ## 13.11.2026 (Freitag) · Monatswechsel-Effekt
 
 **Idee** (Freitags-Idee aus der Forschung): McConnell & Xu (2008, *Financial Analysts Journal*) – von 1926 bis 2005 entstand fast die ganze Rendite des US-Aktienmarkts am letzten und an den ersten drei Handelstagen eines Monats (zuerst Lakonishok & Smidt 1988). Vermutung: Käufe kurz vor dem Monatswechsel laufen besser als Käufe in der Monatsmitte. 2 Varianten, vorher festgelegt, je mit 6 Gegenproben (gleich viele Signale zufällig weglassen).

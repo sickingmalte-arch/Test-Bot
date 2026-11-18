@@ -43,3 +43,12 @@ Ergebnis: **Beim Kaufen und Verkaufen wurde nichts davon übernommen.** Die Hand
 
 ## Meine Gedanken
 
+## Nachtrag 18.11.2026: Optionen als Handelswerkzeug
+
+Auf Wunsch des Nutzers wurden die Trades des Bots einmal mit Optionen nachgerechnet. Gerechnet wurde auf 8 Zufallslisten aus dem damaligen S&P 500, mit Spread. Für Einzelaktien sind die Preise nach Black-Scholes berechnet, einmal günstig (Schwankung ×1,0) und einmal teuer (×1,25). Details stehen im [[Notizen/Forschung – Tagebuch]].
+
+- **Call statt Aktie:** viel schlechter. Zeitwert und Spread fressen den kleinen Vorteil der Signale.
+- **Put statt Short:** Die Puts verlieren genauso wie die Shorts.
+- **Put-Verkauf mit dem freien Geld** (echte CBOE-PutWrite-Daten): mehr Rendite, aber viel größere Rückgänge. Das ist im Grunde mehr Aktienmarkt.
+- **Gedeckter Call am Kursziel:** Das Ergebnis hängt ganz am Optionspreis. Sind Calls teurer, als die Kurse danach schwanken, bringt er gut 3 bis 4 Punkte im Jahr; sind sie fair, nichts. Die Prämie ist eine Art Versicherungsprämie – genau die Größe, die das Skript als implizite gegen historische Volatilität erklärt.
+
