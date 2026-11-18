@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 75
+    "nicht übernommen" : 79
 ```
 
 ## ✅ Steckt im Bot
@@ -115,6 +115,10 @@ pie showData
 | Short schwacher Bilanzen 2: dasselbe in jeder Marktlage | −1,8 / −0,9 / −0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
 | Short direkt nach Herabstufung durch einen Analysten (faire S&P-500-Listen) | −0,3 / +0,1 / −0,1 Pkt; −0,28 R je Short, ab 2015 von der Lernregel abgeschaltet | [[Notizen/Forschung – Tagebuch]] |
 | Short direkt nach Pflichtmeldung an die SEC (8-K) mit Kursrutsch ≥ 2 ATR | −0,4 / −0,2 / 0,0 Pkt, zu wenige Shorts für eine Aussage | [[Notizen/Forschung – Tagebuch]] |
+| Optionen 1: mit dem freien Geld Puts auf den S&P 500 verkaufen (echte CBOE-PutWrite-Daten) | +3,5 / +3,0 / +2,4 Pkt, aber Rückgang bis −31 statt −19 %; mit 50 % +1,7 / +2,0 / +2,1 Pkt, Rückgang bis −22 % | [[Notizen/Forschung – Tagebuch]] |
+| Optionen 2: gedeckter Call am Kursziel (berechnete Preise) | teure Optionen +3,4 / +4,0 / +4,4 Pkt, faire Optionen −1,0 / −0,2 / +0,7 Pkt – hängt ganz am echten Optionspreis | [[Notizen/Forschung – Tagebuch]] |
+| Optionen 3: Call statt Aktie (Prämie = 1 % des Kontos) | −8,7 bis −3,5 Pkt (günstig), bis −15,7 Pkt (teuer) | [[Notizen/Forschung – Tagebuch]] |
+| Optionen 4: Put statt Short | −2,2 / −0,1 / 0,0 Pkt, Puts verlieren wie Shorts, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 

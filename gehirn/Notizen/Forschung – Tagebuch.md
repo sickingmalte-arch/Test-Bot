@@ -10,6 +10,33 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 18.11.2026 (Mittwoch) · Optionen: Put-Verkauf, gedeckter Call, Call statt Aktie, Put statt Short
+
+**Idee** (Wunsch des Nutzers: „Vielleicht wäre der Handel mit Optionen wirklich noch was für dich“; er wählte alle vier vorgeschlagenen Ideen): Die Trades des Bots bleiben gleich, nur werden sie mit Optionen umgesetzt. Gerechnet wird auf denselben 8 Zufallslisten aus dem damaligen S&P 500 wie bei den Short-Tests, jeder Depot-Lauf Tag für Tag nachbewertet.
+
+Alte Optionspreise für einzelne Aktien gibt es nicht kostenlos. Deshalb sind sie berechnet (Black-Scholes, Spread 2 %), mit zwei Annahmen für die Schwankung:
+- „günstig“: die Schwankung der letzten 20 Tage ×1,0
+- „teuer“: dieselbe Schwankung ×1,25
+
+Eine Idee muss mit beiden Annahmen bestehen. Für den Put-Verkauf gibt es echte Börsendaten: den CBOE-PutWrite-Index (verkaufte Puts auf den S&P 500, ab 2007) und den US-Geldmarktzins.
+
+| Pkt Rendite pro Jahr gegen den Bot (Mitte der 8 Listen) | 2010–2014 | 2015–2021 | 2022–2026 | Rückgang (Bot: −16 / −19 / −14 %) |
+|---|---:|---:|---:|---|
+| Put-Verkauf mit 100 % des freien Geldes (echte CBOE-Daten) | +3,5 | +3,0 | +2,4 | −21 / −31 / −20 % |
+| Put-Verkauf mit 50 % des freien Geldes, Rest verzinst | +1,7 | +2,0 | +2,1 | −18 / −22 / −15 % |
+| Gedeckter Call am Kursziel – Preise günstig | −1,0 | −0,2 | +0,7 | −19 / −22 / −14 % |
+| Gedeckter Call am Kursziel – Preise teuer | +3,4 | +4,0 | +4,4 | −15 / −18 / −11 % |
+| Call statt Aktie – Preise günstig / teuer | −8,7 / −15,7 | −3,9 / −10,2 | −3,5 / −8,4 | bis −42 % |
+| Put statt Short – Preise günstig / teuer | −2,2 / −2,1 | −0,1 / −0,1 | 0,0 / 0,0 | −17 / −19 / −15 % |
+
+**Ergebnis:** nicht übernommen.
+- **Put-Verkauf:** Er bringt in allen Zeiträumen und auf allen 8 Listen mehr Rendite, auch mehr, als das freie Geld nur zu verzinsen. Dafür werden die Rückgänge viel größer (2015–2021 −31 statt −19 %). Das ist im Grunde mehr Aktienmarkt: Dasselbe Geld direkt im S&P 500 brachte noch mehr Rendite (+17,7 / +13,3 / +6,9 %) bei ähnlich großen Rückgängen. Die Regel „höchstens 1 Punkt mehr Rückgang“ verfehlt er deutlich – so wie früher „freies Geld im Nasdaq-100 parken“.
+- **Gedeckter Call:** Hier hängt alles an den Optionspreisen. Sind Calls teuer, bringt er +3,4 bis +4,4 Punkte bei kleineren Rückgängen. Sind sie fair, bringt er nichts (−1,0 bis +0,7). Welche Annahme stimmt, lässt sich ohne echte Optionspreise nicht sagen.
+- **Call statt Aktie:** Viel schlechter. Von den +0,13 R je Aktien-Trade bleiben mit dem Call +0,03 bis −0,07 R, weil Zeitwert und Spread den kleinen Vorteil der Signale auffressen.
+- **Put statt Short:** Die Puts verlieren genauso viel wie die Shorts (−0,47 statt −0,48 R je Trade). Sie sind auch nicht besser als Puts an zufälligen Tagen.
+
+Nebenbei: Freies Geld zum Geldmarktzins anzulegen bringt 2022–2026 ohne Risiko +1,5 Punkte (US-Zinsen). Das hat aber nichts mit Optionen zu tun. Details: `forschung/ergebnisse/optionen_*.md`.
+
 ## 18.11.2026 (Mittwoch) · Shorts fair geprüft: alte Shorts, schwache Bilanzen, schlechte Nachrichten
 
 **Idee** (Wünsche des Nutzers: „Es muss doch einen Weg geben, Shorts profitabel zu machen“ – gewählt: fairer Test mit S&P 500 und Short schwacher Bilanzen – und „wenn schlechte Nachrichten kommen, direkt shorten“): Bisher liefen alle Short-Tests mit der heutigen Watchlist, also mit späteren Gewinnern. Jetzt handelt der Bot je Zeitraum mit denselben 8 Zufallslisten aus 24 Aktien des damaligen S&P 500 wie im ehrlichen Bot-Check vom 06.11. Verglichen wird der Bot nur mit Long gegen denselben Bot mit Short-Variante, mit Gebühr und Spread.
