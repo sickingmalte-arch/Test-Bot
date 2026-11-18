@@ -472,5 +472,38 @@
    -0.4,
    0.2
   ]
+ },
+ {
+  "datum": "2026-11-18",
+  "datei": "short_fair_sp500",
+  "name": "Fairer Short-Test: alte Shorts und Short nach schlechten Zahlen mit zufälligen damaligen S&P-500-Aktien",
+  "urteil": "A: nicht überall besser; B: nicht überall besser; C: nicht überall besser",
+  "plus": [
+   -0.1,
+   -0.3,
+   0.0
+  ]
+ },
+ {
+  "datum": "2026-11-18",
+  "datei": "short_schlechte_nachricht",
+  "name": "Short direkt nach schlechten Nachrichten: Herabstufung durch Analysten oder Pflichtmeldung mit Kursrutsch",
+  "urteil": "N1: nicht überall besser; N2: nicht überall besser",
+  "plus": [
+   -0.4,
+   -0.2,
+   0.0
+  ]
+ },
+ {
+  "datum": "2026-11-18",
+  "datei": "short_schwache_bilanz",
+  "name": "Short schwacher Bilanzen: Short-Signale nur bei Firmen mit Verlust oder schrumpfendem Geschäft",
+  "urteil": "S1: nicht überall besser; S2: nicht überall besser",
+  "plus": [
+   -1.7,
+   -1.0,
+   -0.1
+  ]
  }
 ]
