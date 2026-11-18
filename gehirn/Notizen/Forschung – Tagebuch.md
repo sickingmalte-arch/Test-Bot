@@ -37,6 +37,8 @@ Eine Idee muss mit beiden Annahmen bestehen. Für den Put-Verkauf gibt es echte 
 
 Nebenbei: Freies Geld zum Geldmarktzins anzulegen bringt 2022–2026 ohne Risiko +1,5 Punkte (US-Zinsen). Das hat aber nichts mit Optionen zu tun. Details: `forschung/ergebnisse/optionen_*.md`.
 
+**Weiter (Wunsch des Nutzers: „Ja teste“):** Ein Vorwärts-Test misst werktags während der US-Börsenzeit für jeden Kauf-Auftrag des Übungsdepots den echten Preis des Calls am Kursziel. Ab 30 Messungen zeigt `forschung/OPTIONEN_VORWAERTS.md`, ob die Annahme „günstig“ oder „teuer“ stimmt. Mit dem gemessenen Preisniveau wird der Rückblick dann nachgerechnet.
+
 ## 18.11.2026 (Mittwoch) · Shorts fair geprüft: alte Shorts, schwache Bilanzen, schlechte Nachrichten
 
 **Idee** (Wünsche des Nutzers: „Es muss doch einen Weg geben, Shorts profitabel zu machen“ – gewählt: fairer Test mit S&P 500 und Short schwacher Bilanzen – und „wenn schlechte Nachrichten kommen, direkt shorten“): Bisher liefen alle Short-Tests mit der heutigen Watchlist, also mit späteren Gewinnern. Jetzt handelt der Bot je Zeitraum mit denselben 8 Zufallslisten aus 24 Aktien des damaligen S&P 500 wie im ehrlichen Bot-Check vom 06.11. Verglichen wird der Bot nur mit Long gegen denselben Bot mit Short-Variante, mit Gebühr und Spread.
