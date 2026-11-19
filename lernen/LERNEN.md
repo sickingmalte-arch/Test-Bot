@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 18.11.2026 14:06 Uhr · Kurse bis 17.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 19.11.2026 05:20 Uhr · Kurse bis 18.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -8,7 +8,7 @@ Stand: 18.11.2026 14:06 Uhr · Kurse bis 17.11.2026 · 523 Aktien (S&P 500, Nasd
 
 - ✅ Alle Kurse, Termine und Bilanzen sind da.
 
-## 📋 Kauf-Signale vom 17.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 18.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -16,42 +16,45 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| JPM | RSI-2-Rücksetzer | 57 % | 67 | – |
-| PLTR | RSI-2-Rücksetzer | 47 % | 9 | – |
-| MSFT | RSI-2-Rücksetzer | 46 % | 6 | – |
+| XOM | RSI-2-Rücksetzer | 59 % | 75 | ✅ |
+| JPM | RSI-2-Rücksetzer | 59 % | 75 | ✅ |
+| LLY | RSI-2-Rücksetzer | 50 % | 18 | – |
+| PLTR | RSI-2-Rücksetzer | 49 % | 16 | – |
+| AMD | Trendlinien-Ausbruch | 42 % | 1 | – |
+| TSLA | Rücksetzer | 40 % | 0 | – |
 
-**Ganzer Markt – die 15 besten von 154 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 135 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| CCL | RSI-2-Rücksetzer | 63 % | 87 | ✅ |
-| WFC | RSI-2-Rücksetzer | 62 % | 85 | ✅ |
-| PFE | RSI-2-Rücksetzer | 61 % | 83 | ✅ |
-| CTAS | RSI-2-Rücksetzer | 61 % | 81 | ✅ |
-| MRK | RSI-2-Rücksetzer | 60 % | 79 | ✅ |
-| MAS | RSI-2-Rücksetzer | 59 % | 76 | ✅ |
-| MMM | RSI-2-Rücksetzer | 59 % | 75 | ✅ |
-| PNW | RSI-2-Rücksetzer | 59 % | 74 | ✅ |
-| HSIC | RSI-2-Rücksetzer | 59 % | 74 | ✅ |
-| USB | RSI-2-Rücksetzer | 59 % | 74 | ✅ |
-| ITW | RSI-2-Rücksetzer | 58 % | 72 | ✅ |
-| SWK | RSI-2-Rücksetzer | 58 % | 72 | ✅ |
-| IQV | RSI-2-Rücksetzer | 58 % | 71 | ✅ |
-| VRTX | RSI-2-Rücksetzer | 58 % | 71 | ✅ |
-| SPGI | RSI-2-Rücksetzer | 58 % | 71 | ✅ |
+| PGR | RSI-2-Rücksetzer | 62 % | 86 | ✅ |
+| CTAS | RSI-2-Rücksetzer | 62 % | 85 | ✅ |
+| PFE | RSI-2-Rücksetzer | 62 % | 85 | ✅ |
+| BRK-B | RSI-2-Rücksetzer | 61 % | 84 | ✅ |
+| MRK | RSI-2-Rücksetzer | 61 % | 83 | ✅ |
+| HUM | RSI-2-Rücksetzer | 61 % | 82 | ✅ |
+| USB | RSI-2-Rücksetzer | 61 % | 81 | ✅ |
+| SPGI | RSI-2-Rücksetzer | 60 % | 81 | ✅ |
+| MRNA | RSI-2-Rücksetzer | 60 % | 81 | ✅ |
+| CI | RSI-2-Rücksetzer | 60 % | 80 | ✅ |
+| LIN | RSI-2-Rücksetzer | 60 % | 80 | ✅ |
+| MPC | RSI-2-Rücksetzer | 60 % | 80 | ✅ |
+| AMGN | RSI-2-Rücksetzer | 60 % | 79 | ✅ |
+| IQV | RSI-2-Rücksetzer | 60 % | 78 | ✅ |
+| ELV | RSI-2-Rücksetzer | 59 % | 78 | ✅ |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23888 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23900 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
 | bestes Fünftel | 57 % | +0,07 R |
 | 2. Fünftel | 52 % | -0,01 R |
 | Mitte | 52 % | +0,01 R |
-| 4. Fünftel | 52 % | +0,02 R |
+| 4. Fünftel | 51 % | +0,02 R |
 | schlechtestes Fünftel | 52 % | +0,03 R |
 
 Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Börsenkurse brauchbar.
@@ -75,7 +78,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 24923 Signale, davon verloren 47 %. Von den 9427 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 24935 Signale, davon verloren 47 %. Von den 9427 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
@@ -99,7 +102,7 @@ Anteil an allen Trades; ein Trade kann mehrere Gründe haben. ↓ = das Modell m
 | INTU | 21.10.26 | 17.11.26 | -0,33 R | Zeitstopp | Absturz des Gesamtmarkts, Branche schwach, Zeitstopp ohne Schwung (vorläufig) |
 | SOFI | 29.10.26 | 16.11.26 | -0,93 R | Stop | Absturz des Gesamtmarkts, Signal zu spät (Aktie war schon weit gelaufen) (vorläufig) |
 | MSFT | 03.11.26 | 04.11.26 | +0,96 R | Ziel (Kurslücke) | – |
-| XOM | 02.11.26 | 04.11.26 | -1,24 R | Stop (Kurslücke) | Kurslücke unter den Stop (über Nacht), Branche schwach, Quartalszahlen (vorläufig) |
+| XOM | 02.11.26 | 04.11.26 | -1,24 R | Stop (Kurslücke) | Kurslücke unter den Stop (über Nacht), Branche schwach, Quartalszahlen |
 | HIMS | 21.10.26 | 02.11.26 | -0,98 R | Stop | Normales Auf und Ab (kein besonderer Grund) |
 | AAPL | 21.10.26 | 30.10.26 | +0,57 R | vor Quartalszahlen | – |
 | NOW | 21.10.26 | 28.10.26 | +0,09 R | vor Quartalszahlen | – |
