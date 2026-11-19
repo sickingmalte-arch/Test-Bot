@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=PLTR)
 
-**Stand Di 17.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt)
+**Stand Mi 18.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt)
 **Nächste Quartalszahlen:** Mo 01.02.
 
 ## Übungsdepot

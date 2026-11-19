@@ -7,22 +7,22 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Trendlinien-Ausbruch ↑
 
-**Status:** ✅ aktiv (Ø -0,02 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø -0,08 R über die letzten 60 Trades)
 
 **Regel:** Schluss heute über der fallenden Trendlinie durch die letzten zwei bestätigten Hochpunkte (das zweite tiefer, letzte 6 Monate), gestern noch darunter, über der 200-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,02 R · Treffer 43 % · ± Zufall 0,21 R
-- Ganze Geschichte: 187 Trades · Ø +0,17 R · Treffer 60 %
+- Letzte 60 Trades: Ø -0,08 R · Treffer 40 % · ± Zufall 0,21 R
+- Ganze Geschichte: 189 Trades · Ø +0,16 R · Treffer 59 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 58× (31 %), Ø +0,95 R
-- Zeitstopp: 50× (27 %), Ø +0,11 R
+- Zeitstopp: 50× (26 %), Ø +0,11 R
 - vor Quartalszahlen: 38× (20 %), Ø -0,07 R
-- Stop: 32× (17 %), Ø -1,00 R
+- Stop: 34× (18 %), Ø -1,01 R
 - Ziel (Kurslücke): 6× (3 %), Ø +1,44 R
 - Stop (Kurslücke): 3× (2 %), Ø -0,87 R
 
