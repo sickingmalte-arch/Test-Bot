@@ -1,5 +1,5 @@
 {
- "stand": "2026-11-18",
+ "stand": "2026-11-19",
  "pfade": 50,
  "tage": 20,
  "min_auswertung": 30,
@@ -728,10 +728,10 @@
   "atr": 2.0,
   "min_tage": 15,
   "zaehler": {
-   "gerechnet": 192,
+   "gerechnet": 216,
    "ausgewertet": 0,
-   "offen": 192,
-   "tage": 8,
+   "offen": 216,
+   "tage": 9,
    "tage_ausgewertet": 0
   },
   "naechste_auswertung": "2026-12-08",
