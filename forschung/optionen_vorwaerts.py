@@ -181,7 +181,9 @@ def main(argv=None):
     if not a.nur_bericht:
         import yfinance as yf
         bis, auftraege = auftraege_fuer_heute(lies_json(DEPOT, {}), heute)
-        schon = {(x["datum"], x["ticker"]) for x in daten["messungen"] + daten["ausgelassen"]}
+        # schon gemessen: nicht noch einmal; ausgelassen (z. B. Börse noch zu) darf ein späterer Lauf nachholen
+        schon = {(x["datum"], x["ticker"]) for x in daten["messungen"]}
+        gemerkt = {(x["datum"], x["ticker"], x["grund"]) for x in daten["ausgelassen"]}
         print(f"Daten bis {bis.date()}, {len(auftraege)} Kauf-Aufträge für {heute.date()}")
         for auftrag in auftraege:
             if (f"{heute.date()}", auftrag["ticker"]) in schon:
@@ -191,7 +193,9 @@ def main(argv=None):
             except Exception as e:  # noqa: BLE001 – Yahoo liefert nichts: als ausgelassen merken
                 messung, grund = None, f"Fehler beim Abruf ({type(e).__name__})"
             if messung is None:
-                daten["ausgelassen"].append({"datum": f"{heute.date()}", "ticker": auftrag["ticker"], "grund": grund})
+                if (f"{heute.date()}", auftrag["ticker"], grund) not in gemerkt:
+                    daten["ausgelassen"].append({"datum": f"{heute.date()}", "ticker": auftrag["ticker"],
+                                                 "grund": grund})
                 print(f"{auftrag['ticker']}: {grund}")
             else:
                 daten["messungen"].append(messung)
