@@ -1,11 +1,13 @@
 {
- "stand": "19.11.2026 14:06 Uhr",
+ "stand": "20.11.2026 05:06 Uhr",
  "tag": "2026-11-18",
  "monat": "2026-11",
  "aktien": 523,
  "anteil": 0.3,
  "schwelle": 0.5761853024760019,
- "warnungen": [],
+ "warnungen": [
+  "Die Kurse vom 19.11.2026 fehlen noch (Yahoo liefert manchmal erst später, oder es war ein US-Feiertag). Gerechnet wurde bis 18.11.2026; der nächste Lauf holt sie nach."
+ ],
  "gelernt": [
   {
    "merkmal": "breite50",
@@ -443,31 +445,31 @@
   "fuenftel": [
    {
     "fuenftel": 1,
-    "R": 0.02539186454462423,
+    "R": 0.025391864032783467,
     "n": 4780,
     "treffer": 0.5175732217573221
    },
    {
     "fuenftel": 2,
-    "R": 0.015310442760917881,
+    "R": 0.015313520123855093,
     "n": 4780,
     "treffer": 0.5148535564853557
    },
    {
     "fuenftel": 3,
-    "R": 0.014950585885723563,
+    "R": 0.014950586948226062,
     "n": 4780,
     "treffer": 0.5156903765690377
    },
    {
     "fuenftel": 4,
-    "R": -0.012167101825755334,
+    "R": -0.012167102072518894,
     "n": 4780,
     "treffer": 0.5161087866108787
    },
    {
     "fuenftel": 5,
-    "R": 0.06807209926888562,
+    "R": 0.06807210473721524,
     "n": 4780,
     "treffer": 0.5692468619246862
    }

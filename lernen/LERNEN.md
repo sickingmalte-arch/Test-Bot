@@ -1,12 +1,12 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 19.11.2026 14:06 Uhr · Kurse bis 18.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 20.11.2026 05:06 Uhr · Kurse bis 18.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
 ## ⚠️ Daten
 
-- ✅ Alle Kurse, Termine und Bilanzen sind da.
+- ⚠️ Die Kurse vom 19.11.2026 fehlen noch (Yahoo liefert manchmal erst später, oder es war ein US-Feiertag). Gerechnet wurde bis 18.11.2026; der nächste Lauf holt sie nach.
 
 ## 📋 Kauf-Signale vom 18.11.2026 mit Punktzahl
 
@@ -23,7 +23,7 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 | AMD | Trendlinien-Ausbruch | 42 % | 1 | – |
 | TSLA | Rücksetzer | 40 % | 0 | – |
 
-**Ganzer Markt – die 15 besten von 135 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 136 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
