@@ -1,8 +1,8 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Fr 20.11.2026 18:52 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Fr 20.11.2026 20:09 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 20.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0976 $
+## 📈 SWING-SCANNER · Daten bis 20.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0971 $
 
 5× ⏸ WARTEN · 19× BEOBACHTEN  
 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Do 19.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
@@ -11,42 +11,42 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 314,89 | – | – | – | – | – | – | – | Do 28.01. |  |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 445,29 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 396,10 | – | – | – | – | – | – | – | Di 02.02. | 📰 Leerverkäufer-Bericht |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 1.232,29 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⏸ WARTEN | ATR-Ausbruch ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 1.014,66 | – | – | – | – | – | – | – | Do 10.12. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 57,96 | – | – | – | – | – | – | – | Di 02.03. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 13,60 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 82,69 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 257,78 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 37,16 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 77,37 | – | – | – | – | – | – | – | Do 11.02. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.251,85 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 11,49 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 52,47 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 21,27 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 11,66 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 123,55 | – | – | – | – | – | – | – | Mi 24.02. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 227,88 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 519,87 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 248,99 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 321,35 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 314,87 | – | – | – | – | – | – | – | Do 28.01. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 447,52 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 395,78 | – | – | – | – | – | – | – | Di 02.02. | 📰 Leerverkäufer-Bericht |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⏸ WARTEN | RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 1.232,66 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⏸ WARTEN | ATR-Ausbruch ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 1.013,52 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 58,47 | – | – | – | – | – | – | – | Di 02.03. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 13,64 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 82,40 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 252,22 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 36,82 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 76,89 | – | – | – | – | – | – | – | Do 11.02. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.255,50 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 11,28 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 52,30 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 21,48 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 11,70 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 123,61 | – | – | – | – | – | – | – | Mi 24.02. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 227,57 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 518,27 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 248,58 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 319,58 | – | – | – | – | – | – | – | Mi 27.01. |  |
 | [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 133,86 | – | – | – | – | – | – | – | Mo 01.02. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 286,20 | – | – | – | – | – | – | – | Do 14.01. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 146,75 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 286,71 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 146,96 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
 AAPL: Apple's secret AI agent shows John Ternus is done sitting out the AI race (Yahoo Finance, 20.11. 17:42)  
 AAPL: Apple's AI agent push: Why the pressure is mounting (Yahoo Finance Video, 20.11. 16:13)  
+MSFT: Could a handful of tech giants control the future of AI? (Yahoo Finance Video, 20.11. 19:06)  
 MSFT: Can Microsoft catch up in the frontier AI race? (Yahoo Finance Video, 20.11. 14:00)  
-MSFT: Microsoft's Copilot strategy offers path to enterprise AI growth, says Bank of America (Proactive, 20.11. 18:36)  
 AMD \[Leerverkäufer-Bericht\]: AMD stock gets drilled again in the wake of surprise short seller report (Yahoo Finance, 20.11. 11:04)  
-AMD: Why the markets are being hit with a 'perfect storm' for AI (Yahoo Finance Video, 20.11. 16:41)  
+AMD: Broadcom sinks 10%, Nvidia and AMD extend declines as the AI trade melts down (Yahoo Finance, 20.11. 14:36)  
 LLY: What Does Eli Lilly Offer That Merck Does Not? (Trefis, 20.11. 17:59)  
 LLY: AbbVie vs. Eli Lilly: Which Healthcare Stock Is a Better Buy for 2027? (Motley Fool, 20.11. 17:20)  
-COST: Tech Outages Spur Emergency Buying: Costco-Heavy ETFs in Focus (Zacks, 20.11. 17:00)  
-COST: Costco Just Made a New All-Time High After Announcing a $30-Per-Share Special Dividend. Is the Stock a Buy Before Dec. 10? (Motley Fool, 20.11. 16:50)  
+COST: From tech glitches to bulk buying: How outages are spurring a wave of Costco sales (Yahoo Finance Video, 20.11. 19:36)  
+COST: Costco’s Upcoming $30 Special Dividend Is Twice the Size of Its Last Special Payout. Is This the Most Unstoppable Consumer Staples Stock to Buy Now? (Motley Fool, 20.11. 19:35)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
 📰 Schlagzeilen: Spricht eine erkannte Meldung der letzten Tage gegen ein Signal (⚠️, z. B. Herabstufung, Kapitalerhöhung, Ermittlungen, Übernahme), wartet der Bot (⏸ WARTEN – Nachricht) und kauft auch im Papier-Depot nicht. Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf selbst lesen. Rückwirkend lässt sich diese Regel nicht testen; im Rückblick gilt sie nur für den letzten Tag.  
