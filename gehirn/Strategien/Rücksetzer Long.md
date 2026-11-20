@@ -7,22 +7,22 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Rücksetzer ↑
 
-**Status:** ✅ aktiv (Ø -0,02 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø -0,06 R über die letzten 60 Trades)
 
 **Regel:** Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,02 R · Treffer 47 % · ± Zufall 0,21 R
-- Ganze Geschichte: 555 Trades · Ø +0,04 R · Treffer 52 %
+- Letzte 60 Trades: Ø -0,06 R · Treffer 45 % · ± Zufall 0,21 R
+- Ganze Geschichte: 557 Trades · Ø +0,04 R · Treffer 52 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 152× (27 %), Ø +0,96 R
 - Zeitstopp: 141× (25 %), Ø -0,04 R
-- Stop: 112× (20 %), Ø -0,98 R
-- vor Quartalszahlen: 110× (20 %), Ø -0,06 R
+- Stop: 113× (20 %), Ø -0,98 R
+- vor Quartalszahlen: 111× (20 %), Ø -0,06 R
 - Stop (Kurslücke): 20× (4 %), Ø -1,12 R
 - Ziel (Kurslücke): 20× (4 %), Ø +1,12 R
 
@@ -32,8 +32,8 @@ tags:
 2. [[Aktien/SOFI|SOFI]]: 21 Trades · Ø +0,22 R · Treffer 62 %
 3. [[Aktien/MELI|MELI]]: 21 Trades · Ø +0,21 R · Treffer 67 %
 …
-22. [[Aktien/INTU|INTU]]: 23 Trades · Ø -0,12 R · Treffer 43 %
-23. [[Aktien/NVDA|NVDA]]: 28 Trades · Ø -0,13 R · Treffer 43 %
+22. [[Aktien/NVDA|NVDA]]: 28 Trades · Ø -0,13 R · Treffer 43 %
+23. [[Aktien/INTU|INTU]]: 24 Trades · Ø -0,16 R · Treffer 42 %
 24. [[Aktien/ASTS|ASTS]]: 22 Trades · Ø -0,18 R · Treffer 36 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 
