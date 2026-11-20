@@ -5,8 +5,9 @@
 name: Optionen-Vorwärts-Test
 
 on:
+  # Angestoßen wird der Test von der Live-Kette (live.yml) ab 10:15 Uhr New York, weil geplante Läufe oft Stunden zu
+  # spät kommen. Der Zeitplan ist nur Reserve: 15:17 UTC = 16:17 Uhr deutscher Winterzeit, im Sommer 17:17 Uhr.
   schedule:
-    # 15:17 UTC = 16:17 Uhr deutscher Winterzeit (10:17 Uhr New York), im Sommer 17:17 Uhr (11:17 Uhr New York)
     - cron: "17 15 * * 1-5"
   workflow_dispatch:
 

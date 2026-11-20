@@ -323,7 +323,8 @@ sie ehrlich. Das Rechnen übernimmt GitHub (`forschung.yml`):
 - **Prüfstand:** Rückblick 2010–2026 mit dem echten Bot, mit Gegenprobe gegen Zufall.
 - **Experimentier-Depot:** ein eigenes Übungsdepot mit 10.000 € Spielgeld, das nach jedem Morgen-Lauf eine Idee live
   ausprobiert (zum Start: „Lernmodell: beste Punktzahl zuerst“).
-- **Optionen-Vorwärts-Test** (`optionen-vorwaerts.yml`, werktags um 16:17 Uhr deutscher Zeit, im Sommer um 17:17 Uhr):
+- **Optionen-Vorwärts-Test** (`optionen-vorwaerts.yml`, werktags während der US-Börsenzeit, angestoßen von der
+  Live-Kette gegen 16:15 Uhr deutscher Zeit = 10:15 Uhr New York):
   Für jeden Kauf-Auftrag des Übungsdepots holt er den echten Preis des Calls am Kursziel von Yahoo und vergleicht ihn
   mit der Rechnung aus dem Rückblick. Damit klärt er, ob sich der gedeckte Call lohnt (Bericht:
   `forschung/OPTIONEN_VORWAERTS.md`, Aussage ab 30 Messungen). Nur Messung, gehandelt wird nichts.

@@ -132,6 +132,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 355
     steps:
+      - name: Optionen-Vorwärts-Test anstoßen (einmal am Tag während der US-Börsenzeit)
+        # Der geplante Lauf von optionen-vorwaerts.yml kam am 18.11.2026 erst um 23:36 Uhr – nach Börsenschluss lässt
+        # sich kein Optionspreis messen. Die Kette ist pünktlich, darum startet sie den Test ab 10:15 Uhr New York.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ny=$(TZ=America/New_York date '+%H%M')
+          wt=$(TZ=America/New_York date '+%u')
+          if [ "$wt" -gt 5 ] || [ "$ny" -lt 1015 ] || [ "$ny" -gt 1545 ]; then exit 0; fi
+          ab="$(TZ=America/New_York date '+%Y-%m-%d')T13:00:00Z"
+          schon=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow optionen-vorwaerts.yml --limit 20 \
+            --json createdAt --jq "[.[] | select(.createdAt >= \"$ab\")] | length" 2>/dev/null || echo 0)
+          if [ "${schon:-0}" -gt 0 ]; then echo "Optionen-Vorwärts-Test lief heute schon."; exit 0; fi
+          gh workflow run optionen-vorwaerts.yml --repo "$GITHUB_REPOSITORY" --ref main \
+            || echo "::warning::Optionen-Vorwärts-Test ließ sich nicht starten"
+
       - name: Nächsten Termin bestimmen
         id: termin
         shell: python3 {0}
