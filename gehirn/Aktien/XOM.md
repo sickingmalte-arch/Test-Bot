@@ -10,7 +10,7 @@ Branche: Energie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=XOM)
 
-**Stand Do 19.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt)
+**Stand Fr 20.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Fr 29.01.
 
 ## Übungsdepot

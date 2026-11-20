@@ -10,7 +10,7 @@ Branche: Basiskonsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=COST)
 
-**Stand Do 19.11. 2026:** BEOBACHTEN
+**Stand Fr 20.11. 2026:** ⏸ WARTEN – ATR-Ausbruch ↑ – Marktfilter (kein Long im Abwärtsmarkt)
 **Nächste Quartalszahlen:** Do 10.12.
 
 ## Übungsdepot

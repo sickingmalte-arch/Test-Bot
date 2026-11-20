@@ -79,9 +79,9 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 
 | Gruppe | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
-| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1000 | 56 % | +0,11 R |
+| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 999 | 56 % | +0,11 R |
 | bärisches Kerzenmuster am Signaltag | 537 | 58 % | +0,13 R |
-| kein Kerzenmuster | 1546 | 57 % | +0,11 R |
+| kein Kerzenmuster | 1547 | 57 % | +0,11 R |
 
 - Mit und ohne Muster liegen nah beieinander – die Muster sagen bei diesen Strategien wenig voraus.
 
@@ -121,7 +121,7 @@ Der Lern-Lauf spielt jedes Kauf-Signal aller Aktien aus S&P 500 und Nasdaq-100 a
 
 ### Häufigste Fehler aller Kauf-Signale (12 Monate)
 
-Von 24935 gedachten Trades verloren 47 %; von den 9427 mit der besten Punktzahl 46 %.
+Von 24970 gedachten Trades verloren 47 %; von den 9427 mit der besten Punktzahl 46 %.
 
 - Branche schwach: 15 % aller Signale · bei den besten 15 %
 - Zeitstopp ohne Schwung: 13 % aller Signale · bei den besten 14 %

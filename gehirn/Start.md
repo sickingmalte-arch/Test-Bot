@@ -4,7 +4,7 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Do 19.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Fr 20.11.2026 (vorläufig) · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
@@ -63,16 +63,16 @@ flowchart TB
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-11-19]] · Diese Woche: [[Wochen/2026-W47|Woche 47]]
+## Heute: [[Tage/2026-11-20]] · Diese Woche: [[Wochen/2026-W47|Woche 47]]
 
 - Signale: keine
-- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 18.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
+- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Do 19.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
 
 ## Übungsdepot
 
 - 9.769,84 € (-2,3 % seit 2026-10-20) · 3 offen · 10 Trades · Ø -0,29 R · Treffer 40 %
 - Letzte Trades: [[Trades/2026-10-30 JPM Squeeze-Ausbruch Long|JPM -0,7 R]], [[Trades/2026-11-05 MSFT Ausbruch Long|MSFT -0,8 R]], [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]], [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]], [[Trades/2026-11-03 MSFT RSI-2-Rücksetzer Long|MSFT +1,0 R]]
-- Rückblick 12 Monate: +5,1 % (alle Aktien kaufen und halten: -9,1 %)
+- Rückblick 12 Monate: +2,9 % (alle Aktien kaufen und halten: -9,1 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
