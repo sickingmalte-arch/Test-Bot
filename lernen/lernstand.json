@@ -1,11 +1,13 @@
 {
- "stand": "20.11.2026 14:13 Uhr",
- "tag": "2026-11-19",
+ "stand": "21.11.2026 05:07 Uhr",
+ "tag": "2026-11-20",
  "monat": "2026-11",
  "aktien": 523,
  "anteil": 0.3,
  "schwelle": 0.5761853024760019,
- "warnungen": [],
+ "warnungen": [
+  "Alte Kurse (nicht bis 20.11.2026) bei 1 Aktien: SNDK – sie werden heute nicht gehandelt."
+ ],
  "gelernt": [
   {
    "merkmal": "breite50",
@@ -439,105 +441,105 @@
  "training": 463621,
  "training_bis": "2026-10-30",
  "guete": {
-  "auc": 0.5199628754705566,
+  "auc": 0.5204244354982799,
   "fuenftel": [
    {
     "fuenftel": 1,
-    "R": 0.022699190019231524,
-    "n": 4787,
-    "treffer": 0.5161896803843743
+    "R": 0.021214000211865428,
+    "n": 4790,
+    "treffer": 0.5152400835073069
    },
    {
     "fuenftel": 2,
-    "R": 0.0177946854797694,
-    "n": 4786,
-    "treffer": 0.5162975344755537
+    "R": 0.015005065689208065,
+    "n": 4790,
+    "treffer": 0.5150313152400835
    },
    {
     "fuenftel": 3,
-    "R": 0.010806090982121368,
-    "n": 4786,
-    "treffer": 0.5135812787296281
+    "R": 0.01181634826852597,
+    "n": 4790,
+    "treffer": 0.5139874739039666
    },
    {
     "fuenftel": 4,
-    "R": -0.011443460522118332,
-    "n": 4786,
-    "treffer": 0.5162975344755537
+    "R": -0.011877760360776259,
+    "n": 4790,
+    "treffer": 0.5162839248434238
    },
    {
     "fuenftel": 5,
-    "R": 0.06824912072874871,
-    "n": 4787,
-    "treffer": 0.5694589513265093
+    "R": 0.0685357496392562,
+    "n": 4790,
+    "treffer": 0.5695198329853862
    }
   ],
   "auc_je_jahr": {
    "2025": 0.5320274074238012,
-   "2026": 0.5112540194712409
+   "2026": 0.5117613429634986
   },
-  "n": 23932
+  "n": 23950
  },
  "fehler": {
   "tabelle": [
    {
     "grund": "branche",
     "text": "Branche schwach",
-    "alle": 0.14673608329995996,
+    "alle": 0.1468704978389627,
     "ausgewaehlt": 0.15094940065768536
    },
    {
     "grund": "zeit",
     "text": "Zeitstopp ohne Schwung",
-    "alle": 0.13231878253904686,
+    "alle": 0.13234352489194814,
     "ausgewaehlt": 0.13726530179272303
    },
    {
     "grund": "zahlen",
     "text": "Quartalszahlen",
-    "alle": 0.09667601121345615,
+    "alle": 0.09668640947654875,
     "ausgewaehlt": 0.052508751458576426
    },
    {
     "grund": "normal",
     "text": "Normales Auf und Ab (kein besonderer Grund)",
-    "alle": 0.09551461754104926,
+    "alle": 0.09544581399071554,
     "ausgewaehlt": 0.1020473109154556
    },
    {
     "grund": "markt",
     "text": "Absturz des Gesamtmarkts",
-    "alle": 0.05698838606327593,
+    "alle": 0.05762766127741316,
     "ausgewaehlt": 0.04879601145645486
    },
    {
     "grund": "stop_eng",
     "text": "Stop zu eng (Kurs war danach schnell wieder über dem Einstieg)",
-    "alle": 0.042651181417701245,
+    "alle": 0.04262045781975348,
     "ausgewaehlt": 0.049644637742654076
    },
    {
     "grund": "zu_spaet",
     "text": "Signal zu spät (Aktie war schon weit gelaufen)",
-    "alle": 0.03668402082498999,
+    "alle": 0.03669761485513046,
     "ausgewaehlt": 0.02471624058555214
    },
    {
     "grund": "kursluecke",
     "text": "Kurslücke unter den Stop (über Nacht)",
-    "alle": 0.028233880656788144,
+    "alle": 0.02825356170962062,
     "ausgewaehlt": 0.03330858173331919
    },
    {
     "grund": "nachricht",
     "text": "Plötzlicher Einbruch nur dieser Aktie (vermutlich eine Nachricht)",
-    "alle": 0.010412494993992792,
+    "alle": 0.01040499439731071,
     "ausgewaehlt": 0.007213323432693328
    }
   ],
-  "n_alle": 24970,
+  "n_alle": 24988,
   "n_ausgewaehlt": 9427,
-  "verlust_alle": 0.4722066479775731,
+  "verlust_alle": 0.4725468224747879,
   "verlust_ausgewaehlt": 0.4567730985467275
  },
  "bot_trades": [
