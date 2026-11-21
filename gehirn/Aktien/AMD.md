@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=AMD)
 
-**Stand Fr 20.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt)
+**Stand Fr 20.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Di 02.02.
 
 ## Übungsdepot
@@ -19,8 +19,8 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 129 Trades · Ø +0,27 R · Treffer 62 %
-- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 18 Trades · Ø +0,22 R · Treffer 61 %
+- **Alle Strategien zusammen:** 130 Trades · Ø +0,26 R · Treffer 62 %
+- [[Strategien/Ausbruch Long|Ausbruch ↑]]: 19 Trades · Ø +0,16 R · Treffer 58 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 22 Trades · Ø +0,05 R · Treffer 50 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 8 Trades · Ø +0,26 R · Treffer 75 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 10 Trades · Ø +0,67 R · Treffer 80 %

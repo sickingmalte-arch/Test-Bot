@@ -20,12 +20,12 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 141 Trades · Ø +0,22 R · Treffer 63 %
+- **Alle Strategien zusammen:** 142 Trades · Ø +0,21 R · Treffer 63 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 12 Trades · Ø +0,08 R · Treffer 50 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 21 Trades · Ø +0,31 R · Treffer 71 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 8 Trades · Ø +0,28 R · Treffer 62 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 18 Trades · Ø +0,33 R · Treffer 72 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 20 Trades · Ø +0,16 R · Treffer 60 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 21 Trades · Ø +0,10 R · Treffer 57 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 17 Trades · Ø +0,08 R · Treffer 59 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 12 Trades · Ø +0,15 R · Treffer 50 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 21 Trades · Ø +0,13 R · Treffer 62 %

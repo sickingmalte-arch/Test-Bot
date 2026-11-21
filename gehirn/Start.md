@@ -4,7 +4,7 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Fr 20.11.2026 (vorläufig) · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Fr 20.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
@@ -14,11 +14,11 @@ flowchart TB
   regeln["📝 Meine Regeln<br/>nichts gesperrt"]
   subgraph KERN["🧠 9 Strategien · 8 aktiv"]
     direction TB
-    s0["✅ Ausbruch ↑<br/>Ø -0,07 R"]
+    s0["✅ Ausbruch ↑<br/>Ø -0,10 R"]
     s1["✅ RSI-2-Rücksetzer ↑<br/>Ø -0,04 R"]
     s2["✅ Gegenbewegung ↑<br/>Ø +0,12 R"]
     s3["⏸ MACD-Wende ↑<br/>Ø -0,12 R"]
-    s4["✅ Rücksetzer ↑<br/>Ø -0,06 R"]
+    s4["✅ Rücksetzer ↑<br/>Ø -0,09 R"]
     s5["✅ Squeeze-Ausbruch ↑<br/>Ø +0,13 R"]
     s6["✅ EMA-Kreuz ↑<br/>Ø -0,09 R"]
     s7["✅ ATR-Ausbruch ↑<br/>Ø -0,07 R"]
@@ -28,9 +28,9 @@ flowchart TB
     s2 ~~~ s7
     s3 ~~~ s8
   end
-  tb["📓 Tagebuch<br/>3.083 gedachte Trades"]
+  tb["📓 Tagebuch<br/>3.085 gedachte Trades"]
   sig["🎯 Signale heute<br/>0 kaufen · 4 warten"]
-  depot["📒 Übungsdepot<br/>9.770 € (-2,3 %)<br/>3 offen"]
+  depot["📒 Übungsdepot<br/>9.751 € (-2,5 %)<br/>3 offen"]
   lehren["🎓 Lehren<br/>10 abgeschlossene Trades"]
   kurse --> KERN
   termine -->|Sperre| KERN
@@ -70,9 +70,9 @@ flowchart TB
 
 ## Übungsdepot
 
-- 9.769,84 € (-2,3 % seit 2026-10-20) · 3 offen · 10 Trades · Ø -0,29 R · Treffer 40 %
+- 9.750,92 € (-2,5 % seit 2026-10-20) · 3 offen · 10 Trades · Ø -0,29 R · Treffer 40 %
 - Letzte Trades: [[Trades/2026-10-30 JPM Squeeze-Ausbruch Long|JPM -0,7 R]], [[Trades/2026-11-05 MSFT Ausbruch Long|MSFT -0,8 R]], [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]], [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]], [[Trades/2026-11-03 MSFT RSI-2-Rücksetzer Long|MSFT +1,0 R]]
-- Rückblick 12 Monate: +2,9 % (alle Aktien kaufen und halten: -9,1 %)
+- Rückblick 12 Monate: -0,6 % (alle Aktien kaufen und halten: -9,6 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 

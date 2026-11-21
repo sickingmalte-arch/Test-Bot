@@ -7,21 +7,21 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Ausbruch ↑
 
-**Status:** ✅ aktiv (Ø -0,07 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø -0,10 R über die letzten 60 Trades)
 
 **Regel:** Schluss über dem 20-Tage-Hoch mit 1,5-fachem Volumen, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,07 R · Treffer 43 % · ± Zufall 0,21 R
-- Ganze Geschichte: 318 Trades · Ø +0,20 R · Treffer 58 %
+- Letzte 60 Trades: Ø -0,10 R · Treffer 42 % · ± Zufall 0,21 R
+- Ganze Geschichte: 319 Trades · Ø +0,20 R · Treffer 58 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
 - Ziel: 115× (36 %), Ø +0,99 R
 - Zeitstopp: 79× (25 %), Ø +0,05 R
-- Stop: 66× (21 %), Ø -0,95 R
+- Stop: 67× (21 %), Ø -0,95 R
 - vor Quartalszahlen: 32× (10 %), Ø +0,10 R
 - Ziel (Kurslücke): 16× (5 %), Ø +1,10 R
 - Stop (Kurslücke): 10× (3 %), Ø -1,08 R

@@ -7,14 +7,14 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # Rücksetzer ↑
 
-**Status:** ✅ aktiv (Ø -0,06 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø -0,09 R über die letzten 60 Trades)
 
 **Regel:** Kurs bis 0,5 ATR über der EMA 20, RSI(14) unter 60, über der 50-Tage-Linie. Stop −3 ATR, Ziel +3 ATR
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,06 R · Treffer 45 % · ± Zufall 0,21 R
-- Ganze Geschichte: 557 Trades · Ø +0,04 R · Treffer 52 %
+- Letzte 60 Trades: Ø -0,09 R · Treffer 43 % · ± Zufall 0,21 R
+- Ganze Geschichte: 558 Trades · Ø +0,04 R · Treffer 52 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
@@ -23,7 +23,7 @@ tags:
 - Zeitstopp: 141× (25 %), Ø -0,04 R
 - Stop: 113× (20 %), Ø -0,98 R
 - vor Quartalszahlen: 111× (20 %), Ø -0,06 R
-- Stop (Kurslücke): 20× (4 %), Ø -1,12 R
+- Stop (Kurslücke): 21× (4 %), Ø -1,11 R
 - Ziel (Kurslücke): 20× (4 %), Ø +1,12 R
 
 ### Rangliste der Aktien (ab 5 Trades, nach Ø R)
