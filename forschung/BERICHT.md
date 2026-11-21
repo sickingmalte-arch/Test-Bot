@@ -1,6 +1,6 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Sa 21.11.2026 17:49 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Sa 21.11.2026 19:02 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
 ## 📈 SWING-SCANNER · Daten bis 20.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0970 $
 
@@ -36,14 +36,14 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 | [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 145,85 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
+AAPL: Google Is Paying Elon Musk’s SpaceX $30 Billion. Jim Cramer Just Revealed Why (24/7 Wall St., 21.11. 17:48)  
 AAPL: Dow Jones Futures: After Nvidia, Anthropic Fuel Worst Week Since Covid, Look For These 'Absolute Losers' (Investor's Business Daily, 21.11. 17:14)  
-AAPL: Mark Gurman Says Apple Is “Not Set Up to Move at the Pace of These AI Companies” (24/7 Wall St., 21.11. 17:07)  
-MSFT: Fed’s Lisa Cook Warns of Larger Rate Hikes Ahead (24/7 Wall St., 21.11. 17:03)  
-MSFT: Bill Ackman Opened About $2 Billion in New Positions in Alcon and Intercontinental Exchange (24/7 Wall St., 21.11. 16:59)  
+MSFT: A $1.3 Billion Fund Just Bought These 3 Stocks (TIKR, 21.11. 18:21)  
+MSFT: Tech Outages Drive Costco Surge: How Much Emergency Prep Should You Buy? (MoneyLion, 21.11. 18:00)  
+LLY: Eli Lilly's Next Big Growth Opportunity Could Be Hiding in Plain Sight (Motley Fool, 21.11. 18:37)  
 LLY: Eli Lilly Is Near Its High. Bank of America Sees Another 19% (TIKR, 21.11. 15:09)  
-LLY: Merck Sinks 9.5% in a Week as It Scraps a Blood Cancer Drug and Healthcare Sells Off. Time to Buy? (TIKR, 21.11. 11:15)  
+COST: Tech Outages Drive Costco Surge: How Much Emergency Prep Should You Buy? (MoneyLion, 21.11. 18:00)  
 COST: Costco makes a tough store closure decision (TheStreet, 21.11. 17:33)  
-COST: Costco’s U.S. Comparable Sales Jumped 12.6% in October. Here’s the Number That Shows Its Moat Is Widening. (Motley Fool, 21.11. 15:10)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
 📰 Schlagzeilen: Spricht eine erkannte Meldung der letzten Tage gegen ein Signal (⚠️, z. B. Herabstufung, Kapitalerhöhung, Ermittlungen, Übernahme), wartet der Bot (⏸ WARTEN – Nachricht) und kauft auch im Papier-Depot nicht. Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf selbst lesen. Rückwirkend lässt sich diese Regel nicht testen; im Rückblick gilt sie nur für den letzten Tag.  
