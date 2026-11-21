@@ -1,6 +1,6 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Sa 21.11.2026 15:57 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Sa 21.11.2026 17:49 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
 ## 📈 SWING-SCANNER · Daten bis 20.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0970 $
 
@@ -36,14 +36,14 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 | [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 145,85 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
-AAPL: Is Dell Stock Really Cheap? (Trefis, 21.11. 07:32)  
-AAPL: $1 Million In Cash: Buy Stocks Now Or Wait? (Trefis, 21.11. 07:32)  
-MSFT: Michael Burry Says ‘I Told You So’ as Wall Street Caught Off Guard by AI Selloff (24/7 Wall St., 21.11. 15:44)  
-MSFT: Billionaire Daniel Loeb’s ‘Bear Math’: AI’s $7 Trillion Spending Boom Faces a $3 Trillion Reality Check (24/7 Wall St., 21.11. 15:13)  
+AAPL: Dow Jones Futures: After Nvidia, Anthropic Fuel Worst Week Since Covid, Look For These 'Absolute Losers' (Investor's Business Daily, 21.11. 17:14)  
+AAPL: Mark Gurman Says Apple Is “Not Set Up to Move at the Pace of These AI Companies” (24/7 Wall St., 21.11. 17:07)  
+MSFT: Fed’s Lisa Cook Warns of Larger Rate Hikes Ahead (24/7 Wall St., 21.11. 17:03)  
+MSFT: Bill Ackman Opened About $2 Billion in New Positions in Alcon and Intercontinental Exchange (24/7 Wall St., 21.11. 16:59)  
 LLY: Eli Lilly Is Near Its High. Bank of America Sees Another 19% (TIKR, 21.11. 15:09)  
 LLY: Merck Sinks 9.5% in a Week as It Scraps a Blood Cancer Drug and Healthcare Sells Off. Time to Buy? (TIKR, 21.11. 11:15)  
+COST: Costco makes a tough store closure decision (TheStreet, 21.11. 17:33)  
 COST: Costco’s U.S. Comparable Sales Jumped 12.6% in October. Here’s the Number That Shows Its Moat Is Widening. (Motley Fool, 21.11. 15:10)  
-COST: Walmart CFO Expects “the Next 5 Years to Look Better Than the Last 5 Years.” At Its Premium Multiple, It Has To (TIKR, 21.11. 15:01)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
 📰 Schlagzeilen: Spricht eine erkannte Meldung der letzten Tage gegen ein Signal (⚠️, z. B. Herabstufung, Kapitalerhöhung, Ermittlungen, Übernahme), wartet der Bot (⏸ WARTEN – Nachricht) und kauft auch im Papier-Depot nicht. Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf selbst lesen. Rückwirkend lässt sich diese Regel nicht testen; im Rückblick gilt sie nur für den letzten Tag.  
@@ -90,7 +90,7 @@ Lernregel: Ab 20 Trades wird eine Strategie pausiert, wenn sie im Schnitt mehr a
 
 Depotwert am 20.11.2026: 9.755,32 € (-2,4 %) · davon frei: 6.440,38 € · 3/7 Positionen, offenes Risiko 2,4 %  
 Zum Vergleich Nasdaq-100 (QQQ) im selben Zeitraum: 9.085,87 € (-9,1 %)  
-Neu am 20.11.: ausgestiegen: AMD (Stop, -90,07 €, -0,97 R – Verlust im Plan).  
+Seit dem letzten Lauf gibt es keinen neuen fertigen Kurstag – nichts zu tun (Stand 20.11.2026).  
 Abgeschlossene Trades: 7 · Gewinner: 2 (29 %) · Summe -298,32 € · größter Rückgang 2,8 % · Kosten: Gebühren 0,00 € + Spread ca. 18,15 €  
 Keine Aufträge für den nächsten Handelstag.  
 Gespeichert in: forschung/experiment\_depot.json im Repository (neu anfangen: die Datei im Repository löschen, die Historie bei GitHub behält den alten Stand). Simulation mit echten Kursen, ohne echtes Geld – Ausführung zur Eröffnung bzw. am Stop/Ziel, 0,00 € Gebühr + 0,1 % Spread je Order.  
