@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 18.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 23.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 79
+    "nicht übernommen" : 81
 ```
 
 ## ✅ Steckt im Bot
@@ -119,6 +119,8 @@ pie showData
 | Optionen 2: gedeckter Call am Kursziel (berechnete Preise) | teure Optionen +3,4 / +4,0 / +4,4 Pkt, faire Optionen −1,0 / −0,2 / +0,7 Pkt – hängt ganz am echten Optionspreis | [[Notizen/Forschung – Tagebuch]] |
 | Optionen 3: Call statt Aktie (Prämie = 1 % des Kontos) | −8,7 bis −3,5 Pkt (günstig), bis −15,7 Pkt (teuer) | [[Notizen/Forschung – Tagebuch]] |
 | Optionen 4: Put statt Short | −2,2 / −0,1 / 0,0 Pkt, Puts verlieren wie Shorts, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| MAX-Effekt 1: kein Kauf nach einem Tagesplus von 10 % im letzten Monat („Lotto-Aktien“) | +0,4 / +1,2 / −1,9 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| MAX-Effekt 2: kein Kauf nach einem Tagesplus von 3 ATR im letzten Monat | −1,2 / +1,1 / −0,7 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 

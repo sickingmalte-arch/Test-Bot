@@ -10,6 +10,18 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 20.11.2026 (Freitag, nachgeholt am 23.11.) · MAX-Effekt: keine „Lotto-Aktien“ kaufen
+
+**Idee** (Freitags-Idee aus der Forschung): Bali, Cakici & Whitelaw (2011, *Journal of Financial Economics*) – Aktien mit dem größten Tagesplus im letzten Monat brachten danach im Schnitt über 1 % im Monat weniger als die mit dem kleinsten („Lotto-Aktien“, für die Anleger zu viel zahlen). Für den Bot: ein Kauf-Signal weglassen, wenn die Aktie in den letzten 21 Börsentagen einen großen Tagessprung hatte. 2 Varianten, vorher festgelegt, je mit 6 Gegenproben (gleich viele Signale zufällig weglassen).
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +11,6 % / −14 % | +11,9 % / −16 % | +7,3 % / −15 % |
+| 1) kein Kauf nach einem Tagesplus von 10 % oder mehr | +11,9 % / −15 % | +13,2 % / −18 % | +5,4 % / −13 % |
+| 2) kein Kauf nach einem Tagesplus von 3 ATR oder mehr | +10,3 % / −14 % | +13,1 % / −17 % | +6,6 % / −15 % |
+
+**Ergebnis:** nicht übernommen. Beide Varianten sind nicht in allen drei Zeiträumen besser (+0,4 / +1,2 / −1,9 und −1,2 / +1,1 / −0,7 Punkte), Variante 1 hat 2015–2021 sogar 2 Punkte mehr Rückgang. Zufälliges Weglassen gleich vieler Signale war oft genauso gut oder besser. Der MAX-Effekt aus der Forschung (vor allem bei kleinen Aktien über einen ganzen Monat gemessen) hilft den kurzen Trades des Bots nicht.
+
 ## 18.11.2026 (Mittwoch) · Optionen: Put-Verkauf, gedeckter Call, Call statt Aktie, Put statt Short
 
 **Idee** (Wunsch des Nutzers: „Vielleicht wäre der Handel mit Optionen wirklich noch was für dich“; er wählte alle vier vorgeschlagenen Ideen): Die Trades des Bots bleiben gleich, nur werden sie mit Optionen umgesetzt. Gerechnet wird auf denselben 8 Zufallslisten aus dem damaligen S&P 500 wie bei den Short-Tests, jeder Depot-Lauf Tag für Tag nachbewertet.

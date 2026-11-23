@@ -549,5 +549,27 @@
    3.0,
    2.4
   ]
+ },
+ {
+  "datum": "2026-11-23",
+  "datei": "max_effekt_10",
+  "name": "MAX-Effekt 1: kein Kauf nach einem Tagesplus von 10 % oder mehr im letzten Monat",
+  "urteil": "nicht überall besser",
+  "plus": [
+   0.4,
+   1.2,
+   -1.9
+  ]
+ },
+ {
+  "datum": "2026-11-23",
+  "datei": "max_effekt_relativ",
+  "name": "MAX-Effekt 2: kein Kauf nach einem Tagesplus von 3 ATR oder mehr im letzten Monat",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -1.2,
+   1.1,
+   -0.7
+  ]
  }
 ]
