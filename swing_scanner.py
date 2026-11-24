@@ -96,6 +96,8 @@ LERNEN_PAUSE_AB = -0.10          # Pause, wenn der Schnitt unter −0,1 R fällt
 LERNEN_WIEDER_AB = 0.0           # wieder aktiv, sobald der Schnitt über 0 R steigt
 LERNEN_LANG_MIN = 50             # ab so vielen Trades insgesamt muss eine Strategie im Schnitt im Plus sein
 MARKTFILTER_TAGE = 200           # Marktfilter: Long nur über, Short nur unter der 200-Tage-Linie des Nasdaq-100
+ZINS_ABSCHLAG = 0.5              # Bot-Papierdepot: Zinsen aufs freie Geld = EZB-Einlagesatz minus 0,5 Punkte, nie < 0
+EZB_EINLAGESATZ = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV?format=csvdata"
 TAGEBUCH_AB_KERZE = 100          # Tagebuch erst, wenn die Indikatoren eingeschwungen sind
 MIN_KERZEN = 50                  # Mindestanzahl Tageskerzen für den Scanner
 NEWS_TAGE = 3                    # Schlagzeilen der letzten 3 Handelstage
@@ -1583,14 +1585,16 @@ def ausfuehrbare_auftraege(stand):
         verfallen.setdefault(grund, []).append(a["ticker"])
     return ok, verfallen, nachruecker
 
-def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None, veto=None):
+def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=None, veto=None, zins=None):
     """Spielt die Strategien rückwirkend mit einem virtuellen Depot durch. Regeln wie im Tagebuch (Signal zum
     Schluss, Einstieg zur nächsten Eröffnung bis zum Limit, Stop/Ziel/Zahlen/Zeitstopp), dazu Kapital- und
     Risikogrenzen, Gebühr und Spread je Order. Mit Lernen werden pausierte Strategien nicht gehandelt.
     Papier-Depot: Mit 'zustand' geht es vom gespeicherten Stand aus nur über die Tage nach zustand["bis"] weiter
     (beim Anlegen nur der letzte fertige Tag); 'signal_ticker' begrenzt, für welche Ticker neue Aufträge entstehen.
     Claude-Depot: veto(Signaltag, Ticker) gibt einen Grund zurück, wenn Claude dieses Signal ausgelassen hat – der
-    Auftrag verfällt dann zur Eröffnung."""
+    Auftrag verfällt dann zur Eröffnung.
+    zins (nur Bot-Papierdepot): EZB-Einlagesatz je Änderungstag – das Bargeld vom Vorabend bekommt dann Zinsen
+    (zins_satz, nach Kalendertagen). Rückblick und Tests rechnen ohne Zinsen, damit alte Vergleiche gültig bleiben."""
     alle_tage = sorted(set().union(*(set(d["idx"][:d["n_fertig"]]) for d in daten.values())))
     if not alle_tage:
         return None
@@ -1621,12 +1625,14 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
     depotwert = float(einst.konto)  # zum letzten Schlusskurs – Grundlage für die Positionsgröße
     positionen, auftraege, trades, verlauf = {}, [], [], []
     letzter_kurs = {}  # Ticker -> (Schlusskurs in $, Wechselkurs) für Tage ohne Handel
-    gebuehren = spread_kosten = 0.0
+    gebuehren = spread_kosten = zinsen = 0.0
     hoechstes_risiko = (0.0, 0)
     reihenfolge = {t: i for i, t in enumerate(daten)}
+    vortag = None  # letzter gerechneter Tag – ab seinem Abend laufen die Zinsen aufs Bargeld
     if zustand is not None:
         bargeld, depotwert = zustand["bargeld"], zustand["depotwert"]
         gebuehren, spread_kosten = zustand["gebuehren"], zustand["spread"]
+        zinsen, vortag = float(zustand.get("zinsen", 0.0)), zustand["bis"]
         hoechstes_risiko = tuple(zustand["hoechstes_risiko"])
         positionen = {p["ticker"]: dict(p) for p in zustand["positionen"]}
         # gespeicherte Aufträge stammen vom letzten gerechneten Tag (ihr Signaltag)
@@ -1647,6 +1653,13 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
         return sum(p["risiko_eur"] for p in positionen.values())
 
     for tag in tage:
+        # 0) Nur Bot-Papierdepot: Zinsen auf das Bargeld vom Vorabend, mit dem dort gültigen Satz
+        if zins is not None and vortag is not None and bargeld > 0:
+            ertrag = bargeld * zins_satz(zins, vortag) / 100 * (tag - vortag).days / 365
+            bargeld += ertrag
+            zinsen += ertrag
+        vortag = tag
+
         # 1) Aufträge vom Vortag zur Eröffnung ausführen – in fester Reihenfolge (bestes CRV zuerst)
         warten = []
         for auftrag in auftraege:
@@ -1745,7 +1758,8 @@ def simuliere_depot(daten, pausen, einst, lernen, zustand=None, signal_ticker=No
         return {"bis": tage[-1] if tage else zustand["bis"], "tage": tage, "bargeld": bargeld,
                 "depotwert": depotwert, "positionen": list(positionen.values()), "auftraege": auftraege,
                 "trades": trades, "verlauf": verlauf, "gebuehren": gebuehren, "spread": spread_kosten,
-                "hoechstes_risiko": hoechstes_risiko, "offenes_risiko": offenes_risiko() / depotwert * 100}
+                "zinsen": zinsen, "hoechstes_risiko": hoechstes_risiko,
+                "offenes_risiko": offenes_risiko() / depotwert * 100}
 
     # Vergleich: Startkapital gleichmäßig aufteilen und jeden Ticker an seinem ersten Handelstag im Zeitraum
     # kaufen und halten (Ticker, die erst später starten, z. B. Börsengänge, bleiben Bargeld)
@@ -3056,9 +3070,59 @@ def anpassungsfaktor(d, anker):
         return 1, None
     return r, letzter
 
-def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker, veto=None):
+def ezb_einlagesatz():
+    """Einlagesatz der EZB in % je Änderungstag (Data Portal der EZB), None, wenn der Abruf nicht klappt. Für die
+    Zinsen aufs freie Geld im Bot-Papierdepot (Wunsch des Besitzers vom 24.11.2026). Ohne persönliche Kennung."""
+    try:
+        anfrage = urllib.request.Request(EZB_EINLAGESATZ, headers={"User-Agent": "Swing-Bot (GitHub Actions)"})
+        with urllib.request.urlopen(anfrage, timeout=20) as antwort:
+            df = pd.read_csv(io.StringIO(antwort.read().decode("utf-8", "replace")))
+        zeit = pd.to_datetime(df["TIME_PERIOD"], errors="coerce")
+        wert = pd.to_numeric(df["OBS_VALUE"], errors="coerce")
+        ok = zeit.notna() & wert.notna()
+        reihe = pd.Series(wert[ok].to_numpy(dtype=float), index=pd.DatetimeIndex(zeit[ok])).sort_index()
+    except Exception:  # Netz, Format: dann gilt der zuletzt gespeicherte Satz (zins_reihe)
+        return None
+    return reihe if len(reihe) and reihe.between(-2, 10).all() else None
+
+def ezb_satz_am(reihe, tag):
+    """Am Tag 'tag' gültiger EZB-Einlagesatz in % (None ohne Daten) – spätere Änderungen zählen nicht."""
+    if reihe is None or not len(reihe):
+        return None
+    tag = pd.Timestamp(tag)
+    tag = (tag.tz_localize(None) if tag.tzinfo is not None else tag).normalize()
+    bekannt = reihe[reihe.index <= tag]
+    return float(bekannt.iloc[-1]) if len(bekannt) else None
+
+def zins_satz(reihe, tag):
+    """Zins aufs freie Geld in % im Jahr ab dem Abend von 'tag': Einlagesatz minus ZINS_ABSCHLAG, nie unter 0 –
+    vorsichtig wie im Test vom 24.11.2026 (forschung/ideen/zinsen_freies_geld.py)."""
+    satz = ezb_satz_am(reihe, tag)
+    return max(satz - ZINS_ABSCHLAG, 0.0) if satz is not None else 0.0
+
+def gespeicherter_zins(stand):
+    """Zuletzt gespeicherter Einlagesatz als Reihe (ohne Netz); None, wenn das Depot keine Zinsen bekommt."""
+    stand = stand or {}
+    alt = stand.get("ezb_satz")
+    if "zinsen" not in stand or not isinstance(alt, (int, float)) or isinstance(alt, bool):
+        return None
+    return pd.Series([float(alt)], index=pd.DatetimeIndex(["1999-01-01"]))
+
+def zins_reihe(stand):
+    """Einlagesatz für den Lauf des Bot-Papierdepots: frisch von der EZB, sonst der zuletzt gespeicherte (er ändert
+    sich selten). Gibt (Reihe oder None, Hinweis oder None) zurück."""
+    reihe = ezb_einlagesatz()
+    if reihe is not None:
+        return reihe, None
+    alt = gespeicherter_zins(stand)
+    if alt is not None:
+        return alt, "Einlagesatz der EZB diesmal nicht geladen – Zinsen aufs freie Geld mit dem zuletzt bekannten Satz."
+    return None, "Einlagesatz der EZB nicht geladen – diesmal keine Zinsen aufs freie Geld."
+
+def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker, veto=None, zins=None):
     """Rechnet das Papier-Depot bis zum letzten fertigen Kurstag weiter. Gibt (neuer Stand, Lauf, Bericht) zurück;
-    Lauf ist None, wenn diesmal nicht weitergerechnet werden konnte (der Stand bleibt dann unverändert)."""
+    Lauf ist None, wenn diesmal nicht weitergerechnet werden konnte (der Stand bleibt dann unverändert).
+    zins: nur fürs Bot-Papierdepot (siehe simuliere_depot) – dann stehen Zinsen und Satz im Stand."""
     bericht = {"neu": stand is None, "anpassungen": [], "warnung": None, "nicht_ausgefuehrt": [], "gestrichen": [],
                "ausgelassen": []}
     if stand is None:
@@ -3072,7 +3136,7 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker, veto=None):
     index = next(iter(daten.values()))["idx"]
     lauf = {"bis": als_tag(stand["bis"], index) if stand["bis"] else None, "bargeld": stand["bargeld"],
             "depotwert": stand["depotwert"], "gebuehren": stand["gebuehren"], "spread": stand["spread"],
-            "hoechstes_risiko": stand["hoechstes_risiko"],
+            "zinsen": stand.get("zinsen", 0.0), "hoechstes_risiko": stand["hoechstes_risiko"],
             "positionen": [dict(p, kauf_tag=als_tag(p["kauf_tag"], daten[p["ticker"]]["idx"]))
                            for p in stand["positionen"]],
             "auftraege": [dict(a) for a in stand["auftraege"]]}
@@ -3113,7 +3177,8 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker, veto=None):
         elif abs(ausgleich) >= 0.01:
             bericht["anpassungen"].append(f"{t}: Dividende bzw. Kursanpassung verrechnet ({de(ausgleich, 2, True)} €)")
 
-    erg = simuliere_depot(daten, pausen, einst, einst.lernen, zustand=lauf, signal_ticker=signal_ticker, veto=veto)
+    erg = simuliere_depot(daten, pausen, einst, einst.lernen, zustand=lauf, signal_ticker=signal_ticker, veto=veto,
+                          zins=zins)
     if erg is None:
         bericht["warnung"] = "Keine fertigen Kurstage – das Papier-Depot wurde diesmal nicht weitergerechnet."
         return stand, None, bericht
@@ -3144,6 +3209,11 @@ def papier_fortschreiben(stand, daten, pausen, einst, signal_ticker, veto=None):
         "letzter_lauf": f"{pd.Timestamp.now(tz=BERLIN):%Y-%m-%d %H:%M}",
     })
     neu["angelegt"] = neu["angelegt"] or iso(erg["bis"])
+    if zins is not None:  # nur Bot-Papierdepot: Zinsen bisher und der gültige Satz (Ersatz, falls die EZB mal fehlt)
+        neu["zinsen"] = float(erg["zinsen"])
+        satz = ezb_satz_am(zins, erg["bis"])
+        if satz is not None:
+            neu["ezb_satz"] = satz
     anker = {}
     for t in sorted({p["ticker"] for p in neu["positionen"]} | {a["ticker"] for a in neu["auftraege"]}):
         d = daten[t]
@@ -3377,6 +3447,12 @@ def papier_texte(stand, erg, bericht, pfad, einst, waehrung, vergleich, fx_heute
         zeilen.append(f"Abgeschlossene Trades: {len(trades)} · Gewinner: {gewinner} ({de(gewinner / len(trades) * 100, 0)} %)"
                       f" · Summe {de(summe, 2, True)} {waehrung} · größter Rückgang {de(rueckgang, 1)} % · Kosten: "
                       f"Gebühren {de(stand['gebuehren'])} {waehrung} + Spread ca. {de(stand['spread'])} {waehrung}")
+    if "zinsen" in stand:  # nur Bot-Papierdepot
+        zeile = f"Zinsen aufs freie Geld bisher: {de(stand['zinsen'])} {waehrung}"
+        if isinstance(stand.get("ezb_satz"), (int, float)):
+            zeile += (f" · zurzeit {de(max(stand['ezb_satz'] - ZINS_ABSCHLAG, 0.0))} % im Jahr (Einlagesatz der EZB "
+                      f"{de(stand['ezb_satz'])} % minus {de(ZINS_ABSCHLAG, 1)} Punkte)")
+        zeilen.append(zeile)
     auftraege, verfallen, nachruecker = ausfuehrbare_auftraege(stand)
     if auftraege:
         def kurs(t, wert):
@@ -3463,9 +3539,10 @@ def zeige_papier(stand, erg, bericht, pfad, einst, waehrung, notebook, vergleich
 
 
 def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusatz, pausen, einst, waehrung, notebook,
-                markt, trend, veto=None, titel=None, vorne=None):
+                markt, trend, veto=None, titel=None, vorne=None, zins=None):
     """Papier-Depot fortschreiben, anzeigen und speichern. Gibt den neuen Stand zurück (oder None).
-    Claude-Depot: veto (siehe simuliere_depot), eigener Titel und vorne(neuer Stand) -> Zeilen über der Übersicht."""
+    Claude-Depot: veto (siehe simuliere_depot), eigener Titel und vorne(neuer Stand) -> Zeilen über der Übersicht.
+    zins: Einlagesatz der EZB – nur das Bot-Depot bekommt Zinsen aufs freie Geld (Wunsch des Besitzers, 24.11.2026)."""
     def nur_hinweis(text):
         print(f"\n{titel or '📒 PAPIER-DEPOT'}\n⚠️ {text}")
         berichte(titel or "📒 PAPIER-DEPOT", [f"⚠️ {text}"])
@@ -3491,7 +3568,7 @@ def papier_lauf(datei, stand, fehler, daten, extra, roh, fx, fx_je_ticker, zusat
             if d["termine"] is None and gemerkt.get(t):
                 daten_p[t] = bereite_vor(t, roh[t], fx_je_ticker.get(t),
                                          pd.DataFrame(index=pd.to_datetime(gemerkt[t], utc=True)), einst, trend)
-    neu, erg, bericht = papier_fortschreiben(stand, daten_p, pausen, einst, set(daten), veto)
+    neu, erg, bericht = papier_fortschreiben(stand, daten_p, pausen, einst, set(daten), veto, zins)
     if erg is not None:
         grenze = pd.Timestamp.now(tz=NY) - pd.Timedelta(days=120)
         for t, d in daten_p.items():
@@ -4041,7 +4118,8 @@ def live_vorschau(stand, tabellen, fx, einst, veto=None):
         return {"bis": stand["bis"], "wert_schluss": json_zahl(stand["depotwert"]), "wert": json_zahl(stand["bargeld"]),
                 "aenderung": json_zahl(stand["bargeld"] - stand["depotwert"]), "positionen": [], "gekauft": [],
                 "verkauft": [], "nicht_gekauft": [], "ausgelassen": []}
-    neu, erg, bericht = papier_fortschreiben(stand, daten, {}, einst, set(), veto)
+    # Bot-Depot: Zinsen mit dem zuletzt gespeicherten Satz (ohne Netz), wie es der Morgen-Lauf bucht
+    neu, erg, bericht = papier_fortschreiben(stand, daten, {}, einst, set(), veto, gespeicherter_zins(stand))
     if erg is None:
         return {"bis": stand["bis"], "fehlt": bericht.get("warnung") or "nicht weitergerechnet"}
     bis = stand["bis"]
@@ -5276,8 +5354,11 @@ def auswerten(einst):
     zeige_lernen(stand, einst, waehrung, notebook, RUECKSCHAU)
     papier = None
     if einst.papier:
+        zins, zins_hinweis = zins_reihe(papier_stand)  # Zinsen aufs freie Geld – nur im Bot-Depot, nicht bei Claude
+        if zins_hinweis:
+            print(f"⚠️ {zins_hinweis}")
         papier = papier_lauf(papier_datei, papier_stand, papier_fehler, daten, papier_extra, roh, fx, fx_je_ticker,
-                             zusatz, pausen, einst, waehrung, notebook, markt, trend)
+                             zusatz, pausen, einst, waehrung, notebook, markt, trend, zins=zins)
     claude = None
     if claude_datei:
         claude = claude_lauf(claude_datei, claude_stand, claude_fehler, papier, daten, claude_extra, roh, fx,

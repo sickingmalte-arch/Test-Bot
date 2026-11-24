@@ -22,9 +22,8 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 ```mermaid
 pie showData
     title Geprüfte Ideen
-    "übernommen" : 5
+    "übernommen" : 6
     "nicht übernommen" : 85
-    "gemessen, Entscheidung bei dir" : 1
 ```
 
 ## ✅ Steckt im Bot
@@ -35,6 +34,7 @@ pie showData
 | Höchstens 2 Positionen je Branche | +0,4 Pkt, in 5 von 6 Fällen besser, Rückgang nie größer |
 | Trendlinien-Ausbruch als 9. Kauf-Strategie (seit 06.11.2026) | **Auf Wunsch des Besitzers**, nicht weil der Test es zeigt: −0,5 / +0,7 / +0,4 Pkt, im Bereich des Zufalls. Bewährt sie sich nicht, pausiert sie die Lernregel von selbst. |
 | Lernregel behalten (schlecht laufende Strategien pausieren) | Ganz ohne war es in 4 von 6 Fällen schlechter, eine ruhigere Regel kostete 0,5–0,9 Pkt |
+| Zinsen aufs freie Geld im Papier-Depot des Bots (EZB-Einlagesatz − 0,5 Punkte, nie unter 0 %) | **Auf Wunsch des Besitzers** (24.11.2026): +0,0 / +0,0 / +0,9 Pkt, 2022–2026 1 Punkt weniger Rückgang – keine Kaufregel, sondern Buchführung wie bei einem Broker. Claude-Depot und Rückblick ohne Zinsen. |
 | Shorts aus | Alle Short-Strategien verlieren, auch zehn verbesserte Varianten – und auch auf fairen Zufallslisten aus dem damaligen S&P 500 (18.11.2026: −2,2 / −0,2 / 0,0 Pkt, Ø −0,48 bis −0,13 R je Short) |
 
 ## ❌ Geprüft und nicht übernommen
@@ -126,12 +126,6 @@ pie showData
 | Kaufen nach guten Zahlen 2: dasselbe in jeder Marktlage | −0,5 / +1,0 / +0,2 Pkt, nur 2–18 Käufe je Zeitraum, Zufall oft besser | [[Notizen/Forschung – Tagebuch]] |
 | Marktfilter 1: S&P 500 statt Nasdaq-100 als Ampel | +1,3 / +1,2 / −0,6 Pkt | [[Notizen/Forschung – Tagebuch]] |
 | Marktfilter 2: Ampel schaltet erst nach 2 Tagen um | −0,5 / +2,3 / +0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
-
-## ⏳ Gemessen – Entscheidung bei dir
-
-| Idee | Ergebnis | Mehr dazu |
-| --- | --- | --- |
-| Zinsen auf das freie Geld (EZB-Einlagesatz − 0,5 Punkte, nie unter 0 %) | +0,0 / +0,0 / +0,9 Pkt, 2022–2026 1 Punkt weniger Rückgang. Keine Kaufregel, sondern Buchführung wie bei einem Broker mit Guthabenzinsen | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
