@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=LLY)
 
-**Stand Fr 20.11. 2026:** ⏸ WARTEN – RSI-2-Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt)
+**Stand Mo 23.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 03.02.
 
 ## Übungsdepot
@@ -19,12 +19,12 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 ## Strategie-Tagebuch auf dieser Aktie
 
-- **Alle Strategien zusammen:** 140 Trades · Ø +0,03 R · Treffer 49 %
+- **Alle Strategien zusammen:** 139 Trades · Ø +0,03 R · Treffer 49 %
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 14 Trades · Ø +0,01 R · Treffer 50 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 23 Trades · Ø -0,05 R · Treffer 48 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 5 Trades · Ø +0,03 R · Treffer 60 %
 - [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 22 Trades · Ø -0,11 R · Treffer 36 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 26 Trades · Ø +0,08 R · Treffer 50 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 25 Trades · Ø +0,12 R · Treffer 52 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 6 Trades · Ø +0,12 R · Treffer 50 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 18 Trades · Ø -0,00 R · Treffer 50 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 17 Trades · Ø +0,22 R · Treffer 59 %

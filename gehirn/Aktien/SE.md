@@ -10,7 +10,7 @@ Branche: Konsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=SE)
 
-**Stand Fr 20.11. 2026:** BEOBACHTEN
+**Stand Mo 23.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Di 02.03.
 
 ## Übungsdepot

@@ -4,7 +4,7 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Fr 20.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Mo 23.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
@@ -15,7 +15,7 @@ flowchart TB
   subgraph KERN["🧠 9 Strategien · 8 aktiv"]
     direction TB
     s0["✅ Ausbruch ↑<br/>Ø -0,10 R"]
-    s1["✅ RSI-2-Rücksetzer ↑<br/>Ø -0,04 R"]
+    s1["✅ RSI-2-Rücksetzer ↑<br/>Ø -0,05 R"]
     s2["✅ Gegenbewegung ↑<br/>Ø +0,12 R"]
     s3["⏸ MACD-Wende ↑<br/>Ø -0,12 R"]
     s4["✅ Rücksetzer ↑<br/>Ø -0,09 R"]
@@ -28,9 +28,9 @@ flowchart TB
     s2 ~~~ s7
     s3 ~~~ s8
   end
-  tb["📓 Tagebuch<br/>3.085 gedachte Trades"]
-  sig["🎯 Signale heute<br/>0 kaufen · 4 warten"]
-  depot["📒 Übungsdepot<br/>9.751 € (-2,5 %)<br/>3 offen"]
+  tb["📓 Tagebuch<br/>3.091 gedachte Trades"]
+  sig["🎯 Signale heute<br/>0 kaufen · 2 warten"]
+  depot["📒 Übungsdepot<br/>9.765 € (-2,4 %)<br/>3 offen"]
   lehren["🎓 Lehren<br/>10 abgeschlossene Trades"]
   kurse --> KERN
   termine -->|Sperre| KERN
@@ -63,16 +63,16 @@ flowchart TB
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-11-20]] · Diese Woche: [[Wochen/2026-W47|Woche 47]]
+## Heute: [[Tage/2026-11-23]] · Diese Woche: [[Wochen/2026-W48|Woche 48]]
 
 - Signale: keine
-- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Do 19.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
+- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Fr 20.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
 
 ## Übungsdepot
 
-- 9.750,92 € (-2,5 % seit 2026-10-20) · 3 offen · 10 Trades · Ø -0,29 R · Treffer 40 %
+- 9.764,53 € (-2,4 % seit 2026-10-20) · 3 offen · 10 Trades · Ø -0,29 R · Treffer 40 %
 - Letzte Trades: [[Trades/2026-10-30 JPM Squeeze-Ausbruch Long|JPM -0,7 R]], [[Trades/2026-11-05 MSFT Ausbruch Long|MSFT -0,8 R]], [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]], [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]], [[Trades/2026-11-03 MSFT RSI-2-Rücksetzer Long|MSFT +1,0 R]]
-- Rückblick 12 Monate: -0,6 % (alle Aktien kaufen und halten: -9,6 %)
+- Rückblick 12 Monate: -0,9 % (alle Aktien kaufen und halten: -4,9 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 

@@ -10,7 +10,7 @@ Branche: Technologie (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=NVDA)
 
-**Stand Fr 20.11. 2026:** BEOBACHTEN
+**Stand Mo 23.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mi 24.02.
 
 ## Übungsdepot

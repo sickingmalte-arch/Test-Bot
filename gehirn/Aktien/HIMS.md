@@ -10,7 +10,7 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=HIMS)
 
-**Stand Fr 20.11. 2026:** BEOBACHTEN
+**Stand Mo 23.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Mo 01.03.
 
 ## Übungsdepot
@@ -23,8 +23,8 @@ Branche: Gesundheit (höchstens 2 Positionen aus einer Branche zugleich)
 - [[Strategien/Ausbruch Long|Ausbruch ↑]]: 21 Trades · Ø +0,16 R · Treffer 57 %
 - [[Strategien/RSI-2-Rücksetzer Long|RSI-2-Rücksetzer ↑]]: 23 Trades · Ø +0,05 R · Treffer 52 %
 - [[Strategien/Gegenbewegung Long|Gegenbewegung ↑]]: 6 Trades · Ø -0,23 R · Treffer 33 %
-- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 15 Trades · Ø -0,05 R · Treffer 47 %
-- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 23 Trades · Ø +0,13 R · Treffer 61 %
+- [[Strategien/MACD-Wende Long|MACD-Wende ↑]]: 16 Trades · Ø -0,11 R · Treffer 44 %
+- [[Strategien/Rücksetzer Long|Rücksetzer ↑]]: 22 Trades · Ø +0,18 R · Treffer 64 %
 - [[Strategien/Squeeze-Ausbruch Long|Squeeze-Ausbruch ↑]]: 8 Trades · Ø -0,16 R · Treffer 50 %
 - [[Strategien/EMA-Kreuz Long|EMA-Kreuz ↑]]: 12 Trades · Ø +0,10 R · Treffer 50 %
 - [[Strategien/ATR-Ausbruch Long|ATR-Ausbruch ↑]]: 22 Trades · Ø +0,07 R · Treffer 55 %

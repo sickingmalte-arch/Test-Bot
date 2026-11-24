@@ -14,15 +14,15 @@ tags:
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
 - Letzte 60 Trades: Ø -0,12 R · Treffer 45 % · ± Zufall 0,20 R
-- Ganze Geschichte: 386 Trades · Ø +0,10 R · Treffer 55 %
+- Ganze Geschichte: 390 Trades · Ø +0,09 R · Treffer 54 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
 ### So endeten die Trades
 
-- Ziel: 111× (29 %), Ø +0,97 R
+- Ziel: 111× (28 %), Ø +0,97 R
 - Zeitstopp: 101× (26 %), Ø +0,03 R
+- Stop: 76× (19 %), Ø -0,98 R
 - vor Quartalszahlen: 75× (19 %), Ø -0,03 R
-- Stop: 72× (19 %), Ø -0,99 R
 - Ziel (Kurslücke): 14× (4 %), Ø +1,05 R
 - Stop (Kurslücke): 13× (3 %), Ø -1,09 R
 
@@ -32,8 +32,8 @@ tags:
 2. [[Aktien/NVDA|NVDA]]: 15 Trades · Ø +0,52 R · Treffer 80 %
 3. [[Aktien/NBIS|NBIS]]: 7 Trades · Ø +0,51 R · Treffer 86 %
 …
-22. [[Aktien/INTU|INTU]]: 17 Trades · Ø -0,19 R · Treffer 41 %
-23. [[Aktien/MELI|MELI]]: 13 Trades · Ø -0,23 R · Treffer 38 %
+22. [[Aktien/TSLA|TSLA]]: 17 Trades · Ø -0,21 R · Treffer 35 %
+23. [[Aktien/MELI|MELI]]: 14 Trades · Ø -0,26 R · Treffer 36 %
 24. [[Aktien/CRWV|CRWV]]: 5 Trades · Ø -0,57 R · Treffer 40 %
 - Vorsicht: Bei so wenigen Trades je Aktie ist vieles Zufall – der Bot sperrt deshalb keine Aktien von selbst. Das kannst du in [[Meine Regeln]] tun.
 

@@ -7,13 +7,13 @@ tags:
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # RSI-2-Rücksetzer ↑
 
-**Status:** ✅ aktiv (Ø -0,04 R über die letzten 60 Trades)
+**Status:** ✅ aktiv (Ø -0,05 R über die letzten 60 Trades)
 
 **Regel:** RSI(2) unter 10 über der 200-Tage-Linie (kurzer Rücksetzer im langen Aufwärtstrend). Stop −2,5 ATR, Ziel +2 ATR – braucht etwa 56 % Treffer
 
 ## Strategie-Tagebuch (jede Strategie handelt gedanklich auf allen Aktien mit)
 
-- Letzte 60 Trades: Ø -0,04 R · Treffer 50 % · ± Zufall 0,21 R
+- Letzte 60 Trades: Ø -0,05 R · Treffer 50 % · ± Zufall 0,21 R
 - Ganze Geschichte: 503 Trades · Ø +0,09 R · Treffer 57 %
 - In Euro: 1 R ≈ 100 € bei deinem Risiko je Trade
 
