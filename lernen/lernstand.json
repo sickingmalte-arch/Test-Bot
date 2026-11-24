@@ -1,13 +1,11 @@
 {
- "stand": "24.11.2026 08:03 Uhr",
+ "stand": "24.11.2026 15:57 Uhr",
  "tag": "2026-11-23",
  "monat": "2026-11",
  "aktien": 523,
  "anteil": 0.3,
  "schwelle": 0.5761853024760019,
- "warnungen": [
-  "Alte Kurse (nicht bis 23.11.2026) bei 1 Aktien: SNDK – sie werden heute nicht gehandelt."
- ],
+ "warnungen": [],
  "gelernt": [
   {
    "merkmal": "breite50",
