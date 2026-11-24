@@ -10,6 +10,27 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 24.11.2026 · Kaufen nach guten Zahlen, Marktfilter feiner, Zinsen auf das freie Geld
+
+**Idee** (Wunsch des Besitzers: „Können wir noch irgendwas ausprobieren“, gewählt: Marktfilter feiner, Zinsen auf freies Geld, Kaufen nach guten Zahlen). 5 Tests, Vermutung, Widerlegung und Zahl der Varianten vorab in jeder Datei:
+- **Kaufen nach guten Zahlen** (Post-Earnings-Drift, Bernard & Thomas 1989): Springt eine Aktie am Tag, an dem ihre Quartalszahlen wirken, um mindestens 2 ATR, kauft der Bot zur nächsten Eröffnung (Stop −3 ATR, Ziel +3 ATR). Variante 1 nur außerhalb des Abwärtsmarkts, Variante 2 in jeder Marktlage. Gegenprobe: gleich viele Käufe an zufälligen Tagen.
+- **Marktfilter feiner:** Variante 1 nimmt den S&P 500 statt des Nasdaq-100 als Ampel, Variante 2 schaltet erst um, wenn der Nasdaq-100 an 2 Tagen in Folge auf der anderen Seite der 200-Tage-Linie schließt. Gegenprobe: gleich viele rote Tage in gleich langen Blöcken an zufälligen Stellen.
+- **Zinsen auf das freie Geld** (Messung, keine Kaufregel): Einlagesatz der EZB minus 0,5 Punkte, nie unter 0 %, auf das Geld, das am Vorabend nicht in Aktien steckt.
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +11,6 % / −14 % | +11,9 % / −16 % | +7,3 % / −15 % |
+| Zahlen 1: Kauf nach Sprung auf gute Zahlen, nicht im Abwärtsmarkt | +11,6 % / −14 % | +13,0 % / −15 % | +7,4 % / −16 % |
+| Zahlen 2: dasselbe in jeder Marktlage | +11,1 % / −15 % | +12,9 % / −16 % | +7,5 % / −13 % |
+| Ampel 1: S&P 500 statt Nasdaq-100 | +12,9 % / −12 % | +13,2 % / −15 % | +6,7 % / −15 % |
+| Ampel 2: schaltet erst nach 2 Tagen um | +11,1 % / −15 % | +14,3 % / −14 % | +7,5 % / −15 % |
+| Zinsen auf das freie Geld (EZB-Einlagesatz − 0,5) | +11,6 % / −14 % | +11,9 % / −16 % | +8,2 % / −14 % |
+
+**Ergebnis:**
+- **Kaufen nach guten Zahlen:** nicht übernommen. Nicht in allen drei Zeiträumen besser (+0,0 / +1,1 / +0,2 und −0,5 / +1,0 / +0,2 Punkte), Variante 1 hat 2022–2026 1,4 Punkte mehr Rückgang. Vor allem kauft die Regel kaum: je Zeitraum 0 / 4 / 2 bzw. 2 / 12 / 18 Käufe – weit unter 30, also keine Aussage. Zufällige Zusatz-Käufe waren oft genauso gut oder besser.
+- **Marktfilter feiner:** nicht übernommen. S&P 500 als Ampel +1,3 / +1,2 / −0,6 Punkte, Umschalten nach 2 Tagen −0,5 / +2,3 / +0,2 – je ein Zeitraum schlechter. Zufällig verschobene Kaufpausen gleicher Länge streuten stark (2010–2014 zwischen +6,7 und +15,8 % im Jahr). Beobachtung, keine Aussage (nur 6 Ziehungen): Auch die heutige Ampel liegt mitten zwischen solchen Zufallspausen, 3 bis 4 von 6 waren je Zeitraum besser. Die Kaufregeln sind bis Ende Januar 2027 eingefroren.
+- **Zinsen auf das freie Geld:** Vermutung bestätigt. Im Schnitt steckten 37 / 40 / 60 % des Geldes nicht in Aktien. Mit Zinsen +0,0 / +0,0 / +0,9 Punkte im Jahr, 2022–2026 dazu 1 Punkt weniger Rückgang; 2015–2021 waren die Zinsen negativ, da bringt es nichts. Mit dem vollen Einlagesatz +0,1 / 0,0 / +1,2 Punkte. Das ist keine Kaufregel, sondern ehrlichere Buchführung (viele Broker zahlen heute Zinsen aufs Guthaben). Ob das Papierdepot Zinsen bekommt, entscheidet der Besitzer.
+
 ## 20.11.2026 (Freitag, nachgeholt am 23.11.) · MAX-Effekt: keine „Lotto-Aktien“ kaufen
 
 **Idee** (Freitags-Idee aus der Forschung): Bali, Cakici & Whitelaw (2011, *Journal of Financial Economics*) – Aktien mit dem größten Tagesplus im letzten Monat brachten danach im Schnitt über 1 % im Monat weniger als die mit dem kleinsten („Lotto-Aktien“, für die Anleger zu viel zahlen). Für den Bot: ein Kauf-Signal weglassen, wenn die Aktie in den letzten 21 Börsentagen einen großen Tagessprung hatte. 2 Varianten, vorher festgelegt, je mit 6 Gegenproben (gleich viele Signale zufällig weglassen).

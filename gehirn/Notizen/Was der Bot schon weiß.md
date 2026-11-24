@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 23.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 24.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -23,7 +23,8 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 5
-    "nicht übernommen" : 81
+    "nicht übernommen" : 85
+    "gemessen, Entscheidung bei dir" : 1
 ```
 
 ## ✅ Steckt im Bot
@@ -121,6 +122,16 @@ pie showData
 | Optionen 4: Put statt Short | −2,2 / −0,1 / 0,0 Pkt, Puts verlieren wie Shorts, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 | MAX-Effekt 1: kein Kauf nach einem Tagesplus von 10 % im letzten Monat („Lotto-Aktien“) | +0,4 / +1,2 / −1,9 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
 | MAX-Effekt 2: kein Kauf nach einem Tagesplus von 3 ATR im letzten Monat | −1,2 / +1,1 / −0,7 Pkt, nicht besser als Zufall | [[Notizen/Forschung – Tagebuch]] |
+| Kaufen nach guten Zahlen 1: Kauf nach einem Sprung von 2 ATR am Zahlen-Tag, nicht im Abwärtsmarkt | +0,0 / +1,1 / +0,2 Pkt, 2022–2026 1,4 Punkte mehr Rückgang, nur 0–4 Käufe je Zeitraum | [[Notizen/Forschung – Tagebuch]] |
+| Kaufen nach guten Zahlen 2: dasselbe in jeder Marktlage | −0,5 / +1,0 / +0,2 Pkt, nur 2–18 Käufe je Zeitraum, Zufall oft besser | [[Notizen/Forschung – Tagebuch]] |
+| Marktfilter 1: S&P 500 statt Nasdaq-100 als Ampel | +1,3 / +1,2 / −0,6 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| Marktfilter 2: Ampel schaltet erst nach 2 Tagen um | −0,5 / +2,3 / +0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
+
+## ⏳ Gemessen – Entscheidung bei dir
+
+| Idee | Ergebnis | Mehr dazu |
+| --- | --- | --- |
+| Zinsen auf das freie Geld (EZB-Einlagesatz − 0,5 Punkte, nie unter 0 %) | +0,0 / +0,0 / +0,9 Pkt, 2022–2026 1 Punkt weniger Rückgang. Keine Kaufregel, sondern Buchführung wie bei einem Broker mit Guthabenzinsen | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
