@@ -3,10 +3,10 @@
   "name": "Lernmodell: beste Punktzahl zuerst",
   "beschreibung": "Wie das Übungsdepot, nur: Gibt es mehr Kauf-Signale als freie Plätze, kauft es die Signale mit der besten Punktzahl des Lernmodells zuerst. Im Rückblick war das 2015–2021 und 2022–2026 besser, 2010–2014 aber schlechter – deshalb hier live mit Spielgeld weiter beobachtet.",
   "seit": "2026-11-02",
-  "bis": "2026-11-20",
-  "experiment_prozent": -2.45,
-  "papier_prozent": -2.06,
-  "depotwert": 9755.32,
+  "bis": "2026-11-23",
+  "experiment_prozent": -1.57,
+  "papier_prozent": -1.93,
+  "depotwert": 9842.74,
   "positionen": 3,
   "trades": 7,
   "gewinner": 2,
@@ -85,87 +85,15 @@
     "tag": "2026-11-20",
     "experiment": -2.45,
     "papier": -2.06
+   },
+   {
+    "tag": "2026-11-23",
+    "experiment": -1.57,
+    "papier": -1.93
    }
   ]
  },
  "ideen": [
-  {
-   "datum": "2026-11-17",
-   "datei": "krisen_absicherung_50",
-   "name": "Krisen-Absicherung 1: Nasdaq-100-Short über 50 % nur bei VIX über 30 und Nasdaq unter der 200-Tage-Linie",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -1.8,
-    -2.2,
-    -2.1
-   ]
-  },
-  {
-   "datum": "2026-11-17",
-   "datei": "short_nach_zahlen_abwaerts",
-   "name": "Short nach schlechten Zahlen 1: nur außerhalb des Aufwärtsmarkts",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -0.3,
-    0.4,
-    0.8
-   ]
-  },
-  {
-   "datum": "2026-11-17",
-   "datei": "short_nach_zahlen_immer",
-   "name": "Short nach schlechten Zahlen 2: in jeder Marktlage",
-   "urteil": "nicht überall besser",
-   "plus": [
-    -0.6,
-    -0.4,
-    0.2
-   ]
-  },
-  {
-   "datum": "2026-11-18",
-   "datei": "short_fair_sp500",
-   "name": "Fairer Short-Test: alte Shorts und Short nach schlechten Zahlen mit zufälligen damaligen S&P-500-Aktien",
-   "urteil": "A: nicht überall besser; B: nicht überall besser; C: nicht überall besser",
-   "plus": [
-    -0.1,
-    -0.3,
-    0.0
-   ]
-  },
-  {
-   "datum": "2026-11-18",
-   "datei": "short_schlechte_nachricht",
-   "name": "Short direkt nach schlechten Nachrichten: Herabstufung durch Analysten oder Pflichtmeldung mit Kursrutsch",
-   "urteil": "N1: nicht überall besser; N2: nicht überall besser",
-   "plus": [
-    -0.4,
-    -0.2,
-    0.0
-   ]
-  },
-  {
-   "datum": "2026-11-18",
-   "datei": "short_schwache_bilanz",
-   "name": "Short schwacher Bilanzen: Short-Signale nur bei Firmen mit Verlust oder schrumpfendem Geschäft",
-   "urteil": "S1: nicht überall besser; S2: nicht überall besser",
-   "plus": [
-    -1.7,
-    -1.0,
-    -0.1
-   ]
-  },
-  {
-   "datum": "2026-11-18",
-   "datei": "optionen_call_statt_aktie",
-   "name": "Optionen 3: Call statt Aktie",
-   "urteil": "nicht überall besser (Preise günstig: -8,7 / -3,9 / -3,5 Punkte; Preise teuer: -15,7 / -10,2 / -8,4 Punkte)",
-   "plus": [
-    -15.7,
-    -10.2,
-    -8.4
-   ]
-  },
   {
    "datum": "2026-11-18",
    "datei": "optionen_gedeckter_call",
@@ -197,6 +125,83 @@
     3.5,
     3.0,
     2.4
+   ]
+  },
+  {
+   "datum": "2026-11-23",
+   "datei": "max_effekt_10",
+   "name": "MAX-Effekt 1: kein Kauf nach einem Tagesplus von 10 % oder mehr im letzten Monat",
+   "urteil": "nicht überall besser",
+   "plus": [
+    0.4,
+    1.2,
+    -1.9
+   ]
+  },
+  {
+   "datum": "2026-11-23",
+   "datei": "max_effekt_relativ",
+   "name": "MAX-Effekt 2: kein Kauf nach einem Tagesplus von 3 ATR oder mehr im letzten Monat",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -1.2,
+    1.1,
+    -0.7
+   ]
+  },
+  {
+   "datum": "2026-11-24",
+   "datei": "marktfilter_spy",
+   "name": "Marktfilter 1: S&P 500 statt Nasdaq-100 als Ampel",
+   "urteil": "nicht überall besser",
+   "plus": [
+    1.3,
+    1.2,
+    -0.6
+   ]
+  },
+  {
+   "datum": "2026-11-24",
+   "datei": "marktfilter_zwei_tage",
+   "name": "Marktfilter 2: Ampel schaltet erst nach 2 Tagen um",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -0.5,
+    2.3,
+    0.2
+   ]
+  },
+  {
+   "datum": "2026-11-24",
+   "datei": "zahlen_kauf_immer",
+   "name": "Kaufen nach guten Zahlen 2: in jeder Marktlage",
+   "urteil": "nicht überall besser",
+   "plus": [
+    -0.5,
+    1.0,
+    0.2
+   ]
+  },
+  {
+   "datum": "2026-11-24",
+   "datei": "zahlen_kauf_markt",
+   "name": "Kaufen nach guten Zahlen 1: nicht im Abwärtsmarkt",
+   "urteil": "nicht überall besser",
+   "plus": [
+    0.0,
+    1.1,
+    0.2
+   ]
+  },
+  {
+   "datum": "2026-11-24",
+   "datei": "zinsen_freies_geld",
+   "name": "Zinsen auf das freie Geld (Messung)",
+   "urteil": "Vermutung bestätigt: +0,0 / +0,0 / +0,9 Punkte pro Jahr",
+   "plus": [
+    0.0,
+    0.0,
+    0.9
    ]
   }
  ]
