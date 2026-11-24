@@ -571,5 +571,60 @@
    1.1,
    -0.7
   ]
+ },
+ {
+  "datum": "2026-11-24",
+  "datei": "marktfilter_spy",
+  "name": "Marktfilter 1: S&P 500 statt Nasdaq-100 als Ampel",
+  "urteil": "nicht überall besser",
+  "plus": [
+   1.3,
+   1.2,
+   -0.6
+  ]
+ },
+ {
+  "datum": "2026-11-24",
+  "datei": "marktfilter_zwei_tage",
+  "name": "Marktfilter 2: Ampel schaltet erst nach 2 Tagen um",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.5,
+   2.3,
+   0.2
+  ]
+ },
+ {
+  "datum": "2026-11-24",
+  "datei": "zahlen_kauf_immer",
+  "name": "Kaufen nach guten Zahlen 2: in jeder Marktlage",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -0.5,
+   1.0,
+   0.2
+  ]
+ },
+ {
+  "datum": "2026-11-24",
+  "datei": "zahlen_kauf_markt",
+  "name": "Kaufen nach guten Zahlen 1: nicht im Abwärtsmarkt",
+  "urteil": "nicht überall besser",
+  "plus": [
+   0.0,
+   1.1,
+   0.2
+  ]
+ },
+ {
+  "datum": "2026-11-24",
+  "datei": "zinsen_freies_geld",
+  "name": "Zinsen auf das freie Geld (Messung)",
+  "urteil": "Vermutung bestätigt: +0,0 / +0,0 / +0,9 Punkte pro Jahr",
+  "plus": [
+   0.0,
+   0.0,
+   0.9
+  ]
  }
 ]
