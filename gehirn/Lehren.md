@@ -34,14 +34,14 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 
 ## Muster im Strategie-Tagebuch (alle Strategien, alle Aktien)
 
-- Insgesamt: 3091 Trades · Ø +0,11 R · Treffer 56 %
+- Insgesamt: 3090 Trades · Ø +0,11 R · Treffer 57 %
 - Ziel: 1006× (33 %), Ø +0,91 R
 - Zeitstopp: 717× (23 %), Ø +0,02 R
-- Stop: 614× (20 %), Ø -0,99 R
-- vor Quartalszahlen: 510× (16 %), Ø -0,03 R
+- Stop: 613× (20 %), Ø -0,99 R
+- vor Quartalszahlen: 510× (17 %), Ø -0,03 R
 - Ziel (Kurslücke): 135× (4 %), Ø +1,09 R
 - Stop (Kurslücke): 109× (4 %), Ø -1,13 R
-- Long: 3091 Trades · Ø +0,11 R · Treffer 56 %
+- Long: 3090 Trades · Ø +0,11 R · Treffer 57 %
 
 ### Rangliste der Aktien (ab 20 Trades, nach Ø R)
 
@@ -66,9 +66,9 @@ Bei jedem Signal rechnet der Bot nach dem Black-Scholes-Modell aus dem Optionssk
 | Ziel-Chance laut Formel | Signale | Ø vorhergesagt | Ziel wirklich berührt | Trades im Plus | Ø je Trade |
 | --- | --- | --- | --- | --- | --- |
 | unter 30 % | 584 | 26 % | 43 % | 59 % | +0,13 R |
-| 30–40 % | 1142 | 35 % | 41 % | 56 % | +0,10 R |
+| 30–40 % | 1141 | 35 % | 41 % | 56 % | +0,10 R |
 | 40–50 % | 869 | 45 % | 48 % | 56 % | +0,11 R |
-| ab 50 % | 468 | 55 % | 51 % | 58 % | +0,15 R |
+| ab 50 % | 469 | 55 % | 51 % | 58 % | +0,15 R |
 
 - Zusammen: 3063 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
 - Trades im Plus je Gruppe: 56 bis 59 %. Die Formel sagt, wie weit eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor dem Stop kommt.
@@ -79,9 +79,9 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 
 | Gruppe | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
-| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1002 | 56 % | +0,10 R |
-| bärisches Kerzenmuster am Signaltag | 538 | 58 % | +0,13 R |
-| kein Kerzenmuster | 1551 | 56 % | +0,11 R |
+| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1004 | 56 % | +0,10 R |
+| bärisches Kerzenmuster am Signaltag | 536 | 58 % | +0,13 R |
+| kein Kerzenmuster | 1550 | 57 % | +0,11 R |
 
 - Mit und ohne Muster liegen nah beieinander – die Muster sagen bei diesen Strategien wenig voraus.
 
@@ -121,7 +121,7 @@ Der Lern-Lauf spielt jedes Kauf-Signal aller Aktien aus S&P 500 und Nasdaq-100 a
 
 ### Häufigste Fehler aller Kauf-Signale (12 Monate)
 
-Von 24988 gedachten Trades verloren 47 %; von den 9427 mit der besten Punktzahl 46 %.
+Von 24994 gedachten Trades verloren 47 %; von den 9427 mit der besten Punktzahl 46 %.
 
 - Branche schwach: 15 % aller Signale · bei den besten 15 %
 - Zeitstopp ohne Schwung: 13 % aller Signale · bei den besten 14 %
