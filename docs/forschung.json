@@ -5,7 +5,7 @@
   "seit": "2026-11-02",
   "bis": "2026-11-24",
   "experiment_prozent": -1.78,
-  "papier_prozent": -1.93,
+  "papier_prozent": -1.65,
   "depotwert": 9822.45,
   "positionen": 3,
   "trades": 7,
@@ -94,7 +94,7 @@
    {
     "tag": "2026-11-24",
     "experiment": -1.78,
-    "papier": -1.93
+    "papier": -1.65
    }
   ]
  },
