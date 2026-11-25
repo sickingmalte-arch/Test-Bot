@@ -8350,5 +8350,701 @@
    "tagesspanne_prozent": 1.6,
    "vola_prozent": 1.359
   }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "TSLA",
+  "kurs_usd": 384.68,
+  "atr_prozent": 5.58,
+  "stop_abstand": -11.17,
+  "ziel_abstand": 11.17,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.0,
+    "p_stop": 0.1,
+    "tagesspanne_prozent": 3.506,
+    "vola_prozent": 2.15,
+    "mitte_20": -3.75
+   },
+   "small-64-T15": {
+    "p_ziel": 0.04,
+    "p_stop": 0.44,
+    "tagesspanne_prozent": 4.859,
+    "vola_prozent": 3.055,
+    "mitte_20": -4.77
+   }
+  },
+  "p_ziel_zufall": 0.402,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 4.38,
+   "vola_prozent": 4.473
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "COST",
+  "kurs_usd": 1091.71,
+  "atr_prozent": 1.79,
+  "stop_abstand": -3.58,
+  "ziel_abstand": 3.58,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.4,
+    "p_stop": 0.6,
+    "tagesspanne_prozent": 2.492,
+    "vola_prozent": 1.754,
+    "mitte_20": -11.52
+   },
+   "small-64-T15": {
+    "p_ziel": 0.18,
+    "p_stop": 0.82,
+    "tagesspanne_prozent": 4.068,
+    "vola_prozent": 3.015,
+    "mitte_20": -13.45
+   }
+  },
+  "p_ziel_zufall": 0.465,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 1.653,
+   "vola_prozent": 1.347
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "SE",
+  "kurs_usd": 64.97,
+  "atr_prozent": 6.33,
+  "stop_abstand": -12.65,
+  "ziel_abstand": 12.65,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.94,
+    "p_stop": 0.06,
+    "tagesspanne_prozent": 6.144,
+    "vola_prozent": 3.497,
+    "mitte_20": 31.05
+   },
+   "small-64-T15": {
+    "p_ziel": 0.74,
+    "p_stop": 0.26,
+    "tagesspanne_prozent": 10.719,
+    "vola_prozent": 8.356,
+    "mitte_20": 33.45
+   }
+  },
+  "p_ziel_zufall": 0.375,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 4.735,
+   "vola_prozent": 3.072
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "HIMS",
+  "kurs_usd": 14.74,
+  "atr_prozent": 12.87,
+  "stop_abstand": -25.75,
+  "ziel_abstand": 25.75,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.98,
+    "p_stop": 0.02,
+    "tagesspanne_prozent": 10.142,
+    "vola_prozent": 6.6,
+    "mitte_20": 75.06
+   },
+   "small-64-T15": {
+    "p_ziel": 1.0,
+    "p_stop": 0.0,
+    "tagesspanne_prozent": 16.147,
+    "vola_prozent": 11.314,
+    "mitte_20": 82.52
+   }
+  },
+  "p_ziel_zufall": 0.355,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 8.472,
+   "vola_prozent": 6.852
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "NOW",
+  "kurs_usd": 91.74,
+  "atr_prozent": 5.07,
+  "stop_abstand": -10.15,
+  "ziel_abstand": 10.15,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.96,
+    "p_stop": 0.04,
+    "tagesspanne_prozent": 5.741,
+    "vola_prozent": 3.921,
+    "mitte_20": 37.68
+   },
+   "small-64-T15": {
+    "p_ziel": 0.6,
+    "p_stop": 0.4,
+    "tagesspanne_prozent": 10.634,
+    "vola_prozent": 8.249,
+    "mitte_20": 39.29
+   }
+  },
+  "p_ziel_zufall": 0.512,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 4.93,
+   "vola_prozent": 7.2
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "INTU",
+  "kurs_usd": 279.42,
+  "atr_prozent": 5.37,
+  "stop_abstand": -10.74,
+  "ziel_abstand": 10.74,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.84,
+    "p_stop": 0.02,
+    "tagesspanne_prozent": 3.884,
+    "vola_prozent": 2.407,
+    "mitte_20": 10.35
+   },
+   "small-64-T15": {
+    "p_ziel": 0.84,
+    "p_stop": 0.16,
+    "tagesspanne_prozent": 6.508,
+    "vola_prozent": 4.816,
+    "mitte_20": 13.34
+   }
+  },
+  "p_ziel_zufall": 0.459,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 4.172,
+   "vola_prozent": 3.843
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "CRWV",
+  "kurs_usd": 42.605,
+  "atr_prozent": 16.7,
+  "stop_abstand": -33.39,
+  "ziel_abstand": 33.39,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.9,
+    "p_stop": 0.1,
+    "tagesspanne_prozent": 13.377,
+    "vola_prozent": 6.625,
+    "mitte_20": 37.63
+   },
+   "small-64-T15": {
+    "p_ziel": 0.92,
+    "p_stop": 0.08,
+    "tagesspanne_prozent": 21.064,
+    "vola_prozent": 14.63,
+    "mitte_20": 67.19
+   }
+  },
+  "p_ziel_zufall": 0.292,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 10.689,
+   "vola_prozent": 9.846
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "NBIS",
+  "kurs_usd": 87.31,
+  "atr_prozent": 21.6,
+  "stop_abstand": -43.2,
+  "ziel_abstand": 43.2,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.96,
+    "p_stop": 0.04,
+    "tagesspanne_prozent": 14.535,
+    "vola_prozent": 8.885,
+    "mitte_20": 103.53
+   },
+   "small-64-T15": {
+    "p_ziel": 0.84,
+    "p_stop": 0.16,
+    "tagesspanne_prozent": 22.413,
+    "vola_prozent": 17.235,
+    "mitte_20": 109.33
+   }
+  },
+  "p_ziel_zufall": 0.247,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 10.801,
+   "vola_prozent": 10.401
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "MELI",
+  "kurs_usd": 1450.3101,
+  "atr_prozent": 4.56,
+  "stop_abstand": -9.13,
+  "ziel_abstand": 9.13,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.9,
+    "p_stop": 0.1,
+    "tagesspanne_prozent": 4.1,
+    "vola_prozent": 2.332,
+    "mitte_20": 19.5
+   },
+   "small-64-T15": {
+    "p_ziel": 0.6,
+    "p_stop": 0.4,
+    "tagesspanne_prozent": 7.969,
+    "vola_prozent": 5.629,
+    "mitte_20": 21.42
+   }
+  },
+  "p_ziel_zufall": 0.431,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 3.378,
+   "vola_prozent": 3.692
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "IREN",
+  "kurs_usd": 12.95,
+  "atr_prozent": 20.42,
+  "stop_abstand": -40.84,
+  "ziel_abstand": 40.84,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.82,
+    "p_stop": 0.18,
+    "tagesspanne_prozent": 16.564,
+    "vola_prozent": 11.268,
+    "mitte_20": 129.5
+   },
+   "small-64-T15": {
+    "p_ziel": 0.7,
+    "p_stop": 0.3,
+    "tagesspanne_prozent": 28.222,
+    "vola_prozent": NaN,
+    "mitte_20": 131.38
+   }
+  },
+  "p_ziel_zufall": 0.266,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 11.227,
+   "vola_prozent": 10.662
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "NFLX",
+  "kurs_usd": 58.87,
+  "atr_prozent": 3.34,
+  "stop_abstand": -6.67,
+  "ziel_abstand": 6.67,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.9,
+    "p_stop": 0.1,
+    "tagesspanne_prozent": 3.514,
+    "vola_prozent": 1.886,
+    "mitte_20": 12.95
+   },
+   "small-64-T15": {
+    "p_ziel": 0.66,
+    "p_stop": 0.34,
+    "tagesspanne_prozent": 6.403,
+    "vola_prozent": 4.417,
+    "mitte_20": 12.75
+   }
+  },
+  "p_ziel_zufall": 0.471,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 2.807,
+   "vola_prozent": 2.012
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "AAPL",
+  "kurs_usd": 354.07,
+  "atr_prozent": 2.3,
+  "stop_abstand": -4.6,
+  "ziel_abstand": 4.6,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.0,
+    "p_stop": 0.74,
+    "tagesspanne_prozent": 2.119,
+    "vola_prozent": 0.986,
+    "mitte_20": -3.03
+   },
+   "small-64-T15": {
+    "p_ziel": 0.02,
+    "p_stop": 0.98,
+    "tagesspanne_prozent": 3.13,
+    "vola_prozent": 1.995,
+    "mitte_20": -4.43
+   }
+  },
+  "p_ziel_zufall": 0.461,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 2.311,
+   "vola_prozent": 1.766
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "ASTS",
+  "kurs_usd": 23.6,
+  "atr_prozent": 16.56,
+  "stop_abstand": -33.11,
+  "ziel_abstand": 33.11,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.96,
+    "p_stop": 0.04,
+    "tagesspanne_prozent": 14.551,
+    "vola_prozent": 7.515,
+    "mitte_20": 93.34
+   },
+   "small-64-T15": {
+    "p_ziel": 0.78,
+    "p_stop": 0.22,
+    "tagesspanne_prozent": 24.129,
+    "vola_prozent": 15.973,
+    "mitte_20": 94.47
+   }
+  },
+  "p_ziel_zufall": 0.354,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 11.283,
+   "vola_prozent": 7.892
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "SOFI",
+  "kurs_usd": 12.86,
+  "atr_prozent": 6.72,
+  "stop_abstand": -13.44,
+  "ziel_abstand": 13.44,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 1.0,
+    "p_stop": 0.0,
+    "tagesspanne_prozent": 5.425,
+    "vola_prozent": 2.955,
+    "mitte_20": 24.88
+   },
+   "small-64-T15": {
+    "p_ziel": 0.96,
+    "p_stop": 0.04,
+    "tagesspanne_prozent": 8.669,
+    "vola_prozent": 6.095,
+    "mitte_20": 24.92
+   }
+  },
+  "p_ziel_zufall": 0.388,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 5.073,
+   "vola_prozent": 3.715
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "NVDA",
+  "kurs_usd": 155.38,
+  "atr_prozent": 10.39,
+  "stop_abstand": -20.79,
+  "ziel_abstand": 20.79,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 1.0,
+    "p_stop": 0.0,
+    "tagesspanne_prozent": 6.605,
+    "vola_prozent": 2.936,
+    "mitte_20": 24.57
+   },
+   "small-64-T15": {
+    "p_ziel": 0.98,
+    "p_stop": 0.02,
+    "tagesspanne_prozent": 10.273,
+    "vola_prozent": 6.749,
+    "mitte_20": 32.73
+   }
+  },
+  "p_ziel_zufall": 0.168,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 5.924,
+   "vola_prozent": 7.798
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "MSFT",
+  "kurs_usd": 496.13,
+  "atr_prozent": 3.52,
+  "stop_abstand": -7.04,
+  "ziel_abstand": 7.04,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.26,
+    "p_stop": 0.0,
+    "tagesspanne_prozent": 2.645,
+    "vola_prozent": 1.213,
+    "mitte_20": 2.48
+   },
+   "small-64-T15": {
+    "p_ziel": 0.66,
+    "p_stop": 0.02,
+    "tagesspanne_prozent": 3.56,
+    "vola_prozent": 2.077,
+    "mitte_20": 1.61
+   }
+  },
+  "p_ziel_zufall": 0.439,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 3.149,
+   "vola_prozent": 2.351
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "AMZN",
+  "kurs_usd": 252.29,
+  "atr_prozent": 4.28,
+  "stop_abstand": -8.56,
+  "ziel_abstand": 8.56,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.26,
+    "p_stop": 0.0,
+    "tagesspanne_prozent": 2.773,
+    "vola_prozent": 1.716,
+    "mitte_20": 1.58
+   },
+   "small-64-T15": {
+    "p_ziel": 0.32,
+    "p_stop": 0.04,
+    "tagesspanne_prozent": 3.827,
+    "vola_prozent": 2.256,
+    "mitte_20": 1.29
+   }
+  },
+  "p_ziel_zufall": 0.372,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 3.545,
+   "vola_prozent": 2.794
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "META",
+  "kurs_usd": 589.82,
+  "atr_prozent": 4.22,
+  "stop_abstand": -8.44,
+  "ziel_abstand": 8.44,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.56,
+    "p_stop": 0.26,
+    "tagesspanne_prozent": 3.753,
+    "vola_prozent": 1.994,
+    "mitte_20": 7.02
+   },
+   "small-64-T15": {
+    "p_ziel": 0.52,
+    "p_stop": 0.48,
+    "tagesspanne_prozent": 6.944,
+    "vola_prozent": 4.611,
+    "mitte_20": 10.53
+   }
+  },
+  "p_ziel_zufall": 0.46,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 3.244,
+   "vola_prozent": 2.902
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "GOOGL",
+  "kurs_usd": 279.05,
+  "atr_prozent": 4.22,
+  "stop_abstand": -8.45,
+  "ziel_abstand": 8.45,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.92,
+    "p_stop": 0.08,
+    "tagesspanne_prozent": 3.478,
+    "vola_prozent": 1.893,
+    "mitte_20": 12.71
+   },
+   "small-64-T15": {
+    "p_ziel": 0.78,
+    "p_stop": 0.22,
+    "tagesspanne_prozent": 6.338,
+    "vola_prozent": 4.31,
+    "mitte_20": 14.71
+   }
+  },
+  "p_ziel_zufall": 0.368,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 3.345,
+   "vola_prozent": 3.746
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "AMD",
+  "kurs_usd": 413.27,
+  "atr_prozent": 13.45,
+  "stop_abstand": -26.91,
+  "ziel_abstand": 26.91,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.86,
+    "p_stop": 0.02,
+    "tagesspanne_prozent": 7.186,
+    "vola_prozent": 4.682,
+    "mitte_20": 27.83
+   },
+   "small-64-T15": {
+    "p_ziel": 0.92,
+    "p_stop": 0.06,
+    "tagesspanne_prozent": 10.917,
+    "vola_prozent": 8.473,
+    "mitte_20": 28.34
+   }
+  },
+  "p_ziel_zufall": 0.258,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 8.116,
+   "vola_prozent": 8.438
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "PLTR",
+  "kurs_usd": 161.18,
+  "atr_prozent": 5.97,
+  "stop_abstand": -11.95,
+  "ziel_abstand": 11.95,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.52,
+    "p_stop": 0.08,
+    "tagesspanne_prozent": 5.245,
+    "vola_prozent": 2.38,
+    "mitte_20": 9.27
+   },
+   "small-64-T15": {
+    "p_ziel": 0.78,
+    "p_stop": 0.2,
+    "tagesspanne_prozent": 7.425,
+    "vola_prozent": 4.711,
+    "mitte_20": 10.83
+   }
+  },
+  "p_ziel_zufall": 0.447,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 5.165,
+   "vola_prozent": 4.371
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "JPM",
+  "kurs_usd": 317.1,
+  "atr_prozent": 2.77,
+  "stop_abstand": -5.55,
+  "ziel_abstand": 5.55,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 1.0,
+    "p_stop": 0.0,
+    "tagesspanne_prozent": 2.257,
+    "vola_prozent": 1.072,
+    "mitte_20": 6.47
+   },
+   "small-64-T15": {
+    "p_ziel": 0.98,
+    "p_stop": 0.02,
+    "tagesspanne_prozent": 3.246,
+    "vola_prozent": 2.015,
+    "mitte_20": 7.01
+   }
+  },
+  "p_ziel_zufall": 0.383,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 2.306,
+   "vola_prozent": 1.973
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "LLY",
+  "kurs_usd": 1407.59,
+  "atr_prozent": 3.08,
+  "stop_abstand": -6.15,
+  "ziel_abstand": 6.15,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.26,
+    "p_stop": 0.74,
+    "tagesspanne_prozent": 3.402,
+    "vola_prozent": 1.861,
+    "mitte_20": -8.61
+   },
+   "small-64-T15": {
+    "p_ziel": 0.38,
+    "p_stop": 0.62,
+    "tagesspanne_prozent": 5.399,
+    "vola_prozent": 3.859,
+    "mitte_20": -11.32
+   }
+  },
+  "p_ziel_zufall": 0.48,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 3.152,
+   "vola_prozent": 2.331
+  }
+ },
+ {
+  "signal_tag": "2026-11-24",
+  "ticker": "XOM",
+  "kurs_usd": 158.23,
+  "atr_prozent": 2.45,
+  "stop_abstand": -4.91,
+  "ziel_abstand": 4.91,
+  "kronos": {
+   "small-64": {
+    "p_ziel": 0.52,
+    "p_stop": 0.26,
+    "tagesspanne_prozent": 2.376,
+    "vola_prozent": 1.33,
+    "mitte_20": 2.46
+   },
+   "small-64-T15": {
+    "p_ziel": 0.62,
+    "p_stop": 0.38,
+    "tagesspanne_prozent": 3.682,
+    "vola_prozent": 2.426,
+    "mitte_20": 4.61
+   }
+  },
+  "p_ziel_zufall": 0.477,
+  "letzte_20_tage": {
+   "tagesspanne_prozent": 2.345,
+   "vola_prozent": 1.955
+  }
  }
 ]
