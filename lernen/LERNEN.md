@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 24.11.2026 15:57 Uhr · Kurse bis 23.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 25.11.2026 06:33 Uhr · Kurse bis 24.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -8,7 +8,7 @@ Stand: 24.11.2026 15:57 Uhr · Kurse bis 23.11.2026 · 523 Aktien (S&P 500, Nasd
 
 - ✅ Alle Kurse, Termine und Bilanzen sind da.
 
-## 📋 Kauf-Signale vom 23.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 24.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -16,34 +16,34 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| AAPL | Rücksetzer | 30 % | 0 | – |
-| TSLA | Rücksetzer | 29 % | 0 | – |
+| COST | ATR-Ausbruch | 39 % | 0 | – |
+| TSLA | Rücksetzer | 38 % | 0 | – |
 
-**Ganzer Markt – die 15 besten von 92 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 108 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| MPC | RSI-2-Rücksetzer | 52 % | 34 | – |
-| PFE | RSI-2-Rücksetzer | 50 % | 21 | – |
-| CNC | RSI-2-Rücksetzer | 49 % | 17 | – |
-| PSX | RSI-2-Rücksetzer | 48 % | 13 | – |
-| VLO | RSI-2-Rücksetzer | 48 % | 12 | – |
-| COR | RSI-2-Rücksetzer | 48 % | 10 | – |
-| BF-B | RSI-2-Rücksetzer | 47 % | 9 | – |
-| MO | RSI-2-Rücksetzer | 47 % | 8 | – |
-| ELV | Gegenbewegung | 47 % | 8 | – |
-| BRK-B | Rücksetzer | 46 % | 6 | – |
-| EOG | RSI-2-Rücksetzer | 46 % | 6 | – |
-| PM | RSI-2-Rücksetzer | 46 % | 5 | – |
-| CBOE | RSI-2-Rücksetzer | 44 % | 2 | – |
-| TRGP | RSI-2-Rücksetzer | 43 % | 1 | – |
-| ROP | RSI-2-Rücksetzer | 43 % | 1 | – |
+| MPC | RSI-2-Rücksetzer | 63 % | 87 | ✅ |
+| PSX | RSI-2-Rücksetzer | 59 % | 74 | ✅ |
+| VLO | RSI-2-Rücksetzer | 58 % | 71 | ✅ |
+| L | Rücksetzer | 52 % | 33 | – |
+| COO | Rücksetzer | 50 % | 23 | – |
+| CCL | Rücksetzer | 46 % | 5 | – |
+| LEN | Rücksetzer | 46 % | 5 | – |
+| EBAY | Gegenbewegung | 45 % | 4 | – |
+| LULU | Rücksetzer | 45 % | 3 | – |
+| PAYX | Rücksetzer | 43 % | 2 | – |
+| BF-B | Rücksetzer | 43 % | 1 | – |
+| CDW | Rücksetzer | 43 % | 1 | – |
+| SWK | Rücksetzer | 42 % | 1 | – |
+| ESS | MACD-Wende | 42 % | 1 | – |
+| ATO | Rücksetzer | 42 % | 1 | – |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23954 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23957 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
@@ -74,7 +74,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 24992 Signale, davon verloren 47 %. Von den 9427 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 24994 Signale, davon verloren 47 %. Von den 9427 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
