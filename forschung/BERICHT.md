@@ -1,51 +1,48 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Mi 25.11.2026 18:39 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Mi 25.11.2026 20:21 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 25.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0987 $
+## 📈 SWING-SCANNER · Daten bis 25.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0989 $
 
-4× ⏸ WARTEN · 20× BEOBACHTEN  
+2× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 21× BEOBACHTEN  
 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 24.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
 Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche und zusammen höchstens 5 % = 500 € Risiko – bei mehr Signalen die oberen nehmen.  
 ⏳ Die heutige Tageskerze ist noch nicht fertig (Börse noch offen bzw. Krypto-Tag läuft). Signale sind vorläufig – vor allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. Mit --nur-schluss nur fertige Tage bewerten.  
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 320,73 | – | – | – | – | – | – | – | Do 28.01. |  |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 1.264,55 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | ⏸ WARTEN | Trendlinien-Ausbruch ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 144,76 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⏸ WARTEN | MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 997,25 | – | – | – | – | – | – | – | Do 10.12. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 60,54 | – | – | – | – | – | – | – | Di 02.03. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 13,05 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 82,94 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 252,27 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 36,43 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 73,42 | – | – | – | – | – | – | – | Do 11.02. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.316,68 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 11,12 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 53,35 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 22,53 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 11,58 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 131,22 | – | – | – | – | – | – | – | Mi 24.02. |  |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 443,15 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 221,73 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 543,33 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 245,71 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | BEOBACHTEN |  | 334,23 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 352,78 | – | – | – | – | – | – | – | Di 02.02. |  |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 144,88 | – | – | – | – | – | – | – | Mo 01.02. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 286,92 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 347,68 | – | – | – | – | – | – | – | Mi 27.01. | ⚠️ Übernahme/Fusion |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | ⏸ WARTEN | Trendlinien-Ausbruch ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 144,91 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 993,54 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 61,68 | – | – | – | – | – | – | – | Di 02.03. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 13,53 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 84,05 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 251,82 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 37,75 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 79,02 | – | – | – | – | – | – | – | Do 11.02. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.344,13 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 11,84 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 53,82 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | BEOBACHTEN |  | 323,60 | – | – | – | – | – | – | – | Do 28.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 24,07 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 11,95 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 134,52 | – | – | – | – | – | – | – | Mi 24.02. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 448,59 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 224,04 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 551,25 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 248,41 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 368,42 | – | – | – | – | – | – | – | Di 02.02. |  |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 149,45 | – | – | – | – | – | – | – | Mo 01.02. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 288,89 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | BEOBACHTEN |  | 1.273,47 | – | – | – | – | – | – | – | Mi 03.02. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
-AAPL: Broadcom vs. Qualcomm: Which Technology Stock Is a Better Buy for 2027? (Motley Fool, 25.11. 17:52)  
-AAPL: Nvidia Chipmaker TSMC Sends $22.6 Billion AI Signal (GuruFocus.com, 25.11. 17:27)  
-LLY: European Stocks Close Lower Wednesday; German GDP Growth Slows More Than Expected (MT Newswires, 25.11. 17:59)  
-LLY: Update: Market Chatter: Novo Nordisk and Eli Lilly Prepare New Warning Labels for GLP-1 Drugs Over Eye Condition Risk (MT Newswires, 25.11. 16:07)  
+TSLA \[Übernahme/Fusion\]: Tesla and SpaceX stocks sink as merger concerns mount (Yahoo Finance, 25.11. 16:41)  
+TSLA: Ten reasons the market is selling off again before Thanksgiving (Yahoo Finance Video, 25.11. 17:04)  
+XOM: Energy Stocks Benefit From Supply Disruptions: Can Momentum Last? (Zacks, 25.11. 18:54)  
 XOM: Bad News for Exxon and Chevron: Goldman Sees Brent Falling “Roughly $10” Next Year on a Supply Glut (TIKR, 25.11. 16:41)  
-XOM: Turn $100,000 Into Lifetime Paychecks With These “Forever” Passive Income Dividend Stocks (24/7 Wall St., 25.11. 16:02)  
-COST: Japan's biggest banks pick Solana as Fidelity adds DeFi tokens (Yahoo Finance Video, 25.11. 18:00)  
-COST: The CIA, FBI, and US Treasury were all hit by cyberattacks: What to know (Yahoo Finance Video, 25.11. 16:33)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
+⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
 📰 Schlagzeilen: Spricht eine erkannte Meldung der letzten Tage gegen ein Signal (⚠️, z. B. Herabstufung, Kapitalerhöhung, Ermittlungen, Übernahme), wartet der Bot (⏸ WARTEN – Nachricht) und kauft auch im Papier-Depot nicht. Die Wortsuche versteht keinen Zusammenhang – vor dem Kauf selbst lesen. Rückwirkend lässt sich diese Regel nicht testen; im Rückblick gilt sie nur für den letzten Tag.  
 
