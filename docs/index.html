@@ -2940,7 +2940,7 @@ function chatStart(repo) {
 // ---------------------------------------------------------------------------
 // Live-Kurse (docs/live.json, nur während der US-Börsenzeit vom Ablauf live.yml): nur zum Anschauen
 // ---------------------------------------------------------------------------
-function liveBauen(D, L) {
+function liveBauen(D, L, feiertag = null) {  // feiertag: Name des US-Feiertags (Börse zu, letzte Kurse)
   const P = L.papier, C = L.claude;
   const ok = x => x && !x.fehlt && x.wert !== null && x.wert !== undefined;
   const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
@@ -3005,10 +3005,14 @@ function liveBauen(D, L) {
         : `über dem Limit von ${euro(s.limit, 2)} – eine Kauf-Order mit diesem Limit wird erst ausgeführt, wenn der Kurs fällt`)));
   }
   if (!kauf.length) sig.append(el("div", { class: "leer" }, "Heute kein Kauf-Signal."));
-  const inhalt = [kacheln, el("div", { class: "live-raster" }, heute, pos, sig),
+  const inhalt = [feiertag ? el("div", { class: "panel panel-innen live-wartet" },
+    el("b", {}, `Heute Feiertag in den USA (${feiertag}), Börse geschlossen.`),
+    ` Hier stehen die Schlusskurse vom ${datum(L.kurse_vom)} – „heute“ meint dabei diesen letzten Börsentag.`) : null,
+    kacheln, el("div", { class: "live-raster" }, heute, pos, sig),
     el("div", { class: "live-fuss" }, "Kurse von Yahoo, etwa 15 Minuten verzögert. Käufe und Verkäufe rechnet der Bot alle 15 Minuten neu – nach denselben Regeln wie am Morgen (Kauf zur Eröffnung bis zum Limit, Stop und Ziel). Endgültig bucht er sie beim nächsten Morgen-Lauf mit den Schlusskursen; fast immer ist das Ergebnis dasselbe. Bleibt die Seite offen, aktualisiert sie sich alle 5 Minuten.")];
   const kopf = [el("span", { class: "live-kopf" }, el("span", { class: `punkt${L.boerse_offen ? " pulsiert" : ""}` }),
-    L.boerse_offen ? `Börse offen · Stand ${uhr} Uhr` : `Börse zu · letzte Kurse ${datum(L.kurse_vom)} · Stand ${uhr} Uhr`)];
+    L.boerse_offen ? `Börse offen · Stand ${uhr} Uhr`
+      : `${feiertag ? `Feiertag in den USA · ` : ""}Börse zu · letzte Kurse ${datum(L.kurse_vom)} · Stand ${uhr} Uhr`)];
   return abschnitt("live", "Live", kopf, inhalt, { erkl: "live" });
 }
 // US-Börsenstart (9:30 Uhr New York) heute in deutscher Zeit – in den Wochen der Zeitumstellung eine Stunde früher
@@ -3033,6 +3037,17 @@ function liveWartet(L) {
     el("b", {}, `Die US-Börse öffnet heute um ${boersenstart()} Uhr.`),
     ` Ab dann rechnet der Bot hier alle 15 Minuten Käufe und Verkäufe neu. Bis dahin gelten die Schlusskurse vom ${datum((L && L.kurse_vom) || geladeneDaten.daten_bis)}`), { erkl: "live" });
 }
+// US-Feiertag heute (New Yorker Datum)? Die Liste kommt vom Morgen-Lauf (daten.json: us_feiertage)
+function usFeiertagHeute() {
+  const tag = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  return ((geladeneDaten && geladeneDaten.us_feiertage) || {})[tag] || null;
+}
+function liveFeiertag(L, name) {
+  const kopf = [el("span", { class: "live-kopf" }, `Heute kein Handel · ${name}`)];
+  return abschnitt("live", "Live", kopf, el("div", { class: "panel panel-innen live-wartet" },
+    el("b", {}, `Heute Feiertag in den USA (${name}), Börse geschlossen.`),
+    ` Es gelten die Schlusskurse vom ${datum((L && L.kurse_vom) || geladeneDaten.daten_bis)} – am nächsten Börsentag rechnet der Bot hier wieder alle 15 Minuten Käufe und Verkäufe neu.`), { erkl: "live" });
+}
 // Positionen vom Morgen-Lauf: markieren, was die Live-Vorschau heute schon verkauft (endgültig bucht es der nächste Morgen-Lauf)
 function positionenLive(L) {
   const verkauft = new Map((L && L.papier && !L.papier.fehlt ? L.papier.verkauft || [] : []).map(v => [v.ticker, v]));
@@ -3054,11 +3069,14 @@ function liveZeigen(L) {
   // Hinweis „Börse öffnet um …“ an Börsentagen: ab dem ersten Live-Lauf des Tages, und schon morgens nach dem
   // Morgen-Lauf bis eine halbe Stunde nach dem Börsenstart, auch wenn nur die Live-Kurse von gestern da sind
   const vonHeute = L && L.erstellt && berlinTag(new Date(L.erstellt)) === berlinTag(new Date());
-  const wartet = !neuer && geladeneDaten && new Date().getUTCDay() % 6 !== 0
+  const feiertag = !neuer && usFeiertagHeute();  // US-Feiertag: „Börse geschlossen“ statt „öffnet um …“
+  const wartet = !feiertag && !neuer && geladeneDaten && new Date().getUTCDay() % 6 !== 0
     && (L && L.kurse_vom ? !L.boerse_offen && L.kurse_vom >= geladeneDaten.daten_bis : true)
     && (vonHeute || minutenIn("Europe/Berlin") < startMinuten() + 30);
-  if (wartet) {
-    const knoten = liveWartet(L);
+  if (feiertag || wartet) {
+    // Feiertag: trotzdem die letzten Kurse zeigen (Wunsch des Besitzers), nur ohne Live-Daten bloß den Hinweis
+    const knoten = !feiertag ? liveWartet(L)
+      : L && L.erstellt && L.kurse_vom && L.aktien ? liveBauen(geladeneDaten, L, feiertag) : liveFeiertag(L, feiertag);
     if (alt) alt.replaceWith(knoten);
     else {
       const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");

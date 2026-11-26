@@ -466,6 +466,15 @@ class NYSEFeiertage(AbstractHolidayCalendar):
     ]
 
 NYSE_TAG = pd.offsets.CustomBusinessDay(calendar=NYSEFeiertage())
+FEIERTAG_NAMEN = {"Birthday of Martin Luther King, Jr.": "Martin-Luther-King-Tag", "Washington's Birthday": "Presidents' Day",
+                  "Good Friday": "Karfreitag", "Thanksgiving Day": "Thanksgiving"}
+
+def us_feiertage_bald(tage=40, heute=None):
+    """Handelsfreie Tage der New Yorker Börse ab heute (New Yorker Datum) als {Datum: Name} – für die Übersichtsseite,
+    damit sie an US-Feiertagen „Börse geschlossen“ zeigt statt „öffnet um 15:30 Uhr“."""
+    heute = pd.Timestamp(heute) if heute is not None else pd.Timestamp.now(tz=NY).normalize().tz_localize(None)
+    namen = NYSEFeiertage().holidays(heute, heute + pd.Timedelta(days=tage), return_name=True)
+    return {f"{tag:%Y-%m-%d}": FEIERTAG_NAMEN.get(name, name) for tag, name in namen.items()}
 
 def ist_krypto(ticker):
     return bool(re.fullmatch(r".+-[A-Z]{3}", ticker))
@@ -4013,7 +4022,7 @@ def uebersicht_daten(einst, waehrung, zeilen, reihenfolge, plan, im_plan, papier
         "daten_bis": iso(stand_tag), "fehlt": iso(fehlt) if fehlt is not None else None,
         "vorlaeufig": any(z["_offen"] for z in ok), "waehrung": waehrung, "konto": json_zahl(einst.konto),
         "risiko": json_zahl(einst.risiko), "repo": os.environ.get("GITHUB_REPOSITORY"),
-        "markt": {"ueber_200": None if lage is None else bool(lage == 1)},
+        "markt": {"ueber_200": None if lage is None else bool(lage == 1)}, "us_feiertage": us_feiertage_bald(),
         "regeln": {"max_positionen": MAX_POSITIONEN, "max_je_branche": MAX_JE_BRANCHE,
                    "max_risiko": MAX_GESAMTRISIKO_PROZENT, "zeitstopp": ZEITSTOPP_TAGE},
         "erwartung": dict(TEST_ERWARTUNG, min_trades=BILANZ_MIN_TRADES),
