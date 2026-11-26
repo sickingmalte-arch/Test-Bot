@@ -1,8 +1,8 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Do 26.11.2026 20:05 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Do 26.11.2026 21:14 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 25.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0973 $
+## 📈 SWING-SCANNER · Daten bis 25.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0975 $
 
 3× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 20× BEOBACHTEN  
 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 24.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
@@ -36,12 +36,12 @@ Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche 
 | [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 288,94 | – | – | – | – | – | – | – | Do 14.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
+TSLA: Tesla Stocks Slip 1.18% as EU Delays Self-Driving Vote to December 15 (GuruFocus.com, 26.11. 20:03)  
 TSLA: Tesla: A SpaceX Merger Could Turn $5,000 Into $10,000 (GuruFocus.com, 26.11. 18:46)  
-TSLA: Rivian Is Down 41% This Year. Can RIVN Stock Get Back to $20 in 2027? (24/7 Wall St., 26.11. 18:06)  
 LLY: Hims & Hers Stock Has Lost 47% in November. Is It Time to Buy the Dip? (24/7 Wall St., 26.11. 19:38)  
 LLY: Eli Lilly Stock Is Up 64% Since April. Is It Time to Take Profits? (24/7 Wall St., 26.11. 17:43)  
+XOM: Exxon Mobil Stocks Edge Lower as Brent Jumps 3.5% on Refinery Attack (GuruFocus.com, 26.11. 20:01)  
 XOM: Apple, Exxon and Lowe’s Are Rewarding Shareholders Beyond Their Regular Dividends (24/7 Wall St., 26.11. 18:07)  
-XOM: Oil Markets Face Another Potential Threat to Household Fuel Costs (GuruFocus.com, 26.11. 17:23)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 ⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
