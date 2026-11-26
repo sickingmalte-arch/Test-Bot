@@ -2940,7 +2940,7 @@ function chatStart(repo) {
 // ---------------------------------------------------------------------------
 // Live-Kurse (docs/live.json, nur während der US-Börsenzeit vom Ablauf live.yml): nur zum Anschauen
 // ---------------------------------------------------------------------------
-function liveBauen(D, L) {
+function liveBauen(D, L, feiertag = null) {  // feiertag: Name des US-Feiertags (Börse zu, letzte Kurse)
   const P = L.papier, C = L.claude;
   const ok = x => x && !x.fehlt && x.wert !== null && x.wert !== undefined;
   const uhr = new Date(L.erstellt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
@@ -3005,10 +3005,14 @@ function liveBauen(D, L) {
         : `über dem Limit von ${euro(s.limit, 2)} – eine Kauf-Order mit diesem Limit wird erst ausgeführt, wenn der Kurs fällt`)));
   }
   if (!kauf.length) sig.append(el("div", { class: "leer" }, "Heute kein Kauf-Signal."));
-  const inhalt = [kacheln, el("div", { class: "live-raster" }, heute, pos, sig),
+  const inhalt = [feiertag ? el("div", { class: "panel panel-innen live-wartet" },
+    el("b", {}, `Heute Feiertag in den USA (${feiertag}), Börse geschlossen.`),
+    ` Hier stehen die Schlusskurse vom ${datum(L.kurse_vom)} – „heute“ meint dabei diesen letzten Börsentag.`) : null,
+    kacheln, el("div", { class: "live-raster" }, heute, pos, sig),
     el("div", { class: "live-fuss" }, "Kurse von Yahoo, etwa 15 Minuten verzögert. Käufe und Verkäufe rechnet der Bot alle 15 Minuten neu – nach denselben Regeln wie am Morgen (Kauf zur Eröffnung bis zum Limit, Stop und Ziel). Endgültig bucht er sie beim nächsten Morgen-Lauf mit den Schlusskursen; fast immer ist das Ergebnis dasselbe. Bleibt die Seite offen, aktualisiert sie sich alle 5 Minuten.")];
   const kopf = [el("span", { class: "live-kopf" }, el("span", { class: `punkt${L.boerse_offen ? " pulsiert" : ""}` }),
-    L.boerse_offen ? `Börse offen · Stand ${uhr} Uhr` : `Börse zu · letzte Kurse ${datum(L.kurse_vom)} · Stand ${uhr} Uhr`)];
+    L.boerse_offen ? `Börse offen · Stand ${uhr} Uhr`
+      : `${feiertag ? `Feiertag in den USA · ` : ""}Börse zu · letzte Kurse ${datum(L.kurse_vom)} · Stand ${uhr} Uhr`)];
   return abschnitt("live", "Live", kopf, inhalt, { erkl: "live" });
 }
 // US-Börsenstart (9:30 Uhr New York) heute in deutscher Zeit – in den Wochen der Zeitumstellung eine Stunde früher
@@ -3070,7 +3074,9 @@ function liveZeigen(L) {
     && (L && L.kurse_vom ? !L.boerse_offen && L.kurse_vom >= geladeneDaten.daten_bis : true)
     && (vonHeute || minutenIn("Europe/Berlin") < startMinuten() + 30);
   if (feiertag || wartet) {
-    const knoten = feiertag ? liveFeiertag(L, feiertag) : liveWartet(L);
+    // Feiertag: trotzdem die letzten Kurse zeigen (Wunsch des Besitzers), nur ohne Live-Daten bloß den Hinweis
+    const knoten = !feiertag ? liveWartet(L)
+      : L && L.erstellt && L.kurse_vom && L.aktien ? liveBauen(geladeneDaten, L, feiertag) : liveFeiertag(L, feiertag);
     if (alt) alt.replaceWith(knoten);
     else {
       const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");
