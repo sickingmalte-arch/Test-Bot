@@ -3033,6 +3033,17 @@ function liveWartet(L) {
     el("b", {}, `Die US-Börse öffnet heute um ${boersenstart()} Uhr.`),
     ` Ab dann rechnet der Bot hier alle 15 Minuten Käufe und Verkäufe neu. Bis dahin gelten die Schlusskurse vom ${datum((L && L.kurse_vom) || geladeneDaten.daten_bis)}`), { erkl: "live" });
 }
+// US-Feiertag heute (New Yorker Datum)? Die Liste kommt vom Morgen-Lauf (daten.json: us_feiertage)
+function usFeiertagHeute() {
+  const tag = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  return ((geladeneDaten && geladeneDaten.us_feiertage) || {})[tag] || null;
+}
+function liveFeiertag(L, name) {
+  const kopf = [el("span", { class: "live-kopf" }, `Heute kein Handel · ${name}`)];
+  return abschnitt("live", "Live", kopf, el("div", { class: "panel panel-innen live-wartet" },
+    el("b", {}, `Heute Feiertag in den USA (${name}), Börse geschlossen.`),
+    ` Es gelten die Schlusskurse vom ${datum((L && L.kurse_vom) || geladeneDaten.daten_bis)} – am nächsten Börsentag rechnet der Bot hier wieder alle 15 Minuten Käufe und Verkäufe neu.`), { erkl: "live" });
+}
 // Positionen vom Morgen-Lauf: markieren, was die Live-Vorschau heute schon verkauft (endgültig bucht es der nächste Morgen-Lauf)
 function positionenLive(L) {
   const verkauft = new Map((L && L.papier && !L.papier.fehlt ? L.papier.verkauft || [] : []).map(v => [v.ticker, v]));
@@ -3054,11 +3065,12 @@ function liveZeigen(L) {
   // Hinweis „Börse öffnet um …“ an Börsentagen: ab dem ersten Live-Lauf des Tages, und schon morgens nach dem
   // Morgen-Lauf bis eine halbe Stunde nach dem Börsenstart, auch wenn nur die Live-Kurse von gestern da sind
   const vonHeute = L && L.erstellt && berlinTag(new Date(L.erstellt)) === berlinTag(new Date());
-  const wartet = !neuer && geladeneDaten && new Date().getUTCDay() % 6 !== 0
+  const feiertag = !neuer && usFeiertagHeute();  // US-Feiertag: „Börse geschlossen“ statt „öffnet um …“
+  const wartet = !feiertag && !neuer && geladeneDaten && new Date().getUTCDay() % 6 !== 0
     && (L && L.kurse_vom ? !L.boerse_offen && L.kurse_vom >= geladeneDaten.daten_bis : true)
     && (vonHeute || minutenIn("Europe/Berlin") < startMinuten() + 30);
-  if (wartet) {
-    const knoten = liveWartet(L);
+  if (feiertag || wartet) {
+    const knoten = feiertag ? liveFeiertag(L, feiertag) : liveWartet(L);
     if (alt) alt.replaceWith(knoten);
     else {
       const main = document.getElementById("inhalt"), hinweis = main.querySelector(":scope > .hinweis");
