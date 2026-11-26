@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 26.11.2026 06:15 Uhr · Kurse bis 25.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 26.11.2026 15:00 Uhr · Kurse bis 25.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -95,6 +95,7 @@ Anteil an allen Trades; ein Trade kann mehrere Gründe haben. ↓ = das Modell m
 
 | Aktie | Kauf | Verkauf | Ergebnis | Verkauft wegen | Warum verloren? |
 |---|---|---|---:|---|---|
+| COST | 06.11.26 | 25.11.26 | +1,86 R | Ziel | – |
 | JPM | 30.10.26 | 18.11.26 | -0,75 R | Stop | Absturz des Gesamtmarkts (vorläufig) |
 | MSFT | 05.11.26 | 17.11.26 | -0,76 R | Stop | Absturz des Gesamtmarkts, Branche schwach (vorläufig) |
 | INTU | 21.10.26 | 17.11.26 | -0,33 R | Zeitstopp | Absturz des Gesamtmarkts, Branche schwach, Zeitstopp ohne Schwung (vorläufig) |
