@@ -10,7 +10,7 @@ Branche: Finanzen (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=JPM)
 
-**Stand Di 24.11. 2026:** BEOBACHTEN
+**Stand Mi 25.11. 2026:** BEOBACHTEN
 **Nächste Quartalszahlen:** Do 14.01.
 
 ## Übungsdepot
