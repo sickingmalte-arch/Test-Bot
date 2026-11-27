@@ -79,7 +79,7 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 
 | Gruppe | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
-| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1004 | 55 % | +0,10 R |
+| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1004 | 56 % | +0,11 R |
 | bärisches Kerzenmuster am Signaltag | 535 | 58 % | +0,13 R |
 | kein Kerzenmuster | 1552 | 57 % | +0,11 R |
 
