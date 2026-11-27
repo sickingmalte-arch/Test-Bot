@@ -1,6 +1,6 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 27.11.2026 06:11 Uhr · Kurse bis 25.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 27.11.2026 15:12 Uhr · Kurse bis 25.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
@@ -39,7 +39,7 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 | WEC | Trendlinien-Ausbruch | 46 % | 6 | – |
 | DUK | Trendlinien-Ausbruch | 46 % | 6 | – |
 | NKE | Rücksetzer | 46 % | 5 | – |
-| LULU | Rücksetzer | 45 % | 3 | – |
+| LULU | Rücksetzer | 44 % | 3 | – |
 
 ## 🧠 Was das Modell gelernt hat
 

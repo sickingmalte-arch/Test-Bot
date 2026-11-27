@@ -1,5 +1,5 @@
 {
- "stand": "27.11.2026 06:11 Uhr",
+ "stand": "27.11.2026 15:12 Uhr",
  "tag": "2026-11-25",
  "monat": "2026-11",
  "anteil": 0.3,
@@ -2821,7 +2821,7 @@
    },
    "A": {
     "strategie": "ausbruch_long",
-    "punkte": 0.3334,
+    "punkte": 0.3338,
     "rang": 0,
     "beste": false,
     "watchlist": false
@@ -2905,7 +2905,7 @@
    },
    "BBY": {
     "strategie": "ruecksetzer_long",
-    "punkte": 0.3692,
+    "punkte": 0.373,
     "rang": 0,
     "beste": false,
     "watchlist": false
@@ -3059,7 +3059,7 @@
    },
    "DLTR": {
     "strategie": "ausbruch_long",
-    "punkte": 0.3085,
+    "punkte": 0.3131,
     "rang": 0,
     "beste": false,
     "watchlist": false
@@ -3593,7 +3593,7 @@
    },
    "A": {
     "strategie": "ruecksetzer_long",
-    "punkte": 0.3555,
+    "punkte": 0.3556,
     "rang": 0,
     "beste": false,
     "watchlist": false
@@ -3950,7 +3950,7 @@
    },
    "HPQ": {
     "strategie": "macd_long",
-    "punkte": 0.3761,
+    "punkte": 0.3755,
     "rang": 0,
     "beste": false,
     "watchlist": false
@@ -4055,7 +4055,7 @@
    },
    "LULU": {
     "strategie": "ruecksetzer_long",
-    "punkte": 0.4454,
+    "punkte": 0.442,
     "rang": 3,
     "beste": false,
     "watchlist": false
@@ -4188,7 +4188,7 @@
    },
    "RJF": {
     "strategie": "ruecksetzer_long",
-    "punkte": 0.3698,
+    "punkte": 0.3707,
     "rang": 0,
     "beste": false,
     "watchlist": false
