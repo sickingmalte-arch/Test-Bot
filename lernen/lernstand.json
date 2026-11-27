@@ -1,11 +1,12 @@
 {
- "stand": "26.11.2026 15:00 Uhr",
+ "stand": "27.11.2026 06:11 Uhr",
  "tag": "2026-11-25",
  "monat": "2026-11",
  "aktien": 523,
  "anteil": 0.3,
  "schwelle": 0.5761853024760019,
  "warnungen": [
+  "Die Kurse vom 26.11.2026 fehlen noch (Yahoo liefert manchmal erst später, oder es war ein US-Feiertag). Gerechnet wurde bis 25.11.2026; der nächste Lauf holt sie nach.",
   "Alte Kurse (nicht bis 25.11.2026) bei 1 Aktien: SNDK – sie werden heute nicht gehandelt."
  ],
  "gelernt": [
@@ -463,7 +464,7 @@
    },
    {
     "fuenftel": 4,
-    "R": -0.011840555855289278,
+    "R": -0.01184055585528928,
     "n": 4792,
     "treffer": 0.5162771285475793
    },

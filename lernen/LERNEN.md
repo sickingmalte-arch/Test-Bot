@@ -1,11 +1,12 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 26.11.2026 15:00 Uhr · Kurse bis 25.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 27.11.2026 06:11 Uhr · Kurse bis 25.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
 ## ⚠️ Daten
 
+- ⚠️ Die Kurse vom 26.11.2026 fehlen noch (Yahoo liefert manchmal erst später, oder es war ein US-Feiertag). Gerechnet wurde bis 25.11.2026; der nächste Lauf holt sie nach.
 - ⚠️ Alte Kurse (nicht bis 25.11.2026) bei 1 Aktien: SNDK – sie werden heute nicht gehandelt.
 
 ## 📋 Kauf-Signale vom 25.11.2026 mit Punktzahl
