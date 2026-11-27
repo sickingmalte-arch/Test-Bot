@@ -312,7 +312,8 @@ def liste_vorhersage(daten, liste, predictor_fn=lade_predictor, kurse_fn=kurse, 
     if daten.get("vorlaeufig"):
         return 0
     schon = {(e["signal_tag"], e["ticker"]) for e in liste}
-    ticker = [s["ticker"] for s in daten.get("signale", []) if (tag, s["ticker"]) not in schon][:3 if probe else None]
+    # Probelauf: drei Aktien auch dann, wenn der Tag schon gerechnet ist – damit der Probelauf diesen Teil wirklich prüft
+    ticker = [s["ticker"] for s in daten.get("signale", []) if probe or (tag, s["ticker"]) not in schon][:3 if probe else None]
     start, ende = zeitraum(tag)
     varianten = [v for v in VARIANTEN if v["name"] in LISTE_VARIANTEN]
     n = 0
