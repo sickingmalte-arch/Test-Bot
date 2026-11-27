@@ -72,7 +72,7 @@ flowchart TB
 
 - 9.762,96 € (-2,4 % seit 2026-10-20) · 2 offen · 11 Trades · Ø -0,09 R · Treffer 45 %
 - Letzte Trades: [[Trades/2026-11-06 COST Ausbruch Long|COST +1,9 R]], [[Trades/2026-10-30 JPM Squeeze-Ausbruch Long|JPM -0,7 R]], [[Trades/2026-11-05 MSFT Ausbruch Long|MSFT -0,8 R]], [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]], [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]]
-- Rückblick 12 Monate: -2,3 % (alle Aktien kaufen und halten: -9,6 %)
+- Rückblick 12 Monate: -4,2 % (alle Aktien kaufen und halten: -9,6 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
