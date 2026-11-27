@@ -1,47 +1,48 @@
 # 📈 Swing-Bot – Bericht
 
-Stand: Fr 27.11.2026 07:47 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
+Stand: Fr 27.11.2026 18:00 Uhr (automatischer Lauf bei GitHub). Ticker anklicken öffnet den Chart bei TradingView. Simulation mit echten Kursen, kein echtes Geld, keine Anlageberatung.
 
-## 📈 SWING-SCANNER · Daten bis 25.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0978 $
+## 📈 SWING-SCANNER · Daten bis 27.11.2026 · Konto 10.000 € · Risiko je Trade 1 % = 100 € · 1 € = 1,0941 $
 
 3× ⏸ WARTEN · 1× ⚠️ ÜBERHITZT · 20× BEOBACHTEN  
-🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 24.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
+🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 25.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).  
 Regel: höchstens 7 Positionen gleichzeitig, höchstens 2 aus derselben Branche und zusammen höchstens 5 % = 500 € Risiko – bei mehr Signalen die oberen nehmen.  
+⏳ Die heutige Tageskerze ist noch nicht fertig (Börse noch offen bzw. Krypto-Tag läuft). Signale sind vorläufig – vor allem Ausbruch/Abbruch (Volumen) und MACD-Wende sind erst nach Börsenschluss sicher. Mit --nur-schluss nur fertige Tage bewerten.  
 
 | Ticker | Signal | Strategie | Kurs | Limit | Stop | Ziel | CRV | Stück | Einsatz | Risiko | Zahlen | News |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 346,77 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 1.270,01 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | ⏸ WARTEN | Trendlinien-Ausbruch ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 144,20 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 991,41 | – | – | – | – | – | – | – | Do 10.12. |  |
-| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 61,01 | – | – | – | – | – | – | – | Di 02.03. |  |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 13,36 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 84,07 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 247,87 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 38,83 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 77,53 | – | – | – | – | – | – | – | Do 11.02. |  |
-| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.338,50 | – | – | – | – | – | – | – | Do 25.02. |  |
-| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 11,72 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 54,19 | – | – | – | – | – | – | – | Di 19.01. |  |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | BEOBACHTEN |  | 324,37 | – | – | – | – | – | – | – | Do 28.01. |  |
-| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 23,74 | – | – | – | – | – | – | – | Mo 01.03. |  |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 11,92 | – | – | – | – | – | – | – | Fr 29.01. |  |
-| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 136,19 | – | – | – | – | – | – | – | Mi 24.02. |  |
-| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 446,92 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 222,97 | – | – | – | – | – | – | – | Do 04.02. |  |
-| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 556,35 | – | – | – | – | – | – | – | Mi 27.01. |  |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 249,13 | – | – | – | – | – | – | – | Mi 03.02. |  |
-| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 370,39 | – | – | – | – | – | – | – | Di 02.02. |  |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 149,23 | – | – | – | – | – | – | – | Mo 01.02. |  |
-| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 288,94 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | ⏸ WARTEN | MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 327,24 | – | – | – | – | – | – | – | Do 28.01. |  |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN | MACD-Wende ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 364,86 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⏸ WARTEN | Rücksetzer ↑ – Marktfilter (kein Long im Abwärtsmarkt) | 1.275,10 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | ⚠️ ÜBERHITZT | überhitzt – nur Info, Depot verkauft nicht | 1.001,68 | – | – | – | – | – | – | – | Do 10.12. |  |
+| [SE](https://www.tradingview.com/chart/?symbol=SE) | BEOBACHTEN |  | 63,21 | – | – | – | – | – | – | – | Di 02.03. |  |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | BEOBACHTEN |  | 13,74 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | BEOBACHTEN |  | 84,63 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [INTU](https://www.tradingview.com/chart/?symbol=INTU) | BEOBACHTEN |  | 250,86 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | BEOBACHTEN |  | 39,72 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [NBIS](https://www.tradingview.com/chart/?symbol=NBIS) | BEOBACHTEN |  | 80,44 | – | – | – | – | – | – | – | Do 11.02. |  |
+| [MELI](https://www.tradingview.com/chart/?symbol=MELI) | BEOBACHTEN |  | 1.407,64 | – | – | – | – | – | – | – | Do 25.02. |  |
+| [IREN](https://www.tradingview.com/chart/?symbol=IREN) | BEOBACHTEN |  | 12,17 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [NFLX](https://www.tradingview.com/chart/?symbol=NFLX) | BEOBACHTEN |  | 55,47 | – | – | – | – | – | – | – | Di 19.01. |  |
+| [ASTS](https://www.tradingview.com/chart/?symbol=ASTS) | BEOBACHTEN |  | 24,09 | – | – | – | – | – | – | – | Mo 01.03. |  |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | BEOBACHTEN |  | 12,22 | – | – | – | – | – | – | – | Fr 29.01. |  |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | BEOBACHTEN |  | 136,05 | – | – | – | – | – | – | – | Mi 24.02. |  |
+| [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | BEOBACHTEN |  | 448,97 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | BEOBACHTEN |  | 231,79 | – | – | – | – | – | – | – | Do 04.02. |  |
+| [META](https://www.tradingview.com/chart/?symbol=META) | BEOBACHTEN |  | 575,66 | – | – | – | – | – | – | – | Mi 27.01. |  |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | BEOBACHTEN |  | 249,92 | – | – | – | – | – | – | – | Mi 03.02. |  |
+| [AMD](https://www.tradingview.com/chart/?symbol=AMD) | BEOBACHTEN |  | 382,02 | – | – | – | – | – | – | – | Di 02.02. |  |
+| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | BEOBACHTEN |  | 157,44 | – | – | – | – | – | – | – | Mo 01.02. |  |
+| [JPM](https://www.tradingview.com/chart/?symbol=JPM) | BEOBACHTEN |  | 296,36 | – | – | – | – | – | – | – | Do 14.01. |  |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | BEOBACHTEN |  | 147,09 | – | – | – | – | – | – | – | Fr 29.01. |  |
 
 📰 SCHLAGZEILEN der letzten 3 Handelstage (nur Ticker mit Signal)  
-TSLA: What Could Tesla (TSLA) Merger Talks Mean For Its Stock? (Simply Wall St., 27.11. 02:30)  
-TSLA: ‘How Can TSLA Compete With Waymo?’ Gary Black Questions Tesla’s Robotaxi Strategy, Predicts Waymo Will Lead in Miles and Trips (Benzinga, 27.11. 02:30)  
-LLY: Hims & Hers Stock Has Lost 47% in November. Is It Time to Buy the Dip? (24/7 Wall St., 26.11. 19:38)  
-LLY: Eli Lilly Stock Is Up 64% Since April. Is It Time to Take Profits? (24/7 Wall St., 26.11. 17:43)  
-XOM: Exxon Mobil Stocks Edge Lower as Brent Jumps 3.5% on Refinery Attack (GuruFocus.com, 26.11. 20:01)  
-XOM: Apple, Exxon and Lowe’s Are Rewarding Shareholders Beyond Their Regular Dividends (24/7 Wall St., 26.11. 18:07)  
+AAPL: Apple gains smartphone share as memory crunch squeezes budget Android phones (Yahoo Finance, 27.11. 14:41)  
+AAPL: Qualcomm Is Betting Big on a $5 Billion Opportunity. Here’s What It Could Mean for the Stock (24/7 Wall St., 27.11. 17:33)  
+TSLA: SpaceX, Tesla have had a bumpy 2026 thus far: What to know (Yahoo Finance Video, 27.11. 15:58)  
+TSLA: Stock Market Today: Nasdaq Leads Charge; Nvidia Falls On China Data-Center Chip News (Live Coverage) (Investor's Business Daily, 27.11. 17:38)  
+LLY: Prediction: Eli Lilly’s $92 Billion Revenue Outlook Could Be Just the Beginning (24/7 Wall St., 27.11. 14:03)  
+LLY: Is Most-Watched Stock Eli Lilly and Company (LLY) Worth Betting on Now? (Zacks, 27.11. 14:00)  
 Beträge in € (US-Kurse umgerechnet). Limit = höchster Kaufkurs (Short: tiefster Verkaufskurs) für den Einstieg. Risiko = Verlust, wenn der Stop greift. CRV = Chance ÷ Risiko; nötige Trefferquote = 1 ÷ (1 + CRV), bei CRV 1 also 50 %, bei CRV 0,8 gut 55 % – der Bot setzt das Ziel absichtlich nicht weiter weg als den Stop, dafür trifft er öfter. ⏸ WARTEN = ein Signal ist da, aber eine Regel hält den Bot zurück (Grund in der Spalte Strategie).  
 ⚠️ ÜBERHITZT = RSI über 70 oder Kurs am oberen Bollinger-Band (mit Shorts auch das Gegenstück: überverkauft). Nur Info – das Übungsdepot verkauft nicht danach: Im Test über 16 Jahre brachte Verkaufen bei überhitzt bis zu 5,6 Prozentpunkte weniger Rendite pro Jahr, weil die Gewinner früh verkauft werden und die Verlierer trotzdem bis zum Stop laufen. Auch den Stop nachziehen oder am Ziel nur die Hälfte verkaufen war schlechter. Der Bot verkauft am Stop, am Ziel, vor Quartalszahlen oder nach 20 Handelstagen.  
 Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünnem Handel auslösen. Quartalszahlen-Termine kommen von Yahoo und können sich verschieben. Keine Anlageberatung.  
@@ -50,13 +51,7 @@ Stop-Orders auf deutschen Handelsplätzen können schon vor 15:30 Uhr bei dünne
 ## 🧠 LERNMODELL (nur Anzeige – entscheidet nicht über Käufe)
 
 Das Lernmodell gibt jedem Kauf-Signal eine Punktzahl (geschätzte Chance, dass der Trade im Plus endet). ✅ = unter den besten 30 % der Signale der 12 Monate davor. Nur zur Anzeige – gekauft wird nach den Regeln ohne Lernmodell.  
-
-| Ticker | Signal | Strategie | Punktzahl | Rang | Lernmodell |
-| --- | --- | --- | ---: | ---: | --- |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | ⏸ WARTEN |  (bewertet: Trendlinien-Ausbruch ↑) | 50 % | 21 | – |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | ⏸ WARTEN |  (bewertet: Rücksetzer ↑) | 39 % | 0 | – |
-| [LLY](https://www.tradingview.com/chart/?symbol=LLY) | ⏸ WARTEN |  (bewertet: Rücksetzer ↑) | 35 % | 0 | – |
-
+⚠️ Für den Fr 27.11. gibt es noch keine Punktzahlen (letzter Lern-Lauf: Kurse bis Mi 25.11.).  
 Trennschärfe der letzten 12 Monate: 0,52 (0,50 = Münzwurf) · Modell vom 2026-11, gelernt aus 463.621 gedachten Trades  
 Worauf es am meisten achtet: Anteil Aktien über 50-Tage-Linie (je niedriger, desto besser), Markt 3 Monate (im Zusammenspiel), Markt 1 Woche (im Zusammenspiel), Chance/Risiko (je niedriger, desto besser), Tage bis zu den Quartalszahlen (im Zusammenspiel).  
 Häufigste Fehler (alle Signale, 12 Monate): Branche schwach 15 %, Zeitstopp ohne Schwung 13 %, Quartalszahlen 10 %, Normales Auf und Ab (kein besonderer Grund) 10 %.  
@@ -71,10 +66,10 @@ Alles dazu: lernen/LERNEN.md · ehrlicher Rückblick: lernen/RUECKBLICK.md
 | Strategie | Trades | Ø je Trade | ≈ je Trade | ± Zufall | Einschätzung | Status |
 | --- | --- | ---: | --- | ---: | --- | --- |
 | Ausbruch ↑ | 60 von 320 | -0,09 R | -9,20 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
-| RSI-2-Rücksetzer ↑ | 60 von 504 | -0,05 R | -5,46 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
+| RSI-2-Rücksetzer ↑ | 60 von 503 | -0,05 R | -5,46 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
 | Gegenbewegung ↑ | 60 von 156 | +0,12 R | +12 € | ±0,19 R | unklar – kann Zufall sein | ✅ aktiv |
 | MACD-Wende ↑ | 60 von 390 | -0,12 R | -12 € | ±0,20 R | unklar – kann Zufall sein | ⏸ pausiert (lief zuletzt schlecht – kann auch Pech sein) |
-| Rücksetzer ↑ | 60 von 556 | -0,09 R | -9,39 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
+| Rücksetzer ↑ | 60 von 555 | -0,09 R | -9,39 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
 | Squeeze-Ausbruch ↑ | 60 von 209 | +0,13 R | +13 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
 | EMA-Kreuz ↑ | 60 von 309 | -0,09 R | -9,09 € | ±0,20 R | unklar – kann Zufall sein | ✅ aktiv |
 | ATR-Ausbruch ↑ | 60 von 458 | -0,07 R | -6,92 € | ±0,21 R | unklar – kann Zufall sein | ✅ aktiv |
@@ -143,39 +138,39 @@ Gespeichert in: papier/claude\_depot.json im Repository (neu anfangen: die Datei
 
 ## 🤖 VIRTUELLES DEPOT · Der Bot handelt seit 26.11.2025 mit 10.000 € nach seinen eigenen Signalen
 
-Depotwert heute (mit Lernen): 9.952,16 € (-0,5 %) · davon frei: 8.609,89 € · 2/7 Positionen offen, offenes Risiko 1,2 %  
-Ohne Lernen: 9.671,01 € · Unterschied +281 € · Zufallsspanne ±1.185 € → Das liegt im Zufallsbereich – ob das Lernen hilft, lässt sich aus diesem Zeitraum nicht ablesen (das ist fast immer so).  
-Ohne Marktfilter: 9.233,40 € · Unterschied +719 € · Zufallsspanne ±1.046 € → im Zufallsbereich – in diesem Zeitraum kein klarer Unterschied.  
+Depotwert heute (mit Lernen): 9.793,85 € (-2,1 %) · davon frei: 8.149,61 € · 2/7 Positionen offen, offenes Risiko 1,2 %  
+Ohne Lernen: 9.062,57 € · Unterschied +731 € · Zufallsspanne ±1.162 € → Das liegt im Zufallsbereich – ob das Lernen hilft, lässt sich aus diesem Zeitraum nicht ablesen (das ist fast immer so).  
+Ohne Marktfilter: 9.712,84 € · Unterschied +81 € · Zufallsspanne ±1.090 € → im Zufallsbereich – in diesem Zeitraum kein klarer Unterschied.  
 Zum Vergleich – alle Ticker am 26.11. kaufen und halten: 9.043,89 € (-9,6 %)  
-Abgeschlossene Trades: 127 · Gewinner: 68 (54 %) · größter Rückgang des Depots: 7,5 % · höchstes gleichzeitiges Risiko: 5,0 % (7 Positionen)  
-Long: 127 Trades, 68 Gewinner, -83,86 € · Kosten: Gebühren 0,00 € + Spread ca. 202,33 €  
+Abgeschlossene Trades: 125 · Gewinner: 63 (50 %) · größter Rückgang des Depots: 7,5 % · höchstes gleichzeitiges Risiko: 5,0 % (7 Positionen)  
+Long: 125 Trades, 63 Gewinner, -292,02 € · Kosten: Gebühren 0,00 € + Spread ca. 195,83 €  
 
 | Ticker | Art | Strategie | Einstieg | Einstiegskurs | Ausstieg | Ausstiegskurs | Grund | Einsatz | Ergebnis | Ergebnis % |
 | --- | --- | --- | --- | ---: | --- | ---: | --- | ---: | ---: | ---: |
-| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | Long | Rücksetzer ↑ | 06.11.26 | 301,75 | offen | 324,37 | noch im Depot (Tag 14/20) | 603 | +45,24 | +7,5 |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | Long | Rücksetzer ↑ | 16.11.26 | 351,38 | offen | 346,77 | noch im Depot (Tag 8/20) | 703 | -9,21 | -1,3 |
+| [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | Long | Rücksetzer ↑ | 06.11.26 | 301,75 | offen | 324,37 | noch im Depot (Tag 14/20) | 1.207 | +90,47 | +7,5 |
+| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | Long | Rücksetzer ↑ | 16.11.26 | 351,38 | offen | 346,77 | noch im Depot (Tag 8/20) | 351 | -4,60 | -1,3 |
 | [COST](https://www.tradingview.com/chart/?symbol=COST) | Long | Ausbruch ↑ | 06.11.26 | 906,38 | 25.11.26 | 997,93 | Ziel | 1.813 | +183,10 | +10,1 |
 | [INTU](https://www.tradingview.com/chart/?symbol=INTU) | Long | Trendlinien-Ausbruch ↑ | 05.11.26 | 323,07 | 18.11.26 | 286,23 | Stop | 646 | -73,69 | -11,4 |
 | [JPM](https://www.tradingview.com/chart/?symbol=JPM) | Long | Squeeze-Ausbruch ↑ | 30.10.26 | 309,08 | 18.11.26 | 295,76 | Stop | 1.545 | -66,59 | -4,3 |
-| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | Long | Ausbruch ↑ | 29.10.26 | 15,19 | 16.11.26 | 13,50 | Stop | 835 | -92,84 | -11,1 |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | Long | Rücksetzer ↑ | 04.11.26 | 154,67 | 06.11.26 | 145,22 | Stop (Kurslücke) | 1.856 | -113,38 | -6,1 |
-| [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | Long | RSI-2-Rücksetzer ↑ | 05.11.26 | 333,33 | 05.11.26 | 311,19 | Stop | 333 | -22,14 | -6,6 |
-| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | Long | Rücksetzer ↑ | 29.10.26 | 26,25 | 05.11.26 | 21,47 | Stop | 525 | -95,73 | -18,2 |
+| [SOFI](https://www.tradingview.com/chart/?symbol=SOFI) | Long | Ausbruch ↑ | 29.10.26 | 15,19 | 16.11.26 | 13,50 | Stop | 805 | -89,46 | -11,1 |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | Long | Rücksetzer ↑ | 04.11.26 | 154,67 | 06.11.26 | 145,22 | Stop (Kurslücke) | 1.083 | -66,14 | -6,1 |
+| [COST](https://www.tradingview.com/chart/?symbol=COST) | Long | ATR-Ausbruch ↑ | 02.11.26 | 886,54 | 05.11.26 | 926,29 | Ziel (Kurslücke) | 887 | +39,75 | +4,5 |
+| [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | Long | Rücksetzer ↑ | 29.10.26 | 26,25 | 05.11.26 | 21,47 | Stop | 551 | -100,52 | -18,2 |
 | [MSFT](https://www.tradingview.com/chart/?symbol=MSFT) | Long | RSI-2-Rücksetzer ↑ | 03.11.26 | 454,37 | 04.11.26 | 483,71 | Ziel (Kurslücke) | 1.363 | +88,02 | +6,5 |
 | [TSLA](https://www.tradingview.com/chart/?symbol=TSLA) | Long | Rücksetzer ↑ | 23.10.26 | 332,91 | 02.11.26 | 369,30 | Ziel | 666 | +72,78 | +10,9 |
 | [AAPL](https://www.tradingview.com/chart/?symbol=AAPL) | Long | Rücksetzer ↑ | 21.10.26 | 302,35 | 02.11.26 | 302,71 | vor Quartalszahlen | 1.512 | +1,78 | +0,1 |
-| [PLTR](https://www.tradingview.com/chart/?symbol=PLTR) | Long | Rücksetzer ↑ | 20.10.26 | 171,75 | 02.11.26 | 159,69 | vor Quartalszahlen | 515 | -36,19 | -7,0 |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | Long | ATR-Ausbruch ↑ | 26.10.26 | 161,27 | 29.10.26 | 163,11 | vor Quartalszahlen | 968 | +11,05 | +1,1 |
-| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | Long | Squeeze-Ausbruch ↑ | 08.10.26 | 232,11 | 29.10.26 | 217,58 | Stop | 696 | -43,59 | -6,3 |
+| [NVDA](https://www.tradingview.com/chart/?symbol=NVDA) | Long | RSI-2-Rücksetzer ↑ | 16.10.26 | 193,32 | 30.10.26 | 180,63 | Stop | 193 | -12,69 | -6,6 |
+| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | Long | ATR-Ausbruch ↑ | 26.10.26 | 161,27 | 29.10.26 | 163,11 | vor Quartalszahlen | 1.129 | +12,90 | +1,1 |
+| [AMZN](https://www.tradingview.com/chart/?symbol=AMZN) | Long | Squeeze-Ausbruch ↑ | 12.10.26 | 234,51 | 29.10.26 | 219,15 | Stop | 938 | -61,44 | -6,5 |
 | [LLY](https://www.tradingview.com/chart/?symbol=LLY) | Long | Squeeze-Ausbruch ↑ | 21.10.26 | 1.128,23 | 28.10.26 | 1.154,98 | vor Quartalszahlen | 1.128 | +26,74 | +2,4 |
 | [HIMS](https://www.tradingview.com/chart/?symbol=HIMS) | Long | Rücksetzer ↑ | 01.10.26 | 26,21 | 28.10.26 | 26,32 | Zeitstopp | 550 | +2,24 | +0,4 |
-| [XOM](https://www.tradingview.com/chart/?symbol=XOM) | Long | Squeeze-Ausbruch ↑ | 13.10.26 | 154,60 | 23.10.26 | 161,63 | Ziel | 618 | +28,14 | +4,6 |
-| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | Long | Rücksetzer ↑ | 15.10.26 | 308,21 | 22.10.26 | 286,50 | Stop | 925 | -65,13 | -7,0 |
+| [GOOGL](https://www.tradingview.com/chart/?symbol=GOOGL) | Long | Rücksetzer ↑ | 15.10.26 | 308,21 | 22.10.26 | 286,50 | Stop | 1.233 | -86,84 | -7,0 |
 | [LLY](https://www.tradingview.com/chart/?symbol=LLY) | Long | MACD-Wende ↑ | 08.10.26 | 1.056,34 | 20.10.26 | 1.145,96 | Ziel | 1.056 | +89,61 | +8,5 |
-| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | Long | Rücksetzer ↑ | 23.09.26 | 119,98 | 20.10.26 | 133,20 | Zeitstopp | 720 | +79,27 | +11,0 |
+| [NOW](https://www.tradingview.com/chart/?symbol=NOW) | Long | Rücksetzer ↑ | 23.09.26 | 119,98 | 20.10.26 | 133,20 | Zeitstopp | 600 | +66,06 | +11,0 |
 | [META](https://www.tradingview.com/chart/?symbol=META) | Long | Ausbruch ↑ | 22.09.26 | 638,60 | 19.10.26 | 627,80 | Zeitstopp | 639 | -10,80 | -1,7 |
+| [CRWV](https://www.tradingview.com/chart/?symbol=CRWV) | Long | Rücksetzer ↑ | 01.10.26 | 77,39 | 14.10.26 | 63,50 | Stop | 387 | -69,44 | -17,9 |
 
-… 107 ältere Trades nicht angezeigt.  
+… 105 ältere Trades nicht angezeigt.  
 Regeln: Signal zum Schlusskurs, Einstieg zur Eröffnung des nächsten Handelstags nur bis zum Limit; gekauft wird nur, wenn der Nasdaq-100 über seiner 200-Tage-Linie liegt; Ausstieg an Stop oder Ziel (bei beidem am selben Tag zählt der Stop), zum Schluss vor Quartalszahlen oder nach 20 Handelstagen; höchstens 7 Positionen, 2 je Branche und 5 % Gesamtrisiko; 0,00 € Gebühr + 0,1 % Spread je Order; nur ganze Aktien. Termine im Rückblick sind die tatsächlichen, live können sie sich verschieben. Simulation mit vergangenen Kursen – kein echtes Geld, keine Garantie für die Zukunft.  
 ⚠️ Rückblick mit deiner heutigen Watchlist: Du hast diese Aktien heute ausgewählt – oft, weil sie stark gestiegen sind. Im Rückblick sehen Kauf-Strategien und Kaufen & Halten deshalb besser aus und Short-Strategien schlechter, als sie in Zukunft sein müssen.  
 
@@ -187,5 +182,5 @@ Erwartung aus dem Test mit echten Kursen (2010–2026, gleiche Regeln, Aktien de
 Übungsdepot daneben: Trefferquote 45 % statt 57 % (schlechter) · Ø -0,09 R statt +0,12 R (schlechter) · Gewinnfaktor 0,5 statt 1,4 (schlechter).  
 Spielraum des Zufalls: Bei 11 Trades liegt die Trefferquote auch mit genau diesen Regeln meistens irgendwo zwischen 27 % und 87 %, das Ø Ergebnis zwischen -0,43 R und +0,66 R. Das Übungsdepot liegt innerhalb – also so, wie man es nach dem Test erwarten kann.  
 ⚠️ Erst 11 abgeschlossene Trades: Unter etwa 30 Trades kann das alles noch Zufall sein – auch gute Regeln haben Pechsträhnen und schlechte Glückssträhnen. Bei etwa 90 Trades im Jahr dauert es noch grob 3 Monate.  
-Zum Vergleich der Rückblick (11/2025–11/2026, heute nachgerechnet): 127 Trades · Trefferquote 54 % · Ø +0,00 R · Gewinnfaktor 1,0. Er sieht oft zu gut aus, weil die Aktien der Watchlist im Nachhinein ausgewählt sind.  
+Zum Vergleich der Rückblick (11/2025–11/2026, heute nachgerechnet): 125 Trades · Trefferquote 50 % · Ø -0,03 R · Gewinnfaktor 0,9. Er sieht oft zu gut aus, weil die Aktien der Watchlist im Nachhinein ausgewählt sind.  
 So liest du das: Trefferquote = Anteil der Trades mit Gewinn (nach Kosten). R = der Betrag, den der Bot bei einem Trade bis zum Stop riskiert hat (beim Standard 1 % des Kontos, bei 10.000 € also rund 100 €); +0,5 R heißt: halb so viel gewonnen, wie riskiert war. Gewinnfaktor = alle Gewinne zusammen geteilt durch alle Verluste zusammen; über 1 heißt: unterm Strich verdient. Nasdaq-100 (QQQ) = die 100 größten Werte der US-Technologiebörse Nasdaq, mit dem Euro-Kurs umgerechnet wie das Übungsdepot.  

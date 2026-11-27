@@ -34,14 +34,14 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 
 ## Muster im Strategie-Tagebuch (alle Strategien, alle Aktien)
 
-- Insgesamt: 3091 Trades · Ø +0,11 R · Treffer 57 %
+- Insgesamt: 3089 Trades · Ø +0,11 R · Treffer 57 %
 - Ziel: 1007× (33 %), Ø +0,91 R
 - Zeitstopp: 717× (23 %), Ø +0,02 R
-- Stop: 613× (20 %), Ø -0,99 R
-- vor Quartalszahlen: 510× (16 %), Ø -0,03 R
+- Stop: 611× (20 %), Ø -0,99 R
+- vor Quartalszahlen: 510× (17 %), Ø -0,03 R
 - Ziel (Kurslücke): 135× (4 %), Ø +1,09 R
 - Stop (Kurslücke): 109× (4 %), Ø -1,13 R
-- Long: 3091 Trades · Ø +0,11 R · Treffer 57 %
+- Long: 3089 Trades · Ø +0,11 R · Treffer 57 %
 
 ### Rangliste der Aktien (ab 20 Trades, nach Ø R)
 
@@ -49,15 +49,15 @@ Ab 20 gedachten Trades pausiert er eine Strategie, wenn sie im Schnitt mehr als 
 2. [[Aktien/AMD|AMD]]: 130 Trades · Ø +0,26 R · Treffer 62 %
 3. [[Aktien/PLTR|PLTR]]: 151 Trades · Ø +0,24 R · Treffer 66 %
 …
-22. [[Aktien/MELI|MELI]]: 126 Trades · Ø -0,05 R · Treffer 48 %
-23. [[Aktien/TSLA|TSLA]]: 132 Trades · Ø -0,06 R · Treffer 44 %
+22. [[Aktien/TSLA|TSLA]]: 131 Trades · Ø -0,05 R · Treffer 44 %
+23. [[Aktien/MELI|MELI]]: 126 Trades · Ø -0,05 R · Treffer 48 %
 24. [[Aktien/CRWV|CRWV]]: 29 Trades · Ø -0,23 R · Treffer 45 %
 - Hinweis: Selbst 20–50 Trades je Aktie sind wenig. Sperren kannst du eine Aktie in [[Meine Regeln]].
 
 ### Trefferquote je Aktie (Ziel: über 50 %)
 
 - 19 von 24 Aktien (ab 20 Trades) treffen öfter als jedes zweite Mal.
-- Bei 50 % oder darunter: [[Aktien/TSLA|TSLA]] 44 % (132 Trades, Ø -0,06 R), [[Aktien/CRWV|CRWV]] 45 % (29 Trades, Ø -0,23 R), [[Aktien/SOFI|SOFI]] 48 % (117 Trades, Ø -0,04 R), [[Aktien/MELI|MELI]] 48 % (126 Trades, Ø -0,05 R), [[Aktien/LLY|LLY]] 49 % (139 Trades, Ø +0,03 R). Ein paar Prozentpunkte unter 50 % können auch bei über 100 Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt Ø R, siehe Rangliste oben).
+- Bei 50 % oder darunter: [[Aktien/TSLA|TSLA]] 44 % (131 Trades, Ø -0,05 R), [[Aktien/CRWV|CRWV]] 45 % (29 Trades, Ø -0,23 R), [[Aktien/SOFI|SOFI]] 48 % (117 Trades, Ø -0,04 R), [[Aktien/MELI|MELI]] 48 % (126 Trades, Ø -0,05 R), [[Aktien/LLY|LLY]] 49 % (139 Trades, Ø +0,03 R). Ein paar Prozentpunkte unter 50 % können auch bei über 100 Trades Zufall sein – und die Trefferquote allein sagt nicht, ob eine Aktie Geld bringt (dafür zählt Ø R, siehe Rangliste oben).
 
 ## 📐 Selbstkontrolle: Ziel-Chance nach Black-Scholes
 
@@ -66,11 +66,11 @@ Bei jedem Signal rechnet der Bot nach dem Black-Scholes-Modell aus dem Optionssk
 | Ziel-Chance laut Formel | Signale | Ø vorhergesagt | Ziel wirklich berührt | Trades im Plus | Ø je Trade |
 | --- | --- | --- | --- | --- | --- |
 | unter 30 % | 584 | 26 % | 43 % | 59 % | +0,13 R |
-| 30–40 % | 1142 | 35 % | 41 % | 56 % | +0,10 R |
+| 30–40 % | 1141 | 35 % | 41 % | 56 % | +0,10 R |
 | 40–50 % | 871 | 45 % | 48 % | 56 % | +0,11 R |
-| ab 50 % | 469 | 55 % | 51 % | 58 % | +0,15 R |
+| ab 50 % | 468 | 55 % | 51 % | 58 % | +0,15 R |
 
-- Zusammen: 3066 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
+- Zusammen: 3064 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
 - Trades im Plus je Gruppe: 56 bis 59 %. Die Formel sagt, wie weit eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor dem Stop kommt.
 
 ## 🕯️ Selbstkontrolle: Kerzenmuster
@@ -79,9 +79,9 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 
 | Gruppe | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
-| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1004 | 56 % | +0,11 R |
+| bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1004 | 56 % | +0,10 R |
 | bärisches Kerzenmuster am Signaltag | 535 | 58 % | +0,13 R |
-| kein Kerzenmuster | 1552 | 57 % | +0,11 R |
+| kein Kerzenmuster | 1550 | 57 % | +0,11 R |
 
 - Mit und ohne Muster liegen nah beieinander – die Muster sagen bei diesen Strategien wenig voraus.
 
