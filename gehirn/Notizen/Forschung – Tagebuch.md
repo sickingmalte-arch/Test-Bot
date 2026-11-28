@@ -10,6 +10,18 @@ Hier schreibt der Forschungs-Bot jede geprüfte Idee auf, auch die, die durchfal
 > - Übernommen wird nur, was überall hilft. Ideen, die nur sortieren oder auswählen, müssen zusätzlich den Zufall schlagen (Gegenprobe), weil schon die Reihenfolge die Rendite um bis zu ±2 Punkte im Jahr verschiebt.
 > - Eingebaut wird nur per Pull Request nach deinem „Ja“.
 
+## 27.11.2026 (Freitag, nachgeholt am 28.11.) · 52-Wochen-Hoch: nur nahe am Hoch kaufen
+
+**Idee** (Freitags-Idee aus der Forschung): George & Hwang (2004, *Journal of Finance*) – wie nah eine Aktie an ihrem 52-Wochen-Hoch steht, sagt künftige Renditen besser voraus als die vergangene Rendite selbst (Anleger nehmen das alte Hoch als Anker und kaufen gute Nachrichten dort zu zögerlich). Für den Bot: ein Kauf-Signal weglassen, wenn der Schlusskurs am Signaltag unter 90 % bzw. 95 % des höchsten Kurses der letzten 252 Börsentage liegt. 2 Varianten, vorher festgelegt, je mit 6 Gegenproben (gleich viele Signale zufällig weglassen).
+
+| Rendite pro Jahr / größter Rückgang | 2010–2014 | 2015–2021 | 2022–2026 |
+|---|---:|---:|---:|
+| Jetziger Bot | +11,1 % / −15 % | +11,4 % / −16 % | +7,2 % / −16 % |
+| 1) nur ab 90 % des 52-Wochen-Hochs | +6,2 % / −19 % | +10,5 % / −16 % | +5,1 % / −15 % |
+| 2) nur ab 95 % des 52-Wochen-Hochs | +3,9 % / −16 % | +9,2 % / −15 % | +5,6 % / −11 % |
+
+**Ergebnis:** nicht übernommen. Beide Varianten sind in allen drei Zeiträumen schlechter (−4,8 / −0,8 / −2,0 und −7,2 / −2,2 / −1,6 Punkte), und zufälliges Weglassen gleich vieler Signale war meist besser. Ein guter Teil der Gewinne des Bots kommt aus Rücksetzern und Gegenbewegungen, also gerade aus Käufen weit unter dem Hoch – der Anker-Effekt aus der Forschung (gemessen über Monate) hilft den kurzen Trades nicht.
+
 ## 24.11.2026 · Kaufen nach guten Zahlen, Marktfilter feiner, Zinsen auf das freie Geld
 
 **Idee** (Wunsch des Besitzers: „Können wir noch irgendwas ausprobieren“, gewählt: Marktfilter feiner, Zinsen auf freies Geld, Kaufen nach guten Zahlen). 5 Tests, Vermutung, Widerlegung und Zahl der Varianten vorab in jeder Datei:

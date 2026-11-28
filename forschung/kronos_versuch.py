@@ -36,7 +36,8 @@ Erweiterung am 09.11.2026 abends (Wunsch „bau alles“), festgelegt bevor ein 
 - Weil es jetzt viele Vergleiche sind, gilt für alle die strengere Hürde: 98-%-Intervall (vorher 90 %).
 
 Für die Webseite (docs/kronos.json): je Signal und Variante der „Fächer“ (10-%-, 50-%- und 90-%-Linie der 50 Zukünfte
-für jeden der 20 Tage) und nach der Auswertung der echte Verlauf.
+für jeden der 20 Tage) und nach der Auswertung der echte Verlauf. Seit 27.11.2026 (Wunsch „er soll das mit jeder
+Aktie machen“) auch der Fächer jeder Aktie der Watchlist vom neuesten Tag (im Log nur dieser Tag, sonst zu groß).
 
 Aufruf: python forschung/kronos_versuch.py --modus pruefen   (nur: gibt es etwas zu tun? für GitHub Actions)
         python forschung/kronos_versuch.py --modus lauf [--probe] [--ausgabe ordner]
@@ -311,7 +312,8 @@ def liste_vorhersage(daten, liste, predictor_fn=lade_predictor, kurse_fn=kurse, 
     if daten.get("vorlaeufig"):
         return 0
     schon = {(e["signal_tag"], e["ticker"]) for e in liste}
-    ticker = [s["ticker"] for s in daten.get("signale", []) if (tag, s["ticker"]) not in schon][:3 if probe else None]
+    # Probelauf: drei Aktien auch dann, wenn der Tag schon gerechnet ist – damit der Probelauf diesen Teil wirklich prüft
+    ticker = [s["ticker"] for s in daten.get("signale", []) if probe or (tag, s["ticker"]) not in schon][:3 if probe else None]
     start, ende = zeitraum(tag)
     varianten = [v for v in VARIANTEN if v["name"] in LISTE_VARIANTEN]
     n = 0
@@ -331,9 +333,10 @@ def liste_vorhersage(daten, liste, predictor_fn=lade_predictor, kurse_fn=kurse, 
         spanne20, vola20 = spanne_und_vola(df.tail(TAGE + 1).iloc[1:], start_kurs=float(df["close"].iloc[-TAGE - 1]))
         k = {}
         for v in varianten:
-            x = kronos_variante(predictor_fn(v["modell"]), df, kurs_usd, stop, ziel, seed, v, faecher=False)
+            x = kronos_variante(predictor_fn(v["modell"]), df, kurs_usd, stop, ziel, seed, v, faecher=True)
             k[v["name"]] = {key: x[key] for key in ("p_ziel", "p_stop", "tagesspanne_prozent", "vola_prozent")}
             k[v["name"]]["mitte_20"] = x["nach_20_tagen_prozent"]["mitte"]
+            k[v["name"]]["faecher"] = x["faecher"]  # für die Webseite; nur der neueste Tag bleibt gespeichert
         e = {"signal_tag": tag, "ticker": t, "kurs_usd": round(kurs_usd, 4), "atr_prozent": round(atr, 2),
              "stop_abstand": round((stop / kurs_usd - 1) * 100, 2), "ziel_abstand": round((ziel / kurs_usd - 1) * 100, 2),
              "kronos": k, "p_ziel_zufall": round(p_zufall, 3),
@@ -511,6 +514,37 @@ def tabellen(log, namen=None, liste=False):
     return out
 
 
+def nur_neueste_faecher(liste):
+    """Fächer (für die Webseite) nur beim neuesten Tag behalten – ältere Einträge ohne, damit das Log klein bleibt."""
+    if not liste:
+        return
+    neuester = max(e["signal_tag"] for e in liste)
+    for e in liste:
+        if e["signal_tag"] != neuester:
+            for v in e.get("kronos", {}).values():
+                v.pop("faecher", None)
+
+
+def liste_heute(liste):
+    """Fächer jeder Aktie der Watchlist vom neuesten Tag für die Webseite (im Format der Signale, damit dieselbe Karte
+    passt). Nur Einträge mit Fächer – ältere Tage haben keinen."""
+    eigene = [e for e in liste if not e.get("probe") and "kronos" in e]
+    if not eigene:
+        return []
+    neuester = max(e["signal_tag"] for e in eigene)
+    aus = []
+    for e in eigene:
+        if e["signal_tag"] != neuester or not any("faecher" in v for v in e["kronos"].values()):
+            continue
+        k = {n: {"p_ziel": v["p_ziel"], "p_stop": v["p_stop"], "tagesspanne_prozent": v["tagesspanne_prozent"],
+                 "nach_20_tagen_prozent": {"mitte": v.get("mitte_20")}, "faecher": v.get("faecher")}
+             for n, v in e["kronos"].items()}
+        aus.append({"signal_tag": e["signal_tag"], "ticker": e["ticker"], "strategie": "Watchlist",
+                    "stop_abstand": e["stop_abstand"], "ziel_abstand": e["ziel_abstand"],
+                    "p_ziel_zufall": e["p_ziel_zufall"], "letzte_20_tage": e["letzte_20_tage"], "kronos": k})
+    return aus
+
+
 def webseite(log, liste=()):
     """Daten für den Kronos-Bereich der Übersichtsseite (docs/kronos.json)."""
     eigene, fertig, offen = teile(log)
@@ -535,7 +569,8 @@ def webseite(log, liste=()):
                                   "tage_ausgewertet": len({e["signal_tag"] for e in l_fertig})},
                       "naechste_auswertung": min((dt.date.fromisoformat(e["signal_tag"]) + dt.timedelta(
                           days=WARTEN_KALENDERTAGE) for e in l_offen), default=dt.date.min).isoformat() if l_offen else None,
-                      "auswertung": tabellen(list(liste), LISTE_VARIANTEN, liste=True)}}
+                      "auswertung": tabellen(list(liste), LISTE_VARIANTEN, liste=True),
+                      "heute": liste_heute(list(liste))}}
 
 
 def _name(n):
@@ -653,6 +688,7 @@ def main(argv=None):
     n_aus = auswertung(log, heute)
     n_l_aus = auswertung(liste, heute, verlauf=False)
     schreibe(log_datei, log)
+    nur_neueste_faecher(liste)
     schreibe(liste_datei, liste)
     schreibe(bericht_datei, bericht(log, liste))
     schreibe(seite_datei, webseite(log, liste))

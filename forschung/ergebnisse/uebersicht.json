@@ -626,5 +626,27 @@
    0.0,
    0.9
   ]
+ },
+ {
+  "datum": "2026-11-28",
+  "datei": "hoch52_90",
+  "name": "52-Wochen-Hoch 1: nur kaufen ab 90 % des 52-Wochen-Hochs",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -4.8,
+   -0.8,
+   -2.0
+  ]
+ },
+ {
+  "datum": "2026-11-28",
+  "datei": "hoch52_95",
+  "name": "52-Wochen-Hoch 2: nur kaufen ab 95 % des 52-Wochen-Hochs",
+  "urteil": "nicht überall besser",
+  "plus": [
+   -7.2,
+   -2.2,
+   -1.6
+  ]
  }
 ]
