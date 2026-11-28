@@ -65,13 +65,13 @@ Bei jedem Signal rechnet der Bot nach dem Black-Scholes-Modell aus dem Optionssk
 
 | Ziel-Chance laut Formel | Signale | Ø vorhergesagt | Ziel wirklich berührt | Trades im Plus | Ø je Trade |
 | --- | --- | --- | --- | --- | --- |
-| unter 30 % | 584 | 26 % | 43 % | 59 % | +0,13 R |
+| unter 30 % | 588 | 26 % | 42 % | 59 % | +0,12 R |
 | 30–40 % | 1141 | 35 % | 41 % | 56 % | +0,10 R |
-| 40–50 % | 871 | 45 % | 48 % | 56 % | +0,11 R |
+| 40–50 % | 873 | 45 % | 48 % | 55 % | +0,11 R |
 | ab 50 % | 468 | 55 % | 51 % | 58 % | +0,15 R |
 
-- Zusammen: 3064 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
-- Trades im Plus je Gruppe: 56 bis 59 %. Die Formel sagt, wie weit eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor dem Stop kommt.
+- Zusammen: 3070 Signale, vorhergesagt Ø 39 %, berührt 45 % – die Formel liegt deutlich daneben: Die Aktien schwanken anders, als das Modell annimmt (je Gruppe im Schnitt 7 Prozentpunkte Abstand).
+- Trades im Plus je Gruppe: 55 bis 59 %. Die Formel sagt, wie weit eine Aktie schwankt – nicht, in welche Richtung. Ob ein Trade gewinnt, hängt davon ab, ob das Ziel vor dem Stop kommt.
 
 ## 🕯️ Selbstkontrolle: Kerzenmuster
 
@@ -80,8 +80,8 @@ Bei jedem Signal zeigt der Bot die Kerzenmuster vom Poster (z. B. Hammer, Bullis
 | Gruppe | Trades | im Plus | Ø je Trade |
 | --- | --- | --- | --- |
 | bullisches Kerzenmuster (am Signaltag oder Tag davor) | 1002 | 56 % | +0,10 R |
-| bärisches Kerzenmuster am Signaltag | 537 | 58 % | +0,13 R |
-| kein Kerzenmuster | 1550 | 57 % | +0,11 R |
+| bärisches Kerzenmuster am Signaltag | 535 | 58 % | +0,13 R |
+| kein Kerzenmuster | 1552 | 57 % | +0,11 R |
 
 - Mit und ohne Muster liegen nah beieinander – die Muster sagen bei diesen Strategien wenig voraus.
 
@@ -121,7 +121,7 @@ Der Lern-Lauf spielt jedes Kauf-Signal aller Aktien aus S&P 500 und Nasdaq-100 a
 
 ### Häufigste Fehler aller Kauf-Signale (12 Monate)
 
-Von 24998 gedachten Trades verloren 47 %; von den 9427 mit der besten Punktzahl 46 %.
+Von 25013 gedachten Trades verloren 47 %; von den 9427 mit der besten Punktzahl 46 %.
 
 - Branche schwach: 15 % aller Signale · bei den besten 15 %
 - Zeitstopp ohne Schwung: 13 % aller Signale · bei den besten 14 %

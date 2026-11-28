@@ -4,7 +4,7 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Fr 27.11.2026 (vorläufig) · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Fr 27.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
@@ -30,7 +30,7 @@ flowchart TB
   end
   tb["📓 Tagebuch<br/>3.089 gedachte Trades"]
   sig["🎯 Signale heute<br/>0 kaufen · 3 warten<br/>1 überhitzt"]
-  depot["📒 Übungsdepot<br/>9.763 € (-2,4 %)<br/>2 offen"]
+  depot["📒 Übungsdepot<br/>9.793 € (-2,1 %)<br/>2 offen"]
   lehren["🎓 Lehren<br/>11 abgeschlossene Trades"]
   kurse --> KERN
   termine -->|Sperre| KERN
@@ -70,9 +70,9 @@ flowchart TB
 
 ## Übungsdepot
 
-- 9.762,96 € (-2,4 % seit 2026-10-20) · 2 offen · 11 Trades · Ø -0,09 R · Treffer 45 %
+- 9.793,39 € (-2,1 % seit 2026-10-20) · 2 offen · 11 Trades · Ø -0,09 R · Treffer 45 %
 - Letzte Trades: [[Trades/2026-11-06 COST Ausbruch Long|COST +1,9 R]], [[Trades/2026-10-30 JPM Squeeze-Ausbruch Long|JPM -0,7 R]], [[Trades/2026-11-05 MSFT Ausbruch Long|MSFT -0,8 R]], [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]], [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]]
-- Rückblick 12 Monate: -4,2 % (alle Aktien kaufen und halten: -9,6 %)
+- Rückblick 12 Monate: -5,0 % (alle Aktien kaufen und halten: -7,6 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 
