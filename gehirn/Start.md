@@ -4,7 +4,7 @@ typ: "start"
 %% BOT-ANFANG – diesen Teil schreibt der Bot bei jedem Lauf neu. %%
 # 🧠 Gehirn des Swing-Bots
 
-Stand: Kurse bis Mi 25.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: Kurse bis Fr 27.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 ```mermaid
 flowchart TB
@@ -28,9 +28,9 @@ flowchart TB
     s2 ~~~ s7
     s3 ~~~ s8
   end
-  tb["📓 Tagebuch<br/>3.091 gedachte Trades"]
+  tb["📓 Tagebuch<br/>3.089 gedachte Trades"]
   sig["🎯 Signale heute<br/>0 kaufen · 3 warten<br/>1 überhitzt"]
-  depot["📒 Übungsdepot<br/>9.763 € (-2,4 %)<br/>2 offen"]
+  depot["📒 Übungsdepot<br/>9.793 € (-2,1 %)<br/>2 offen"]
   lehren["🎓 Lehren<br/>11 abgeschlossene Trades"]
   kurse --> KERN
   termine -->|Sperre| KERN
@@ -63,16 +63,16 @@ flowchart TB
 > - Er **liest [[Meine Regeln]]**: Dort kannst du Aktien sperren und Strategien ausschalten (Kästchen anhaken, dann hochladen – siehe Anleitung).
 > - **Eigene Gedanken** schreibst du am besten in die Trade-Notizen (unter „Meine Gedanken“) oder in eigene Notizen im Ordner `gehirn/Notizen` – die ändert der Bot nie. Die übrigen Seiten schreibt er bei jedem Lauf neu.
 
-## Heute: [[Tage/2026-11-25]] · Diese Woche: [[Wochen/2026-W48|Woche 48]]
+## Heute: [[Tage/2026-11-27]] · Diese Woche: [[Wochen/2026-W48|Woche 48]]
 
 - Signale: keine
-- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Di 24.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
+- 🔴 Marktfilter: Nasdaq-100 (QQQ) schloss am Mi 25.11. unter seiner 200-Tage-Linie – der Bot kauft nicht, er wartet ab (Short-Signale sind aus).
 
 ## Übungsdepot
 
-- 9.762,96 € (-2,4 % seit 2026-10-20) · 2 offen · 11 Trades · Ø -0,09 R · Treffer 45 %
+- 9.793,39 € (-2,1 % seit 2026-10-20) · 2 offen · 11 Trades · Ø -0,09 R · Treffer 45 %
 - Letzte Trades: [[Trades/2026-11-06 COST Ausbruch Long|COST +1,9 R]], [[Trades/2026-10-30 JPM Squeeze-Ausbruch Long|JPM -0,7 R]], [[Trades/2026-11-05 MSFT Ausbruch Long|MSFT -0,8 R]], [[Trades/2026-10-21 INTU ATR-Ausbruch Long|INTU -0,3 R]], [[Trades/2026-10-29 SOFI Ausbruch Long|SOFI -0,9 R]]
-- Rückblick 12 Monate: -0,5 % (alle Aktien kaufen und halten: -9,6 %)
+- Rückblick 12 Monate: -5,0 % (alle Aktien kaufen und halten: -7,6 %)
 
 ## Was der Bot gelernt hat → [[Lehren]]
 

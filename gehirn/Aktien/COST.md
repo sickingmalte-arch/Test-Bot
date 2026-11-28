@@ -10,7 +10,7 @@ Branche: Basiskonsum (höchstens 2 Positionen aus einer Branche zugleich)
 
 [Chart bei TradingView](https://www.tradingview.com/chart/?symbol=COST)
 
-**Stand Mi 25.11. 2026:** ⚠️ ÜBERHITZT – überhitzt – nur Info, Depot verkauft nicht
+**Stand Fr 27.11. 2026:** ⚠️ ÜBERHITZT – überhitzt – nur Info, Depot verkauft nicht
 **Nächste Quartalszahlen:** Do 10.12.
 
 ## Übungsdepot

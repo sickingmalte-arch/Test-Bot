@@ -1,15 +1,14 @@
 # 🧠 Lernmodell des Swing-Bots
 
-Stand: 27.11.2026 06:11 Uhr · Kurse bis 25.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
+Stand: 28.11.2026 05:50 Uhr · Kurse bis 27.11.2026 · 523 Aktien (S&P 500, Nasdaq-100 und Watchlist)
 
 > Der Bot lernt hier aus jedem Trade – auch aus den nur gedachten: Jedes Kauf-Signal jeder Aktie wird nach seinen Regeln durchgespielt, jeder Verlust bekommt Gründe, und ein Lernmodell lernt jeden Monat neu, welche Signale gut laufen. **Die Kaufregeln ändern sich dadurch noch nicht** – der Bot zeigt die Punktzahl nur an. Nach der Punktzahl kauft er erst, wenn der [Rückblick](RUECKBLICK.md) zeigt, dass es besser ist, und du Ja sagst.
 
 ## ⚠️ Daten
 
-- ⚠️ Die Kurse vom 26.11.2026 fehlen noch (Yahoo liefert manchmal erst später, oder es war ein US-Feiertag). Gerechnet wurde bis 25.11.2026; der nächste Lauf holt sie nach.
-- ⚠️ Alte Kurse (nicht bis 25.11.2026) bei 1 Aktien: SNDK – sie werden heute nicht gehandelt.
+- ⚠️ Alte Kurse (nicht bis 27.11.2026) bei 1 Aktien: SNDK – sie werden heute nicht gehandelt.
 
-## 📋 Kauf-Signale vom 25.11.2026 mit Punktzahl
+## 📋 Kauf-Signale vom 27.11.2026 mit Punktzahl
 
 Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = besser als so viel Prozent der Signale der 12 Monate davor. ✅ = unter den besten 30 % (Kauf-Schwelle diesen Monat: 58 %).
 
@@ -17,35 +16,35 @@ Punktzahl = vom Modell geschätzte Chance, dass der Trade im Plus endet. Rang = 
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| XOM | Trendlinien-Ausbruch | 50 % | 21 | – |
-| TSLA | Rücksetzer | 39 % | 0 | – |
-| LLY | Rücksetzer | 35 % | 0 | – |
+| TSLA | MACD-Wende | 29 % | 0 | – |
+| LLY | Rücksetzer | 28 % | 0 | – |
+| AAPL | MACD-Wende | 28 % | 0 | – |
 
-**Ganzer Markt – die 15 besten von 124 Signalen** (nur zum Lernen und Vergleichen):
+**Ganzer Markt – die 15 besten von 137 Signalen** (nur zum Lernen und Vergleichen):
 
 | Aktie | Strategie | Punktzahl | Rang | |
 |---|---|---:|---:|---|
-| MPC | RSI-2-Rücksetzer | 62 % | 86 | ✅ |
-| PSX | RSI-2-Rücksetzer | 59 % | 75 | ✅ |
-| WST | RSI-2-Rücksetzer | 56 % | 64 | – |
-| VLO | RSI-2-Rücksetzer | 56 % | 61 | – |
-| L | Rücksetzer | 55 % | 55 | – |
-| XOM | Trendlinien-Ausbruch | 50 % | 21 | – |
-| O | MACD-Wende | 50 % | 20 | – |
-| PPL | Rücksetzer | 50 % | 19 | – |
-| COO | EMA-Kreuz | 48 % | 12 | – |
-| FE | MACD-Wende | 48 % | 10 | – |
-| HAS | RSI-2-Rücksetzer | 47 % | 9 | – |
-| WEC | Trendlinien-Ausbruch | 46 % | 6 | – |
-| DUK | Trendlinien-Ausbruch | 46 % | 6 | – |
-| NKE | Rücksetzer | 46 % | 5 | – |
-| LULU | Rücksetzer | 45 % | 3 | – |
+| L | Rücksetzer | 39 % | 0 | – |
+| MDT | RSI-2-Rücksetzer | 37 % | 0 | – |
+| T | Squeeze-Ausbruch | 37 % | 0 | – |
+| LEN | EMA-Kreuz | 36 % | 0 | – |
+| FRT | MACD-Wende | 36 % | 0 | – |
+| PPL | Rücksetzer | 35 % | 0 | – |
+| NKE | Rücksetzer | 35 % | 0 | – |
+| SNA | Rücksetzer | 35 % | 0 | – |
+| PGR | MACD-Wende | 34 % | 0 | – |
+| PAYX | MACD-Wende | 34 % | 0 | – |
+| SYY | ATR-Ausbruch | 34 % | 0 | – |
+| ES | Trendlinien-Ausbruch | 33 % | 0 | – |
+| WST | RSI-2-Rücksetzer | 33 % | 0 | – |
+| BR | Rücksetzer | 33 % | 0 | – |
+| SJM | RSI-2-Rücksetzer | 33 % | 0 | – |
 
 ## 🧠 Was das Modell gelernt hat
 
 Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen gedachten Trades** (alle Kauf-Signale aller Aktien seit 2008, Ergebnis bekannt bis 2026-10-30).
 
-**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23961 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
+**Trennt es gute von schlechten Signalen?** Letzte 12 Monate (23973 gedachte Trades, jeder Monat mit dem Modell, das damals galt – also ohne Blick in die Zukunft):
 
 | Punktzahl | Trefferquote | Ø Ergebnis |
 |---|---:|---:|
@@ -53,7 +52,7 @@ Modell für 2026-11: trainiert am Monatsanfang mit **463.621 abgeschlossenen ged
 | 2. Fünftel | 52 % | -0,01 R |
 | Mitte | 51 % | +0,01 R |
 | 4. Fünftel | 51 % | +0,01 R |
-| schlechtestes Fünftel | 51 % | +0,02 R |
+| schlechtestes Fünftel | 52 % | +0,02 R |
 
 Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Börsenkurse brauchbar.
 
@@ -76,7 +75,7 @@ Trennschärfe (AUC): 0,52 – 0,50 wäre Münzwurf, ab etwa 0,55 ist es für Bö
 
 ## 🔎 Häufigste Fehler
 
-Alle gedachten Trades der letzten 12 Monate: 24998 Signale, davon verloren 47 %. Von den 9427 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
+Alle gedachten Trades der letzten 12 Monate: 25013 Signale, davon verloren 47 %. Von den 9427 Signalen mit ✅ verloren 46 %. Lernt das Modell aus den Fehlern, kommen sie bei ✅ seltener vor:
 
 | Warum verloren? | bei allen Signalen | bei ✅ |
 |---|---:|---:|
