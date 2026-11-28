@@ -3,7 +3,7 @@ tags: [lernen, forschung, uebersicht]
 ---
 # 🔬 Was der Bot schon weiß
 
-Stand: 24.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
+Stand: 28.11.2026 · Simulation mit Spielgeld, keine Anlageberatung.
 
 Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz ändert der Bot nie. Zurück zur [[Start|Startseite]] · neue Ideen des Forschungs-Bots: [[Notizen/Forschung – Tagebuch]] · was der Bot aus den eigenen Trades lernt: [[Lehren]].
 
@@ -23,7 +23,7 @@ Alle Ideen, die mit echten Kursen geprüft wurden, auf einen Blick. Diese Notiz 
 pie showData
     title Geprüfte Ideen
     "übernommen" : 6
-    "nicht übernommen" : 85
+    "nicht übernommen" : 87
 ```
 
 ## ✅ Steckt im Bot
@@ -126,6 +126,8 @@ pie showData
 | Kaufen nach guten Zahlen 2: dasselbe in jeder Marktlage | −0,5 / +1,0 / +0,2 Pkt, nur 2–18 Käufe je Zeitraum, Zufall oft besser | [[Notizen/Forschung – Tagebuch]] |
 | Marktfilter 1: S&P 500 statt Nasdaq-100 als Ampel | +1,3 / +1,2 / −0,6 Pkt | [[Notizen/Forschung – Tagebuch]] |
 | Marktfilter 2: Ampel schaltet erst nach 2 Tagen um | −0,5 / +2,3 / +0,2 Pkt | [[Notizen/Forschung – Tagebuch]] |
+| 52-Wochen-Hoch 1: nur kaufen ab 90 % des 52-Wochen-Hochs | −4,8 / −0,8 / −2,0 Pkt, Zufall meist besser | [[Notizen/Forschung – Tagebuch]] |
+| 52-Wochen-Hoch 2: nur kaufen ab 95 % des 52-Wochen-Hochs | −7,2 / −2,2 / −1,6 Pkt, Zufall meist besser | [[Notizen/Forschung – Tagebuch]] |
 
 ## ℹ️ Nur zur Info – der Bot handelt nicht danach
 
